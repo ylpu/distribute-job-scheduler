@@ -31,8 +31,3 @@ thales是一款自主研发的调度系统，系统支持调度sql,shell,spark�
 		- controller --后端系统控制层
 		- dao --后端系统数据层
 		- service --后端系统服务层
-## 2. 启动
-1.在kepler下面执行 mvn clean install -Dmaven.test.skip=true  
-2.执行scheduler-controller/src/script/start.sh启动controller  
-3.执行scheduler-master/src/script/start.sh启动master  
-4.执行scheduler-worker/src/script/start.sh启动worker
