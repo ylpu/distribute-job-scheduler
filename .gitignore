@@ -15,52 +15,52 @@
 .vim
 .tmp
 
-kepler-webapp/target
-kepler-webapp/.settings
-kepler-webapp/.project
-kepler-webapp/.classpath
+thales-webapp/target
+thales-webapp/.settings
+thales-webapp/.project
+thales-webapp/.classpath
 
-kepler-scheduer/target
-kepler-scheduer/.settings
-kepler-scheduer/.project
-kepler-scheduer/.classpath
+thales-scheduer/target
+thales-scheduer/.settings
+thales-scheduer/.project
+thales-scheduer/.classpath
 
-kepler-scheduer/scheduler-dao/target
-kepler-scheduer/scheduler-dao/.settings
-kepler-scheduer/scheduler-dao/.project
-kepler-scheduer/scheduler-dao/.classpath
+thales-scheduer/scheduler-dao/target
+thales-scheduer/scheduler-dao/.settings
+thales-scheduer/scheduler-dao/.project
+thales-scheduer/scheduler-dao/.classpath
 
-kepler-scheduer/scheduler-service/target
-kepler-scheduer/scheduler-service/.settings
-kepler-scheduer/scheduler-service/.project
-kepler-scheduer/scheduler-service/.classpath
+thales-scheduer/scheduler-service/target
+thales-scheduer/scheduler-service/.settings
+thales-scheduer/scheduler-service/.project
+thales-scheduer/scheduler-service/.classpath
 
-kepler-scheduer/scheduler-controller/target
-kepler-scheduer/scheduler-controller/.settings
-kepler-scheduer/scheduler-controller/.project
-kepler-scheduer/scheduler-controller/.classpath
+thales-scheduer/scheduler-controller/target
+thales-scheduer/scheduler-controller/.settings
+thales-scheduer/scheduler-controller/.project
+thales-scheduer/scheduler-controller/.classpath
 
-kepler-scheduer/scheduler-master/target
-kepler-scheduer/scheduler-master/.settings
-kepler-scheduer/scheduler-master/.project
-kepler-scheduer/scheduler-master/.classpath
+thales-scheduer/scheduler-master/target
+thales-scheduer/scheduler-master/.settings
+thales-scheduer/scheduler-master/.project
+thales-scheduer/scheduler-master/.classpath
 
-kepler-scheduer/scheduler-executor/target
-kepler-scheduer/scheduler-executor/.settings
-kepler-scheduer/scheduler-executor/.project
-kepler-scheduer/scheduler-executor/.classpath
+thales-scheduer/scheduler-executor/target
+thales-scheduer/scheduler-executor/.settings
+thales-scheduer/scheduler-executor/.project
+thales-scheduer/scheduler-executor/.classpath
 
-kepler-scheduer/scheduler-model/target
-kepler-scheduer/scheduler-model/.settings
-kepler-scheduer/scheduler-model/.project
-kepler-scheduer/scheduler-model/.classpath
+thales-scheduer/scheduler-model/target
+thales-scheduer/scheduler-model/.settings
+thales-scheduer/scheduler-model/.project
+thales-scheduer/scheduler-model/.classpath
 
-kepler-scheduer/scheduler-core/target
-kepler-scheduer/scheduler-core/.settings
-kepler-scheduer/scheduler-core/.project
-kepler-scheduer/scheduler-core/.classpath
+thales-scheduer/scheduler-core/target
+thales-scheduer/scheduler-core/.settings
+thales-scheduer/scheduler-core/.project
+thales-scheduer/scheduler-core/.classpath
 
-kepler-scheduer/scheduler-alert/target
-kepler-scheduer/scheduler-alert/.settings
-kepler-scheduer/scheduler-alert/.project
-kepler-scheduer/scheduler-alert/.classpath
+thales-scheduer/scheduler-alert/target
+thales-scheduer/scheduler-alert/.settings
+thales-scheduer/scheduler-alert/.project
+thales-scheduer/scheduler-alert/.classpath

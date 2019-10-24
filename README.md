@@ -1,8 +1,8 @@
 # Introduction
-kepler是一款自主研发的分布式工作调度系统，系统支持调度sql,shell,spark等各种任务类型。
+kepler是一款自主研发的调度系统，系统支持调度sql,shell,spark等各种任务类型。
 
 # Architecture
-![image](https://github.com/ylpu/distribute-job-scheduler/tree/master/docs/kepler-arch.png)
+![image](https://git.qutoutiao.net/dataplatform/stream/kepler/blob/dev/docs/kepler-arch.png)
 
 # 目录结构
 
@@ -31,3 +31,8 @@ kepler是一款自主研发的分布式工作调度系统，系统支持调度sq
 		- controller --后端系统控制层
 		- dao --后端系统数据层
 		- service --后端系统服务层
+## 2. 启动
+1.在kepler下面执行 mvn clean install -Dmaven.test.skip=true  
+2.执行scheduler-controller/src/script/start.sh启动controller  
+3.执行scheduler-master/src/script/start.sh启动master  
+4.执行scheduler-worker/src/script/start.sh启动worker

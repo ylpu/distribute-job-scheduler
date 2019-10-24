@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ylpu.thales.scheduler.dao.SchedulerWorkerMapper" >
+  <resultMap id="BaseResultMap" type="com.ylpu.thales.scheduler.entity.SchedulerWorker" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="node_type" property="nodeType" jdbcType="TINYINT" />
+    <result column="host" property="host" jdbcType="VARCHAR" />
+    <result column="port" property="port" jdbcType="INTEGER" />
+    <result column="node_group" property="nodeGroup" jdbcType="VARCHAR" />
+    <result column="zkDirectory" property="zkdirectory" jdbcType="VARCHAR" />
+    <result column="cpu_usage" property="cpuUsage" jdbcType="DOUBLE" />
+    <result column="memory_usage" property="memoryUsage" jdbcType="DOUBLE" />
+    <result column="last_heartbeat_time" property="lastHeartbeatTime" jdbcType="TIMESTAMP" />
+    <result column="node_status" property="nodeStatus" jdbcType="TINYINT" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, node_type, host, port, node_group, zkDirectory, cpu_usage,memory_usage, last_heartbeat_time, 
+    node_status, create_time, update_time
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_thales_scheduler_node
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from t_thales_scheduler_node
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.ylpu.thales.scheduler.entity.SchedulerWorker" >
+    insert into t_thales_scheduler_node (id, node_type, host, 
+      port, node_group, zkDirectory, 
+      cpu_usage,memory_usage,last_heartbeat_time, node_status, 
+      create_time, update_time)
+    values (#{id,jdbcType=INTEGER}, #{nodeType,jdbcType=TINYINT}, #{host,jdbcType=VARCHAR}, 
+      #{port,jdbcType=INTEGER}, #{nodeGroup,jdbcType=VARCHAR}, #{zkdirectory,jdbcType=VARCHAR}, 
+      #{cpuUsage,jdbcType=DOUBLE},#{memoryUsage,jdbcType=DOUBLE},#{lastHeartbeatTime,jdbcType=TIMESTAMP}, #{nodeStatus,jdbcType=TINYINT}, 
+      #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.ylpu.thales.scheduler.entity.SchedulerWorker" >
+    insert into t_thales_scheduler_node
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="nodeType != null" >
+        node_type,
+      </if>
+      <if test="host != null" >
+        host,
+      </if>
+      <if test="port != null" >
+        port,
+      </if>
+      <if test="nodeGroup != null" >
+        node_group,
+      </if>
+      <if test="zkdirectory != null" >
+        zkDirectory,
+      </if>
+      <if test="cpuUsage != null" >
+        cpu_usage,
+      </if>
+      <if test="memoryUsage != null" >
+        memory_usage,
+      </if>
+      <if test="lastHeartbeatTime != null" >
+        last_heartbeat_time,
+      </if>
+      <if test="nodeStatus != null" >
+        node_status,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="updateTime != null" >
+        update_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="nodeType != null" >
+        #{nodeType,jdbcType=TINYINT},
+      </if>
+      <if test="host != null" >
+        #{host,jdbcType=VARCHAR},
+      </if>
+      <if test="port != null" >
+        #{port,jdbcType=INTEGER},
+      </if>
+      <if test="nodeGroup != null" >
+        #{nodeGroup,jdbcType=VARCHAR},
+      </if>
+      <if test="zkdirectory != null" >
+        #{zkdirectory,jdbcType=VARCHAR},
+      </if>
+      <if test="cpuUsage != null" >
+        #{cpuUsage,jdbcType=DOUBLE},
+      </if>
+      <if test="memoryUsage != null" >
+        #{memoryUsage,jdbcType=DOUBLE},
+      </if>
+      <if test="lastHeartbeatTime != null" >
+        #{lastHeartbeatTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="nodeStatus != null" >
+        #{nodeStatus,jdbcType=TINYINT},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null" >
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.ylpu.thales.scheduler.entity.SchedulerWorker" >
+    update t_thales_scheduler_node
+    <set >
+      <if test="nodeType != null" >
+        node_type = #{nodeType,jdbcType=TINYINT},
+      </if>
+      <if test="host != null" >
+        host = #{host,jdbcType=VARCHAR},
+      </if>
+      <if test="port != null" >
+        port = #{port,jdbcType=INTEGER},
+      </if>
+      <if test="nodeGroup != null" >
+        node_group = #{nodeGroup,jdbcType=VARCHAR},
+      </if>
+      <if test="zkdirectory != null" >
+        zkDirectory = #{zkdirectory,jdbcType=VARCHAR},
+      </if>
+      <if test="cpuUsage != null" >
+        cpu_usage = #{cpuUsage,jdbcType=DOUBLE},
+      </if>
+      <if test="memoryUsage != null" >
+        memory_usage = #{memoryUsage,jdbcType=DOUBLE},
+      </if>
+      <if test="lastHeartbeatTime != null" >
+        last_heartbeat_time = #{lastHeartbeatTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="nodeStatus != null" >
+        node_status = #{nodeStatus,jdbcType=TINYINT},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null" >
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateWorkerByHost" parameterType="com.ylpu.thales.scheduler.entity.SchedulerWorker" >
+    update t_thales_scheduler_node
+    <set >
+      <if test="nodeType != null" >
+        node_type = #{nodeType,jdbcType=TINYINT},
+      </if>
+      <if test="host != null" >
+        host = #{host,jdbcType=VARCHAR},
+      </if>
+      <if test="port != null" >
+        port = #{port,jdbcType=INTEGER},
+      </if>
+      <if test="nodeGroup != null" >
+        node_group = #{nodeGroup,jdbcType=VARCHAR},
+      </if>
+      <if test="zkdirectory != null" >
+        zkDirectory = #{zkdirectory,jdbcType=VARCHAR},
+      </if>
+      <if test="cpuUsage != null" >
+        cpu_usage = #{cpuUsage,jdbcType=DOUBLE},
+      </if>
+      <if test="memoryUsage != null" >
+        memory_usage = #{memoryUsage,jdbcType=DOUBLE},
+      </if>
+      <if test="lastHeartbeatTime != null" >
+        last_heartbeat_time = #{lastHeartbeatTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="nodeStatus != null" >
+        node_status = #{nodeStatus,jdbcType=TINYINT},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null" >
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where host = #{host,jdbcType=VARCHAR} and node_group = #{nodeGroup,jdbcType=VARCHAR}
+  </update>
+  
+  <update id="updateByPrimaryKey" parameterType="com.ylpu.thales.scheduler.entity.SchedulerWorker" >
+    update t_thales_scheduler_node
+    set node_type = #{nodeType,jdbcType=TINYINT},
+      host = #{host,jdbcType=VARCHAR},
+      port = #{port,jdbcType=INTEGER},
+      node_group = #{nodeGroup,jdbcType=VARCHAR},
+      zkDirectory = #{zkdirectory,jdbcType=VARCHAR},
+      cpu_usage = #{cpuUsage,jdbcType=DOUBLE},
+      memory_usage = #{memoryUsage,jdbcType=DOUBLE},
+      last_heartbeat_time = #{lastHeartbeatTime,jdbcType=TIMESTAMP},
+      node_status = #{nodeStatus,jdbcType=TINYINT},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      update_time = #{updateTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id = "updateWorkersStatusByGroup" parameterType="java.util.Map">
+    update t_thales_scheduler_node
+    set node_status = #{status,jdbcType=TINYINT} 
+    where node_group = #{groupName,jdbcType=VARCHAR} 
+    <if test="workers != null and workers.size > 0">
+       and host in
+       <foreach collection="workers" index="index" item="worker" open="(" separator="," close=")">  
+          #{worker}
+       </foreach>
+    </if>
+  </update>
+  <select id = "getWorkersInfoByGroup" parameterType="java.util.Map" resultMap="BaseResultMap">
+  select * from t_thales_scheduler_node where node_group = #{groupName,jdbcType=VARCHAR} 
+     <if test="workers != null and workers.size > 0">
+       and host in
+       <foreach collection="workers" index="index" item="worker" open="(" separator="," close=")">  
+          #{worker}
+       </foreach>
+     </if>
+  </select>
+</mapper>
