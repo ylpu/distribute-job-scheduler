@@ -1,5 +1,5 @@
 # Introduction
-kepler是一款趣头条自主研发的调度系统，系统支持调度sql,shell,spark等各种任务类型。
+kepler是一款自主研发的分布式工作调度系统，系统支持调度sql,shell,spark等各种任务类型。
 
 # Architecture
 ![image](https://github.com/ylpu/distribute-job-scheduler/tree/master/docs/kepler-arch.png)
