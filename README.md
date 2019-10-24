@@ -1,5 +1,5 @@
 # Introduction
-kepler是一款自主研发的调度系统，系统支持调度sql,shell,spark等各种任务类型。
+thales是一款自主研发的调度系统，系统支持调度sql,shell,spark等各种任务类型。
 
 # Architecture
 ![image](https://git.qutoutiao.net/dataplatform/stream/kepler/blob/dev/docs/kepler-arch.png)
