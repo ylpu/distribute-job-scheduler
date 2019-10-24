@@ -1,0 +1,354 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ylpu.kepler.scheduler.dao.SchedulerJobMapper" >
+  <resultMap id="BaseResultMap" type="com.ylpu.kepler.scheduler.entity.SchedulerJob" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="job_name" property="jobName" jdbcType="VARCHAR" />
+    <result column="job_type" property="jobType" jdbcType="TINYINT" />
+    <result column="job_priority" property="jobPriority" jdbcType="INTEGER" />
+    <result column="creator_id" property="creatorId" jdbcType="VARCHAR" />
+    <result column="owner_ids" property="ownerIds" jdbcType="VARCHAR" />
+    <result column="alert_users" property="alertUsers" jdbcType="VARCHAR" />
+    <result column="alert_types" property="alertTypes" jdbcType="TINYINT" />
+    <result column="schedule_cron" property="scheduleCron" jdbcType="VARCHAR" />
+    <result column="is_selfDependent" property="isSelfdependent" jdbcType="BIT" />
+    <result column="job_cycle" property="jobCycle" jdbcType="TINYINT" />
+    <result column="max_retrytimes" property="maxRetrytimes" jdbcType="INTEGER" />
+    <result column="retry_interval" property="retryInterval" jdbcType="INTEGER" />
+    <result column="execution_timeout" property="executionTimeout" jdbcType="INTEGER" />
+    <result column="worker_groupName" property="workerGroupname" jdbcType="VARCHAR" />
+    <result column="job_ReleaseState" property="jobReleasestate" jdbcType="TINYINT" />
+    <result column="description" property="description" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <resultMap id="ResultMapWithBLOBs" type="com.ylpu.kepler.scheduler.entity.SchedulerJob" extends="BaseResultMap" >
+    <result column="job_configuration" property="jobConfiguration" jdbcType="LONGVARCHAR" />
+  </resultMap>
+  
+  <resultMap id="ResultMapWithRelations" type="com.ylpu.kepler.scheduler.entity.SchedulerJob" extends="BaseResultMap" >
+      <result column="job_configuration" property="jobConfiguration" jdbcType="LONGVARCHAR" />
+      <collection property="relations" ofType="com.ylpu.kepler.scheduler.entity.SchedulerJobRelation">
+            <result column="job_id" property="jobId"/>
+            <result column="parentJob_id" property="parentjobId"/>
+      </collection>
+  </resultMap>
+  
+  <sql id="Base_Column_List" >
+    id, job_name, job_type, job_priority, creator_id, owner_ids, alert_users, alert_types, 
+    schedule_cron, is_selfDependent, job_cycle, max_retrytimes, retry_interval, execution_timeout, 
+    worker_groupName, job_ReleaseState, description, create_time, 
+    update_time
+  </sql>
+  <sql id="Blob_Column_List" >
+    job_configuration
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="ResultMapWithBLOBs" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from t_kepler_scheduler_job
+    where job_ReleaseState = 0 and id = #{id,jdbcType=INTEGER}
+  </select>
+  
+  <select id="getJobParentsByIds" resultMap="ResultMapWithRelations" >
+    select *
+    from t_kepler_scheduler_job job left join t_kepler_scheduler_job_relation job_relation on job.id = job_relation.job_id
+    where job.job_ReleaseState = 0
+    <if test="list != null and list.size > 0">
+       and job.id in
+       <foreach collection="list" index="index" item="id" open="(" separator="," close=")">  
+          #{id}
+       </foreach>
+    </if> 
+  </select>
+  
+  <resultMap id="baseResult" type="com.ylpu.kepler.scheduler.entity.JobTree">
+     <result column="job_id" jdbcType="INTEGER" property="jobId" />
+     <result column="job_cycle" jdbcType="INTEGER" property="jobCycle" />
+     <result column="schedule_cron" jdbcType="VARCHAR" property="scheduleCron"/>
+     <result column="parentJob_id" jdbcType="INTEGER" property="parentJobId" />
+     <collection property="children" javaType="java.util.ArrayList"
+            column="job_Id" ofType="com.ylpu.kepler.scheduler.entity.JobTree" select="childrenSelect"></collection>
+  </resultMap>
+  
+  <resultMap id="childrenResult" type="com.ylpu.kepler.scheduler.entity.JobTree">
+        <result column="job_id" jdbcType="INTEGER" property="jobId" />
+        <result column="job_cycle" jdbcType="INTEGER" property="jobCycle" />
+        <result column="schedule_cron" jdbcType="VARCHAR" property="scheduleCron"/>
+        <result column="parentJob_Id" jdbcType="INTEGER" property="parentJobId" />
+        <collection property="children" javaType="java.util.ArrayList"
+            column="job_Id" ofType="com.ylpu.kepler.scheduler.entity.JobTree" select="childrenSelect"></collection>
+  </resultMap>
+  
+  <select id="queryTreeById" resultMap="baseResult">
+    select job_relation.job_id,job_relation.parentJob_id,job.job_cycle,job.schedule_cron
+    from t_kepler_scheduler_job job left join t_kepler_scheduler_job_relation job_relation on job.id = job_relation.job_id
+    where job_id = #{jobId}
+  </select>
+  
+  <select id="childrenSelect" resultMap="childrenResult">
+    select job_relation.job_id,job_relation.parentJob_id,job.job_cycle,job.schedule_cron
+    from t_kepler_scheduler_job job left join t_kepler_scheduler_job_relation job_relation on job.id = job_relation.job_id
+    WHERE parentJob_Id = #{jobId}
+  </select>
+  
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from t_kepler_scheduler_job
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.ylpu.kepler.scheduler.entity.SchedulerJob" >
+    insert into t_kepler_scheduler_job (id, job_name, job_type, 
+      job_priority, creator_id, owner_ids, 
+      alert_users, alert_types, schedule_cron, 
+      is_selfDependent, job_cycle, max_retrytimes, 
+      retry_interval, execution_timeout, worker_groupName, 
+      job_ReleaseState, description, 
+      create_time, update_time, job_configuration
+      )
+    values (#{id,jdbcType=INTEGER}, #{jobName,jdbcType=VARCHAR}, #{jobType,jdbcType=TINYINT}, 
+      #{jobPriority,jdbcType=INTEGER}, #{creatorId,jdbcType=VARCHAR}, #{ownerIds,jdbcType=VARCHAR}, 
+      #{alertUsers,jdbcType=VARCHAR}, #{alertTypes,jdbcType=TINYINT}, #{scheduleCron,jdbcType=VARCHAR}, 
+      #{isSelfdependent,jdbcType=BIT}, #{jobCycle,jdbcType=TINYINT}, #{maxRetrytimes,jdbcType=INTEGER}, 
+      #{retryInterval,jdbcType=INTEGER}, #{executionTimeout,jdbcType=INTEGER}, #{workerGroupname,jdbcType=VARCHAR}, 
+      #{jobReleasestate,jdbcType=TINYINT}, #{description,jdbcType=VARCHAR}, 
+      #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}, #{jobConfiguration,jdbcType=LONGVARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.ylpu.kepler.scheduler.entity.SchedulerJob" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+    insert into t_kepler_scheduler_job
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="jobName != null" >
+        job_name,
+      </if>
+      <if test="jobType != null" >
+        job_type,
+      </if>
+      <if test="jobPriority != null" >
+        job_priority,
+      </if>
+      <if test="creatorId != null" >
+        creator_id,
+      </if>
+      <if test="ownerIds != null" >
+        owner_ids,
+      </if>
+      <if test="alertUsers != null" >
+        alert_users,
+      </if>
+      <if test="alertTypes != null" >
+        alert_types,
+      </if>
+      <if test="scheduleCron != null" >
+        schedule_cron,
+      </if>
+      <if test="isSelfdependent != null" >
+        is_selfDependent,
+      </if>
+      <if test="jobCycle != null" >
+        job_cycle,
+      </if>
+      <if test="maxRetrytimes != null" >
+        max_retrytimes,
+      </if>
+      <if test="retryInterval != null" >
+        retry_interval,
+      </if>
+      <if test="executionTimeout != null" >
+        execution_timeout,
+      </if>
+      <if test="workerGroupname != null" >
+        worker_groupName,
+      </if>
+      <if test="jobReleasestate != null" >
+        job_ReleaseState,
+      </if>
+      <if test="description != null" >
+        description,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="updateTime != null" >
+        update_time,
+      </if>
+      <if test="jobConfiguration != null" >
+        job_configuration,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="jobName != null" >
+        #{jobName,jdbcType=VARCHAR},
+      </if>
+      <if test="jobType != null" >
+        #{jobType,jdbcType=TINYINT},
+      </if>
+      <if test="jobPriority != null" >
+        #{jobPriority,jdbcType=INTEGER},
+      </if>
+      <if test="creatorId != null" >
+        #{creatorId,jdbcType=VARCHAR},
+      </if>
+      <if test="ownerIds != null" >
+        #{ownerIds,jdbcType=VARCHAR},
+      </if>
+      <if test="alertUsers != null" >
+        #{alertUsers,jdbcType=VARCHAR},
+      </if>
+      <if test="alertTypes != null" >
+        #{alertTypes,jdbcType=TINYINT},
+      </if>
+      <if test="scheduleCron != null" >
+        #{scheduleCron,jdbcType=VARCHAR},
+      </if>
+      <if test="isSelfdependent != null" >
+        #{isSelfdependent,jdbcType=BIT},
+      </if>
+      <if test="jobCycle != null" >
+        #{jobCycle,jdbcType=TINYINT},
+      </if>
+      <if test="maxRetrytimes != null" >
+        #{maxRetrytimes,jdbcType=INTEGER},
+      </if>
+      <if test="retryInterval != null" >
+        #{retryInterval,jdbcType=INTEGER},
+      </if>
+      <if test="executionTimeout != null" >
+        #{executionTimeout,jdbcType=INTEGER},
+      </if>
+      <if test="workerGroupname != null" >
+        #{workerGroupname,jdbcType=VARCHAR},
+      </if>
+      <if test="jobReleasestate != null" >
+        #{jobReleasestate,jdbcType=TINYINT},
+      </if>
+      <if test="description != null" >
+        #{description,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null" >
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="jobConfiguration != null" >
+        #{jobConfiguration,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.ylpu.kepler.scheduler.entity.SchedulerJob" >
+    update t_kepler_scheduler_job
+    <set >
+      <if test="jobName != null" >
+        job_name = #{jobName,jdbcType=VARCHAR},
+      </if>
+      <if test="jobType != null" >
+        job_type = #{jobType,jdbcType=TINYINT},
+      </if>
+      <if test="jobPriority != null" >
+        job_priority = #{jobPriority,jdbcType=INTEGER},
+      </if>
+      <if test="creatorId != null" >
+        creator_id = #{creatorId,jdbcType=VARCHAR},
+      </if>
+      <if test="ownerIds != null" >
+        owner_ids = #{ownerIds,jdbcType=VARCHAR},
+      </if>
+      <if test="alertUsers != null" >
+        alert_users = #{alertUsers,jdbcType=VARCHAR},
+      </if>
+      <if test="alertTypes != null" >
+        alert_types = #{alertTypes,jdbcType=TINYINT},
+      </if>
+      <if test="scheduleCron != null" >
+        schedule_cron = #{scheduleCron,jdbcType=VARCHAR},
+      </if>
+      <if test="isSelfdependent != null" >
+        is_selfDependent = #{isSelfdependent,jdbcType=BIT},
+      </if>
+      <if test="jobCycle != null" >
+        job_cycle = #{jobCycle,jdbcType=TINYINT},
+      </if>
+      <if test="maxRetrytimes != null" >
+        max_retrytimes = #{maxRetrytimes,jdbcType=INTEGER},
+      </if>
+      <if test="retryInterval != null" >
+        retry_interval = #{retryInterval,jdbcType=INTEGER},
+      </if>
+      <if test="executionTimeout != null" >
+        execution_timeout = #{executionTimeout,jdbcType=INTEGER},
+      </if>
+      <if test="workerGroupname != null" >
+        worker_groupName = #{workerGroupname,jdbcType=VARCHAR},
+      </if>
+      <if test="jobReleasestate != null" >
+        job_ReleaseState = #{jobReleasestate,jdbcType=TINYINT},
+      </if>
+      <if test="description != null" >
+        description = #{description,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null" >
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="jobConfiguration != null" >
+        job_configuration = #{jobConfiguration,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.ylpu.kepler.scheduler.entity.SchedulerJob" >
+    update t_kepler_scheduler_job
+    set job_name = #{jobName,jdbcType=VARCHAR},
+      job_type = #{jobType,jdbcType=TINYINT},
+      job_priority = #{jobPriority,jdbcType=INTEGER},
+      creator_id = #{creatorId,jdbcType=VARCHAR},
+      owner_ids = #{ownerIds,jdbcType=VARCHAR},
+      alert_users = #{alertUsers,jdbcType=VARCHAR},
+      alert_types = #{alertTypes,jdbcType=TINYINT},
+      schedule_cron = #{scheduleCron,jdbcType=VARCHAR},
+      is_selfDependent = #{isSelfdependent,jdbcType=BIT},
+      job_cycle = #{jobCycle,jdbcType=TINYINT},
+      max_retrytimes = #{maxRetrytimes,jdbcType=INTEGER},
+      retry_interval = #{retryInterval,jdbcType=INTEGER},
+      execution_timeout = #{executionTimeout,jdbcType=INTEGER},
+      worker_groupName = #{workerGroupname,jdbcType=VARCHAR},
+      job_ReleaseState = #{jobReleasestate,jdbcType=TINYINT},
+      description = #{description,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      update_time = #{updateTime,jdbcType=TIMESTAMP},
+      job_configuration = #{jobConfiguration,jdbcType=LONGVARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.ylpu.kepler.scheduler.entity.SchedulerJob" >
+    update t_kepler_scheduler_job
+    set job_name = #{jobName,jdbcType=VARCHAR},
+      job_type = #{jobType,jdbcType=TINYINT},
+      job_priority = #{jobPriority,jdbcType=INTEGER},
+      creator_id = #{creatorId,jdbcType=VARCHAR},
+      owner_ids = #{ownerIds,jdbcType=VARCHAR},
+      alert_users = #{alertUsers,jdbcType=VARCHAR},
+      alert_types = #{alertTypes,jdbcType=TINYINT},
+      schedule_cron = #{scheduleCron,jdbcType=VARCHAR},
+      is_selfDependent = #{isSelfdependent,jdbcType=BIT},
+      job_cycle = #{jobCycle,jdbcType=TINYINT},
+      max_retrytimes = #{maxRetrytimes,jdbcType=INTEGER},
+      retry_interval = #{retryInterval,jdbcType=INTEGER},
+      execution_timeout = #{executionTimeout,jdbcType=INTEGER},
+      worker_groupName = #{workerGroupname,jdbcType=VARCHAR},
+      job_ReleaseState = #{jobReleasestate,jdbcType=TINYINT},
+      description = #{description,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      update_time = #{updateTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

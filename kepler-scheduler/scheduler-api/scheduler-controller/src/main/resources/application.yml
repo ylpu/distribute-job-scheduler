@@ -1,0 +1,34 @@
+# Server settings
+server:
+    port: 8085
+# DATASOURCE
+jdbc:
+    dataSourceClassName: com.mysql.jdbc.jdbc2.optional.MysqlDataSource
+    url: jdbc:mysql://10.0.2.73:3306/kepler?allowMultiQueries=true&useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai
+    databaseName: kepler
+    serverName: kepler-dev
+    username: root
+    password: password
+    cachePrepStmts: true
+    prepStmtsSize: 250
+    prepStmtsCacheSqlLimit: 2048
+    userServerPrepStmts: true
+
+# SPRING PROFILES
+spring:       
+    # HTTP ENCODING
+    http:
+        encoding.charset: UTF-8
+        encoding.enable: true
+        encoding.force: true
+
+# MyBatis
+mybatis:
+    typeAliasesPackage: com.ylpu.kepler.scheduler.entity
+    mapperLocations: classpath:/mappers/*.xml
+    configLocation: classpath:/mybatis-config.xml
+
+# LOGGING
+logging:
+    level:
+       com.ylpu.kepler.scheduler.dao:DEBUG

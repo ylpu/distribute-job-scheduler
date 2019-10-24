@@ -1,0 +1,60 @@
+//指定proto3格式
+syntax = "proto3";
+import public "google/protobuf/timestamp.proto";
+option java_multiple_files = true;//以外部类模式生成
+option java_package = "com.ylpu.kepler.scheduler.core.rpc.entity";//所在包名
+option java_outer_classname = "JobGrpc";//最外层类名称
+
+message JobRequestRpc{
+    int32 id = 1;
+    string jobName = 2;
+    int32 jobType = 3;
+    int32 jobPriority = 4;
+    string creatorId = 5;
+    string ownerIds = 6;
+    string alertUsers = 7;
+    int32 alertTypes = 8;
+    string scheduleCron = 9;
+    bool isSelfdependent = 10;
+    int32 jobCycle = 11;
+    int32 maxRetrytimes = 12;
+    int32 retryInterval = 13;
+    int32 executionTimeout = 14;
+    string workerGroupname = 15;
+    int32 jobReleasestate = 16;
+    string description = 17;
+    string jobConfiguration = 18;
+    repeated JobRequestRpc dependencies = 19;
+}
+
+message JobInstanceRequestRpc{
+    int32 id = 1;
+    string requestId = 2;
+    JobRequestRpc job = 3;
+    int32 taskState = 4;
+    string logUrl = 5;
+    string logPath = 6;
+    string worker = 7;
+    string creatorName = 8;
+    string creatorEmail = 9;
+    int32 retryTimes = 10;
+    int32 pid = 11;
+    string applicationid = 12;
+    google.protobuf.Timestamp scheduleTime = 13;
+    google.protobuf.Timestamp startTime = 14;
+    google.protobuf.Timestamp endTime = 15;
+    int32 elapseTime = 16;
+}
+message JobInstanceResponseRpc{
+    int32 id = 1;
+    string responseId = 2;
+    int32 taskState = 3;
+    int32 errorCode = 4;
+    string errorMsg = 5;
+    bytes data = 6;
+}
+service GrpcJobService{
+    // 一对一服务请求
+    rpc submit(JobInstanceRequestRpc) returns(JobInstanceResponseRpc);
+    rpc kill(JobInstanceRequestRpc) returns(JobInstanceResponseRpc);
+}
