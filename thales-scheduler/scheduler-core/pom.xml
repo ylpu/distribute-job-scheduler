@@ -15,7 +15,6 @@
      <dependency>
          <groupId>com.ylpu.thales</groupId>
          <artifactId>scheduler-model</artifactId>
-        <version>0.0.1-SNAPSHOT</version>
      </dependency>
      <dependency>
          <groupId>net.java.dev.jna</groupId>

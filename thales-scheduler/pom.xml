@@ -9,10 +9,10 @@
   <packaging>pom</packaging>
   <modules>
     <module>scheduler-api</module>
-  	<module>scheduler-master</module>
-  	<module>scheduler-worker</module>
+  	<module>scheduler-model</module>
   	<module>scheduler-core</module>
-  	<module>scheduler-alert</module>
+  	<module>scheduler-worker</module>
+  	<module>scheduler-master</module>
   </modules>
   <properties>
      <thales-scheduler.version>0.0.1-SNAPSHOT</thales-scheduler.version>
@@ -26,9 +26,14 @@
         </dependency> 
         <dependency>
             <groupId>com.ylpu.thales</groupId>
-            <artifactId>scheduler-master</artifactId>
+            <artifactId>scheduler-core</artifactId>
             <version>${thales-scheduler.version}</version>
         </dependency> 
+        <dependency>
+            <groupId>com.ylpu.thales</groupId>
+            <artifactId>scheduler-model</artifactId>
+            <version>${thales-scheduler.version}</version>
+        </dependency>
         <dependency>
             <groupId>com.ylpu.thales</groupId>
             <artifactId>scheduler-worker</artifactId>
@@ -36,12 +41,7 @@
         </dependency>
         <dependency>
             <groupId>com.ylpu.thales</groupId>
-            <artifactId>scheduler-core</artifactId>
-            <version>${thales-scheduler.version}</version>
-        </dependency> 
-        <dependency>
-            <groupId>com.ylpu.thales</groupId>
-            <artifactId>scheduler-alert</artifactId>
+            <artifactId>scheduler-master</artifactId>
             <version>${thales-scheduler.version}</version>
         </dependency>
      </dependencies>

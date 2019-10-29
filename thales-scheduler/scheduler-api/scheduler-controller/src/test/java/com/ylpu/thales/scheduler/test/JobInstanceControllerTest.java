@@ -8,7 +8,7 @@ import org.junit.Test;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.ResponseEntity;
 
-import com.ylpu.thales.scheduler.core.rest.RestClient;
+import com.ylpu.thales.scheduler.common.rest.RestClient;
 import com.ylpu.thales.scheduler.request.JobInstanceRequest;
 import com.ylpu.thales.scheduler.request.ScheduleRequest;
 import com.ylpu.thales.scheduler.response.JobInstanceResponse;

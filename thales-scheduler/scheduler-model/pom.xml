@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>com.ylpu.thales</groupId>
-    <artifactId>scheduler-api</artifactId>
+    <artifactId>thales-scheduler</artifactId>
     <version>0.0.1-SNAPSHOT</version>
   </parent>
   <artifactId>scheduler-model</artifactId>

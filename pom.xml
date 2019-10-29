@@ -6,7 +6,6 @@
     <version>0.0.1-SNAPSHOT</version>
     <packaging>pom</packaging>
     <modules>
-        <module>thales-webapp</module>
         <module>thales-scheduler</module>
     </modules>
     <parent>
@@ -57,12 +56,7 @@
            <groupId>com.101tec</groupId>  
            <artifactId>zkclient</artifactId>  
            <version>${zkclient.version}</version>  
-        </dependency> 
-        <dependency>
-            <groupId>com.ylpu.thales</groupId>
-            <artifactId>thales-webapp</artifactId>
-            <version>${thales.version}</version>
-        </dependency> 
+        </dependency>  
          <dependency>
             <groupId>com.ylpu.thales</groupId>
             <artifactId>thales-scheduler</artifactId>
