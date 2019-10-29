@@ -9,6 +9,7 @@ import com.ylpu.thales.scheduler.enums.TaskState;
 import com.ylpu.thales.scheduler.manager.JobSubmission;
 import com.ylpu.thales.scheduler.manager.TaskCall;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.WeakHashMap;
@@ -25,8 +26,8 @@ public class JobCallBackScan {
     private static Map<String, JobInstanceRequestRpc> callBack = new ConcurrentHashMap<String, JobInstanceRequestRpc>();
     //任务的返回列表
     private static Map<String,JobInstanceResponseRpc> responses = new WeakHashMap<String,JobInstanceResponseRpc>();
-    //key是所依赖的任务id,value是任务id
-    private static Map<String,String> depends = new ConcurrentHashMap<String,String>();
+    //key是所依赖的任务,value是任务id
+    private static Map<List<JobDependency>,String> dependsMap = new ConcurrentHashMap<List<JobDependency>,String>();
     
     private static final long CHECK_INTERVAL = 2000;
         
@@ -44,8 +45,8 @@ public class JobCallBackScan {
         return responses.get(id);
     }
     
-    public static void addDepends(String key,String value) {
-        depends.put(key,value);
+    public static void addDepends(List<JobDependency> key,String value) {
+    	dependsMap.put(key,value);
     }
     
     public static void putCallback(JobInstanceRequestRpc callback) {
@@ -64,8 +65,8 @@ public class JobCallBackScan {
         return responses;
     }
 
-    public static Map<String, String> getDepends() {
-        return depends;
+    public static Map<List<JobDependency>, String> getDepends() {
+        return dependsMap;
     }
 
     /**
@@ -77,19 +78,19 @@ public class JobCallBackScan {
             long interval = Configuration.getLong(Configuration.getConfig(GlobalConstants.CONFIG_FILE), 
                     "thales.scheduler.job.check.interval", CHECK_INTERVAL);
             while(!stop) {
-                for(Entry<String,String> depend : depends.entrySet()) {
+                for(Entry<List<JobDependency>,String> entry : dependsMap.entrySet()) {
                     int ids = 0;
-                    String dependIds[] = depend.getKey().split(",");
-                    for(String dependId : dependIds) {
-                        if(responses.containsKey(dependId)) {
-                            JobInstanceResponseRpc response = responses.get(dependId);
+                    List<JobDependency> list = entry.getKey();
+                    for(JobDependency jobDependency : list) {
+                        if(responses.containsKey(jobDependency.toString())) {
+                            JobInstanceResponseRpc response = responses.get(jobDependency.toString());
                             if(response.getTaskState() == TaskState.SUCCESS.getCode()) {
                                 ids++;
                             }
                         }
                     }
-                    if(ids == dependIds.length) {
-                        String requestId = depends.remove(depend.getKey());
+                    if(ids == list.size()) {
+                        String requestId = dependsMap.remove(entry.getKey());
                         JobInstanceRequestRpc request = callBack.remove(requestId);
                         JobSubmission.addWaitingTask(new TaskCall(request,GrpcType.ASYNC));
                     }

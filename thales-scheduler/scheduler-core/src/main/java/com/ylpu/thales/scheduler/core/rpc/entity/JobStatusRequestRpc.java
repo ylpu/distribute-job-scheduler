@@ -17,6 +17,7 @@ public  final class JobStatusRequestRpc extends
   private JobStatusRequestRpc() {
     requestId_ = "";
     taskState_ = 0;
+    data_ = com.google.protobuf.ByteString.EMPTY;
   }
 
   @java.lang.Override
@@ -50,9 +51,14 @@ public  final class JobStatusRequestRpc extends
             requestId_ = s;
             break;
           }
-          case 24: {
+          case 16: {
 
             taskState_ = input.readInt32();
+            break;
+          }
+          case 26: {
+
+            data_ = input.readBytes();
             break;
           }
         }
@@ -112,13 +118,22 @@ public  final class JobStatusRequestRpc extends
     }
   }
 
-  public static final int TASKSTATE_FIELD_NUMBER = 3;
+  public static final int TASKSTATE_FIELD_NUMBER = 2;
   private int taskState_;
   /**
-   * <code>int32 taskState = 3;</code>
+   * <code>int32 taskState = 2;</code>
    */
   public int getTaskState() {
     return taskState_;
+  }
+
+  public static final int DATA_FIELD_NUMBER = 3;
+  private com.google.protobuf.ByteString data_;
+  /**
+   * <code>bytes data = 3;</code>
+   */
+  public com.google.protobuf.ByteString getData() {
+    return data_;
   }
 
   private byte memoizedIsInitialized = -1;
@@ -137,7 +152,10 @@ public  final class JobStatusRequestRpc extends
       com.google.protobuf.GeneratedMessageV3.writeString(output, 1, requestId_);
     }
     if (taskState_ != 0) {
-      output.writeInt32(3, taskState_);
+      output.writeInt32(2, taskState_);
+    }
+    if (!data_.isEmpty()) {
+      output.writeBytes(3, data_);
     }
   }
 
@@ -151,7 +169,11 @@ public  final class JobStatusRequestRpc extends
     }
     if (taskState_ != 0) {
       size += com.google.protobuf.CodedOutputStream
-        .computeInt32Size(3, taskState_);
+        .computeInt32Size(2, taskState_);
+    }
+    if (!data_.isEmpty()) {
+      size += com.google.protobuf.CodedOutputStream
+        .computeBytesSize(3, data_);
     }
     memoizedSize = size;
     return size;
@@ -173,6 +195,8 @@ public  final class JobStatusRequestRpc extends
         .equals(other.getRequestId());
     result = result && (getTaskState()
         == other.getTaskState());
+    result = result && getData()
+        .equals(other.getData());
     return result;
   }
 
@@ -187,6 +211,8 @@ public  final class JobStatusRequestRpc extends
     hash = (53 * hash) + getRequestId().hashCode();
     hash = (37 * hash) + TASKSTATE_FIELD_NUMBER;
     hash = (53 * hash) + getTaskState();
+    hash = (37 * hash) + DATA_FIELD_NUMBER;
+    hash = (53 * hash) + getData().hashCode();
     hash = (29 * hash) + unknownFields.hashCode();
     memoizedHashCode = hash;
     return hash;
@@ -309,6 +335,8 @@ public  final class JobStatusRequestRpc extends
 
       taskState_ = 0;
 
+      data_ = com.google.protobuf.ByteString.EMPTY;
+
       return this;
     }
 
@@ -333,6 +361,7 @@ public  final class JobStatusRequestRpc extends
       com.ylpu.thales.scheduler.core.rpc.entity.JobStatusRequestRpc result = new com.ylpu.thales.scheduler.core.rpc.entity.JobStatusRequestRpc(this);
       result.requestId_ = requestId_;
       result.taskState_ = taskState_;
+      result.data_ = data_;
       onBuilt();
       return result;
     }
@@ -380,6 +409,9 @@ public  final class JobStatusRequestRpc extends
       }
       if (other.getTaskState() != 0) {
         setTaskState(other.getTaskState());
+      }
+      if (other.getData() != com.google.protobuf.ByteString.EMPTY) {
+        setData(other.getData());
       }
       onChanged();
       return this;
@@ -478,13 +510,13 @@ public  final class JobStatusRequestRpc extends
 
     private int taskState_ ;
     /**
-     * <code>int32 taskState = 3;</code>
+     * <code>int32 taskState = 2;</code>
      */
     public int getTaskState() {
       return taskState_;
     }
     /**
-     * <code>int32 taskState = 3;</code>
+     * <code>int32 taskState = 2;</code>
      */
     public Builder setTaskState(int value) {
       
@@ -493,11 +525,40 @@ public  final class JobStatusRequestRpc extends
       return this;
     }
     /**
-     * <code>int32 taskState = 3;</code>
+     * <code>int32 taskState = 2;</code>
      */
     public Builder clearTaskState() {
       
       taskState_ = 0;
+      onChanged();
+      return this;
+    }
+
+    private com.google.protobuf.ByteString data_ = com.google.protobuf.ByteString.EMPTY;
+    /**
+     * <code>bytes data = 3;</code>
+     */
+    public com.google.protobuf.ByteString getData() {
+      return data_;
+    }
+    /**
+     * <code>bytes data = 3;</code>
+     */
+    public Builder setData(com.google.protobuf.ByteString value) {
+      if (value == null) {
+    throw new NullPointerException();
+  }
+  
+      data_ = value;
+      onChanged();
+      return this;
+    }
+    /**
+     * <code>bytes data = 3;</code>
+     */
+    public Builder clearData() {
+      
+      data_ = getDefaultInstance().getData();
       onChanged();
       return this;
     }

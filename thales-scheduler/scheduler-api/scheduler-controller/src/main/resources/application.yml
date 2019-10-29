@@ -4,11 +4,11 @@ server:
 # DATASOURCE
 jdbc:
     dataSourceClassName: com.mysql.jdbc.jdbc2.optional.MysqlDataSource
-    url: jdbc:mysql://10.0.2.73:3306/thales?allowMultiQueries=true&useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai
+    url: jdbc:mysql://localhost:3306/thales?allowMultiQueries=true&useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai
     databaseName: thales
     serverName: thales-dev
     username: root
-    password: password
+    password: 123456
     cachePrepStmts: true
     prepStmtsSize: 250
     prepStmtsCacheSqlLimit: 2048

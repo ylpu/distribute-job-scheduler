@@ -18,7 +18,12 @@ public interface JobStatusRequestRpcOrBuilder extends
       getRequestIdBytes();
 
   /**
-   * <code>int32 taskState = 3;</code>
+   * <code>int32 taskState = 2;</code>
    */
   int getTaskState();
+
+  /**
+   * <code>bytes data = 3;</code>
+   */
+  com.google.protobuf.ByteString getData();
 }

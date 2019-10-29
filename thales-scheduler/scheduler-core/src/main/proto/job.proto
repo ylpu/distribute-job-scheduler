@@ -1,6 +1,6 @@
 //指定proto3格式
 syntax = "proto3";
-import public "google/protobuf/timestamp.proto";
+import public "timestamp.proto";
 option java_multiple_files = true;//以外部类模式生成
 option java_package = "com.ylpu.thales.scheduler.core.rpc.entity";//所在包名
 option java_outer_classname = "JobGrpc";//最外层类名称

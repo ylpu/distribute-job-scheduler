@@ -1,5 +1,6 @@
 package com.ylpu.thales.scheduler.rpc.client;
 
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -50,7 +51,7 @@ public class JobGrpcBlockingClient extends AbstractJobGrpcClient{
             else {
                 synchronized(requestRpc) {
                     JobCallBackScan.putCallback(requestRpc);
-                    String parentJobs = getLatestJobDepends(requestRpc);
+                    List<JobDependency> parentJobs = getLatestJobDepends(requestRpc);
                     JobCallBackScan.addDepends(parentJobs, requestRpc.getRequestId());
                     
                     request.setTaskState(TaskState.WAITING.getCode());

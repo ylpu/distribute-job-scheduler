@@ -1,4 +1,5 @@
 package com.ylpu.thales.scheduler.rpc.client;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -33,21 +34,23 @@ public abstract class AbstractJobGrpcClient {
      * @param request
      * @return
      */
-    public String getLatestJobDepends(JobInstanceRequestRpc request) {
-        StringBuilder builder = new StringBuilder();
-        List<JobRequestRpc> dependencies = request.getJob().getDependenciesList();
+    public List<JobDependency> getLatestJobDepends(JobInstanceRequestRpc request) {
+    	
+        List<JobDependency> jobDependencies = new ArrayList<JobDependency>();
         Date currentJobScheduleTime = DateUtils.getDatetime(request.getScheduleTime());
+        List<JobRequestRpc> dependencies = request.getJob().getDependenciesList();
+        
         Iterator<JobRequestRpc> it = dependencies.iterator();
+        JobDependency jobDependency = null;
         while(it.hasNext()) {
+        	jobDependency = new JobDependency();
             JobRequestRpc job = it.next();
-            String depend = job.getId() + "-" + CronUtils.getLatestTriggerTime(job.getScheduleCron(),
-                    DateUtils.getTime(currentJobScheduleTime, job.getJobCycle(),-1),currentJobScheduleTime);
-            builder.append(depend);
-            if(it.hasNext()) {
-                builder.append(",");
-            }
+            jobDependency.setJobId(job.getId());
+            jobDependency.setScheduleTime(CronUtils.getLatestTriggerTime(job.getScheduleCron(),
+                    DateUtils.getTime(currentJobScheduleTime, job.getJobCycle(),-1),currentJobScheduleTime));
+            jobDependencies.add(jobDependency);
         }
-        return builder.toString();
+        return jobDependencies;
     }
     
     public void updateTaskStatus(JobInstanceRequest request,int code) {
