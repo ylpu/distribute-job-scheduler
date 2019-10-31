@@ -1,11 +1,8 @@
 package com.ylpu.thales.scheduler.executor;
 
 import com.google.protobuf.ByteString;
-import com.ylpu.thales.scheduler.WorkerServer;
 import com.ylpu.thales.scheduler.core.config.Configuration;
-import com.ylpu.thales.scheduler.core.rest.JobManager;
 import com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc;
-import com.ylpu.thales.scheduler.core.rpc.entity.JobRequestRpc;
 import com.ylpu.thales.scheduler.core.rpc.entity.JobStatusRequestRpc;
 import com.ylpu.thales.scheduler.core.utils.ByteUtils;
 import com.ylpu.thales.scheduler.core.utils.DateUtils;
@@ -16,11 +13,8 @@ import com.ylpu.thales.scheduler.core.zk.ZKHelper;
 import com.ylpu.thales.scheduler.enums.TaskState;
 import com.ylpu.thales.scheduler.request.JobInstanceRequest;
 import com.ylpu.thales.scheduler.rpc.client.WorkerGrpcClient;
-import com.ylpu.thales.scheduler.rpc.server.WorkerRpcServiceImpl;
-
 import java.io.File;
 import java.util.Properties;
-
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
