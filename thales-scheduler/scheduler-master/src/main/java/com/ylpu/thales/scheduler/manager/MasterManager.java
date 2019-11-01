@@ -7,6 +7,7 @@ import com.ylpu.thales.scheduler.core.rest.WorkerManager;
 import com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc;
 import com.ylpu.thales.scheduler.core.utils.DateUtils;
 import com.ylpu.thales.scheduler.core.utils.MetricsUtils;
+import com.ylpu.thales.scheduler.core.zk.CuratorHelper;
 import com.ylpu.thales.scheduler.core.zk.ZKHelper;
 import com.ylpu.thales.scheduler.enums.WorkerStatus;
 import com.ylpu.thales.scheduler.jmx.MasterJmxServer;
@@ -21,14 +22,15 @@ import com.ylpu.thales.scheduler.response.WorkerResponse;
 import com.ylpu.thales.scheduler.rest.MasterRestServer;
 import com.ylpu.thales.scheduler.rpc.client.JobCallBackScan;
 import com.ylpu.thales.scheduler.rpc.server.MasterRpcServer;
-
 import org.I0Itec.zkclient.IZkChildListener;
 import org.I0Itec.zkclient.ZkClient;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import java.text.MessageFormat;
+import org.apache.curator.framework.CuratorFramework;
+import org.apache.curator.framework.recipes.leader.LeaderSelector;
+import org.apache.curator.framework.recipes.leader.LeaderSelectorListenerAdapter;
+import org.apache.zookeeper.CreateMode;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
@@ -84,46 +86,51 @@ public class MasterManager{
         String quorum = prop.getProperty("thales.zookeeper.quorum");
         int sessionTimeout = Configuration.getInt(prop, "thales.zookeeper.sessionTimeout", GlobalConstants.ZOOKEEPER_SESSION_TIMEOUT);
         int connectionTimeout = Configuration.getInt(prop, "thales.zookeeper.connectionTimeout", GlobalConstants.ZOOKEEPER_CONNECTION_TIMEOUT);
-        String workerGroup = GlobalConstants.WORKER_GROUP;
-        String masterGroup = GlobalConstants.MASTER_GROUP;
-        int masterServerPort = Configuration.getInt(prop,"thales.master.server.port",DEFAULT_MASTER_SERVER_PORT);
-        
-        ZkClient zkClient = ZKHelper.getClient(quorum,sessionTimeout,connectionTimeout);
-        List<String> root = zkClient.getChildren("/");
-        if(root == null || !root.contains(GlobalConstants.THALES)) {
-            ZKHelper.createNode(zkClient, GlobalConstants.ROOT_GROUP, null);
-        }
-        List<String> masters = zkClient.getChildren(GlobalConstants.ROOT_GROUP);
-        if(masters == null || !masters.contains(GlobalConstants.MASTERS)) {
-           ZKHelper.createNode(zkClient, masterGroup, null);        	
-        }
-        List<String> workers = zkClient.getChildren(GlobalConstants.ROOT_GROUP);
-        if(masters == null || !workers.contains(GlobalConstants.WORKERS)) {
-           ZKHelper.createNode(zkClient, workerGroup, null);            
-        }
-        List<String> masterNodes = zkClient.getChildren(masterGroup);
-        if(masterNodes == null || masterNodes.size() == 0) {
-           activeMaster = MetricsUtils.getHostIpAddress() + ":" + masterServerPort;
-           ZKHelper.createEphemeralNode(zkClient, masterGroup + "/" + activeMaster, null);
-           init(workerGroup,prop);
-        }else {
-           zkClient.subscribeChildChanges(masterGroup, new IZkChildListener() {              
-                public void handleChildChange(String parentPath, List<String> currentChildren) throws Exception { 
-                    LOG.warn(String.format("[ZookeeperRegistry] service list change: path=%s, currentChildren=%s at %s",
-                            parentPath, currentChildren.toString(),DateUtils.getDateAsString(new Date(),DateUtils.DATE_TIME_FORMAT)));                    
-                    try {
-                        if(currentChildren == null || currentChildren.size() == 0) {
-                            activeMaster = MetricsUtils.getHostIpAddress() + ":" + masterServerPort;
-                            ZKHelper.createEphemeralNode(zkClient, parentPath + "/" + activeMaster, null); 
-                            init(workerGroup,prop); 
-                        }
-                    }catch(Exception e) {
-                    	    LOG.error(MessageFormat.format("{0} can not compain as an active master with exception {1}", MetricsUtils.getHostIpAddress(),e.getMessage()));
-                    }
-                }  
-            });  
-        }
+
+        CuratorFramework client = CuratorHelper.getCuratorClient(quorum, sessionTimeout, connectionTimeout);
+        CuratorHelper.creatingParentContainersIfNeeded(client,  GlobalConstants.MASTER_GROUP, CreateMode.PERSISTENT, null);
+        CuratorHelper.creatingParentContainersIfNeeded(client,  GlobalConstants.WORKER_GROUP, CreateMode.PERSISTENT, null);
+       
+        new MyLeaderSelectorListenerAdapter(client,GlobalConstants.MASTER_LOCK,prop).start();
     }
+    
+    private class MyLeaderSelectorListenerAdapter extends LeaderSelectorListenerAdapter{
+    	
+        private final LeaderSelector leaderSelector;
+        
+        private Properties prop = null;
+        
+        public MyLeaderSelectorListenerAdapter(CuratorFramework client, String path,Properties prop){
+        	
+        	this.prop = prop;
+
+        	leaderSelector = new LeaderSelector(client, path, this);
+
+        }
+        
+        public void start() {
+        	
+        	//保证在此实例释放领导权之后还可能获得领导权。
+        	leaderSelector.autoRequeue();
+        	
+        	leaderSelector.start();
+        }
+        
+        public void close(){
+        	
+        	leaderSelector.close();
+        }
+
+    	public void takeLeadership(CuratorFramework client) throws Exception{
+            int masterServerPort = Configuration.getInt(prop,"thales.master.server.port",DEFAULT_MASTER_SERVER_PORT);
+    		String activeMaster = MetricsUtils.getHostIpAddress() + ":" + masterServerPort;
+    		String master = GlobalConstants.MASTER_GROUP + "/" + activeMaster;
+    		LOG.info("active master is " + activeMaster);
+    		CuratorHelper.createNode(client, master, CreateMode.EPHEMERAL, null);
+    		MasterManager.getInstance().init(GlobalConstants.WORKER_GROUP, prop);
+    		for(;;);
+    	}
+      }
     
     public void init(String workerGroup,Properties prop) throws Exception{
         String quorum = prop.getProperty("thales.zookeeper.quorum");

@@ -5,19 +5,18 @@ import com.ylpu.thales.scheduler.core.constants.GlobalConstants;
 import com.ylpu.thales.scheduler.core.rpc.entity.WorkerRequestRpc;
 import com.ylpu.thales.scheduler.core.utils.DateUtils;
 import com.ylpu.thales.scheduler.core.utils.MetricsUtils;
-import com.ylpu.thales.scheduler.core.zk.ZKHelper;
+import com.ylpu.thales.scheduler.core.zk.CuratorHelper;
 import com.ylpu.thales.scheduler.enums.NodeType;
 import com.ylpu.thales.scheduler.enums.WorkerStatus;
 import com.ylpu.thales.scheduler.log.LogServer;
 import com.ylpu.thales.scheduler.rpc.client.WorkerGrpcClient;
 import com.ylpu.thales.scheduler.rpc.server.WorkerRpcServer;
-
 import org.I0Itec.zkclient.ZkClient;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import java.util.List;
+import org.apache.curator.framework.CuratorFramework;
+import org.apache.zookeeper.CreateMode;
 import java.util.Properties;
 
 public class WorkerServer {
@@ -93,28 +92,16 @@ public class WorkerServer {
         jobExecutorServer.start();
     } 
     
-    private String regist(Properties prop) {
+    private String regist(Properties prop) throws Exception {
         String quorum = prop.getProperty("thales.zookeeper.quorum");
         int sessionTimeout = Configuration.getInt(prop, "thales.zookeeper.sessionTimeout", GlobalConstants.ZOOKEEPER_SESSION_TIMEOUT);
         int connectionTimeout = Configuration.getInt(prop, "thales.zookeeper.connectionTimeout", GlobalConstants.ZOOKEEPER_CONNECTION_TIMEOUT);
-        String group = GlobalConstants.WORKER_GROUP;
         String workerGroup = Configuration.getString(prop, "thales.worker.group", DEFAULT_WORKER_GROUP);
         
-        zkClient = ZKHelper.getClient(quorum,sessionTimeout,connectionTimeout);
-        List<String> root = zkClient.getChildren("/");
-        if(root == null || !root.contains(GlobalConstants.THALES)) {
-            ZKHelper.createNode(zkClient, GlobalConstants.ROOT_GROUP, null);
-        }
-        List<String> workers = zkClient.getChildren(GlobalConstants.ROOT_GROUP);
-        if(workers == null || !workers.contains(GlobalConstants.WORKERS)) {
-           ZKHelper.createNode(zkClient, group, null);          
-        }
-        List<String> groups = zkClient.getChildren(group);
-        if(groups == null || !groups.contains(workerGroup)) {
-            ZKHelper.createNode(zkClient, group + "/" + workerGroup, null);
-        }
-        String workerPath = group + "/" + workerGroup + "/" + MetricsUtils.getHostIpAddress();
-        ZKHelper.createEphemeralNode(zkClient, workerPath, null);
+        String workerPath = GlobalConstants.WORKER_GROUP + "/" + workerGroup + "/" + MetricsUtils.getHostIpAddress();
+        CuratorFramework client = CuratorHelper.getCuratorClient(quorum, sessionTimeout, connectionTimeout);
+        CuratorHelper.creatingParentContainersIfNeeded(client,  GlobalConstants.WORKER_GROUP + "/" + workerGroup, CreateMode.PERSISTENT, null);
+        CuratorHelper.createNode(client, workerPath, CreateMode.EPHEMERAL, null);
         return workerPath;
     }
     
@@ -140,7 +127,7 @@ public class WorkerServer {
             WorkerGrpcClient client = null;
             while(!stop) {
                 try {
-                    String master = ZKHelper.getActiveMaster();
+                    String master = CuratorHelper.getActiveMaster();
                     String[] masters = master.split(":");
                     client = new WorkerGrpcClient(masters[0],NumberUtils.toInt(masters[1]));
                     WorkerRequestRpc request = WorkerRequestRpc.newBuilder()

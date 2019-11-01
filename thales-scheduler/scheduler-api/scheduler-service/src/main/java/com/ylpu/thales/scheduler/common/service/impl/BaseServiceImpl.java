@@ -10,16 +10,15 @@ import java.net.URL;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
-import org.I0Itec.zkclient.ZkClient;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.curator.framework.CuratorFramework;
 import org.springframework.transaction.annotation.Transactional;
-
 import com.ylpu.thales.scheduler.common.config.Configuration;
 import com.ylpu.thales.scheduler.common.constants.GlobalConstants;
 import com.ylpu.thales.scheduler.common.dao.BaseDao;
 import com.ylpu.thales.scheduler.common.service.BaseService;
-import com.ylpu.thales.scheduler.common.zk.ZKHelper;
+import com.ylpu.thales.scheduler.common.zk.CuratorHelper;
 import com.ylpu.thales.scheduler.entity.BaseEntity;
 
 @Transactional
@@ -74,12 +73,12 @@ public abstract class BaseServiceImpl<T extends BaseEntity,D extends Serializabl
         int connectionTimeout = Configuration.getInt(prop, "thales.zookeeper.connectionTimeout", GlobalConstants.ZOOKEEPER_CONNECTION_TIMEOUT);
         int masterRetryInterval = Configuration.getInt(prop, "thales.master.retry.interval", 1000);
 
-        ZkClient zkClient = null;
+        CuratorFramework client = null;
         List<String> masters = null;
         while(true) {
             try {
-                zkClient = ZKHelper.getClient(quorum,sessionTimeout,connectionTimeout);
-                masters = zkClient.getChildren(GlobalConstants.MASTER_GROUP);
+            	client = CuratorHelper.getCuratorClient(quorum,sessionTimeout,connectionTimeout);
+                masters = CuratorHelper.getChildren(client,GlobalConstants.MASTER_GROUP);
                 if(masters != null && masters.size() > 0) {
                     StringBuilder sb = new StringBuilder("http://");
                     sb.append(masters.get(0).split(":")[0]);
@@ -104,9 +103,7 @@ public abstract class BaseServiceImpl<T extends BaseEntity,D extends Serializabl
             }catch(Exception e) {
                 LOG.error(e);
             }finally {
-                if(zkClient != null) {
-                    zkClient.close();
-                }
+            	CuratorHelper.close(client);
             }  
         }
     }

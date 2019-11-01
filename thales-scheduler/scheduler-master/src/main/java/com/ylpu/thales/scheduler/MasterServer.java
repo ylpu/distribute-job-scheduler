@@ -6,18 +6,17 @@ import com.ylpu.thales.scheduler.core.rest.JobManager;
 import com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc;
 import com.ylpu.thales.scheduler.core.utils.DateUtils;
 import com.ylpu.thales.scheduler.core.utils.MetricsUtils;
-import com.ylpu.thales.scheduler.core.zk.ZKHelper;
+import com.ylpu.thales.scheduler.core.zk.CuratorHelper;
 import com.ylpu.thales.scheduler.enums.TaskState;
 import com.ylpu.thales.scheduler.manager.JobScheduler;
 import com.ylpu.thales.scheduler.manager.MasterManager;
 import com.ylpu.thales.scheduler.request.JobInstanceRequest;
 import com.ylpu.thales.scheduler.rpc.client.JobCallBackScan;
-
-import org.I0Itec.zkclient.ZkClient;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.curator.framework.CuratorFramework;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,7 +36,7 @@ public class MasterServer {
         try {
             Runtime.getRuntime().addShutdownHook(new ShutDownHookThread(prop));
             MasterManager.getInstance().init(prop);
-            while(true) {}
+            for(;;);
         } catch (Exception e) {
             LOG.error(e);
             System.exit(1);
@@ -72,15 +71,15 @@ public class MasterServer {
             String quorum = prop.getProperty("thales.zookeeper.quorum");
             int sessionTimeout = Configuration.getInt(prop, "thales.zookeeper.sessionTimeout", GlobalConstants.ZOOKEEPER_SESSION_TIMEOUT);
             int connectionTimeout = Configuration.getInt(prop, "thales.zookeeper.connectionTimeout", GlobalConstants.ZOOKEEPER_CONNECTION_TIMEOUT);
-            ZkClient zkClient = null;
+            CuratorFramework client = null;
             try {
                 LOG.info("remove master path " +  masterGroup + "/" + activeMaster + " when shutdown");
-                zkClient = ZKHelper.getClient(quorum,sessionTimeout,connectionTimeout);
-                ZKHelper.delete(zkClient, masterGroup + "/" + activeMaster); 
+                client = CuratorHelper.getCuratorClient(quorum,sessionTimeout,connectionTimeout);
+                CuratorHelper.delete(client, masterGroup + "/" + activeMaster); 
+            }catch(Exception e) {
+            	LOG.error(e);
             }finally{
-                if(zkClient != null) {
-                    zkClient.close();
-                }
+            	CuratorHelper.close(client);
             }
         }
         /**

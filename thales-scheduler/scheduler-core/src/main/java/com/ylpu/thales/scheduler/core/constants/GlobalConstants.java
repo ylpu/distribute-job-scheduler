@@ -22,6 +22,8 @@ public class GlobalConstants {
     
     public static final String MASTER_GROUP = "/thales/masters";
     
+    public static final String MASTER_LOCK = "/thales/lock";
+    
     public static final String THALES = "thales";
     
     public static final String MASTERS = "masters";

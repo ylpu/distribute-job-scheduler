@@ -1,13 +1,20 @@
 package com.ylpu.thales.scheduler.common.config;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import com.ylpu.thales.scheduler.common.constants.GlobalConstants;
+
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
+import java.util.function.Supplier;
 
 
 public class Configuration {
@@ -15,13 +22,35 @@ public class Configuration {
     private static Log LOG = LogFactory.getLog(Configuration.class);
 	
     private static Map<String,Properties> configMap = new HashMap<String,Properties>();
-    
+
+    public static Properties getConfig() {
+        final String config = System.getProperty("config.file");
+        if (StringUtils.isNotBlank(config)) {
+            return getConfig(config, () -> {
+                try {
+                    return new FileInputStream(config);
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
+                return null;
+            });
+        }
+
+        return getConfig(GlobalConstants.CONFIG_FILE,
+                () -> Configuration.class.getClassLoader().getResourceAsStream(GlobalConstants.CONFIG_FILE));
+    }
+
     public static Properties getConfig(String propFileName) {
+        return getConfig(propFileName,
+                () -> Configuration.class.getClassLoader().getResourceAsStream(GlobalConstants.CONFIG_FILE));
+    }
+    
+    public static Properties getConfig(String propFileName, Supplier<InputStream> supplier) {
     	    Properties config = configMap.get(propFileName);
     	    if(config == null){
             Properties prop = new Properties();
             try {
-                prop.load(Configuration.class.getClassLoader().getResourceAsStream(propFileName));
+                prop.load(supplier.get());
             } catch (IOException e) {
             	    LOG.error(e);
             }

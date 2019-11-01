@@ -51,6 +51,12 @@ public class ZKHelper {
         zk.delete(path, -1);
     }
     
+    public static void close(ZkClient zk) {
+    	if(zk != null) {
+    		zk.close();
+    	}
+    }
+    
     public static String getActiveMaster() {
         Properties prop = Configuration.getConfig();
         String quorum = prop.getProperty("thales.zookeeper.quorum");
@@ -59,15 +65,13 @@ public class ZKHelper {
         ZkClient zkClient = null;
         List<String> masters = null;
         try {
-            zkClient = ZKHelper.getClient(quorum,sessionTimeout,connectionTimeout);
+            zkClient = getClient(quorum,sessionTimeout,connectionTimeout);
             masters = zkClient.getChildren(GlobalConstants.MASTER_GROUP);
             if(masters == null || masters.size() == 0) {
                 throw new RuntimeException("can not get active master");
             }
         }finally {
-            if(zkClient != null) {
-                zkClient.close();
-            }
+            close(zkClient);
         }
         return masters.get(0);
     }
