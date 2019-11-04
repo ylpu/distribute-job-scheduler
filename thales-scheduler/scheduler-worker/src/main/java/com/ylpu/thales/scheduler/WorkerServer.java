@@ -97,11 +97,17 @@ public class WorkerServer {
         int sessionTimeout = Configuration.getInt(prop, "thales.zookeeper.sessionTimeout", GlobalConstants.ZOOKEEPER_SESSION_TIMEOUT);
         int connectionTimeout = Configuration.getInt(prop, "thales.zookeeper.connectionTimeout", GlobalConstants.ZOOKEEPER_CONNECTION_TIMEOUT);
         String workerGroup = Configuration.getString(prop, "thales.worker.group", DEFAULT_WORKER_GROUP);
-        
-        String workerPath = GlobalConstants.WORKER_GROUP + "/" + workerGroup + "/" + MetricsUtils.getHostIpAddress();
+
         CuratorFramework client = CuratorHelper.getCuratorClient(quorum, sessionTimeout, connectionTimeout);
-        CuratorHelper.creatingParentContainersIfNeeded(client,  GlobalConstants.WORKER_GROUP + "/" + workerGroup, CreateMode.PERSISTENT, null);
-        CuratorHelper.createNode(client, workerPath, CreateMode.EPHEMERAL, null);
+        CuratorHelper.createNodeIfNotExist(client,  GlobalConstants.ROOT_GROUP, CreateMode.PERSISTENT, null);
+        CuratorHelper.createNodeIfNotExist(client,  GlobalConstants.WORKER_GROUP, CreateMode.PERSISTENT, null);
+       
+        String workerGroupPath = GlobalConstants.WORKER_GROUP + "/" + workerGroup;
+        CuratorHelper.createNodeIfNotExist(client,  workerGroupPath, CreateMode.PERSISTENT, null);
+        
+        String ipAddress = MetricsUtils.getHostIpAddress(); 
+        String workerPath = workerGroupPath + "/" + ipAddress;
+        CuratorHelper.createNodeIfNotExist(client, workerPath, CreateMode.EPHEMERAL, ipAddress.getBytes());
         return workerPath;
     }
     

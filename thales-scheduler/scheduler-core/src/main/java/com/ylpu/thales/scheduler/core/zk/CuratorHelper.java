@@ -36,13 +36,20 @@ public class CuratorHelper {
 		return client;
 	}
 	
-	public static void createNode(CuratorFramework client,String path,
+	public static void createNodeIfNotExist(CuratorFramework client,String path,
 			CreateMode createMode,byte[] bytes) throws Exception {
-		client.create().withMode(createMode).forPath(path,bytes);
+		Stat stat = client.checkExists().forPath(path);
+		if(stat == null) {
+			client.create().withMode(createMode).forPath(path,bytes);
+		}
 	}
 	
 	public static void delete(CuratorFramework client,String path) throws Exception {
 		client.delete().forPath(path);
+	}
+	
+	public static void deleteChildren(CuratorFramework client,String path) throws Exception {
+		client.delete().deletingChildrenIfNeeded().forPath(path);
 	}
 	
 	public static void creatingParentContainersIfNeeded(CuratorFramework client,String path,
@@ -95,6 +102,9 @@ public class CuratorHelper {
 	
 	public static void main(String[] args) throws Exception {
 		CuratorFramework client = CuratorHelper.getCuratorClient();
+		
 		System.out.println(CuratorHelper.getChildren(client, "/thales"));
+		
+		CuratorHelper.createNodeIfNotExist(client, "/thales/workers/127.0.0.1", CreateMode.EPHEMERAL, "127.0.0.1".getBytes());
 	}
 }

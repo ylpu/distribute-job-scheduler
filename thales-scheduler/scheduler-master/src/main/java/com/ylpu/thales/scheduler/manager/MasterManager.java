@@ -8,7 +8,6 @@ import com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc;
 import com.ylpu.thales.scheduler.core.utils.DateUtils;
 import com.ylpu.thales.scheduler.core.utils.MetricsUtils;
 import com.ylpu.thales.scheduler.core.zk.CuratorHelper;
-import com.ylpu.thales.scheduler.core.zk.ZKHelper;
 import com.ylpu.thales.scheduler.enums.WorkerStatus;
 import com.ylpu.thales.scheduler.jmx.MasterJmxServer;
 import com.ylpu.thales.scheduler.manager.strategy.JobStrategy;
@@ -22,18 +21,18 @@ import com.ylpu.thales.scheduler.response.WorkerResponse;
 import com.ylpu.thales.scheduler.rest.MasterRestServer;
 import com.ylpu.thales.scheduler.rpc.client.JobCallBackScan;
 import com.ylpu.thales.scheduler.rpc.server.MasterRpcServer;
-import org.I0Itec.zkclient.IZkChildListener;
-import org.I0Itec.zkclient.ZkClient;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.curator.framework.CuratorFramework;
+import org.apache.curator.framework.recipes.cache.PathChildrenCache;
+import org.apache.curator.framework.recipes.cache.PathChildrenCacheEvent;
 import org.apache.curator.framework.recipes.leader.LeaderSelector;
 import org.apache.curator.framework.recipes.leader.LeaderSelectorListenerAdapter;
 import org.apache.zookeeper.CreateMode;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
+import org.apache.curator.framework.recipes.cache.*;
 
 public class MasterManager{
     
@@ -86,10 +85,10 @@ public class MasterManager{
         String quorum = prop.getProperty("thales.zookeeper.quorum");
         int sessionTimeout = Configuration.getInt(prop, "thales.zookeeper.sessionTimeout", GlobalConstants.ZOOKEEPER_SESSION_TIMEOUT);
         int connectionTimeout = Configuration.getInt(prop, "thales.zookeeper.connectionTimeout", GlobalConstants.ZOOKEEPER_CONNECTION_TIMEOUT);
-
         CuratorFramework client = CuratorHelper.getCuratorClient(quorum, sessionTimeout, connectionTimeout);
-        CuratorHelper.creatingParentContainersIfNeeded(client,  GlobalConstants.MASTER_GROUP, CreateMode.PERSISTENT, null);
-        CuratorHelper.creatingParentContainersIfNeeded(client,  GlobalConstants.WORKER_GROUP, CreateMode.PERSISTENT, null);
+        CuratorHelper.createNodeIfNotExist(client,  GlobalConstants.ROOT_GROUP, CreateMode.PERSISTENT, null);
+        CuratorHelper.createNodeIfNotExist(client,  GlobalConstants.MASTER_GROUP, CreateMode.PERSISTENT, null);
+        CuratorHelper.createNodeIfNotExist(client,  GlobalConstants.WORKER_GROUP, CreateMode.PERSISTENT, null);
        
         new MyLeaderSelectorListenerAdapter(client,GlobalConstants.MASTER_LOCK,prop).start();
     }
@@ -123,12 +122,11 @@ public class MasterManager{
 
     	public void takeLeadership(CuratorFramework client) throws Exception{
             int masterServerPort = Configuration.getInt(prop,"thales.master.server.port",DEFAULT_MASTER_SERVER_PORT);
-    		String activeMaster = MetricsUtils.getHostIpAddress() + ":" + masterServerPort;
-    		String master = GlobalConstants.MASTER_GROUP + "/" + activeMaster;
+    		activeMaster = MetricsUtils.getHostIpAddress() + ":" + masterServerPort;
+    		String masterPath = GlobalConstants.MASTER_GROUP + "/" + activeMaster;
     		LOG.info("active master is " + activeMaster);
-    		CuratorHelper.createNode(client, master, CreateMode.EPHEMERAL, null);
+    		CuratorHelper.createNodeIfNotExist(client, masterPath, CreateMode.EPHEMERAL, null);
     		MasterManager.getInstance().init(GlobalConstants.WORKER_GROUP, prop);
-    		for(;;);
     	}
       }
     
@@ -137,13 +135,15 @@ public class MasterManager{
         int sessionTimeout = Configuration.getInt(prop, "thales.zookeeper.sessionTimeout", GlobalConstants.ZOOKEEPER_SESSION_TIMEOUT);
         int connectionTimeout = Configuration.getInt(prop, "thales.zookeeper.connectionTimeout", GlobalConstants.ZOOKEEPER_CONNECTION_TIMEOUT);
         int masterServerPort = Configuration.getInt(prop,"thales.master.server.port",DEFAULT_MASTER_SERVER_PORT);
-        ZkClient zkClient = ZKHelper.getClient(quorum,sessionTimeout,connectionTimeout);
-        List<String> groups = zkClient.getChildren(workerGroup);
+        
+        CuratorFramework client = CuratorHelper.getCuratorClient(quorum, sessionTimeout, connectionTimeout);
+        List<String> groups = CuratorHelper.getChildren(client,workerGroup);
+        
         if(groups != null && groups.size() > 0) {
             for(String groupName : groups) {
                 String groupPath = workerGroup + "/" + groupName;
-                initGroup(zkClient,groupPath);
-                addNodeChangeListener(zkClient,groupPath);  
+                initGroup(client,groupPath);
+                addNodeChangeListener(client,groupPath);  
             }
         }
 //      加载任务实例状态，比较耗时
@@ -166,19 +166,42 @@ public class MasterManager{
         server.blockUntilShutdown();
     }
 
-    private void initGroup(ZkClient zkClient,String groupPath) {
+    private void initGroup(CuratorFramework client,String groupPath) throws Exception {
         List<String> workers = groups.get(groupPath);
         if(workers == null) {
             workers = new ArrayList<String>();
             groups.put(groupPath, workers);
         }
-        List<String> children = zkClient.getChildren(groupPath);
-        if(children != null && children.size() > 0) {
-            for(String worker : children) { 
-                workers.add(worker);  
-            }
-        }         
     }
+    
+    private void addNodeChangeListener(CuratorFramework client,final String groupPath) {
+    	PathChildrenCache pcCache = new PathChildrenCache(client,groupPath,true);
+		try {
+			pcCache.start(PathChildrenCache.StartMode.POST_INITIALIZED_EVENT);
+			pcCache.getListenable().addListener(new PathChildrenCacheListener() {
+				public void childEvent(CuratorFramework curatorFramework, PathChildrenCacheEvent pathChildrenCacheEvent)
+						throws Exception {
+					switch (pathChildrenCacheEvent.getType()){
+					case CHILD_ADDED:
+						LOG.info("add node" + pathChildrenCacheEvent.getData().getPath());
+						String addedNodeData = new String(CuratorHelper.getData(client, pathChildrenCacheEvent.getData().getPath()));
+						groups.get(groupPath).add(addedNodeData);
+						break;
+					case CHILD_REMOVED:
+						LOG.info("remove node"+pathChildrenCacheEvent.getData().getPath());
+						String removedNodeData = new String(CuratorHelper.getData(client, pathChildrenCacheEvent.getData().getPath()));
+						groups.get(groupPath).remove(removedNodeData);
+						releaseResource(groupPath,Arrays.asList(removedNodeData));
+						break;
+					default:
+						break;
+					}
+				}
+			});
+		} catch (Exception e) {
+			LOG.error(e);
+		}
+    } 
     
     private void initTaskCount() {
         synchronized(taskMap) {
@@ -211,60 +234,7 @@ public class MasterManager{
         }
     }
     
-    /**
-     * zk中节点有变动更新pool中机器
-     * @param zkClient
-     * @param poolPath
-     */
-    public void addNodeChangeListener(final ZkClient zkClient,final String groupPath) {
-        List<String> oldChildren = new ArrayList<String>();
-        List<String> children = zkClient.getChildren(groupPath);        
-        if(children != null && children.size() > 0) {
-            for(String childPath : children) {
-                oldChildren.add(childPath);
-            }
-        }
-        zkClient.subscribeChildChanges(groupPath, new IZkChildListener() {              
-            public void handleChildChange(String parentPath, List<String> currentChildren) throws Exception { 
-                LOG.warn(String.format("[ZookeeperRegistry] service list change: path=%s, currentChildren=%s",
-                        parentPath, currentChildren.toString())); 
-                refreshGroup(zkClient,parentPath,oldChildren,currentChildren); 
-                resetOldChild(oldChildren,currentChildren);
-            }  
-        });          
-    }  
-    /**
-     * 把新的节点付给老的节点
-     * @param oldChildren
-     * @param currentChildren
-     */
-    private void resetOldChild(List<String> oldChildren,List<String> currentChildren) {
-        oldChildren.clear();
-        if(currentChildren != null && currentChildren.size() > 0) {
-            for(String child : currentChildren) {
-                oldChildren.add(child);
-            }
-        }
-    }
-    
-    /**
-     * 刷新pool
-     * @param zkClient
-     * @param groupPath
-     * @param oldChildren
-     * @param currentChildren
-     */
-    public synchronized void refreshGroup(ZkClient zkClient,String groupPath,List<String> oldChildren,List<String> currentChildren) { 
-        groups.put(groupPath, currentChildren);
-        List<String> disconnectedChildren = getRemovedChildren(oldChildren,currentChildren);
-        releaseResource(groupPath,disconnectedChildren,WorkerStatus.REMOVED);
-    }
-    
-    private List<String> getRemovedChildren(List<String> oldChildren,List<String> currentChildren){
-        return oldChildren.stream().filter(t-> !currentChildren.contains(t)).collect(Collectors.toList());
-    }
-    
-    private synchronized void releaseResource(String groupPath,List<String> disconnectedChildren,WorkerStatus status) {
+    private synchronized void releaseResource(String groupPath,List<String> disconnectedChildren) {
         if(disconnectedChildren != null && disconnectedChildren.size() > 0) {
             for(String child : disconnectedChildren) {
                 resourceMap.remove(child);                
@@ -273,7 +243,7 @@ public class MasterManager{
         String workerGroup = groupPath.substring(groupPath.lastIndexOf("/") + 1);
         WorkerGroupRequest param = new WorkerGroupRequest();
         param.setGroupName(workerGroup);
-        param.setStatus(status);
+        param.setStatus(WorkerStatus.REMOVED);
         param.setWorkers(disconnectedChildren);
         WorkerManager.updateWorkersStatusByGroup(param);
     }

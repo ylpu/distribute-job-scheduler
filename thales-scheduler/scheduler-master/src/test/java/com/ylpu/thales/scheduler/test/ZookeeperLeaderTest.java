@@ -2,11 +2,41 @@ package com.ylpu.thales.scheduler.test;
 
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
+import org.apache.curator.framework.recipes.cache.PathChildrenCache;
+import org.apache.curator.framework.recipes.cache.PathChildrenCacheEvent;
+import org.apache.curator.framework.recipes.cache.PathChildrenCacheListener;
 import org.apache.curator.framework.recipes.leader.LeaderSelector;
 import org.apache.curator.framework.recipes.leader.LeaderSelectorListenerAdapter;
 import org.apache.curator.retry.ExponentialBackoffRetry;
+import com.ylpu.thales.scheduler.core.zk.CuratorHelper;
 
 public class ZookeeperLeaderTest {
+	
+	   public static void addNodeChangeListener(CuratorFramework client,final String groupPath) {
+	    	PathChildrenCache pcCache = new PathChildrenCache(client,groupPath,true);
+			try {
+				pcCache.start(PathChildrenCache.StartMode.POST_INITIALIZED_EVENT);
+				pcCache.getListenable().addListener(new PathChildrenCacheListener() {
+					public void childEvent(CuratorFramework curatorFramework, PathChildrenCacheEvent pathChildrenCacheEvent)
+							throws Exception {
+						switch (pathChildrenCacheEvent.getType()){
+						case CHILD_ADDED:
+							String addData = new String(CuratorHelper.getData(client, pathChildrenCacheEvent.getData().getPath()));
+							System.out.println("add node" + addData);
+							break;
+						case CHILD_REMOVED:
+							String removeData = new String(CuratorHelper.getData(client, pathChildrenCacheEvent.getData().getPath()));
+							System.out.println("add node" + removeData);
+							break;
+						default:
+							break;
+						}
+					}
+				});
+			} catch (Exception e) {
+				System.out.println(e);
+			}
+	    } 
 	
 	private static final String PATH = "/thales/lock";
 	
@@ -19,6 +49,8 @@ public class ZookeeperLeaderTest {
 						new ExponentialBackoffRetry(1000, 3));
 		
 		client.start();
+		
+		addNodeChangeListener(client,"/thales/workers");
 				
 		new MyLeaderSelectorListenerAdapter(client, PATH, "Client #" + 1);
 		
