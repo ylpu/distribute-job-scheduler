@@ -107,7 +107,7 @@ public class WorkerServer {
         
         String ipAddress = MetricsUtils.getHostIpAddress(); 
         String workerPath = workerGroupPath + "/" + ipAddress;
-        CuratorHelper.createNodeIfNotExist(client, workerPath, CreateMode.EPHEMERAL, ipAddress.getBytes());
+        CuratorHelper.createNodeIfNotExist(client, workerPath, CreateMode.EPHEMERAL, null);
         return workerPath;
     }
     

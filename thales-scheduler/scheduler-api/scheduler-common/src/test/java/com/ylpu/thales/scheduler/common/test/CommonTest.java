@@ -57,6 +57,9 @@ public class CommonTest {
         String str = "{\"commandType\" : \"shell\",\"fileName\" : \"/tmp/script/test.sh\",\"parameters\" : \"\"}";
         
         System.out.println(commandBuilder);
+        
+        String test = "/thales/hive/127.0.0.1";
+        System.out.println(test.substring(test.lastIndexOf("/") + 1));
     }
 
 }

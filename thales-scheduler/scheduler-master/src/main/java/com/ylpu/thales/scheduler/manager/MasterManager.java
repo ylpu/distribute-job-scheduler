@@ -21,6 +21,8 @@ import com.ylpu.thales.scheduler.response.WorkerResponse;
 import com.ylpu.thales.scheduler.rest.MasterRestServer;
 import com.ylpu.thales.scheduler.rpc.client.JobCallBackScan;
 import com.ylpu.thales.scheduler.rpc.server.MasterRpcServer;
+
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -101,49 +103,54 @@ public class MasterManager{
         
         public MyLeaderSelectorListenerAdapter(CuratorFramework client, String path,Properties prop){
         	
-        	this.prop = prop;
+        	    this.prop = prop;
 
-        	leaderSelector = new LeaderSelector(client, path, this);
+            leaderSelector = new LeaderSelector(client, path, this);
 
         }
         
         public void start() {
         	
-        	//保证在此实例释放领导权之后还可能获得领导权。
-        	leaderSelector.autoRequeue();
+            //保证在此实例释放领导权之后还可能获得领导权。
+            leaderSelector.autoRequeue();
         	
-        	leaderSelector.start();
-        }
-        
-        public void close(){
-        	
-        	leaderSelector.close();
+        	    leaderSelector.start();
         }
 
-    	public void takeLeadership(CuratorFramework client) throws Exception{
+    	    public void takeLeadership(CuratorFramework client) throws Exception{
+    		    //另外一个master有可能出现假死的情况，首先删除节点，其次杀掉进程
+    		    List<String> masterList = CuratorHelper.getChildren(client, GlobalConstants.MASTER_GROUP);
+    		    if(masterList != null && masterList.size() > 0) {
+    			    for(String master : masterList) {
+    				    CuratorHelper.delete(client, GlobalConstants.MASTER_GROUP + "/" + master);
+    				    //ssh to master server and kill the process,will do later
+    			    }
+    		    }
             int masterServerPort = Configuration.getInt(prop,"thales.master.server.port",DEFAULT_MASTER_SERVER_PORT);
-    		activeMaster = MetricsUtils.getHostIpAddress() + ":" + masterServerPort;
-    		String masterPath = GlobalConstants.MASTER_GROUP + "/" + activeMaster;
-    		LOG.info("active master is " + activeMaster);
-    		CuratorHelper.createNodeIfNotExist(client, masterPath, CreateMode.EPHEMERAL, null);
-    		MasterManager.getInstance().init(GlobalConstants.WORKER_GROUP, prop);
-    	}
-      }
+    		    activeMaster = MetricsUtils.getHostIpAddress() + ":" + masterServerPort;
+    		    String masterPath = GlobalConstants.MASTER_GROUP + "/" + activeMaster;
+    		    LOG.info("active master is " + activeMaster);
+    		    CuratorHelper.createNodeIfNotExist(client, masterPath, CreateMode.PERSISTENT, null);
+    		    MasterManager.getInstance().init(GlobalConstants.WORKER_GROUP, prop);
+         }
+    }
     
     public void init(String workerGroup,Properties prop) throws Exception{
         String quorum = prop.getProperty("thales.zookeeper.quorum");
         int sessionTimeout = Configuration.getInt(prop, "thales.zookeeper.sessionTimeout", GlobalConstants.ZOOKEEPER_SESSION_TIMEOUT);
         int connectionTimeout = Configuration.getInt(prop, "thales.zookeeper.connectionTimeout", GlobalConstants.ZOOKEEPER_CONNECTION_TIMEOUT);
         int masterServerPort = Configuration.getInt(prop,"thales.master.server.port",DEFAULT_MASTER_SERVER_PORT);
+        String groups = Configuration.getString(prop, "thales.scheduler.worker.groups", "");
         
-        CuratorFramework client = CuratorHelper.getCuratorClient(quorum, sessionTimeout, connectionTimeout);
-        List<String> groups = CuratorHelper.getChildren(client,workerGroup);
-        
-        if(groups != null && groups.size() > 0) {
-            for(String groupName : groups) {
-                String groupPath = workerGroup + "/" + groupName;
-                initGroup(client,groupPath);
-                addNodeChangeListener(client,groupPath);  
+        if(StringUtils.isNotBlank(groups)) {
+        	    List<String> list = Arrays.asList(groups.split(","));
+            if(list != null && list.size() > 0) {
+                CuratorFramework client = CuratorHelper.getCuratorClient(quorum, sessionTimeout, connectionTimeout);
+                for(String groupName : list) {
+                    String groupPath = workerGroup + "/" + groupName;
+                    initGroup(groupPath);
+                    addNodeChangeListener(client,groupPath);  
+                }
             }
         }
 //      加载任务实例状态，比较耗时
@@ -166,7 +173,7 @@ public class MasterManager{
         server.blockUntilShutdown();
     }
 
-    private void initGroup(CuratorFramework client,String groupPath) throws Exception {
+    private void initGroup(String groupPath) throws Exception {
         List<String> workers = groups.get(groupPath);
         if(workers == null) {
             workers = new ArrayList<String>();
@@ -174,8 +181,9 @@ public class MasterManager{
         }
     }
     
-    private void addNodeChangeListener(CuratorFramework client,final String groupPath) {
-    	PathChildrenCache pcCache = new PathChildrenCache(client,groupPath,true);
+    @SuppressWarnings({ "resource", "deprecation" })
+	private void addNodeChangeListener(CuratorFramework client,final String groupPath) {
+        PathChildrenCache pcCache = new PathChildrenCache(client,groupPath,true);
 		try {
 			pcCache.start(PathChildrenCache.StartMode.POST_INITIALIZED_EVENT);
 			pcCache.getListenable().addListener(new PathChildrenCacheListener() {
@@ -183,15 +191,17 @@ public class MasterManager{
 						throws Exception {
 					switch (pathChildrenCacheEvent.getType()){
 					case CHILD_ADDED:
-						LOG.info("add node" + pathChildrenCacheEvent.getData().getPath());
-						String addedNodeData = new String(CuratorHelper.getData(client, pathChildrenCacheEvent.getData().getPath()));
-						groups.get(groupPath).add(addedNodeData);
+						String addedPath = pathChildrenCacheEvent.getData().getPath();
+						LOG.info("added node" + addedPath);
+						String addedIp = addedPath.substring(addedPath.lastIndexOf("/") + 1);
+						groups.get(groupPath).add(addedIp);
 						break;
 					case CHILD_REMOVED:
-						LOG.info("remove node"+pathChildrenCacheEvent.getData().getPath());
-						String removedNodeData = new String(CuratorHelper.getData(client, pathChildrenCacheEvent.getData().getPath()));
-						groups.get(groupPath).remove(removedNodeData);
-						releaseResource(groupPath,Arrays.asList(removedNodeData));
+						String removedPath = pathChildrenCacheEvent.getData().getPath();
+						LOG.info("removed node" + removedPath);
+						String removedIp = removedPath.substring(removedPath.lastIndexOf("/") + 1);
+						groups.get(groupPath).remove(removedIp);
+						releaseResource(groupPath,Arrays.asList(removedIp));
 						break;
 					default:
 						break;
@@ -312,6 +322,10 @@ public class MasterManager{
                 JobStrategy.getJobStrategyByName(workerStrategy));
         return new ResourceStrategyContext(workerSelectStrategy).select(this,groupName,lastFailedWorkers);
 
+    }
+    
+    public void addGroup(String groupName) {
+    	   groups.put(groupName, new ArrayList<String>());
     }
 
     public Map<String, List<String>> getGroups() {

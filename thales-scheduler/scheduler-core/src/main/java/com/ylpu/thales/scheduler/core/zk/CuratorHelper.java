@@ -36,10 +36,17 @@ public class CuratorHelper {
 		return client;
 	}
 	
-	public static void createNodeIfNotExist(CuratorFramework client,String path,
-			CreateMode createMode,byte[] bytes) throws Exception {
+	public static boolean nodeExist(CuratorFramework client,String path) throws Exception {
 		Stat stat = client.checkExists().forPath(path);
 		if(stat == null) {
+			return false;
+		}
+		return true;
+	}
+	
+	public static void createNodeIfNotExist(CuratorFramework client,String path,
+			CreateMode createMode,byte[] bytes) throws Exception {
+		if(!nodeExist(client,path)) {
 			client.create().withMode(createMode).forPath(path,bytes);
 		}
 	}
