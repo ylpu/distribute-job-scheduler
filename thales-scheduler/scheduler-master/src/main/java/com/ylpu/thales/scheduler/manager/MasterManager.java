@@ -7,6 +7,7 @@ import com.ylpu.thales.scheduler.core.rest.WorkerManager;
 import com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc;
 import com.ylpu.thales.scheduler.core.utils.DateUtils;
 import com.ylpu.thales.scheduler.core.utils.MetricsUtils;
+import com.ylpu.thales.scheduler.core.utils.SSHUtils;
 import com.ylpu.thales.scheduler.core.zk.CuratorHelper;
 import com.ylpu.thales.scheduler.enums.WorkerStatus;
 import com.ylpu.thales.scheduler.jmx.MasterJmxServer;
@@ -118,12 +119,16 @@ public class MasterManager{
         }
 
     	    public void takeLeadership(CuratorFramework client) throws Exception{
-    		    //另外一个master有可能出现假死的情况，首先删除节点，其次杀掉进程
+    		    //另外一个master有可能出现假死的情况，首先删除节点，其次强制杀掉进程
     		    List<String> masterList = CuratorHelper.getChildren(client, GlobalConstants.MASTER_GROUP);
     		    if(masterList != null && masterList.size() > 0) {
     			    for(String master : masterList) {
     				    CuratorHelper.delete(client, GlobalConstants.MASTER_GROUP + "/" + master);
-    				    //ssh to master server and kill the process,will do later
+    				    String masterIp = master.split(":")[0];
+    			        String username = Configuration.getString(prop, "thales.master.username","default");
+    			        String password = Configuration.getString(prop, "thales.master.password","default");
+    				    String command = "jps -m | grep MasterServer | awk '{print $1}' | xargs kill -9";
+    				    SSHUtils.executeCommand(masterIp, username, password, command);
     			    }
     		    }
             int masterServerPort = Configuration.getInt(prop,"thales.master.server.port",DEFAULT_MASTER_SERVER_PORT);
