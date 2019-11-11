@@ -1,24 +1,24 @@
 package com.ylpu.thales.scheduler.core.rpc.service;
 
-import static io.grpc.MethodDescriptor.generateFullMethodName;
-import static io.grpc.stub.ClientCalls.asyncBidiStreamingCall;
-import static io.grpc.stub.ClientCalls.asyncClientStreamingCall;
-import static io.grpc.stub.ClientCalls.asyncServerStreamingCall;
 import static io.grpc.stub.ClientCalls.asyncUnaryCall;
-import static io.grpc.stub.ClientCalls.blockingServerStreamingCall;
+import static io.grpc.stub.ClientCalls.asyncServerStreamingCall;
+import static io.grpc.stub.ClientCalls.asyncClientStreamingCall;
+import static io.grpc.stub.ClientCalls.asyncBidiStreamingCall;
 import static io.grpc.stub.ClientCalls.blockingUnaryCall;
+import static io.grpc.stub.ClientCalls.blockingServerStreamingCall;
 import static io.grpc.stub.ClientCalls.futureUnaryCall;
-import static io.grpc.stub.ServerCalls.asyncBidiStreamingCall;
-import static io.grpc.stub.ServerCalls.asyncClientStreamingCall;
-import static io.grpc.stub.ServerCalls.asyncServerStreamingCall;
+import static io.grpc.MethodDescriptor.generateFullMethodName;
 import static io.grpc.stub.ServerCalls.asyncUnaryCall;
-import static io.grpc.stub.ServerCalls.asyncUnimplementedStreamingCall;
+import static io.grpc.stub.ServerCalls.asyncServerStreamingCall;
+import static io.grpc.stub.ServerCalls.asyncClientStreamingCall;
+import static io.grpc.stub.ServerCalls.asyncBidiStreamingCall;
 import static io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall;
+import static io.grpc.stub.ServerCalls.asyncUnimplementedStreamingCall;
 
 /**
  */
 @javax.annotation.Generated(
-    value = "by gRPC proto compiler (version 1.24.0-SNAPSHOT)",
+    value = "by gRPC proto compiler (version 1.7.1)",
     comments = "Source: worker.proto")
 public final class GrpcWorkerServiceGrpc {
 
@@ -27,129 +27,71 @@ public final class GrpcWorkerServiceGrpc {
   public static final String SERVICE_NAME = "GrpcWorkerService";
 
   // Static method descriptors that strictly reflect the proto.
-  private static volatile io.grpc.MethodDescriptor<com.ylpu.thales.scheduler.core.rpc.entity.WorkerParameter,
-      com.ylpu.thales.scheduler.core.rpc.entity.WorkerResponseRpc> getIncTaskMethod;
-
-  @io.grpc.stub.annotations.RpcMethod(
-      fullMethodName = SERVICE_NAME + '/' + "incTask",
-      requestType = com.ylpu.thales.scheduler.core.rpc.entity.WorkerParameter.class,
-      responseType = com.ylpu.thales.scheduler.core.rpc.entity.WorkerResponseRpc.class,
-      methodType = io.grpc.MethodDescriptor.MethodType.UNARY)
-  public static io.grpc.MethodDescriptor<com.ylpu.thales.scheduler.core.rpc.entity.WorkerParameter,
-      com.ylpu.thales.scheduler.core.rpc.entity.WorkerResponseRpc> getIncTaskMethod() {
-    io.grpc.MethodDescriptor<com.ylpu.thales.scheduler.core.rpc.entity.WorkerParameter, com.ylpu.thales.scheduler.core.rpc.entity.WorkerResponseRpc> getIncTaskMethod;
-    if ((getIncTaskMethod = GrpcWorkerServiceGrpc.getIncTaskMethod) == null) {
-      synchronized (GrpcWorkerServiceGrpc.class) {
-        if ((getIncTaskMethod = GrpcWorkerServiceGrpc.getIncTaskMethod) == null) {
-          GrpcWorkerServiceGrpc.getIncTaskMethod = getIncTaskMethod =
-              io.grpc.MethodDescriptor.<com.ylpu.thales.scheduler.core.rpc.entity.WorkerParameter, com.ylpu.thales.scheduler.core.rpc.entity.WorkerResponseRpc>newBuilder()
-              .setType(io.grpc.MethodDescriptor.MethodType.UNARY)
-              .setFullMethodName(generateFullMethodName(SERVICE_NAME, "incTask"))
-              .setSampledToLocalTracing(true)
-              .setRequestMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
-                  com.ylpu.thales.scheduler.core.rpc.entity.WorkerParameter.getDefaultInstance()))
-              .setResponseMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
-                  com.ylpu.thales.scheduler.core.rpc.entity.WorkerResponseRpc.getDefaultInstance()))
-              .setSchemaDescriptor(new GrpcWorkerServiceMethodDescriptorSupplier("incTask"))
-              .build();
-        }
-      }
-    }
-    return getIncTaskMethod;
-  }
-
-  private static volatile io.grpc.MethodDescriptor<com.ylpu.thales.scheduler.core.rpc.entity.WorkerParameter,
-      com.ylpu.thales.scheduler.core.rpc.entity.WorkerResponseRpc> getDecTaskMethod;
-
-  @io.grpc.stub.annotations.RpcMethod(
-      fullMethodName = SERVICE_NAME + '/' + "decTask",
-      requestType = com.ylpu.thales.scheduler.core.rpc.entity.WorkerParameter.class,
-      responseType = com.ylpu.thales.scheduler.core.rpc.entity.WorkerResponseRpc.class,
-      methodType = io.grpc.MethodDescriptor.MethodType.UNARY)
-  public static io.grpc.MethodDescriptor<com.ylpu.thales.scheduler.core.rpc.entity.WorkerParameter,
-      com.ylpu.thales.scheduler.core.rpc.entity.WorkerResponseRpc> getDecTaskMethod() {
-    io.grpc.MethodDescriptor<com.ylpu.thales.scheduler.core.rpc.entity.WorkerParameter, com.ylpu.thales.scheduler.core.rpc.entity.WorkerResponseRpc> getDecTaskMethod;
-    if ((getDecTaskMethod = GrpcWorkerServiceGrpc.getDecTaskMethod) == null) {
-      synchronized (GrpcWorkerServiceGrpc.class) {
-        if ((getDecTaskMethod = GrpcWorkerServiceGrpc.getDecTaskMethod) == null) {
-          GrpcWorkerServiceGrpc.getDecTaskMethod = getDecTaskMethod =
-              io.grpc.MethodDescriptor.<com.ylpu.thales.scheduler.core.rpc.entity.WorkerParameter, com.ylpu.thales.scheduler.core.rpc.entity.WorkerResponseRpc>newBuilder()
-              .setType(io.grpc.MethodDescriptor.MethodType.UNARY)
-              .setFullMethodName(generateFullMethodName(SERVICE_NAME, "decTask"))
-              .setSampledToLocalTracing(true)
-              .setRequestMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
-                  com.ylpu.thales.scheduler.core.rpc.entity.WorkerParameter.getDefaultInstance()))
-              .setResponseMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
-                  com.ylpu.thales.scheduler.core.rpc.entity.WorkerResponseRpc.getDefaultInstance()))
-              .setSchemaDescriptor(new GrpcWorkerServiceMethodDescriptorSupplier("decTask"))
-              .build();
-        }
-      }
-    }
-    return getDecTaskMethod;
-  }
-
-  private static volatile io.grpc.MethodDescriptor<com.ylpu.thales.scheduler.core.rpc.entity.WorkerRequestRpc,
-      com.ylpu.thales.scheduler.core.rpc.entity.WorkerResponseRpc> getUpdateResourceMethod;
-
-  @io.grpc.stub.annotations.RpcMethod(
-      fullMethodName = SERVICE_NAME + '/' + "updateResource",
-      requestType = com.ylpu.thales.scheduler.core.rpc.entity.WorkerRequestRpc.class,
-      responseType = com.ylpu.thales.scheduler.core.rpc.entity.WorkerResponseRpc.class,
-      methodType = io.grpc.MethodDescriptor.MethodType.UNARY)
-  public static io.grpc.MethodDescriptor<com.ylpu.thales.scheduler.core.rpc.entity.WorkerRequestRpc,
-      com.ylpu.thales.scheduler.core.rpc.entity.WorkerResponseRpc> getUpdateResourceMethod() {
-    io.grpc.MethodDescriptor<com.ylpu.thales.scheduler.core.rpc.entity.WorkerRequestRpc, com.ylpu.thales.scheduler.core.rpc.entity.WorkerResponseRpc> getUpdateResourceMethod;
-    if ((getUpdateResourceMethod = GrpcWorkerServiceGrpc.getUpdateResourceMethod) == null) {
-      synchronized (GrpcWorkerServiceGrpc.class) {
-        if ((getUpdateResourceMethod = GrpcWorkerServiceGrpc.getUpdateResourceMethod) == null) {
-          GrpcWorkerServiceGrpc.getUpdateResourceMethod = getUpdateResourceMethod =
-              io.grpc.MethodDescriptor.<com.ylpu.thales.scheduler.core.rpc.entity.WorkerRequestRpc, com.ylpu.thales.scheduler.core.rpc.entity.WorkerResponseRpc>newBuilder()
-              .setType(io.grpc.MethodDescriptor.MethodType.UNARY)
-              .setFullMethodName(generateFullMethodName(SERVICE_NAME, "updateResource"))
-              .setSampledToLocalTracing(true)
-              .setRequestMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
-                  com.ylpu.thales.scheduler.core.rpc.entity.WorkerRequestRpc.getDefaultInstance()))
-              .setResponseMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
-                  com.ylpu.thales.scheduler.core.rpc.entity.WorkerResponseRpc.getDefaultInstance()))
-              .setSchemaDescriptor(new GrpcWorkerServiceMethodDescriptorSupplier("updateResource"))
-              .build();
-        }
-      }
-    }
-    return getUpdateResourceMethod;
-  }
-
-  private static volatile io.grpc.MethodDescriptor<com.ylpu.thales.scheduler.core.rpc.entity.JobStatusRequestRpc,
-      com.ylpu.thales.scheduler.core.rpc.entity.WorkerResponseRpc> getUpdateJobStatusMethod;
-
-  @io.grpc.stub.annotations.RpcMethod(
-      fullMethodName = SERVICE_NAME + '/' + "updateJobStatus",
-      requestType = com.ylpu.thales.scheduler.core.rpc.entity.JobStatusRequestRpc.class,
-      responseType = com.ylpu.thales.scheduler.core.rpc.entity.WorkerResponseRpc.class,
-      methodType = io.grpc.MethodDescriptor.MethodType.UNARY)
-  public static io.grpc.MethodDescriptor<com.ylpu.thales.scheduler.core.rpc.entity.JobStatusRequestRpc,
-      com.ylpu.thales.scheduler.core.rpc.entity.WorkerResponseRpc> getUpdateJobStatusMethod() {
-    io.grpc.MethodDescriptor<com.ylpu.thales.scheduler.core.rpc.entity.JobStatusRequestRpc, com.ylpu.thales.scheduler.core.rpc.entity.WorkerResponseRpc> getUpdateJobStatusMethod;
-    if ((getUpdateJobStatusMethod = GrpcWorkerServiceGrpc.getUpdateJobStatusMethod) == null) {
-      synchronized (GrpcWorkerServiceGrpc.class) {
-        if ((getUpdateJobStatusMethod = GrpcWorkerServiceGrpc.getUpdateJobStatusMethod) == null) {
-          GrpcWorkerServiceGrpc.getUpdateJobStatusMethod = getUpdateJobStatusMethod =
-              io.grpc.MethodDescriptor.<com.ylpu.thales.scheduler.core.rpc.entity.JobStatusRequestRpc, com.ylpu.thales.scheduler.core.rpc.entity.WorkerResponseRpc>newBuilder()
-              .setType(io.grpc.MethodDescriptor.MethodType.UNARY)
-              .setFullMethodName(generateFullMethodName(SERVICE_NAME, "updateJobStatus"))
-              .setSampledToLocalTracing(true)
-              .setRequestMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
-                  com.ylpu.thales.scheduler.core.rpc.entity.JobStatusRequestRpc.getDefaultInstance()))
-              .setResponseMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
-                  com.ylpu.thales.scheduler.core.rpc.entity.WorkerResponseRpc.getDefaultInstance()))
-              .setSchemaDescriptor(new GrpcWorkerServiceMethodDescriptorSupplier("updateJobStatus"))
-              .build();
-        }
-      }
-    }
-    return getUpdateJobStatusMethod;
-  }
+  @io.grpc.ExperimentalApi("https://github.com/grpc/grpc-java/issues/1901")
+  public static final io.grpc.MethodDescriptor<com.ylpu.thales.scheduler.core.rpc.entity.WorkerParameter,
+      com.ylpu.thales.scheduler.core.rpc.entity.WorkerResponseRpc> METHOD_INC_TASK =
+      io.grpc.MethodDescriptor.<com.ylpu.thales.scheduler.core.rpc.entity.WorkerParameter, com.ylpu.thales.scheduler.core.rpc.entity.WorkerResponseRpc>newBuilder()
+          .setType(io.grpc.MethodDescriptor.MethodType.UNARY)
+          .setFullMethodName(generateFullMethodName(
+              "GrpcWorkerService", "incTask"))
+          .setRequestMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
+              com.ylpu.thales.scheduler.core.rpc.entity.WorkerParameter.getDefaultInstance()))
+          .setResponseMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
+              com.ylpu.thales.scheduler.core.rpc.entity.WorkerResponseRpc.getDefaultInstance()))
+          .setSchemaDescriptor(new GrpcWorkerServiceMethodDescriptorSupplier("incTask"))
+          .build();
+  @io.grpc.ExperimentalApi("https://github.com/grpc/grpc-java/issues/1901")
+  public static final io.grpc.MethodDescriptor<com.ylpu.thales.scheduler.core.rpc.entity.WorkerParameter,
+      com.ylpu.thales.scheduler.core.rpc.entity.WorkerResponseRpc> METHOD_DEC_TASK =
+      io.grpc.MethodDescriptor.<com.ylpu.thales.scheduler.core.rpc.entity.WorkerParameter, com.ylpu.thales.scheduler.core.rpc.entity.WorkerResponseRpc>newBuilder()
+          .setType(io.grpc.MethodDescriptor.MethodType.UNARY)
+          .setFullMethodName(generateFullMethodName(
+              "GrpcWorkerService", "decTask"))
+          .setRequestMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
+              com.ylpu.thales.scheduler.core.rpc.entity.WorkerParameter.getDefaultInstance()))
+          .setResponseMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
+              com.ylpu.thales.scheduler.core.rpc.entity.WorkerResponseRpc.getDefaultInstance()))
+          .setSchemaDescriptor(new GrpcWorkerServiceMethodDescriptorSupplier("decTask"))
+          .build();
+  @io.grpc.ExperimentalApi("https://github.com/grpc/grpc-java/issues/1901")
+  public static final io.grpc.MethodDescriptor<com.ylpu.thales.scheduler.core.rpc.entity.WorkerRequestRpc,
+      com.ylpu.thales.scheduler.core.rpc.entity.WorkerResponseRpc> METHOD_UPDATE_RESOURCE =
+      io.grpc.MethodDescriptor.<com.ylpu.thales.scheduler.core.rpc.entity.WorkerRequestRpc, com.ylpu.thales.scheduler.core.rpc.entity.WorkerResponseRpc>newBuilder()
+          .setType(io.grpc.MethodDescriptor.MethodType.UNARY)
+          .setFullMethodName(generateFullMethodName(
+              "GrpcWorkerService", "updateResource"))
+          .setRequestMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
+              com.ylpu.thales.scheduler.core.rpc.entity.WorkerRequestRpc.getDefaultInstance()))
+          .setResponseMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
+              com.ylpu.thales.scheduler.core.rpc.entity.WorkerResponseRpc.getDefaultInstance()))
+          .setSchemaDescriptor(new GrpcWorkerServiceMethodDescriptorSupplier("updateResource"))
+          .build();
+  @io.grpc.ExperimentalApi("https://github.com/grpc/grpc-java/issues/1901")
+  public static final io.grpc.MethodDescriptor<com.ylpu.thales.scheduler.core.rpc.entity.WorkerRequestRpc,
+      com.ylpu.thales.scheduler.core.rpc.entity.WorkerResponseRpc> METHOD_INSERT_OR_UPDATE_GROUP =
+      io.grpc.MethodDescriptor.<com.ylpu.thales.scheduler.core.rpc.entity.WorkerRequestRpc, com.ylpu.thales.scheduler.core.rpc.entity.WorkerResponseRpc>newBuilder()
+          .setType(io.grpc.MethodDescriptor.MethodType.UNARY)
+          .setFullMethodName(generateFullMethodName(
+              "GrpcWorkerService", "insertOrUpdateGroup"))
+          .setRequestMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
+              com.ylpu.thales.scheduler.core.rpc.entity.WorkerRequestRpc.getDefaultInstance()))
+          .setResponseMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
+              com.ylpu.thales.scheduler.core.rpc.entity.WorkerResponseRpc.getDefaultInstance()))
+          .setSchemaDescriptor(new GrpcWorkerServiceMethodDescriptorSupplier("insertOrUpdateGroup"))
+          .build();
+  @io.grpc.ExperimentalApi("https://github.com/grpc/grpc-java/issues/1901")
+  public static final io.grpc.MethodDescriptor<com.ylpu.thales.scheduler.core.rpc.entity.JobStatusRequestRpc,
+      com.ylpu.thales.scheduler.core.rpc.entity.WorkerResponseRpc> METHOD_UPDATE_JOB_STATUS =
+      io.grpc.MethodDescriptor.<com.ylpu.thales.scheduler.core.rpc.entity.JobStatusRequestRpc, com.ylpu.thales.scheduler.core.rpc.entity.WorkerResponseRpc>newBuilder()
+          .setType(io.grpc.MethodDescriptor.MethodType.UNARY)
+          .setFullMethodName(generateFullMethodName(
+              "GrpcWorkerService", "updateJobStatus"))
+          .setRequestMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
+              com.ylpu.thales.scheduler.core.rpc.entity.JobStatusRequestRpc.getDefaultInstance()))
+          .setResponseMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
+              com.ylpu.thales.scheduler.core.rpc.entity.WorkerResponseRpc.getDefaultInstance()))
+          .setSchemaDescriptor(new GrpcWorkerServiceMethodDescriptorSupplier("updateJobStatus"))
+          .build();
 
   /**
    * Creates a new async stub that supports all call types for the service
@@ -182,55 +124,69 @@ public final class GrpcWorkerServiceGrpc {
      */
     public void incTask(com.ylpu.thales.scheduler.core.rpc.entity.WorkerParameter request,
         io.grpc.stub.StreamObserver<com.ylpu.thales.scheduler.core.rpc.entity.WorkerResponseRpc> responseObserver) {
-      asyncUnimplementedUnaryCall(getIncTaskMethod(), responseObserver);
+      asyncUnimplementedUnaryCall(METHOD_INC_TASK, responseObserver);
     }
 
     /**
      */
     public void decTask(com.ylpu.thales.scheduler.core.rpc.entity.WorkerParameter request,
         io.grpc.stub.StreamObserver<com.ylpu.thales.scheduler.core.rpc.entity.WorkerResponseRpc> responseObserver) {
-      asyncUnimplementedUnaryCall(getDecTaskMethod(), responseObserver);
+      asyncUnimplementedUnaryCall(METHOD_DEC_TASK, responseObserver);
     }
 
     /**
      */
     public void updateResource(com.ylpu.thales.scheduler.core.rpc.entity.WorkerRequestRpc request,
         io.grpc.stub.StreamObserver<com.ylpu.thales.scheduler.core.rpc.entity.WorkerResponseRpc> responseObserver) {
-      asyncUnimplementedUnaryCall(getUpdateResourceMethod(), responseObserver);
+      asyncUnimplementedUnaryCall(METHOD_UPDATE_RESOURCE, responseObserver);
+    }
+
+    /**
+     */
+    public void insertOrUpdateGroup(com.ylpu.thales.scheduler.core.rpc.entity.WorkerRequestRpc request,
+        io.grpc.stub.StreamObserver<com.ylpu.thales.scheduler.core.rpc.entity.WorkerResponseRpc> responseObserver) {
+      asyncUnimplementedUnaryCall(METHOD_INSERT_OR_UPDATE_GROUP, responseObserver);
     }
 
     /**
      */
     public void updateJobStatus(com.ylpu.thales.scheduler.core.rpc.entity.JobStatusRequestRpc request,
         io.grpc.stub.StreamObserver<com.ylpu.thales.scheduler.core.rpc.entity.WorkerResponseRpc> responseObserver) {
-      asyncUnimplementedUnaryCall(getUpdateJobStatusMethod(), responseObserver);
+      asyncUnimplementedUnaryCall(METHOD_UPDATE_JOB_STATUS, responseObserver);
     }
 
     @java.lang.Override public final io.grpc.ServerServiceDefinition bindService() {
       return io.grpc.ServerServiceDefinition.builder(getServiceDescriptor())
           .addMethod(
-            getIncTaskMethod(),
+            METHOD_INC_TASK,
             asyncUnaryCall(
               new MethodHandlers<
                 com.ylpu.thales.scheduler.core.rpc.entity.WorkerParameter,
                 com.ylpu.thales.scheduler.core.rpc.entity.WorkerResponseRpc>(
                   this, METHODID_INC_TASK)))
           .addMethod(
-            getDecTaskMethod(),
+            METHOD_DEC_TASK,
             asyncUnaryCall(
               new MethodHandlers<
                 com.ylpu.thales.scheduler.core.rpc.entity.WorkerParameter,
                 com.ylpu.thales.scheduler.core.rpc.entity.WorkerResponseRpc>(
                   this, METHODID_DEC_TASK)))
           .addMethod(
-            getUpdateResourceMethod(),
+            METHOD_UPDATE_RESOURCE,
             asyncUnaryCall(
               new MethodHandlers<
                 com.ylpu.thales.scheduler.core.rpc.entity.WorkerRequestRpc,
                 com.ylpu.thales.scheduler.core.rpc.entity.WorkerResponseRpc>(
                   this, METHODID_UPDATE_RESOURCE)))
           .addMethod(
-            getUpdateJobStatusMethod(),
+            METHOD_INSERT_OR_UPDATE_GROUP,
+            asyncUnaryCall(
+              new MethodHandlers<
+                com.ylpu.thales.scheduler.core.rpc.entity.WorkerRequestRpc,
+                com.ylpu.thales.scheduler.core.rpc.entity.WorkerResponseRpc>(
+                  this, METHODID_INSERT_OR_UPDATE_GROUP)))
+          .addMethod(
+            METHOD_UPDATE_JOB_STATUS,
             asyncUnaryCall(
               new MethodHandlers<
                 com.ylpu.thales.scheduler.core.rpc.entity.JobStatusRequestRpc,
@@ -263,7 +219,7 @@ public final class GrpcWorkerServiceGrpc {
     public void incTask(com.ylpu.thales.scheduler.core.rpc.entity.WorkerParameter request,
         io.grpc.stub.StreamObserver<com.ylpu.thales.scheduler.core.rpc.entity.WorkerResponseRpc> responseObserver) {
       asyncUnaryCall(
-          getChannel().newCall(getIncTaskMethod(), getCallOptions()), request, responseObserver);
+          getChannel().newCall(METHOD_INC_TASK, getCallOptions()), request, responseObserver);
     }
 
     /**
@@ -271,7 +227,7 @@ public final class GrpcWorkerServiceGrpc {
     public void decTask(com.ylpu.thales.scheduler.core.rpc.entity.WorkerParameter request,
         io.grpc.stub.StreamObserver<com.ylpu.thales.scheduler.core.rpc.entity.WorkerResponseRpc> responseObserver) {
       asyncUnaryCall(
-          getChannel().newCall(getDecTaskMethod(), getCallOptions()), request, responseObserver);
+          getChannel().newCall(METHOD_DEC_TASK, getCallOptions()), request, responseObserver);
     }
 
     /**
@@ -279,7 +235,15 @@ public final class GrpcWorkerServiceGrpc {
     public void updateResource(com.ylpu.thales.scheduler.core.rpc.entity.WorkerRequestRpc request,
         io.grpc.stub.StreamObserver<com.ylpu.thales.scheduler.core.rpc.entity.WorkerResponseRpc> responseObserver) {
       asyncUnaryCall(
-          getChannel().newCall(getUpdateResourceMethod(), getCallOptions()), request, responseObserver);
+          getChannel().newCall(METHOD_UPDATE_RESOURCE, getCallOptions()), request, responseObserver);
+    }
+
+    /**
+     */
+    public void insertOrUpdateGroup(com.ylpu.thales.scheduler.core.rpc.entity.WorkerRequestRpc request,
+        io.grpc.stub.StreamObserver<com.ylpu.thales.scheduler.core.rpc.entity.WorkerResponseRpc> responseObserver) {
+      asyncUnaryCall(
+          getChannel().newCall(METHOD_INSERT_OR_UPDATE_GROUP, getCallOptions()), request, responseObserver);
     }
 
     /**
@@ -287,7 +251,7 @@ public final class GrpcWorkerServiceGrpc {
     public void updateJobStatus(com.ylpu.thales.scheduler.core.rpc.entity.JobStatusRequestRpc request,
         io.grpc.stub.StreamObserver<com.ylpu.thales.scheduler.core.rpc.entity.WorkerResponseRpc> responseObserver) {
       asyncUnaryCall(
-          getChannel().newCall(getUpdateJobStatusMethod(), getCallOptions()), request, responseObserver);
+          getChannel().newCall(METHOD_UPDATE_JOB_STATUS, getCallOptions()), request, responseObserver);
     }
   }
 
@@ -313,28 +277,35 @@ public final class GrpcWorkerServiceGrpc {
      */
     public com.ylpu.thales.scheduler.core.rpc.entity.WorkerResponseRpc incTask(com.ylpu.thales.scheduler.core.rpc.entity.WorkerParameter request) {
       return blockingUnaryCall(
-          getChannel(), getIncTaskMethod(), getCallOptions(), request);
+          getChannel(), METHOD_INC_TASK, getCallOptions(), request);
     }
 
     /**
      */
     public com.ylpu.thales.scheduler.core.rpc.entity.WorkerResponseRpc decTask(com.ylpu.thales.scheduler.core.rpc.entity.WorkerParameter request) {
       return blockingUnaryCall(
-          getChannel(), getDecTaskMethod(), getCallOptions(), request);
+          getChannel(), METHOD_DEC_TASK, getCallOptions(), request);
     }
 
     /**
      */
     public com.ylpu.thales.scheduler.core.rpc.entity.WorkerResponseRpc updateResource(com.ylpu.thales.scheduler.core.rpc.entity.WorkerRequestRpc request) {
       return blockingUnaryCall(
-          getChannel(), getUpdateResourceMethod(), getCallOptions(), request);
+          getChannel(), METHOD_UPDATE_RESOURCE, getCallOptions(), request);
+    }
+
+    /**
+     */
+    public com.ylpu.thales.scheduler.core.rpc.entity.WorkerResponseRpc insertOrUpdateGroup(com.ylpu.thales.scheduler.core.rpc.entity.WorkerRequestRpc request) {
+      return blockingUnaryCall(
+          getChannel(), METHOD_INSERT_OR_UPDATE_GROUP, getCallOptions(), request);
     }
 
     /**
      */
     public com.ylpu.thales.scheduler.core.rpc.entity.WorkerResponseRpc updateJobStatus(com.ylpu.thales.scheduler.core.rpc.entity.JobStatusRequestRpc request) {
       return blockingUnaryCall(
-          getChannel(), getUpdateJobStatusMethod(), getCallOptions(), request);
+          getChannel(), METHOD_UPDATE_JOB_STATUS, getCallOptions(), request);
     }
   }
 
@@ -361,7 +332,7 @@ public final class GrpcWorkerServiceGrpc {
     public com.google.common.util.concurrent.ListenableFuture<com.ylpu.thales.scheduler.core.rpc.entity.WorkerResponseRpc> incTask(
         com.ylpu.thales.scheduler.core.rpc.entity.WorkerParameter request) {
       return futureUnaryCall(
-          getChannel().newCall(getIncTaskMethod(), getCallOptions()), request);
+          getChannel().newCall(METHOD_INC_TASK, getCallOptions()), request);
     }
 
     /**
@@ -369,7 +340,7 @@ public final class GrpcWorkerServiceGrpc {
     public com.google.common.util.concurrent.ListenableFuture<com.ylpu.thales.scheduler.core.rpc.entity.WorkerResponseRpc> decTask(
         com.ylpu.thales.scheduler.core.rpc.entity.WorkerParameter request) {
       return futureUnaryCall(
-          getChannel().newCall(getDecTaskMethod(), getCallOptions()), request);
+          getChannel().newCall(METHOD_DEC_TASK, getCallOptions()), request);
     }
 
     /**
@@ -377,7 +348,15 @@ public final class GrpcWorkerServiceGrpc {
     public com.google.common.util.concurrent.ListenableFuture<com.ylpu.thales.scheduler.core.rpc.entity.WorkerResponseRpc> updateResource(
         com.ylpu.thales.scheduler.core.rpc.entity.WorkerRequestRpc request) {
       return futureUnaryCall(
-          getChannel().newCall(getUpdateResourceMethod(), getCallOptions()), request);
+          getChannel().newCall(METHOD_UPDATE_RESOURCE, getCallOptions()), request);
+    }
+
+    /**
+     */
+    public com.google.common.util.concurrent.ListenableFuture<com.ylpu.thales.scheduler.core.rpc.entity.WorkerResponseRpc> insertOrUpdateGroup(
+        com.ylpu.thales.scheduler.core.rpc.entity.WorkerRequestRpc request) {
+      return futureUnaryCall(
+          getChannel().newCall(METHOD_INSERT_OR_UPDATE_GROUP, getCallOptions()), request);
     }
 
     /**
@@ -385,14 +364,15 @@ public final class GrpcWorkerServiceGrpc {
     public com.google.common.util.concurrent.ListenableFuture<com.ylpu.thales.scheduler.core.rpc.entity.WorkerResponseRpc> updateJobStatus(
         com.ylpu.thales.scheduler.core.rpc.entity.JobStatusRequestRpc request) {
       return futureUnaryCall(
-          getChannel().newCall(getUpdateJobStatusMethod(), getCallOptions()), request);
+          getChannel().newCall(METHOD_UPDATE_JOB_STATUS, getCallOptions()), request);
     }
   }
 
   private static final int METHODID_INC_TASK = 0;
   private static final int METHODID_DEC_TASK = 1;
   private static final int METHODID_UPDATE_RESOURCE = 2;
-  private static final int METHODID_UPDATE_JOB_STATUS = 3;
+  private static final int METHODID_INSERT_OR_UPDATE_GROUP = 3;
+  private static final int METHODID_UPDATE_JOB_STATUS = 4;
 
   private static final class MethodHandlers<Req, Resp> implements
       io.grpc.stub.ServerCalls.UnaryMethod<Req, Resp>,
@@ -421,6 +401,10 @@ public final class GrpcWorkerServiceGrpc {
           break;
         case METHODID_UPDATE_RESOURCE:
           serviceImpl.updateResource((com.ylpu.thales.scheduler.core.rpc.entity.WorkerRequestRpc) request,
+              (io.grpc.stub.StreamObserver<com.ylpu.thales.scheduler.core.rpc.entity.WorkerResponseRpc>) responseObserver);
+          break;
+        case METHODID_INSERT_OR_UPDATE_GROUP:
+          serviceImpl.insertOrUpdateGroup((com.ylpu.thales.scheduler.core.rpc.entity.WorkerRequestRpc) request,
               (io.grpc.stub.StreamObserver<com.ylpu.thales.scheduler.core.rpc.entity.WorkerResponseRpc>) responseObserver);
           break;
         case METHODID_UPDATE_JOB_STATUS:
@@ -488,10 +472,11 @@ public final class GrpcWorkerServiceGrpc {
         if (result == null) {
           serviceDescriptor = result = io.grpc.ServiceDescriptor.newBuilder(SERVICE_NAME)
               .setSchemaDescriptor(new GrpcWorkerServiceFileDescriptorSupplier())
-              .addMethod(getIncTaskMethod())
-              .addMethod(getDecTaskMethod())
-              .addMethod(getUpdateResourceMethod())
-              .addMethod(getUpdateJobStatusMethod())
+              .addMethod(METHOD_INC_TASK)
+              .addMethod(METHOD_DEC_TASK)
+              .addMethod(METHOD_UPDATE_RESOURCE)
+              .addMethod(METHOD_INSERT_OR_UPDATE_GROUP)
+              .addMethod(METHOD_UPDATE_JOB_STATUS)
               .build();
         }
       }

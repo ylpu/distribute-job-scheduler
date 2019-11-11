@@ -44,6 +44,20 @@ public class MasterRpcServiceImpl extends GrpcWorkerServiceGrpc.GrpcWorkerServic
         responseObserver.onNext(builder.build());
         responseObserver.onCompleted();
     }
+
+    public void insertOrUpdateGroup(WorkerRequestRpc request,StreamObserver<WorkerResponseRpc> responseObserver) {
+        WorkerResponseRpc.Builder builder = WorkerResponseRpc.newBuilder(); 
+        try {
+            MasterManager.getInstance().insertOrUpdateGroup(request.getNodeGroup());
+            builder.setErrorCode(200);
+            builder.setErrorMsg("");
+        }catch(Exception e) {
+            builder.setErrorCode(500);
+            builder.setErrorMsg(e.getMessage());
+        }
+        responseObserver.onNext(builder.build());
+        responseObserver.onCompleted();
+    }
     
     /**
      * 增加worker任务个数

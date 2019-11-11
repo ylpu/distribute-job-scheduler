@@ -2,7 +2,6 @@ package com.ylpu.thales.scheduler.rpc.client;
 import java.util.concurrent.TimeUnit;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import com.ylpu.thales.scheduler.core.rpc.entity.JobStatusRequestRpc;
 import com.ylpu.thales.scheduler.core.rpc.entity.WorkerParameter;
 import com.ylpu.thales.scheduler.core.rpc.entity.WorkerRequestRpc;
@@ -29,6 +28,12 @@ public class WorkerGrpcClient {
     public void updateResource(WorkerRequestRpc request){
         WorkerResponseRpc response = blockStub.updateResource(request);
         LOG.info("update worker :" + request.getHost() + " with response code " + response.getErrorCode() 
+        + " and message " + response.getErrorMsg());
+    }
+    
+    public void insertOrUpdateGroup(WorkerRequestRpc request){
+        WorkerResponseRpc response = blockStub.insertOrUpdateGroup(request);
+        LOG.info("update Group :" + request.getNodeGroup() + " with response code " + response.getErrorCode() 
         + " and message " + response.getErrorMsg());
     }
     

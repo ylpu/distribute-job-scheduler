@@ -145,17 +145,13 @@ public class MasterManager{
         int sessionTimeout = Configuration.getInt(prop, "thales.zookeeper.sessionTimeout", GlobalConstants.ZOOKEEPER_SESSION_TIMEOUT);
         int connectionTimeout = Configuration.getInt(prop, "thales.zookeeper.connectionTimeout", GlobalConstants.ZOOKEEPER_CONNECTION_TIMEOUT);
         int masterServerPort = Configuration.getInt(prop,"thales.master.server.port",DEFAULT_MASTER_SERVER_PORT);
-        String groups = Configuration.getString(prop, "thales.scheduler.worker.groups", "");
-        
-        if(StringUtils.isNotBlank(groups)) {
-        	    List<String> list = Arrays.asList(groups.split(","));
-            if(list != null && list.size() > 0) {
-                CuratorFramework client = CuratorHelper.getCuratorClient(quorum, sessionTimeout, connectionTimeout);
-                for(String groupName : list) {
-                    String groupPath = workerGroup + "/" + groupName;
-                    initGroup(groupPath);
-                    addNodeChangeListener(client,groupPath);  
-                }
+        CuratorFramework client = CuratorHelper.getCuratorClient(quorum, sessionTimeout, connectionTimeout);
+        List<String> list = CuratorHelper.getChildren(client, GlobalConstants.WORKER_GROUP);
+        if(list != null && list.size() > 0) {
+            for(String groupName : list) {
+                String groupPath = workerGroup + "/" + groupName;
+                initGroup(groupPath);
+                addNodeChangeListener(client,groupPath);  
             }
         }
 //      加载任务实例状态，比较耗时
@@ -177,7 +173,7 @@ public class MasterManager{
         server.start();
         server.blockUntilShutdown();
     }
-
+    
     private void initGroup(String groupPath) throws Exception {
         List<String> workers = groups.get(groupPath);
         if(workers == null) {
@@ -185,38 +181,6 @@ public class MasterManager{
             groups.put(groupPath, workers);
         }
     }
-    
-    @SuppressWarnings({ "resource", "deprecation" })
-	private void addNodeChangeListener(CuratorFramework client,final String groupPath) {
-        PathChildrenCache pcCache = new PathChildrenCache(client,groupPath,true);
-		try {
-			pcCache.start(PathChildrenCache.StartMode.POST_INITIALIZED_EVENT);
-			pcCache.getListenable().addListener(new PathChildrenCacheListener() {
-				public void childEvent(CuratorFramework curatorFramework, PathChildrenCacheEvent pathChildrenCacheEvent)
-						throws Exception {
-					switch (pathChildrenCacheEvent.getType()){
-					case CHILD_ADDED:
-						String addedPath = pathChildrenCacheEvent.getData().getPath();
-						LOG.info("added node" + addedPath);
-						String addedIp = addedPath.substring(addedPath.lastIndexOf("/") + 1);
-						groups.get(groupPath).add(addedIp);
-						break;
-					case CHILD_REMOVED:
-						String removedPath = pathChildrenCacheEvent.getData().getPath();
-						LOG.info("removed node" + removedPath);
-						String removedIp = removedPath.substring(removedPath.lastIndexOf("/") + 1);
-						groups.get(groupPath).remove(removedIp);
-						releaseResource(groupPath,Arrays.asList(removedIp));
-						break;
-					default:
-						break;
-					}
-				}
-			});
-		} catch (Exception e) {
-			LOG.error(e);
-		}
-    } 
     
     private void initTaskCount() {
         synchronized(taskMap) {
@@ -279,13 +243,60 @@ public class MasterManager{
             workerInfo.setCpuUsage(request.getCpuUsage());
             workerInfo.setMemoryUsage(request.getMemoryUsage());
             workerInfo.setNodeStatus(request.getNodeStatus());
+            workerInfo.setNodeGroup(request.getNodeGroup());
             workerInfo.setLastHeartbeatTime(request.getLastHeartbeatTime());
             workerInfo.setPort(request.getPort());
             workerInfo.setZkdirectory(request.getZkdirectory());
             workerInfo.setNodeType(request.getNodeType());
-            workerInfo.setNodeStatus(request.getNodeStatus());
         }
     }
+    
+    public void insertOrUpdateGroup(String groupName) throws Exception {
+    	    String groupPath = GlobalConstants.WORKER_GROUP + "/" + groupName;
+    	    if(groups.get(groupPath) == null) {
+    	        Properties prop = Configuration.getConfig();
+    	        String quorum = prop.getProperty("thales.zookeeper.quorum");
+    	        int sessionTimeout = Configuration.getInt(prop, "thales.zookeeper.sessionTimeout", GlobalConstants.ZOOKEEPER_SESSION_TIMEOUT);
+    	        int connectionTimeout = Configuration.getInt(prop, "thales.zookeeper.connectionTimeout", GlobalConstants.ZOOKEEPER_CONNECTION_TIMEOUT);
+    	        CuratorFramework client = CuratorHelper.getCuratorClient(quorum, sessionTimeout, connectionTimeout);
+    	        
+    	        CuratorHelper.createNodeIfNotExist(client,  groupPath, CreateMode.PERSISTENT, null);  
+    	        groups.put(groupPath, new ArrayList<String>());
+            addNodeChangeListener(client,groupPath);
+    	    }
+    }
+    
+    @SuppressWarnings({ "resource", "deprecation" })
+	private void addNodeChangeListener(CuratorFramework client,final String groupPath) {
+        PathChildrenCache pcCache = new PathChildrenCache(client,groupPath,true);
+		try {
+			pcCache.start(PathChildrenCache.StartMode.POST_INITIALIZED_EVENT);
+			pcCache.getListenable().addListener(new PathChildrenCacheListener() {
+				public void childEvent(CuratorFramework curatorFramework, PathChildrenCacheEvent pathChildrenCacheEvent)
+						throws Exception {
+					switch (pathChildrenCacheEvent.getType()){
+					case CHILD_ADDED:
+						String addedPath = pathChildrenCacheEvent.getData().getPath();
+						LOG.info("added node" + addedPath);
+						String addedIp = addedPath.substring(addedPath.lastIndexOf("/") + 1);
+						groups.get(groupPath).add(addedIp);
+						break;
+					case CHILD_REMOVED:
+						String removedPath = pathChildrenCacheEvent.getData().getPath();
+						LOG.info("removed node" + removedPath);
+						String removedIp = removedPath.substring(removedPath.lastIndexOf("/") + 1);
+						groups.get(groupPath).remove(removedIp);
+						releaseResource(groupPath,Arrays.asList(removedIp));
+						break;
+					default:
+						break;
+					}
+				}
+			});
+		} catch (Exception e) {
+			LOG.error(e);
+		}
+    } 
     
     /**
      * 开始处理任务

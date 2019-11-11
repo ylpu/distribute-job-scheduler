@@ -38,5 +38,6 @@ service GrpcWorkerService{
     rpc incTask(WorkerParameter) returns(WorkerResponseRpc);
     rpc decTask(WorkerParameter) returns(WorkerResponseRpc);
     rpc updateResource(WorkerRequestRpc) returns(WorkerResponseRpc);
+    rpc insertOrUpdateGroup(WorkerRequestRpc) returns(WorkerResponseRpc);
     rpc updateJobStatus(JobStatusRequestRpc) returns(WorkerResponseRpc);
 }

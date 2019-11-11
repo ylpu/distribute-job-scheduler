@@ -101,14 +101,32 @@ public class WorkerServer {
         CuratorFramework client = CuratorHelper.getCuratorClient(quorum, sessionTimeout, connectionTimeout);
         CuratorHelper.createNodeIfNotExist(client,  GlobalConstants.ROOT_GROUP, CreateMode.PERSISTENT, null);
         CuratorHelper.createNodeIfNotExist(client,  GlobalConstants.WORKER_GROUP, CreateMode.PERSISTENT, null);
-       
-        String workerGroupPath = GlobalConstants.WORKER_GROUP + "/" + workerGroup;
-        CuratorHelper.createNodeIfNotExist(client,  workerGroupPath, CreateMode.PERSISTENT, null);
+        
+        insertOrUpdateGroup(workerGroup);
         
         String ipAddress = MetricsUtils.getHostIpAddress(); 
-        String workerPath = workerGroupPath + "/" + ipAddress;
+        String workerPath = GlobalConstants.WORKER_GROUP + "/" + workerGroup + "/" + ipAddress;
         CuratorHelper.createNodeIfNotExist(client, workerPath, CreateMode.EPHEMERAL, null);
         return workerPath;
+    }
+    
+    private void insertOrUpdateGroup(String workerGroup) throws Exception {
+        String master;
+        WorkerGrpcClient client = null;
+		try {
+			master = CuratorHelper.getActiveMaster();
+	        String[] masters = master.split(":");
+	        client = new WorkerGrpcClient(masters[0],NumberUtils.toInt(masters[1]));
+	        WorkerRequestRpc request = WorkerRequestRpc.newBuilder().setNodeGroup(workerGroup).build();
+	        client.insertOrUpdateGroup(request);
+		} catch (Exception e) {
+			LOG.error(e);
+			throw e;
+		} finally {
+			if(client != null) {
+				client.shutdown();
+			}
+		}
     }
     
     public void stopHeartBeat() {

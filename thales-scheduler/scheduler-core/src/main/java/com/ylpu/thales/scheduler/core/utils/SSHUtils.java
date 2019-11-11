@@ -32,6 +32,6 @@ public final class SSHUtils {
         return returnCode;
     }
     public static void main(String[] args) {
-      	System.out.println(executeCommand("127.0.0.1",null,null,"pwd"));
+      	System.out.println(executeCommand("localhost",null,null,"pwd"));
     }
 }
