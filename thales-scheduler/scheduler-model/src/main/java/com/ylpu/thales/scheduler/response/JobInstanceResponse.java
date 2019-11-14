@@ -2,6 +2,9 @@ package com.ylpu.thales.scheduler.response;
 
 import java.io.Serializable;
 import java.util.Date;
+
+import com.ylpu.thales.scheduler.enums.TaskState;
+
 import lombok.Data;
 
 @Data
@@ -11,7 +14,7 @@ public class JobInstanceResponse implements Serializable {
 
     private JobResponse jobConf;
 
-    private Integer taskState;
+    private TaskState taskState;
 
     private String logUrl;
 

@@ -3,6 +3,7 @@ package com.ylpu.thales.scheduler.controller;
 import java.util.List;
 import java.util.Map;
 
+import com.baomidou.mybatisplus.plugins.Page;
 import com.ylpu.thales.scheduler.request.JobInstanceRequest;
 import com.ylpu.thales.scheduler.request.JobStatusRequest;
 import com.ylpu.thales.scheduler.request.ScheduleRequest;
@@ -54,6 +55,17 @@ public class JobInstanceController {
     }
     
     @ResponseBody
+    @RequestMapping(value="/paging",method=RequestMethod.GET)
+    public SchedulerResponse<Page<JobInstanceResponse>> paging(@RequestParam(value = "pageNo", required = false, defaultValue = "1") Integer pageNo,
+                                         @RequestParam(value = "pageSize", required = false, defaultValue = "10") Integer pageSize,
+                                         @RequestParam(value = "taskState", required = false) Integer taskState,
+                                         @RequestParam(value = "worker", required = false) String worker) {
+        Page<JobInstanceResponse> pageable = new Page<JobInstanceResponse>(pageNo, pageSize);
+        Page<JobInstanceResponse> page = jobInstanceService.findAll(taskState, worker, pageable);
+        return new SchedulerResponse<Page<JobInstanceResponse>>(page);
+    }
+    
+    @ResponseBody
     @RequestMapping(value="/getInstanceIdByTime",method=RequestMethod.GET)
     public SchedulerResponse<Integer> getInstanceIdByTime(@RequestParam("jobId") Integer jobId,@RequestParam("scheduleTime") String scheduleTime) {
        return new SchedulerResponse<Integer>(jobInstanceService.getInstanceIdByTime(jobId,scheduleTime));
@@ -83,7 +95,7 @@ public class JobInstanceController {
      * @param request
      */
     @ResponseBody
-    @RequestMapping(value="/killJob",method=RequestMethod.POST)
+    @RequestMapping(value="/kill",method=RequestMethod.POST)
     public void killJob(@Validated @RequestBody ScheduleRequest request) {
         jobInstanceService.killJob(request);
     }

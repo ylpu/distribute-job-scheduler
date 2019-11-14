@@ -25,6 +25,18 @@
     from t_thales_scheduler_node
     where id = #{id,jdbcType=INTEGER}
   </select>
+  
+  <select id="findAll" resultMap="BaseResultMap">
+      select * from t_thales_scheduler_node where 1=1
+            <if test="nodeGroup != null and nodeGroup != ''">
+                and node_group = #{nodeGroup}
+            </if>
+            <if test="worker != null and worker != ''">
+                and host like concat(concat('%',#{worker}),'%')
+            </if>
+        ORDER BY create_time DESC
+  </select>
+    
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
     delete from t_thales_scheduler_node
     where id = #{id,jdbcType=INTEGER}

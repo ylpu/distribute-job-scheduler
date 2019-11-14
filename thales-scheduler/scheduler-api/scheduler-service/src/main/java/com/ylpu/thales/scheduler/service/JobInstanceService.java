@@ -3,6 +3,7 @@ package com.ylpu.thales.scheduler.service;
 import java.util.List;
 import java.util.Map;
 
+import com.baomidou.mybatisplus.plugins.Page;
 import com.ylpu.thales.scheduler.common.service.BaseService;
 import com.ylpu.thales.scheduler.entity.SchedulerJobInstance;
 import com.ylpu.thales.scheduler.enums.TaskState;
@@ -36,4 +37,7 @@ public interface JobInstanceService extends BaseService<SchedulerJobInstance,Int
     public void markAsFailed(List<JobInstanceRequest> list);
     
     public void updateJobStatus(List<Integer> ids,TaskState status);
+    
+    public Page<JobInstanceResponse> findAll(Integer taskState, String worker, Page<JobInstanceResponse> page);
+
 }

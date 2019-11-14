@@ -5,11 +5,14 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.transaction.Transactional;
+
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import com.baomidou.mybatisplus.plugins.Page;
 import com.ylpu.thales.scheduler.common.dao.BaseDao;
 import com.ylpu.thales.scheduler.common.rest.ScheduleManager;
 import com.ylpu.thales.scheduler.common.service.impl.BaseServiceImpl;
@@ -143,17 +146,28 @@ public class JobServiceImpl extends BaseServiceImpl<SchedulerJob,Integer> implem
 
     @Override
     public void scheduleJob(ScheduleRequest request) {
-        int status = ScheduleManager.scheduleJob(getMasterServiceUri(request.getId()), request);
-        if(status != HttpStatus.NO_CONTENT.value()) {
-            throw new ThalesRuntimeException("error occurs,can not schedule job " + request.getId());
+        String masterUrl = getMasterServiceUri(request.getId());
+        if(StringUtils.isNotBlank(masterUrl)) {
+            int status = ScheduleManager.scheduleJob(masterUrl, request);
+            if(status != HttpStatus.NO_CONTENT.value()) {
+                throw new ThalesRuntimeException("failed to schedule job " + request.getId());
+            }
+        }else {
+            throw new ThalesRuntimeException("can not find master url for job " + request.getId());
         }
+
     }
     
     @Override
     public void rescheduleJob(ScheduleRequest request) {
-        int status = ScheduleManager.rescheduleJob(getMasterServiceUri(request.getId()), request);
-        if(status != HttpStatus.NO_CONTENT.value()) {
-            throw new ThalesRuntimeException("error occurs,can not reschedule job " + request.getId());
+        String masterUrl = getMasterServiceUri(request.getId());
+        if(StringUtils.isNotBlank(masterUrl)) {
+            int status = ScheduleManager.rescheduleJob(masterUrl, request);
+            if(status != HttpStatus.NO_CONTENT.value()) {
+                throw new ThalesRuntimeException("failed to reschedule job " + request.getId());
+            }
+        }else {
+            throw new ThalesRuntimeException("can not find master url for job " + request.getId());
         }
     }
     
@@ -164,10 +178,30 @@ public class JobServiceImpl extends BaseServiceImpl<SchedulerJob,Integer> implem
         schedulerJob.setId(request.getId());
         schedulerJob.setJobReleasestate(JobReleaseState.OFFLINE.getCode());
         updateByPrimaryKeySelective(schedulerJob);
-        
-        int status = ScheduleManager.downJob(getMasterServiceUri(request.getId()), request);
-        if(status != HttpStatus.NO_CONTENT.value()) {
-            throw new ThalesRuntimeException("error occurs,can not down job " + request.getId());
+        String masterUrl = getMasterServiceUri(request.getId());
+        if(StringUtils.isNotBlank(masterUrl)) {
+            int status = ScheduleManager.downJob(masterUrl, request);
+            if(status != HttpStatus.NO_CONTENT.value()) {
+                throw new ThalesRuntimeException("failed to down job " + request.getId());
+            }
+        }else {
+           throw new ThalesRuntimeException("can not find master url for job " + request.getId());
         }
+
     }
+
+	@Override
+	public Page<JobResponse> findAll(Integer jobType, String jobName, Page<JobResponse> page) {
+		List<SchedulerJob> jobList = schedulerJobMapper.findAll(jobType, jobName, page);
+		JobResponse jobResponse = null;
+		List<JobResponse> response = new ArrayList<JobResponse>();
+		if(jobList != null && jobList.size() > 0) {
+			for(SchedulerJob job : jobList) {
+				jobResponse = new JobResponse();
+				BeanUtils.copyProperties(job, jobResponse);
+				response.add(jobResponse);
+			}
+		}
+        return page.setRecords(response);
+	}
 }

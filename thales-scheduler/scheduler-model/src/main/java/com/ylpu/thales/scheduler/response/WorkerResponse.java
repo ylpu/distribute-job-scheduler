@@ -3,6 +3,8 @@ package com.ylpu.thales.scheduler.response;
 import java.io.Serializable;
 import java.util.Date;
 
+import com.ylpu.thales.scheduler.enums.NodeStatus;
+
 import lombok.Data;
 
 @Data
@@ -24,9 +26,9 @@ public class WorkerResponse implements Serializable {
     
     private double memoryUsage;
 
-    private Date lastHeartbeatTime;
+    private String lastHeartbeatTime;
 
-    private Integer nodeStatus;
+    private NodeStatus nodeStatus;
 
     private static final long serialVersionUID = 1L;
   }

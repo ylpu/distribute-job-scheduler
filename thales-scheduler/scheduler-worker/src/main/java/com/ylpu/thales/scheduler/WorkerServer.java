@@ -7,7 +7,7 @@ import com.ylpu.thales.scheduler.core.utils.DateUtils;
 import com.ylpu.thales.scheduler.core.utils.MetricsUtils;
 import com.ylpu.thales.scheduler.core.zk.CuratorHelper;
 import com.ylpu.thales.scheduler.enums.NodeType;
-import com.ylpu.thales.scheduler.enums.WorkerStatus;
+import com.ylpu.thales.scheduler.enums.NodeStatus;
 import com.ylpu.thales.scheduler.log.LogServer;
 import com.ylpu.thales.scheduler.rpc.client.WorkerGrpcClient;
 import com.ylpu.thales.scheduler.rpc.server.WorkerRpcServer;
@@ -149,7 +149,7 @@ public class WorkerServer {
         }
         public void run() {
             WorkerGrpcClient client = null;
-            while(!stop) {
+//            while(!stop) {
                 try {
                     String master = CuratorHelper.getActiveMaster();
                     String[] masters = master.split(":");
@@ -159,7 +159,6 @@ public class WorkerServer {
                             .setCpuUsage(MetricsUtils.getCpuUsage())
                             .setMemoryUsage(MetricsUtils.getMemoryUsage())
                             .setNodeGroup(workerGroup)
-                            .setNodeStatus(WorkerStatus.UPDATED.getCode())
                             .setNodeType(NodeType.WORKER.getCode())
                             .setPort(workerPort)
                             .setZkdirectory(workerPath)
@@ -183,6 +182,6 @@ public class WorkerServer {
                     LOG.error(e);
                 }
             }
-        }
+//        }
     }
 }

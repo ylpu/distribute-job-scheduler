@@ -41,7 +41,7 @@ public class SchedulerService {
     public void killJob(ScheduleRequest request) throws Exception{
         try {
             JobInstanceResponse response = JobManager.getJobInstanceById(request.getId());
-            if(response.getTaskState() != TaskState.RUNNING.getCode()) {
+            if(response.getTaskState() != TaskState.RUNNING) {
                 throw new RuntimeException("can not kill job " + request.getId() + " because job is not running ");
             }
             String worker = response.getWorker();
@@ -79,7 +79,7 @@ public class SchedulerService {
                 .setLogPath(response.getLogPath())
                 .setLogUrl(response.getLogUrl())
                 .setRetryTimes(response.getRetryTimes())
-                .setTaskState(response.getTaskState())
+                .setTaskState(response.getTaskState().getCode())
                 .setWorker(response.getWorker())
                 .build();
         return newRpcJobInstanceRequest;

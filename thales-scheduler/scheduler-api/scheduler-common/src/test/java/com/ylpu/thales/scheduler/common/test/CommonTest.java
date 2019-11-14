@@ -54,7 +54,7 @@ public class CommonTest {
         
         commandBuilder.append(" --master yarn \\");
         
-        String str = "{\"commandType\" : \"shell\",\"fileName\" : \"/tmp/script/test.sh\",\"parameters\" : \"\"}";
+        String str = "{\"fileName\" : \"/Users/yupu/shell/test.sh\",\"parameters\" : \"\"}";
         
         System.out.println(commandBuilder);
         

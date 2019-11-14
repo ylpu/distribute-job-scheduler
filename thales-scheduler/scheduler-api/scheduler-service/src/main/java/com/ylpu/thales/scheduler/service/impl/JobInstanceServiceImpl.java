@@ -6,16 +6,20 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import javax.transaction.Transactional;
+
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import com.baomidou.mybatisplus.plugins.Page;
 import com.ylpu.thales.scheduler.common.dao.BaseDao;
 import com.ylpu.thales.scheduler.common.rest.ScheduleManager;
 import com.ylpu.thales.scheduler.common.service.impl.BaseServiceImpl;
 import com.ylpu.thales.scheduler.dao.SchedulerJobInstanceMapper;
 import com.ylpu.thales.scheduler.entity.JobInstanceState;
+import com.ylpu.thales.scheduler.entity.SchedulerJob;
 import com.ylpu.thales.scheduler.entity.SchedulerJobInstance;
 import com.ylpu.thales.scheduler.enums.TaskState;
 import com.ylpu.thales.scheduler.request.JobInstanceRequest;
@@ -76,6 +80,7 @@ public class JobInstanceServiceImpl extends BaseServiceImpl<SchedulerJobInstance
         JobInstanceResponse response = new JobInstanceResponse();
         if(schedulerJobInstance != null) {
             BeanUtils.copyProperties(schedulerJobInstance, response);
+            response.setTaskState(TaskState.getTaskStateById(schedulerJobInstance.getTaskState()));
             JobResponse job = jobService.getJobAndRelationById(schedulerJobInstance.getJobId());
             response.setJobConf(job); 
         }
@@ -112,19 +117,28 @@ public class JobInstanceServiceImpl extends BaseServiceImpl<SchedulerJobInstance
 
     @Override
     public void killJob(ScheduleRequest request) {
-        int status = ScheduleManager.killJob(getMasterServiceUri(request.getId()), request);
-        if(status != HttpStatus.NO_CONTENT.value()) {
-            throw new ThalesRuntimeException("error occurs,can not kill job " + request.getId());
+        String masterUrl = getMasterServiceUri(request.getId());
+        if(StringUtils.isNotBlank(masterUrl)) {
+            int status = ScheduleManager.killJob(masterUrl, request);
+            if(status != HttpStatus.NO_CONTENT.value()) {
+                throw new ThalesRuntimeException("failed to kill job " + request.getId());
+            }
+        }else {
+            throw new ThalesRuntimeException("can not find master for job " + request.getId());
         }
-
     }
     
     @Override
     public void rerun(ScheduleRequest request) {
-        int status = ScheduleManager.rerun(getMasterServiceUri(request.getId()), request);
-        //204-执行成功，但无内容返回
-        if(status != HttpStatus.NO_CONTENT.value()) {
-            throw new ThalesRuntimeException("error occurs,can not rerun job " + request.getId());
+        String masterUrl = getMasterServiceUri(request.getId());
+        if(StringUtils.isNotBlank(masterUrl)) {
+            int status = ScheduleManager.rerun(masterUrl, request);
+            //204-执行成功，但无内容返回
+            if(status != HttpStatus.NO_CONTENT.value()) {
+                throw new ThalesRuntimeException("failed to rerun job " + request.getId());
+            }
+        }else {
+            throw new ThalesRuntimeException("can not find master for job " + request.getId());
         }
     }
     
@@ -133,7 +147,7 @@ public class JobInstanceServiceImpl extends BaseServiceImpl<SchedulerJobInstance
         int status = ScheduleManager.rerunAll(getMasterServiceUri(request.getId()), request);
         //204-执行成功，但无内容返回
         if(status != HttpStatus.NO_CONTENT.value()) {
-            throw new ThalesRuntimeException("error occurs,can not rerun all job " + request.getId());
+            throw new ThalesRuntimeException("failed to rerun all job " + request.getId());
         }
     }
     
@@ -151,4 +165,20 @@ public class JobInstanceServiceImpl extends BaseServiceImpl<SchedulerJobInstance
     public void updateJobStatus(List<Integer> ids,TaskState status) {
         schedulerJobInstanceMapper.updateJobStatus(ids, status.getCode());
     }
+
+	@Override
+	public Page<JobInstanceResponse> findAll(Integer taskState, String worker, Page<JobInstanceResponse> page) {
+		List<SchedulerJobInstance> jobInstanceList = schedulerJobInstanceMapper.findAll(taskState, worker, page);
+		JobInstanceResponse jobInstanceResponse = null;
+		List<JobInstanceResponse> response = new ArrayList<JobInstanceResponse>();
+		if(jobInstanceList != null && jobInstanceList.size() > 0) {
+			for(SchedulerJobInstance jobInstance : jobInstanceList) {
+				jobInstanceResponse = new JobInstanceResponse();
+				BeanUtils.copyProperties(jobInstance, jobInstanceResponse);
+				jobInstanceResponse.setTaskState(TaskState.getTaskStateById(jobInstance.getTaskState()));
+				response.add(jobInstanceResponse);
+			}
+		}
+        return page.setRecords(response);
+	}
 }

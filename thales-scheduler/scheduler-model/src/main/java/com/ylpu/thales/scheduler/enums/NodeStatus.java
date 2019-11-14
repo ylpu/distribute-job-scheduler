@@ -1,17 +1,17 @@
 package com.ylpu.thales.scheduler.enums;
 
-public enum WorkerStatus {
+public enum NodeStatus {
     
     ADDED(1), REMOVED(2), UPDATED(3);
     
     private int code;
     
-    private WorkerStatus(int code) {
+    private NodeStatus(int code) {
         this.code = code;
     }
     
-    public static WorkerStatus getNodeStatus(int code) {
-        for(WorkerStatus nodeStatus : WorkerStatus.values()) {
+    public static NodeStatus getNodeStatus(int code) {
+        for(NodeStatus nodeStatus : NodeStatus.values()) {
             if(nodeStatus.code == code) {
                 return nodeStatus;
             }

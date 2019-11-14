@@ -1,5 +1,6 @@
 package com.ylpu.thales.scheduler.service;
 
+import com.baomidou.mybatisplus.plugins.Page;
 import com.ylpu.thales.scheduler.common.service.BaseService;
 import com.ylpu.thales.scheduler.entity.SchedulerJob;
 import com.ylpu.thales.scheduler.request.JobRequest;
@@ -22,5 +23,7 @@ public interface JobService extends BaseService<SchedulerJob,Integer>{
     public void rescheduleJob(ScheduleRequest request);
     
     public void downJob(ScheduleRequest request);
+    
+    public Page<JobResponse> findAll(Integer jobType, String jobName, Page<JobResponse> page);
     
 }

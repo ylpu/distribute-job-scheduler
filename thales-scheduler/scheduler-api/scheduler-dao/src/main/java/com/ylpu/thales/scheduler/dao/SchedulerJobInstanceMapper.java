@@ -4,7 +4,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import org.apache.ibatis.annotations.Param;
-
+import com.baomidou.mybatisplus.plugins.pagination.Pagination;
 import com.ylpu.thales.scheduler.common.dao.BaseDao;
 import com.ylpu.thales.scheduler.entity.JobInstanceState;
 import com.ylpu.thales.scheduler.entity.SchedulerJobInstance;
@@ -20,4 +20,7 @@ public interface SchedulerJobInstanceMapper extends BaseDao<SchedulerJobInstance
     public void markAsFailed(SchedulerJobInstance jobInstance);
     
     public void updateJobStatus(@Param("ids")List<Integer> ids, @Param("status")Integer status);
+    
+    List<SchedulerJobInstance> findAll(@Param("taskState") Integer taskState,
+            @Param("worker") String worker, Pagination pagination);
 }

@@ -136,6 +136,13 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
         </dependency>
+            <!-- mybatis-plus begin -->
+        <dependency>
+           <groupId>com.baomidou</groupId>
+           <artifactId>mybatis-plus</artifactId>
+           <version>2.1.8</version>
+        </dependency>
+        <!--mybatis-plus end-->
     </dependencies>
   <build>
         <pluginManagement>

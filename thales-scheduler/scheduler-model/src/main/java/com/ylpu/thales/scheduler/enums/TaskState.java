@@ -18,7 +18,7 @@ public enum TaskState {
         this.code = code;
     }
     
-    public static TaskState getTaskType(int code) {
+    public static TaskState getTaskStateById(int code) {
         for(TaskState taskState : TaskState.values()) {
             if(taskState.code == code) {
                 return taskState;

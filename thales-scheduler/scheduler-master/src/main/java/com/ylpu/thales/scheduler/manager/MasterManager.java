@@ -9,7 +9,7 @@ import com.ylpu.thales.scheduler.core.utils.DateUtils;
 import com.ylpu.thales.scheduler.core.utils.MetricsUtils;
 import com.ylpu.thales.scheduler.core.utils.SSHUtils;
 import com.ylpu.thales.scheduler.core.zk.CuratorHelper;
-import com.ylpu.thales.scheduler.enums.WorkerStatus;
+import com.ylpu.thales.scheduler.enums.NodeStatus;
 import com.ylpu.thales.scheduler.jmx.MasterJmxServer;
 import com.ylpu.thales.scheduler.manager.strategy.JobStrategy;
 import com.ylpu.thales.scheduler.manager.strategy.ResourceStrategy;
@@ -22,8 +22,6 @@ import com.ylpu.thales.scheduler.response.WorkerResponse;
 import com.ylpu.thales.scheduler.rest.MasterRestServer;
 import com.ylpu.thales.scheduler.rpc.client.JobCallBackScan;
 import com.ylpu.thales.scheduler.rpc.server.MasterRpcServer;
-
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -222,7 +220,7 @@ public class MasterManager{
         String workerGroup = groupPath.substring(groupPath.lastIndexOf("/") + 1);
         WorkerGroupRequest param = new WorkerGroupRequest();
         param.setGroupName(workerGroup);
-        param.setStatus(WorkerStatus.REMOVED);
+        param.setStatus(NodeStatus.REMOVED);
         param.setWorkers(disconnectedChildren);
         WorkerManager.updateWorkersStatusByGroup(param);
     }
@@ -242,9 +240,9 @@ public class MasterManager{
             workerInfo.setHost(request.getHost());
             workerInfo.setCpuUsage(request.getCpuUsage());
             workerInfo.setMemoryUsage(request.getMemoryUsage());
-            workerInfo.setNodeStatus(request.getNodeStatus());
+            workerInfo.setNodeStatus(NodeStatus.getNodeStatus(request.getNodeStatus()));
             workerInfo.setNodeGroup(request.getNodeGroup());
-            workerInfo.setLastHeartbeatTime(request.getLastHeartbeatTime());
+            workerInfo.setLastHeartbeatTime(DateUtils.getDateAsString(request.getLastHeartbeatTime(),DateUtils.DATE_TIME_FORMAT));
             workerInfo.setPort(request.getPort());
             workerInfo.setZkdirectory(request.getZkdirectory());
             workerInfo.setNodeType(request.getNodeType());

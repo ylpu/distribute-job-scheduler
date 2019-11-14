@@ -75,9 +75,10 @@ public abstract class BaseServiceImpl<T extends BaseEntity,D extends Serializabl
 
         CuratorFramework client = null;
         List<String> masters = null;
+        int i = 1;
         while(true) {
             try {
-            	client = CuratorHelper.getCuratorClient(quorum,sessionTimeout,connectionTimeout);
+                client = CuratorHelper.getCuratorClient(quorum,sessionTimeout,connectionTimeout);
                 masters = CuratorHelper.getChildren(client,GlobalConstants.MASTER_GROUP);
                 if(masters != null && masters.size() > 0) {
                     StringBuilder sb = new StringBuilder("http://");
@@ -100,15 +101,19 @@ public abstract class BaseServiceImpl<T extends BaseEntity,D extends Serializabl
                         LOG.error(e);
                     }
                 }
+                i++;
+                if(i > 3) {
+                	   return null;
+                }
             }catch(Exception e) {
                 LOG.error(e);
             }finally {
-            	CuratorHelper.close(client);
+                CuratorHelper.close(client);
             }  
         }
     }
     
-    public boolean isMasterAlive(String url) {
+    private boolean isMasterAlive(String url) {
         boolean isAlive=true;
         HttpURLConnection conn = null;
         try {

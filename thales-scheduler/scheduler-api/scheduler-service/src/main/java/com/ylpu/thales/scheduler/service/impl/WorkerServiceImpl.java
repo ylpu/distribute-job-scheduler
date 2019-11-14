@@ -6,16 +6,17 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import javax.transaction.Transactional;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
+import com.baomidou.mybatisplus.plugins.Page;
 import com.ylpu.thales.scheduler.common.dao.BaseDao;
 import com.ylpu.thales.scheduler.common.service.impl.BaseServiceImpl;
+import com.ylpu.thales.scheduler.common.utils.DateUtils;
 import com.ylpu.thales.scheduler.dao.SchedulerWorkerMapper;
 import com.ylpu.thales.scheduler.entity.SchedulerWorker;
+import com.ylpu.thales.scheduler.enums.NodeStatus;
 import com.ylpu.thales.scheduler.request.WorkerGroupRequest;
 import com.ylpu.thales.scheduler.request.WorkerRequest;
 import com.ylpu.thales.scheduler.response.WorkerResponse;
@@ -86,9 +87,28 @@ public class WorkerServiceImpl extends BaseServiceImpl<SchedulerWorker,Integer> 
         param.setWorkers(Arrays.asList(request.getHost()));
         List<WorkerResponse> list = getWorkersInfoByGroup(param);
         if(list == null || list.size() == 0) {
+        	    request.setNodeStatus(NodeStatus.ADDED.getCode());
             addWorker(request);
         }else {
+    	        request.setNodeStatus(NodeStatus.UPDATED.getCode());
             updateWorkerByHost(request);
         }
     }
+
+	@Override
+	public Page<WorkerResponse> findAll(String nodeGroup, String worker, Page<WorkerResponse> pageable) {
+		List<SchedulerWorker> workerList = schedulerWorkerMapper.findAll(nodeGroup, worker, pageable);
+		WorkerResponse workerResponse = null;
+		List<WorkerResponse> response = new ArrayList<WorkerResponse>();
+		if(workerList != null && workerList.size() > 0) {
+			for(SchedulerWorker schedulerWorker : workerList) {
+				workerResponse = new WorkerResponse();
+				BeanUtils.copyProperties(schedulerWorker, workerResponse);
+				workerResponse.setNodeStatus(NodeStatus.getNodeStatus(schedulerWorker.getNodeStatus()));
+				workerResponse.setLastHeartbeatTime(DateUtils.getDateAsString(schedulerWorker.getLastHeartbeatTime(),DateUtils.DATE_TIME_FORMAT));
+				response.add(workerResponse);
+			}
+		}
+        return pageable.setRecords(response);
+	}
 }
