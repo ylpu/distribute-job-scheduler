@@ -1,6 +1,5 @@
 package com.ylpu.thales.scheduler.rpc.client;
 
-import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import org.apache.commons.logging.Log;
@@ -16,6 +15,8 @@ import com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc;
 import com.ylpu.thales.scheduler.core.rpc.service.GrpcJobServiceGrpc;
 import com.ylpu.thales.scheduler.enums.TaskState;
 import com.ylpu.thales.scheduler.request.JobInstanceRequest;
+import com.ylpu.thales.scheduler.response.JobInstanceResponse;
+import com.ylpu.thales.scheduler.rest.service.SchedulerService;
 
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
@@ -56,35 +57,6 @@ public class JobGrpcNonBlockingClient extends AbstractJobGrpcClient{
         }
     }
 
-    public void submit(JobInstanceRequestRpc requestRpc){
-        JobInstanceResponseRpc responseRpc = null;
-        JobInstanceRequest request  = new JobInstanceRequest();
-        setJobInstanceRequest(requestRpc,request);
-        try {
-            //无依赖直接执行
-            if(requestRpc.getJob().getDependenciesList() == null 
-                    || requestRpc.getJob().getDependenciesList().size() == 0) {
-                submitJob(requestRpc);
-            }
-            //有依赖的话加入等待
-            else {
-                JobCallBackScan.putCallback(requestRpc);
-                List<JobDependency> dependJobs = getLatestJobDepends(requestRpc);
-                JobCallBackScan.addDepends(dependJobs, requestRpc.getRequestId());
-                
-                request.setTaskState(TaskState.WAITING.getCode());
-                JobManager.updateJobInstanceSelective(request);
-            }
-        }catch(Exception e) {
-             LOG.error("任务 " + requestRpc.getId() + " 执行失败,异常" + e.getMessage());
-             updateTaskStatus(request,TaskState.FAIL.getCode());
-             responseRpc = buildResponse(requestRpc,TaskState.FAIL,500,
-                     "failed to execute task " + requestRpc.getId());
-             JobCallBackScan.addResponse(responseRpc);
-             shutdown();
-        }
-    }
-    
     public void submitJob(JobInstanceRequestRpc requestRpc){
         LOG.info("准备提交任务 " + requestRpc.getId() + " 到节点  " + host + ":" + port);
         JobInstanceRequest request  = new JobInstanceRequest();
@@ -95,11 +67,25 @@ public class JobGrpcNonBlockingClient extends AbstractJobGrpcClient{
             addCallBack(future,executorService,requestRpc,request);
         }catch(Exception e) {
              LOG.error("任务 " + requestRpc.getId() + " 执行失败,异常" + e.getMessage());
+             JobStatusCheck.getJobInstanceRequestMap().remove(requestRpc.getRequestId());
              updateTaskStatus(request,TaskState.FAIL.getCode());
              JobInstanceResponseRpc responseRpc = buildResponse(requestRpc,TaskState.FAIL,500,
                      "failed to execute task " + requestRpc.getId());
-             JobCallBackScan.addResponse(responseRpc);
+             JobStatusCheck.addResponse(responseRpc);
              shutdown();
+             rerunIfNeeded(requestRpc);
+        }
+    }
+    
+    private void rerunIfNeeded(JobInstanceRequestRpc requestRpc) {
+        JobInstanceResponse jobInstance = JobManager.getJobInstanceById(requestRpc.getId());
+        if(jobInstance.getRetryTimes() < jobInstance.getJobConf().getMaxRetrytimes()) {
+       	   try {
+       	    	    Thread.sleep(jobInstance.getJobConf().getRetryInterval() * 1000 * 60);
+			    new SchedulerService().rerun(requestRpc.getId());
+		   } catch (Exception e) {
+			    LOG.error(e);
+	       }
         }
     }
     
@@ -111,18 +97,21 @@ public class JobGrpcNonBlockingClient extends AbstractJobGrpcClient{
                     @Override
                     public void onSuccess(JobInstanceResponseRpc result) {
                         LOG.info("任务" + requestRpc.getId() + "执行完成");
+                        JobStatusCheck.getJobInstanceRequestMap().remove(requestRpc.getRequestId());
                         updateTaskStatus(request,result.getTaskState());
-                        JobCallBackScan.addResponse(result);
+                        JobStatusCheck.addResponse(result);
                         shutdown();
                     }
                     @Override
                     public void onFailure(Throwable t) {
                         LOG.error("任务" + requestRpc.getId() + "执行失败,异常" + t.getMessage());
+                        JobStatusCheck.getJobInstanceRequestMap().remove(requestRpc.getRequestId());
                         updateTaskStatus(request,TaskState.FAIL.getCode());
                         JobInstanceResponseRpc responseRpc = buildResponse(requestRpc,TaskState.FAIL,500,
                                 "failed to execute task " + requestRpc.getId());;
-                        JobCallBackScan.addResponse(responseRpc);
+                        JobStatusCheck.addResponse(responseRpc);
                         shutdown();
+                        rerunIfNeeded(requestRpc);
                     }
                 },executorService);
     }

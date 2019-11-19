@@ -1,8 +1,9 @@
-package com.ylpu.thales.scheduler.executor.listener;
+package com.ylpu.thales.scheduler.core.alert.entity;
 
 import java.io.Serializable;
 
 import com.ylpu.thales.scheduler.enums.AlertType;
+import com.ylpu.thales.scheduler.enums.EventType;
 
 public class Event implements Serializable{
     
@@ -14,6 +15,8 @@ public class Event implements Serializable{
     private int taskId;
     
     private AlertType alertType;
+    
+    private EventType eventType;
     
     private String alertUsers;
     
@@ -35,7 +38,15 @@ public class Event implements Serializable{
         return alertType;
     }
 
-    public void setAlertType(AlertType alertType) {
+    public EventType getEventType() {
+		return eventType;
+	}
+
+	public void setEventType(EventType eventType) {
+		this.eventType = eventType;
+	}
+
+	public void setAlertType(AlertType alertType) {
         this.alertType = alertType;
     }
 

@@ -1,9 +1,11 @@
 package com.ylpu.thales.scheduler.manager;
 
 import com.ylpu.thales.scheduler.core.config.Configuration;
+import com.ylpu.thales.scheduler.core.rest.JobManager;
 import com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc;
 import com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc;
 import com.ylpu.thales.scheduler.core.rpc.entity.JobRequestRpc;
+import com.ylpu.thales.scheduler.core.utils.CronUtils;
 import com.ylpu.thales.scheduler.core.utils.DateUtils;
 import com.ylpu.thales.scheduler.enums.AlertType;
 import com.ylpu.thales.scheduler.enums.GrpcType;
@@ -16,18 +18,21 @@ import com.ylpu.thales.scheduler.request.JobInstanceRequest;
 import com.ylpu.thales.scheduler.response.JobResponse;
 import com.ylpu.thales.scheduler.response.WorkerResponse;
 import com.ylpu.thales.scheduler.rpc.client.AbstractJobGrpcClient;
+import com.ylpu.thales.scheduler.rpc.client.JobStatusCheck;
+import com.ylpu.thales.scheduler.rpc.client.JobDependency;
 import com.ylpu.thales.scheduler.rpc.client.JobGrpcBlockingClient;
 import com.ylpu.thales.scheduler.rpc.client.JobGrpcNonBlockingClient;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Queue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.PriorityBlockingQueue;
 
 public class JobSubmission {
@@ -40,7 +45,7 @@ public class JobSubmission {
     
     private static ExecutorService es = null;
     
-    private static PriorityBlockingQueue<TaskCall> queue = new PriorityBlockingQueue<TaskCall>();
+    private static Queue<TaskCall> timeoutQueue = new LinkedBlockingQueue<TaskCall>();
 
     private static PriorityBlockingQueue<TaskCall> waitingQueue = new PriorityBlockingQueue<TaskCall>();
 
@@ -52,29 +57,101 @@ public class JobSubmission {
         int poolSize = Configuration.getInt(Configuration.getConfig("config.properties"), 
                 "thales.scheduler.pool.size", POOL_SIZE);
         es = Executors.newFixedThreadPool(poolSize);
-        es.execute(new TaskThread());
         es.execute(new TaskWaitingThread());
+        es.execute(new TimeoutThread());
     }
     
-    public static void addTask(TaskCall taskCall) {
-        queue.add(taskCall);
+    public static void addJob(JobInstanceRequestRpc requestRpc) {
+        JobInstanceResponseRpc responseRpc = null;
+        JobInstanceRequest request  = new JobInstanceRequest();
+        List<JobDependency> dependJobs = new ArrayList<JobDependency>();
+        setJobInstanceRequest(requestRpc,request);
+        try {
+            if(requestRpc.getJob().getDependenciesList() == null 
+                    || requestRpc.getJob().getDependenciesList().size() == 0) {
+                dependJobs.add(new JobDependency(requestRpc.getJob().getId(),"root"));
+            }
+            else {
+                dependJobs = getLatestJobDepends(requestRpc);
+            }
+            JobStatusCheck.addJobInstanceRequest(requestRpc);
+            
+            JobStatusCheck.addDepends(dependJobs, requestRpc.getRequestId());
+            
+            request.setTaskState(TaskState.WAITING.getCode());
+            JobManager.updateJobInstanceSelective(request);
+            
+            responseRpc = buildResponse(requestRpc,TaskState.WAITING,200,"");
+        }catch(Exception e) {
+             LOG.error("任务 " + requestRpc.getId() + " 执行失败,异常" + e.getMessage());
+             updateTaskStatus(request,TaskState.FAIL.getCode());
+             responseRpc = buildResponse(requestRpc,TaskState.FAIL,500,
+                     "failed to execute task " + requestRpc.getId());
+        }
+        JobStatusCheck.addResponse(responseRpc);
     }
+    
+    private static List<JobDependency> getLatestJobDepends(JobInstanceRequestRpc request) {
+    	
+        List<JobDependency> jobDependencies = new ArrayList<JobDependency>();
+        Date currentJobScheduleTime = DateUtils.getDatetime(request.getScheduleTime());
+        List<JobRequestRpc> dependencies = request.getJob().getDependenciesList();
+        
+        Iterator<JobRequestRpc> it = dependencies.iterator();
+        JobDependency jobDependency = null;
+        while(it.hasNext()) {
+        	jobDependency = new JobDependency();
+            JobRequestRpc job = it.next();
+            jobDependency.setJobId(job.getId());
+            jobDependency.setScheduleTime(CronUtils.getLatestTriggerTime(job.getScheduleCron(),
+                    DateUtils.getTime(currentJobScheduleTime, job.getJobCycle(),-1),currentJobScheduleTime));
+            jobDependencies.add(jobDependency);
+        }
+        return jobDependencies;
+    }
+    
+    public static void setJobInstanceRequest(JobInstanceRequestRpc requestRpc,JobInstanceRequest request) {
+        request.setId(requestRpc.getId());
+        request.setStartTime(DateUtils.getDatetime(requestRpc.getStartTime()));
+        request.setScheduleTime(DateUtils.getDatetime(requestRpc.getScheduleTime()));
+    }
+    
+    private static void updateTaskStatus(JobInstanceRequest request,int code) {
+        request.setTaskState(code);
+        request.setEndTime(new Date());
+        request.setElapseTime(DateUtils.getElapseTime(request.getStartTime(),request.getEndTime()));
+        JobManager.updateJobInstanceSelective(request);
+    }
+    
+    private static JobInstanceResponseRpc buildResponse(JobInstanceRequestRpc requestRpc,
+            TaskState taskState,int errorCode,String errorMsg) {
+        return JobInstanceResponseRpc.newBuilder()
+        .setResponseId(requestRpc.getRequestId())
+        .setErrorCode(errorCode)
+        .setTaskState(taskState.getCode())
+        .setErrorMsg(errorMsg)
+        .build();
+    }
+    
     
     public static void addWaitingTask(TaskCall taskCall) {
         waitingQueue.add(taskCall);
     }
     
-    private static class TaskThread implements Runnable{
-
+    public static void addTimeoutTask(TaskCall taskCall) {
+        timeoutQueue.add(taskCall);
+    }
+    
+    private static class TaskWaitingThread implements Runnable{
         @Override
         public void run() {
             while (true) {
-                TaskCall taskCall = queue.poll();
+                TaskCall taskCall = waitingQueue.poll();
                 if(taskCall != null) {
                     AbstractJobGrpcClient client = null;
                     try {
                         client = getClient(taskCall.getRpcRequest(),taskCall.getGrpcType());
-                        client.submit(taskCall.getRpcRequest());
+                        client.submitJob(taskCall.getRpcRequest());
                     }finally {
                         //同步rpc直接关闭，异步rpc需要内部关闭
                         if(taskCall.getGrpcType() == GrpcType.SYNC) {
@@ -88,16 +165,16 @@ public class JobSubmission {
         }
     }
     
-    private static class TaskWaitingThread implements Runnable{
+    private static class TimeoutThread implements Runnable{
         @Override
         public void run() {
             while (true) {
-                TaskCall taskCall = waitingQueue.poll();
+                TaskCall taskCall = timeoutQueue.poll();
                 if(taskCall != null) {
                     AbstractJobGrpcClient client = null;
                     try {
                         client = getClient(taskCall.getRpcRequest(),taskCall.getGrpcType());
-                        client.submitJob(taskCall.getRpcRequest());
+                        client.kill(taskCall.getRpcRequest());
                     }finally {
                         //同步rpc直接关闭，异步rpc需要内部关闭
                         if(taskCall.getGrpcType() == GrpcType.SYNC) {
@@ -212,7 +289,7 @@ public class JobSubmission {
         if(dependencies != null && dependencies.size() > 0) {
             for(JobResponse dependency : dependencies) {
                 rpcDependency  = JobRequestRpc.newBuilder()
-                .setAlertTypes(dependency.getAlertTypes() == null ? AlertType.SMS.getCode() : response.getAlertTypes())
+                .setAlertTypes(dependency.getAlertTypes() == null ? AlertType.SMS.getCode() : AlertType.getAlertType(response.getAlertTypes()).getCode())
                 .setAlertUsers(dependency.getAlertUsers() == null ? "" : dependency.getAlertUsers())
                 .setCreatorId(dependency.getCreatorId() == null ? "" : dependency.getCreatorId() )
                 .setDescription(dependency.getDescription() == null ? "" : dependency.getCreatorId() )
@@ -220,11 +297,11 @@ public class JobSubmission {
                 .setId(dependency.getId())
                 .setIsSelfdependent(dependency.getIsSelfdependent() == null ? true : response.getIsSelfdependent())
                 .setJobConfiguration(dependency.getJobConfiguration() == null ? "" : dependency.getJobConfiguration())
-                .setJobCycle(dependency.getJobCycle() == null ? JobCycle.MINUTE.getCode(): response.getJobCycle())
+                .setJobCycle(dependency.getJobCycle() == null ? JobCycle.MINUTE.getCode(): JobCycle.getJobCycle(response.getJobCycle()).getCode())
                 .setJobName(dependency.getJobName() == null ? "" : dependency.getJobName())
-                .setJobPriority(dependency.getJobPriority() == null ? JobPriority.LOW.getPriority(): response.getJobPriority())
+                .setJobPriority(dependency.getJobPriority() == null ? JobPriority.LOW.getPriority(): JobPriority.getJobPriority(response.getJobPriority()).getPriority())
                 .setJobReleasestate(dependency.getJobReleasestate() == null ? JobReleaseState.ONLINE.getCode() : response.getJobReleasestate())
-                .setJobType(dependency.getJobType() == null ? JobType.SHELL.getCode(): response.getJobType())
+                .setJobType(dependency.getJobType() == null ? JobType.SHELL.getCode(): JobType.getJobType(response.getJobType()).getCode())
                 .setMaxRetrytimes(dependency.getMaxRetrytimes() == null ? 0 : response.getMaxRetrytimes())
                 .setOwnerIds(dependency.getOwnerIds() == null ? "" : dependency.getOwnerIds())
                 .setRetryInterval(dependency.getRetryInterval() == null ? 0 : response.getRetryInterval())
@@ -235,7 +312,7 @@ public class JobSubmission {
             }
         }
         JobRequestRpc rpcJobRequest = JobRequestRpc.newBuilder()
-                .setAlertTypes(response.getAlertTypes() == null ? AlertType.SMS.getCode() : response.getAlertTypes())
+                .setAlertTypes(response.getAlertTypes() == null ? AlertType.SMS.getCode() : AlertType.getAlertType(response.getAlertTypes()).getCode())
                 .setAlertUsers(response.getAlertUsers() == null ? "" : response.getAlertUsers())
                 .setCreatorId(response.getCreatorId() == null ? "" : response.getCreatorId())
                 .setDescription(response.getDescription() == null ? "" : response.getDescription())
@@ -243,11 +320,11 @@ public class JobSubmission {
                 .setId(response.getId())
                 .setIsSelfdependent(response.getIsSelfdependent() == null ? true : response.getIsSelfdependent())
                 .setJobConfiguration(response.getJobConfiguration() == null ? "" : response.getJobConfiguration())
-                .setJobCycle(response.getJobCycle() == null ? JobCycle.MINUTE.getCode(): response.getJobCycle())
+                .setJobCycle(response.getJobCycle() == null ? JobCycle.MINUTE.getCode(): JobCycle.getJobCycle(response.getJobCycle()).getCode())
                 .setJobName(response.getJobName() == null ? "" : response.getJobName())
-                .setJobPriority(response.getJobPriority() == null ? JobPriority.LOW.getPriority(): response.getJobPriority())
+                .setJobPriority(response.getJobPriority() == null ? JobPriority.LOW.getPriority(): JobPriority.getJobPriority(response.getJobPriority()).getPriority())
                 .setJobReleasestate(response.getJobReleasestate() == null ? JobReleaseState.ONLINE.getCode() : response.getJobReleasestate())
-                .setJobType(response.getJobType() == null ? JobType.SHELL.getCode(): response.getJobType())
+                .setJobType(response.getJobType() == null ? JobType.SHELL.getCode(): JobType.getJobType(response.getJobType()).getCode())
                 .setMaxRetrytimes(response.getMaxRetrytimes() == null ? 0 : response.getMaxRetrytimes())
                 .setOwnerIds(response.getOwnerIds() == null ? "" : response.getOwnerIds())
                 .setRetryInterval(response.getRetryInterval() == null ? 0 : response.getRetryInterval())

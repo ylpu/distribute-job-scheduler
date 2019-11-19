@@ -4,11 +4,13 @@ import com.ylpu.thales.scheduler.core.config.Configuration;
 import com.ylpu.thales.scheduler.core.constants.GlobalConstants;
 import com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc;
 import com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc;
+import com.ylpu.thales.scheduler.core.utils.DateUtils;
 import com.ylpu.thales.scheduler.enums.GrpcType;
 import com.ylpu.thales.scheduler.enums.TaskState;
 import com.ylpu.thales.scheduler.manager.JobSubmission;
 import com.ylpu.thales.scheduler.manager.TaskCall;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -17,13 +19,13 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-public class JobCallBackScan {
+public class JobStatusCheck {
     
-    private static Log LOG = LogFactory.getLog(JobCallBackScan.class);
+    private static Log LOG = LogFactory.getLog(JobStatusCheck.class);
     
     private static volatile boolean stop = false;
     //key是任务id,value是待执行的任务
-    private static Map<String, JobInstanceRequestRpc> callBack = new ConcurrentHashMap<String, JobInstanceRequestRpc>();
+    private static Map<String, JobInstanceRequestRpc> jobInstanceRequestMap = new ConcurrentHashMap<String, JobInstanceRequestRpc>();
     //任务的返回列表
     private static Map<String,JobInstanceResponseRpc> responses = new WeakHashMap<String,JobInstanceResponseRpc>();
     //key是所依赖的任务,value是任务id
@@ -32,9 +34,12 @@ public class JobCallBackScan {
     private static final long CHECK_INTERVAL = 2000;
         
     public static void start(){
-        CallBackScan scan = new CallBackScan();
-        scan.setDaemon(true);
-        scan.start();
+    	    JobStatusCheckThread statusCheckThread = new JobStatusCheckThread();
+    	    statusCheckThread.setDaemon(true);
+    	    statusCheckThread.start();
+        TimeoutThread timeoutThread = new TimeoutThread();
+        timeoutThread.setDaemon(true);
+        timeoutThread.start();
     }
     
     public static void addResponse(JobInstanceResponseRpc response) {
@@ -46,19 +51,19 @@ public class JobCallBackScan {
     }
     
     public static void addDepends(List<JobDependency> key,String value) {
-    	dependsMap.put(key,value);
+        dependsMap.put(key,value);
     }
     
-    public static void putCallback(JobInstanceRequestRpc callback) {
-        callBack.put(callback.getRequestId(), callback);
+    public static void addJobInstanceRequest(JobInstanceRequestRpc jobInstanceRequestRpc) {
+    	    jobInstanceRequestMap.put(jobInstanceRequestRpc.getRequestId(), jobInstanceRequestRpc);
     }
     
-    public static JobInstanceRequestRpc getCallBack(String id) {
-        return callBack.get(id);
+    public static JobInstanceRequestRpc getJobInstanceRequest(String id) {
+        return jobInstanceRequestMap.get(id);
     }
     
-    public static Map<String, JobInstanceRequestRpc> getCallBack() {
-        return callBack;
+    public static Map<String, JobInstanceRequestRpc> getJobInstanceRequestMap() {
+        return jobInstanceRequestMap;
     }
 
     public static Map<String, JobInstanceResponseRpc> getResponses() {
@@ -68,12 +73,12 @@ public class JobCallBackScan {
     public static Map<List<JobDependency>, String> getDepends() {
         return dependsMap;
     }
-
+    
     /**
      * 检查依赖任务是否执行成功，只有依赖的任务id在任务的返回列表里并且依赖任务的状态为成功,当前任务才会被执行
      *
      */
-    private static class CallBackScan extends Thread{
+    private static class JobStatusCheckThread extends Thread{
         public void run() {
             long interval = Configuration.getLong(Configuration.getConfig(GlobalConstants.CONFIG_FILE), 
                     "thales.scheduler.job.check.interval", CHECK_INTERVAL);
@@ -89,9 +94,9 @@ public class JobCallBackScan {
                             }
                         }
                     }
-                    if(ids == list.size()) {
+                    if(ids == list.size() || isRootJob(list)) {
                         String requestId = dependsMap.remove(entry.getKey());
-                        JobInstanceRequestRpc request = callBack.remove(requestId);
+                        JobInstanceRequestRpc request = jobInstanceRequestMap.get(requestId);
                         JobSubmission.addWaitingTask(new TaskCall(request,GrpcType.ASYNC));
                     }
                 }
@@ -102,5 +107,39 @@ public class JobCallBackScan {
                 }
             }  
         }
+        private boolean isRootJob(List<JobDependency> list) {
+        	  if(list != null && list.size() == 1) {
+        		  JobDependency dependency = list.get(0);
+        		  if(dependency.toString().split("-")[1].equals("root")) {
+        			  return true;
+        		  }
+        	  }
+        	  return false;
+        }
+    }
+    
+    private static class TimeoutThread extends Thread{
+ 	   public void run() {
+           long interval = Configuration.getLong(Configuration.getConfig(GlobalConstants.CONFIG_FILE), 
+                   "thales.scheduler.timeout.check.interval", CHECK_INTERVAL);
+ 		   while(true) {
+               for(Entry<String, JobInstanceRequestRpc> entry : jobInstanceRequestMap.entrySet()) {
+                   if(entry.getValue() != null) {
+                	      Date startTime = DateUtils.getDatetime(entry.getValue().getStartTime());
+                	      int elapseTime = DateUtils.getElapseTime(startTime,new Date());
+                	      if(entry.getValue().getJob().getExecutionTimeout() > 0) {
+                	    	      if(elapseTime > entry.getValue().getJob().getExecutionTimeout()) {
+                	    	    	      JobSubmission.addTimeoutTask(new TaskCall(entry.getValue(),GrpcType.SYNC));
+                	    	      }
+                	      }
+                   }
+ 		       }
+               try {
+                   Thread.sleep(interval);
+               } catch (InterruptedException e) {
+                   LOG.error(e);
+               }
+ 	       }
+       } 		   
     }
 }

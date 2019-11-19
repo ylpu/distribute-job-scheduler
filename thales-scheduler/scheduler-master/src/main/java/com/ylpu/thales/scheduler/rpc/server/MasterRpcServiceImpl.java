@@ -16,7 +16,7 @@ import com.ylpu.thales.scheduler.core.utils.DateUtils;
 import com.ylpu.thales.scheduler.manager.MasterManager;
 import com.ylpu.thales.scheduler.request.JobInstanceRequest;
 import com.ylpu.thales.scheduler.request.WorkerRequest;
-import com.ylpu.thales.scheduler.rpc.client.JobCallBackScan;
+import com.ylpu.thales.scheduler.rpc.client.JobStatusCheck;
 
 import io.grpc.stub.StreamObserver;
 
@@ -105,7 +105,7 @@ public class MasterRpcServiceImpl extends GrpcWorkerServiceGrpc.GrpcWorkerServic
         		JobManager.updateJobInstanceSelective(jobInstanceRequest);
         	}
             JobInstanceResponseRpc responseRpc = setJobStatus(request);
-            JobCallBackScan.addResponse(responseRpc);
+            JobStatusCheck.addResponse(responseRpc);
             builder.setErrorCode(200);
             builder.setErrorMsg("");
         }catch(Exception e) {

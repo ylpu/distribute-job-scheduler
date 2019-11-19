@@ -3,9 +3,6 @@ package com.ylpu.thales.scheduler.rpc.server;
 import java.io.IOException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import com.ylpu.thales.scheduler.executor.listener.TaskListener;
-
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
 
@@ -24,7 +21,6 @@ public class WorkerRpcServer {
     public void startServer() throws IOException {
         WorkerRpcServiceImpl jobService = new WorkerRpcServiceImpl();
         jobService.setJobMetric(new JobMetricImpl());
-        jobService.addListener(new TaskListener());
         server = ServerBuilder
                 .forPort(serverPort)
                 .addService(jobService)

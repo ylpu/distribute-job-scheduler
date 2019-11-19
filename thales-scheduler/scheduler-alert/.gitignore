@@ -1,0 +1,16 @@
+/target/
+.settings/
+.project
+.classpath
+
+.DS_Store
+.idea
+.idea/
+.idea/*
+*.iml
+*.ipr
+*.iws
+*.tgz
+.*.swp
+.vim
+.tmp

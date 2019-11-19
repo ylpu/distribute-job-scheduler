@@ -11,7 +11,7 @@ import com.ylpu.thales.scheduler.enums.TaskState;
 import com.ylpu.thales.scheduler.manager.JobScheduler;
 import com.ylpu.thales.scheduler.manager.MasterManager;
 import com.ylpu.thales.scheduler.request.JobInstanceRequest;
-import com.ylpu.thales.scheduler.rpc.client.JobCallBackScan;
+import com.ylpu.thales.scheduler.rpc.client.JobStatusCheck;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
@@ -52,7 +52,7 @@ public class MasterServer {
         }
         @Override
         public void run() {
-            //删除zk临时节点
+            //删除zk master节点
             removeZkPath();
             //更新数据库任务状态为失败
             markAsFailed();
@@ -86,7 +86,7 @@ public class MasterServer {
          *  master在意外退出时设置任务状态为失败
          */
         private void markAsFailed() {
-            Map<String, JobInstanceResponseRpc> responses = JobCallBackScan.getResponses();
+            Map<String, JobInstanceResponseRpc> responses = JobStatusCheck.getResponses();
             List<JobInstanceRequest> list = new ArrayList<JobInstanceRequest>();
             JobInstanceRequest request = null;
             for(Entry<String, JobInstanceResponseRpc> entry : responses.entrySet()) {

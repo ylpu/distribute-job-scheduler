@@ -87,10 +87,8 @@ public class WorkerServiceImpl extends BaseServiceImpl<SchedulerWorker,Integer> 
         param.setWorkers(Arrays.asList(request.getHost()));
         List<WorkerResponse> list = getWorkersInfoByGroup(param);
         if(list == null || list.size() == 0) {
-        	    request.setNodeStatus(NodeStatus.ADDED.getCode());
             addWorker(request);
         }else {
-    	        request.setNodeStatus(NodeStatus.UPDATED.getCode());
             updateWorkerByHost(request);
         }
     }

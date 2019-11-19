@@ -5,14 +5,12 @@ import org.apache.commons.logging.LogFactory;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
-
 import com.ylpu.thales.scheduler.core.rest.JobManager;
 import com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc;
-import com.ylpu.thales.scheduler.enums.GrpcType;
 import com.ylpu.thales.scheduler.enums.TaskState;
 import com.ylpu.thales.scheduler.request.JobInstanceRequest;
 import com.ylpu.thales.scheduler.response.JobResponse;
-import com.ylpu.thales.scheduler.rpc.client.JobCallBackScan;
+import com.ylpu.thales.scheduler.rpc.client.JobStatusCheck;
 
 public class SchedulerJob implements Job{
     
@@ -33,12 +31,12 @@ public class SchedulerJob implements Job{
         LOG.info("start to schedule job "  + jobInstanceId + " with schedule time " + 
                 context.getScheduledFireTime() + ",next fire time is " + context.getNextFireTime());
         
-        JobCallBackScan.addResponse(JobSubmission.buildJobStatus(
+        JobStatusCheck.addResponse(JobSubmission.buildJobStatus(
                 jobResponse.getId(), context.getScheduledFireTime(),TaskState.SUBMIT));
         
         JobInstanceRequestRpc rpcRequest = JobSubmission.initJobInstanceRequestRpc(request,
                 jobResponse);
         
-        JobSubmission.addTask(new TaskCall(rpcRequest,GrpcType.ASYNC));
+        JobSubmission.addJob(rpcRequest);
     }
 }

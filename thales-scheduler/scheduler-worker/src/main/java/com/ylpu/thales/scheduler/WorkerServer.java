@@ -149,16 +149,25 @@ public class WorkerServer {
         }
         public void run() {
             WorkerGrpcClient client = null;
+            boolean isFirstReport = true;
+            int nodeStatus = NodeStatus.ADDED.getCode();
 //            while(!stop) {
                 try {
                     String master = CuratorHelper.getActiveMaster();
                     String[] masters = master.split(":");
                     client = new WorkerGrpcClient(masters[0],NumberUtils.toInt(masters[1]));
+                    if(isFirstReport) {
+                    	   nodeStatus = NodeStatus.ADDED.getCode();
+                    	   isFirstReport = false;
+                    }else {
+                       nodeStatus = NodeStatus.UPDATED.getCode();
+                    }
                     WorkerRequestRpc request = WorkerRequestRpc.newBuilder()
                             .setHost(MetricsUtils.getHostIpAddress())
                             .setCpuUsage(MetricsUtils.getCpuUsage())
                             .setMemoryUsage(MetricsUtils.getMemoryUsage())
                             .setNodeGroup(workerGroup)
+                            .setNodeStatus(nodeStatus)
                             .setNodeType(NodeType.WORKER.getCode())
                             .setPort(workerPort)
                             .setZkdirectory(workerPath)

@@ -13,6 +13,7 @@
   	<module>scheduler-core</module>
   	<module>scheduler-worker</module>
   	<module>scheduler-master</module>
+  	<module>scheduler-alert</module>
   </modules>
   <properties>
      <thales-scheduler.version>0.0.1-SNAPSHOT</thales-scheduler.version>

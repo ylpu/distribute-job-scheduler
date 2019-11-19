@@ -1,7 +1,6 @@
 package com.ylpu.thales.scheduler.request;
 
 import java.io.Serializable;
-import java.util.List;
 import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.NotEmpty;
 import lombok.Data;
@@ -15,9 +14,9 @@ public class JobRequest implements Serializable {
     @NotEmpty(message = "job name can not be null")
     private String jobName;
 
-    private Integer jobType;
+    private String jobType;
 
-    private Integer jobPriority;
+    private String jobPriority;
 
     private String creatorId;
 
@@ -25,14 +24,14 @@ public class JobRequest implements Serializable {
 
     private String alertUsers;
 
-    private Integer alertTypes;
+    private String alertTypes;
     
     @NotEmpty(message = "cron expression can not be null")
     private String scheduleCron;
 
     private Boolean isSelfdependent;
 
-    private Integer jobCycle;
+    private String jobCycle;
 
     private Integer maxRetrytimes;
 
@@ -51,7 +50,7 @@ public class JobRequest implements Serializable {
     
     //如果是root任务，依赖的任务id为-1
     @NotEmpty(message = "dependency can not be null")
-    private List<Integer> dependencies;
+    private String dependIds;
 
     private static final long serialVersionUID = 1L;
 

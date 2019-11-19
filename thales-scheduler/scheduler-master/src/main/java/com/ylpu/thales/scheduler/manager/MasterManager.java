@@ -20,7 +20,7 @@ import com.ylpu.thales.scheduler.request.WorkerRequest;
 import com.ylpu.thales.scheduler.response.JobInstanceStateResponse;
 import com.ylpu.thales.scheduler.response.WorkerResponse;
 import com.ylpu.thales.scheduler.rest.MasterRestServer;
-import com.ylpu.thales.scheduler.rpc.client.JobCallBackScan;
+import com.ylpu.thales.scheduler.rpc.client.JobStatusCheck;
 import com.ylpu.thales.scheduler.rpc.server.MasterRpcServer;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.logging.Log;
@@ -134,7 +134,7 @@ public class MasterManager{
     		    String masterPath = GlobalConstants.MASTER_GROUP + "/" + activeMaster;
     		    LOG.info("active master is " + activeMaster);
     		    CuratorHelper.createNodeIfNotExist(client, masterPath, CreateMode.PERSISTENT, null);
-    		    MasterManager.getInstance().init(GlobalConstants.WORKER_GROUP, prop);
+    		    init(GlobalConstants.WORKER_GROUP, prop);
          }
     }
     
@@ -160,7 +160,7 @@ public class MasterManager{
         jettyServer = new MasterRestServer(prop);
         jettyServer.startJettyServer();
 //      启动任务状态检查线程
-        JobCallBackScan.start();
+        JobStatusCheck.start();
 //      初始化每台机器运行的任务个数,供监控使用
         initTaskCount();
 //      启动jmx服务
@@ -206,7 +206,7 @@ public class MasterManager{
                         .setResponseId(responseId)
                         .setTaskState(response.getTaskState())
                         .build();
-                 JobCallBackScan.addResponse(responseRpc);
+                 JobStatusCheck.addResponse(responseRpc);
             }
         }
     }
@@ -306,7 +306,7 @@ public class MasterManager{
             if(taskMap.get(serverName) != null) {
                 taskMap.put(serverName, taskMap.get(serverName) + 1);
             }else {
-                taskMap.put(serverName, 0);
+                taskMap.put(serverName, 1);
             }
         }
     }

@@ -11,9 +11,9 @@ public class JobResponse implements Serializable {
     
     private String jobName;
 
-    private Integer jobType;
+    private String jobType;
 
-    private Integer jobPriority;
+    private String jobPriority;
 
     private String creatorId;
 
@@ -21,13 +21,13 @@ public class JobResponse implements Serializable {
 
     private String alertUsers;
 
-    private Integer alertTypes;
+    private String alertTypes;
 
     private String scheduleCron;
 
     private Boolean isSelfdependent;
 
-    private Integer jobCycle;
+    private String jobCycle;
 
     private Integer maxRetrytimes;
 
@@ -44,6 +44,8 @@ public class JobResponse implements Serializable {
     private String jobConfiguration;
     
     private List<JobResponse> dependencies;
+    
+    private String dependIds;
 
     private static final long serialVersionUID = 1L;
 

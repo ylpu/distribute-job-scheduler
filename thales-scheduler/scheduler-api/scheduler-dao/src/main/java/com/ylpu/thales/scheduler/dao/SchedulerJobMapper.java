@@ -13,4 +13,7 @@ public interface SchedulerJobMapper extends BaseDao<SchedulerJob, Integer>{
     public JobTree queryTreeById(Integer jobId);
     List<SchedulerJob> findAll(@Param("jobType") Integer jobType,
             @Param("jobName") String jobName, Pagination pagination);
+    
+    public Integer getJobCountByIds(@Param("ids")List<String> ids);
+
 }

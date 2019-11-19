@@ -1,10 +1,7 @@
 package com.ylpu.thales.scheduler.response;
 
 import java.io.Serializable;
-import java.util.Date;
-
 import com.ylpu.thales.scheduler.enums.TaskState;
-
 import lombok.Data;
 
 @Data
@@ -32,11 +29,11 @@ public class JobInstanceResponse implements Serializable {
 
     private String applicationid;
     
-    private Date scheduleTime;
+    private String scheduleTime;
     
-    private Date startTime;
+    private String startTime;
     
-    private Date endTime;
+    private String endTime;
 
     private Integer elapseTime;
 

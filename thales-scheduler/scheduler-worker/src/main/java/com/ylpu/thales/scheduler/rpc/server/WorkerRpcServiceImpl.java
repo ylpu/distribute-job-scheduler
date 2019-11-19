@@ -1,7 +1,9 @@
 package com.ylpu.thales.scheduler.rpc.server;
 
 import com.ylpu.thales.scheduler.WorkerServer;
+import com.ylpu.thales.scheduler.core.alert.entity.Event;
 import com.ylpu.thales.scheduler.core.config.Configuration;
+import com.ylpu.thales.scheduler.core.rest.JobManager;
 import com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc;
 import com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc;
 import com.ylpu.thales.scheduler.core.rpc.entity.JobRequestRpc;
@@ -9,31 +11,22 @@ import com.ylpu.thales.scheduler.core.rpc.service.GrpcJobServiceGrpc;
 import com.ylpu.thales.scheduler.core.utils.DateUtils;
 import com.ylpu.thales.scheduler.core.utils.MetricsUtils;
 import com.ylpu.thales.scheduler.enums.AlertType;
+import com.ylpu.thales.scheduler.enums.EventType;
 import com.ylpu.thales.scheduler.enums.JobType;
 import com.ylpu.thales.scheduler.enums.TaskState;
 import com.ylpu.thales.scheduler.executor.AbstractCommonExecutor;
 import com.ylpu.thales.scheduler.executor.ExecutorManager;
-import com.ylpu.thales.scheduler.executor.listener.Event;
-import com.ylpu.thales.scheduler.executor.listener.ITaskListener;
 import com.ylpu.thales.scheduler.request.JobInstanceRequest;
-
+import com.ylpu.thales.scheduler.response.JobInstanceResponse;
 import io.grpc.stub.StreamObserver;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Properties;
 
 public class WorkerRpcServiceImpl extends GrpcJobServiceGrpc.GrpcJobServiceImplBase {
     
     private static Log LOG = LogFactory.getLog(WorkerRpcServiceImpl.class);
     private IJobMetric jobMetric;
-    private List<ITaskListener> listeners = new ArrayList<ITaskListener>();
-    
-    public void addListener(ITaskListener listener) {
-        listeners.add(listener);
-    }
-    
     public IJobMetric getJobMetric() {
         return jobMetric;
     }
@@ -58,15 +51,15 @@ public class WorkerRpcServiceImpl extends GrpcJobServiceGrpc.GrpcJobServiceImplB
             //设置任务成功返回状态
             setCodeAndMessage(builder,TaskState.SUCCESS.getCode(),200,"");
         }catch(Exception e) {
-            LOG.error(e);
-          //设置任务失败返回状态
-            setCodeAndMessage(builder,TaskState.FAIL.getCode(),500,
-                    "failed to execute task " + requestRpc.getId());
-            //任务失败告警
-            Event event = new Event();
-            event.setException(e.getMessage());
-            setAlertEvent(event,requestRpc.getJob(),request);
-            alertFailure(event);
+              LOG.error(e);
+            //设置任务失败返回状态
+              setCodeAndMessage(builder,TaskState.FAIL.getCode(),500,
+                      "failed to execute task " + requestRpc.getId());
+              //任务失败告警
+              Event event = new Event();
+              event.setException(e.getMessage());
+              setAlertEvent(event,requestRpc.getJob(),request);
+              //publish event
         }finally {
             //减少任务个数
             jobMetric.decreaseTask();
@@ -75,12 +68,7 @@ public class WorkerRpcServiceImpl extends GrpcJobServiceGrpc.GrpcJobServiceImplB
         responseObserver.onNext(builder.build());
         responseObserver.onCompleted();
     }
-    
-    private void alertFailure(Event event) {
-        for(ITaskListener listener : listeners) {
-            listener.onFailure(event);
-        }
-    }
+   
     
     private void setAlertEvent(Event event,JobRequestRpc requestRpc,JobInstanceRequest request) {
         event.setTaskId(requestRpc.getId());
@@ -88,6 +76,7 @@ public class WorkerRpcServiceImpl extends GrpcJobServiceGrpc.GrpcJobServiceImplB
         event.setAlertUsers(requestRpc.getAlertUsers());
         event.setLogUrl(request.getLogUrl());
         event.setHostName(request.getWorker());
+        event.setEventType(EventType.TASKFAIL);
     }
     
     public void kill(JobInstanceRequestRpc requestRpc,StreamObserver<JobInstanceResponseRpc> responseObserver) {
@@ -99,7 +88,13 @@ public class WorkerRpcServiceImpl extends GrpcJobServiceGrpc.GrpcJobServiceImplB
         try {
             AbstractCommonExecutor executor = getExecutor(requestRpc,request);
             executor.kill();
-            jobMetric.decreaseTask();
+            while(true) {
+                JobInstanceResponse instanceResponse = JobManager.getJobInstanceById(requestRpc.getId());
+                if(instanceResponse.getTaskState() == TaskState.FAIL) {
+                	    break;
+                }
+                Thread.sleep(1000);
+            }
             setCodeAndMessage(builder,TaskState.KILL.getCode(),200,"");
         }catch(Exception e) {
             LOG.error(e);

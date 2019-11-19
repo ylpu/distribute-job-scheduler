@@ -96,8 +96,9 @@ public class JobInstanceController {
      */
     @ResponseBody
     @RequestMapping(value="/kill",method=RequestMethod.POST)
-    public void killJob(@Validated @RequestBody ScheduleRequest request) {
+    public SchedulerResponse<Void> killJob(@Validated @RequestBody ScheduleRequest request) {
         jobInstanceService.killJob(request);
+        return SchedulerResponse.success();
     }
     
     /**
@@ -106,8 +107,9 @@ public class JobInstanceController {
      */
     @ResponseBody
     @RequestMapping(value="/rerun",method=RequestMethod.POST)
-    public void rerun(@Validated @RequestBody ScheduleRequest request) {
+    public SchedulerResponse<Void> rerun(@Validated @RequestBody ScheduleRequest request) {
         jobInstanceService.rerun(request);
+        return SchedulerResponse.success();
     }
     
     /**
@@ -116,8 +118,9 @@ public class JobInstanceController {
      */
     @ResponseBody
     @RequestMapping(value="/rerunAll",method=RequestMethod.POST)
-    public void rerunAll(@Validated @RequestBody ScheduleRequest request) {
+    public SchedulerResponse<Void> rerunAll(@Validated @RequestBody ScheduleRequest request) {
         jobInstanceService.rerunAll(request);
+        return SchedulerResponse.success();
     }
     
     /**

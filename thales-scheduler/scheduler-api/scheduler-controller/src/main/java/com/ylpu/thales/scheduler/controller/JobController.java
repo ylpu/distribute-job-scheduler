@@ -29,14 +29,16 @@ public class JobController {
     
     @ResponseBody
     @RequestMapping(value="/addJob",method=RequestMethod.POST)
-    public void addJob(@Validated @RequestBody JobRequest job) {
+    public SchedulerResponse<Void> addJob(@Validated @RequestBody JobRequest job) {
         jobService.addJob(job);
+        return SchedulerResponse.success();
     }
     
     @ResponseBody
     @RequestMapping(value="/updateJob",method=RequestMethod.POST)
-    public void updateJob(@Validated @RequestBody JobRequest job) {
+    public SchedulerResponse<Void> updateJob(@Validated @RequestBody JobRequest job) {
         jobService.updateJob(job);
+        return SchedulerResponse.success();
     }
     
     @ResponseBody
@@ -53,8 +55,9 @@ public class JobController {
     
     @ResponseBody
     @RequestMapping(value="/scheduleJob",method=RequestMethod.POST)
-    public void scheduleJob(@Validated @RequestBody ScheduleRequest request) {
+    public SchedulerResponse<Void> scheduleJob(@Validated @RequestBody ScheduleRequest request) {
        jobService.scheduleJob(request);
+       return SchedulerResponse.success();
     }
     
     @ResponseBody
@@ -70,13 +73,15 @@ public class JobController {
     
     @ResponseBody
     @RequestMapping(value="/rescheduleJob",method=RequestMethod.POST)
-    public void rescheduleJob(@Validated @RequestBody ScheduleRequest request) {
+    public SchedulerResponse<Void> rescheduleJob(@Validated @RequestBody ScheduleRequest request) {
        jobService.rescheduleJob(request);
+       return SchedulerResponse.success();
     }
     
     @ResponseBody
     @RequestMapping(value="/downJob",method=RequestMethod.POST)
-    public void downJob(@Validated @RequestBody ScheduleRequest request) {
+    public SchedulerResponse<Void> downJob(@Validated @RequestBody ScheduleRequest request) {
        jobService.downJob(request);
+       return SchedulerResponse.success();
     }
 }

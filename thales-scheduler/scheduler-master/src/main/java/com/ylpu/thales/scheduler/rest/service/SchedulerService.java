@@ -5,12 +5,10 @@ import com.ylpu.thales.scheduler.core.rest.JobManager;
 import com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc;
 import com.ylpu.thales.scheduler.core.utils.CronUtils;
 import com.ylpu.thales.scheduler.core.utils.DateUtils;
-import com.ylpu.thales.scheduler.enums.GrpcType;
 import com.ylpu.thales.scheduler.enums.TaskState;
 import com.ylpu.thales.scheduler.manager.JobScheduler;
 import com.ylpu.thales.scheduler.manager.JobSubmission;
 import com.ylpu.thales.scheduler.manager.SchedulerJob;
-import com.ylpu.thales.scheduler.manager.TaskCall;
 import com.ylpu.thales.scheduler.request.JobInstanceRequest;
 import com.ylpu.thales.scheduler.request.ScheduleRequest;
 import com.ylpu.thales.scheduler.response.JobInstanceResponse;
@@ -18,9 +16,8 @@ import com.ylpu.thales.scheduler.response.JobResponse;
 import com.ylpu.thales.scheduler.response.JobTree;
 import com.ylpu.thales.scheduler.rest.entity.JobScheduleInfo;
 import com.ylpu.thales.scheduler.rpc.client.AbstractJobGrpcClient;
-import com.ylpu.thales.scheduler.rpc.client.JobCallBackScan;
+import com.ylpu.thales.scheduler.rpc.client.JobStatusCheck;
 import com.ylpu.thales.scheduler.rpc.client.JobGrpcBlockingClient;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.logging.Log;
@@ -70,12 +67,12 @@ public class SchedulerService {
                 .setPid(response.getPid())
                 .setId(response.getId())
                 .setRequestId(response.getJobConf().getId() + "-" + 
-                DateUtils.getDateAsString(response.getScheduleTime(),DateUtils.TIME_FORMAT))
+                 response.getScheduleTime().replace("-", "").replace(":", ""))
                 .setJob(JobSubmission.setJobRequest(response.getJobConf()))
                 .setCreatorEmail(response.getCreatorEmail())
                 .setCreatorName(response.getCreatorName())
-                .setScheduleTime(DateUtils.getProtobufTime(response.getScheduleTime()))
-                .setStartTime(DateUtils.getProtobufTime(response.getStartTime()))
+                .setScheduleTime(DateUtils.getProtobufTime(DateUtils.getDateFromString(response.getScheduleTime(),DateUtils.DATE_TIME_FORMAT)))
+                .setStartTime(DateUtils.getProtobufTime(DateUtils.getDateFromString(response.getStartTime(),DateUtils.DATE_TIME_FORMAT)))
                 .setLogPath(response.getLogPath())
                 .setLogUrl(response.getLogUrl())
                 .setRetryTimes(response.getRetryTimes())
@@ -148,18 +145,20 @@ public class SchedulerService {
             JobSubmission.initJobInstance(request,jobInstanceResponse.getJobConf());
             request.setId(jobInstanceResponse.getId());
             request.setRetryTimes(jobInstanceResponse.getRetryTimes() + 1);
-            request.setScheduleTime(jobInstanceResponse.getScheduleTime());
+            request.setScheduleTime(DateUtils.getDateFromString(jobInstanceResponse.getScheduleTime(),DateUtils.DATE_TIME_FORMAT));
             request.setStartTime(new Date());
             request.setCreateTime(new Date());
             JobManager.updateJobInstanceByKey(request);
             
-            JobCallBackScan.addResponse(JobSubmission.buildJobStatus(
-                    jobInstanceResponse.getJobConf().getId(),jobInstanceResponse.getScheduleTime(),TaskState.SUBMIT));
+            JobStatusCheck.addResponse(JobSubmission.buildJobStatus(
+                    jobInstanceResponse.getJobConf().getId(),
+                    DateUtils.getDateFromString(jobInstanceResponse.getScheduleTime(),DateUtils.DATE_TIME_FORMAT),
+                    TaskState.SUBMIT));
             
             JobInstanceRequestRpc rpcRequest = JobSubmission.initJobInstanceRequestRpc(request,
                     jobInstanceResponse.getJobConf());
             
-            JobSubmission.addTask(new TaskCall(rpcRequest,GrpcType.ASYNC));
+            JobSubmission.addJob(rpcRequest);
             
         }catch(Exception e) {
             LOG.error(e);
@@ -180,7 +179,7 @@ public class SchedulerService {
                 JobTree jobTree = JobManager.queryTreeById(jobInstanceResponse.getJobConf().getId());
                 if(jobTree != null && jobTree.getChildren() != null) {
                     for(JobTree child : jobTree.getChildren()) {
-                        rerunChild(jobInstanceResponse.getScheduleTime(),child);
+                        rerunChild(DateUtils.getDateFromString(jobInstanceResponse.getScheduleTime(),DateUtils.DATE_TIME_FORMAT),child);
                     }
                 }
             }

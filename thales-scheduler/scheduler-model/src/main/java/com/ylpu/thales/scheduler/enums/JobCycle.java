@@ -18,6 +18,15 @@ public enum JobCycle {
         throw new IllegalArgumentException("unsupported job cycle " + code);
     }
     
+    public static JobCycle getJobCycle(String name) {
+        for(JobCycle jobCycle : JobCycle.values()) {
+           if(jobCycle.toString().equalsIgnoreCase(name)) {
+               return jobCycle;
+           }
+        }
+        throw new IllegalArgumentException("unsupported job cycle " + name);
+    }
+    
     public int getCode() {
         return this.code;
     }

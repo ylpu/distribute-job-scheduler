@@ -19,6 +19,15 @@ public enum AlertType {
         throw new IllegalArgumentException("unsupported alert type " + code);
     }
     
+    public static AlertType getAlertType(String name) {
+        for(AlertType alertType : AlertType.values()) {
+           if(alertType.toString().equalsIgnoreCase(name)) {
+               return alertType;
+           }
+        }
+        throw new IllegalArgumentException("unsupported alert type " + name);
+    }
+    
     public int getCode() {
         return this.code;
     }

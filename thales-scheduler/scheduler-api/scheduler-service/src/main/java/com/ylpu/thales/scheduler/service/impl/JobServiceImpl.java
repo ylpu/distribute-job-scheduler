@@ -5,13 +5,12 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.transaction.Transactional;
-
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-
 import com.baomidou.mybatisplus.plugins.Page;
 import com.ylpu.thales.scheduler.common.dao.BaseDao;
 import com.ylpu.thales.scheduler.common.rest.ScheduleManager;
@@ -20,7 +19,11 @@ import com.ylpu.thales.scheduler.dao.SchedulerJobMapper;
 import com.ylpu.thales.scheduler.dao.SchedulerJobRelationMapper;
 import com.ylpu.thales.scheduler.entity.SchedulerJob;
 import com.ylpu.thales.scheduler.entity.SchedulerJobRelation;
+import com.ylpu.thales.scheduler.enums.AlertType;
+import com.ylpu.thales.scheduler.enums.JobCycle;
+import com.ylpu.thales.scheduler.enums.JobPriority;
 import com.ylpu.thales.scheduler.enums.JobReleaseState;
+import com.ylpu.thales.scheduler.enums.JobType;
 import com.ylpu.thales.scheduler.request.JobRequest;
 import com.ylpu.thales.scheduler.request.ScheduleRequest;
 import com.ylpu.thales.scheduler.response.JobResponse;
@@ -44,38 +47,58 @@ public class JobServiceImpl extends BaseServiceImpl<SchedulerJob,Integer> implem
     }
 
 	@Override
-    public void addJob(JobRequest job) {		
+    public void addJob(JobRequest job) {	
+		if(!isValidJobDependIds(job.getDependIds())) {
+			throw new ThalesRuntimeException("任务依赖不存在");
+		}
         SchedulerJob schedulerJob = new SchedulerJob();
         if(job != null) {
             BeanUtils.copyProperties(job, schedulerJob);
+            setJobRequest(schedulerJob,job);
             insertSelective(schedulerJob);
         }
         SchedulerJobRelation sr = null; 
-        if(job.getDependencies() != null && job.getDependencies().size() > 0) {
-           for(Integer parentJobId : job.getDependencies()) {
+        List<String> depencies = Arrays.asList(job.getDependIds().split(","));
+        if(depencies != null && depencies.size() > 0) {
+           for(String parentJobId : depencies) {
                 sr = new SchedulerJobRelation();
                 sr.setJobId(schedulerJob.getId());
-                sr.setParentjobId(parentJobId);
+                sr.setParentjobId(NumberUtils.toInt(parentJobId));
                 schedulerJobRelationMapper.insertSelective(sr);
            }
        }
     }
 	
+	private boolean isValidJobDependIds(String ids) {
+		String[] jobIds = ids.split(",");
+		if(!(jobIds.length == 1 && jobIds[0].equals("-1"))) {
+			Integer count = schedulerJobMapper.getJobCountByIds(Arrays.asList(ids));
+			if(count != jobIds.length) {
+				return false;
+			}
+		}
+		return true;
+	}
+	
     @Override
-    public void updateJob(JobRequest job) {        
+    public void updateJob(JobRequest job) {  
+		if(!isValidJobDependIds(job.getDependIds())) {
+			throw new ThalesRuntimeException("任务依赖不存在");
+		}
         SchedulerJob schedulerJob = new SchedulerJob();
         if(job != null) {
             BeanUtils.copyProperties(job, schedulerJob);
+            setJobRequest(schedulerJob,job);
             updateByPrimaryKeySelective(schedulerJob);
         }
-        
-        if(job.getDependencies() != null && job.getDependencies().size() > 0) {
+        List<String> depencies = Arrays.asList(job.getDependIds().split(","));
+        if(depencies != null && depencies.size() > 0) {
             schedulerJobRelationMapper.deleteByJobId(job.getId());
             SchedulerJobRelation sr = null;
-            for(Integer parentJobId : job.getDependencies()) {
+            for(String parentJobId : depencies) {
                 sr = new SchedulerJobRelation();
                 sr.setJobId(job.getId());
-                sr.setParentjobId(parentJobId);
+                sr.setParentjobId(NumberUtils.toInt(parentJobId));
                 schedulerJobRelationMapper.insertSelective(sr);
             }
         }
@@ -120,17 +143,19 @@ public class JobServiceImpl extends BaseServiceImpl<SchedulerJob,Integer> implem
 	    }
 		SchedulerJob schedulerJob = jobList.get(0);
 		if(schedulerJob != null) {
-		      BeanUtils.copyProperties(schedulerJob, response);
+		        BeanUtils.copyProperties(schedulerJob, response);
+		        setJobResponse(schedulerJob,response);
 		        List<SchedulerJobRelation> dependencies = schedulerJob.getRelations();
 		        List<Integer> ids = dependencies.stream().map(t -> t.getParentjobId()).collect(Collectors.toList());
 		        List<JobResponse> list = new ArrayList<JobResponse>();
 		        if(ids != null && ids.size() > 0) {
-		            List<SchedulerJob> jobs = getJobAndDependencyByIds(ids);
+		            List<SchedulerJob> jobs = schedulerJobMapper.getJobParentsByIds(ids);
 		            if(jobs != null && jobs.size() > 0) {
 		                JobResponse dependency = null;
 		                for(SchedulerJob job  : jobs) {
 		                    dependency = new JobResponse();
 		                    BeanUtils.copyProperties(job, dependency);
+		      		        setJobResponse(job,dependency);
 		                    list.add(dependency);
 		                }
 		            }  
@@ -140,9 +165,24 @@ public class JobServiceImpl extends BaseServiceImpl<SchedulerJob,Integer> implem
 		return response;
 	}
 	
-    private List<SchedulerJob> getJobAndDependencyByIds(List<Integer> ids){
-        return schedulerJobMapper.getJobParentsByIds(ids);
-    }
+	private void setJobResponse(SchedulerJob schedulerJob,JobResponse response) {
+	      response.setJobCycle(JobCycle.getJobCycle(schedulerJob.getJobCycle()).name());
+	      response.setJobPriority(JobPriority.getJobPriority(schedulerJob.getJobPriority()).name());
+	      response.setJobType(JobType.getJobType(schedulerJob.getJobType()).name());
+	      response.setAlertTypes(AlertType.getAlertType(schedulerJob.getAlertTypes()).name());
+	        List<Integer> collect = schedulerJob.getRelations()
+	                .stream()
+	                .map(p->p.getParentjobId())
+	                .collect(Collectors.toList());
+	      response.setDependIds(com.ylpu.thales.scheduler.common.utils.StringUtils.convertListAsString(collect));
+	}
+	
+	private void setJobRequest(SchedulerJob schedulerJob,JobRequest job) {
+        schedulerJob.setJobCycle(JobCycle.getJobCycle(job.getJobCycle()).getCode());
+        schedulerJob.setJobPriority(JobPriority.getJobPriority(job.getJobPriority()).getPriority());
+        schedulerJob.setJobType(JobType.getJobType(job.getJobType()).getCode());
+        schedulerJob.setAlertTypes(AlertType.getAlertType(job.getAlertTypes()).getCode());
+	}
 
     @Override
     public void scheduleJob(ScheduleRequest request) {
@@ -153,7 +193,7 @@ public class JobServiceImpl extends BaseServiceImpl<SchedulerJob,Integer> implem
                 throw new ThalesRuntimeException("failed to schedule job " + request.getId());
             }
         }else {
-            throw new ThalesRuntimeException("can not find master url for job " + request.getId());
+            throw new RuntimeException("can not find master url for job " + request.getId());
         }
 
     }
@@ -167,7 +207,7 @@ public class JobServiceImpl extends BaseServiceImpl<SchedulerJob,Integer> implem
                 throw new ThalesRuntimeException("failed to reschedule job " + request.getId());
             }
         }else {
-            throw new ThalesRuntimeException("can not find master url for job " + request.getId());
+            throw new RuntimeException("can not find master url for job " + request.getId());
         }
     }
     
@@ -185,7 +225,7 @@ public class JobServiceImpl extends BaseServiceImpl<SchedulerJob,Integer> implem
                 throw new ThalesRuntimeException("failed to down job " + request.getId());
             }
         }else {
-           throw new ThalesRuntimeException("can not find master url for job " + request.getId());
+           throw new RuntimeException("can not find master url for job " + request.getId());
         }
 
     }
@@ -199,6 +239,7 @@ public class JobServiceImpl extends BaseServiceImpl<SchedulerJob,Integer> implem
 			for(SchedulerJob job : jobList) {
 				jobResponse = new JobResponse();
 				BeanUtils.copyProperties(job, jobResponse);
+  		        setJobResponse(job,jobResponse);
 				response.add(jobResponse);
 			}
 		}

@@ -19,7 +19,7 @@ public enum JobType {
         throw new IllegalArgumentException("unsupported job type " + code);
     }
     
-    public static JobType getJobTypeByName(String name) {
+    public static JobType getJobType(String name) {
         for(JobType jobType : JobType.values()) {
            if(jobType.toString().equalsIgnoreCase(name)) {
                return jobType;

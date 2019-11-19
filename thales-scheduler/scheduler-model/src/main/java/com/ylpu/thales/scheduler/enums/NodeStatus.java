@@ -2,7 +2,7 @@ package com.ylpu.thales.scheduler.enums;
 
 public enum NodeStatus {
     
-    ADDED(1), REMOVED(2), UPDATED(3);
+    ADDED(1), UPDATED(2), REMOVED(3);
     
     private int code;
     

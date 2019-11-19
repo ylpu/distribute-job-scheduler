@@ -89,7 +89,7 @@ public class MetricsUtils {
         }catch(Exception e){  
             throw new RuntimeException("can not find host name"); 
         }  
-        return hostName;
+        return "localhost";
     }
     
     /**
@@ -105,6 +105,6 @@ public class MetricsUtils {
         }catch(Exception e){  
             throw new RuntimeException("can not find ip address");  
         } 
-        return ip;
+        return "127.0.0.1";
     }
 }
