@@ -6,4 +6,56 @@
     <version>0.0.1-SNAPSHOT</version>
   </parent>
   <artifactId>scheduler-alert</artifactId>
+ <dependencies>
+ 
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <scope>test</scope>
+    </dependency>  
+    <dependency>
+           <groupId>com.ylpu.thales</groupId>
+           <artifactId>scheduler-core</artifactId>
+    </dependency>  
+    <dependency>
+        <groupId>javax.mail</groupId>
+        <artifactId>mail</artifactId>
+        <version>1.4.7</version>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.velocity</groupId>
+        <artifactId>velocity</artifactId>
+        <version>1.7</version>
+    </dependency>
+    <dependency>
+        <groupId>com.google.code.gson</groupId>
+        <artifactId>gson</artifactId>
+     </dependency>
+  </dependencies>
+  <build>
+      <plugins>
+           <plugin>
+                 <artifactId> maven-assembly-plugin </artifactId>
+                   <configuration>
+                        <descriptorRefs>
+                             <descriptorRef>jar-with-dependencies</descriptorRef>
+                        </descriptorRefs>
+                        <archive>
+                             <manifest>
+                                  <mainClass>com.vip.alert.MesageConsumer</mainClass>
+                             </manifest>
+                        </archive>
+                   </configuration>
+                   <executions>
+                        <execution>
+                             <id>make-assembly</id>
+                             <phase>package</phase>
+                             <goals>
+                                  <goal>single</goal>
+                             </goals>
+                        </execution>
+                   </executions>
+              </plugin>
+          </plugins>
+     </build>
 </project>

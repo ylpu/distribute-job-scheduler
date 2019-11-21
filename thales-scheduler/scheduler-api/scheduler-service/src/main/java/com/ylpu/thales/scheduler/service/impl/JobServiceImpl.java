@@ -11,7 +11,10 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import com.baomidou.mybatisplus.plugins.Page;
+
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import com.ylpu.thales.scheduler.common.dao.BaseDao;
 import com.ylpu.thales.scheduler.common.rest.ScheduleManager;
 import com.ylpu.thales.scheduler.common.service.impl.BaseServiceImpl;
@@ -102,6 +105,9 @@ public class JobServiceImpl extends BaseServiceImpl<SchedulerJob,Integer> implem
                 schedulerJobRelationMapper.insertSelective(sr);
             }
         }
+        ScheduleRequest scheduleRequest = new ScheduleRequest();
+        scheduleRequest.setId(job.getId());
+        rescheduleJob(scheduleRequest);
     }	
     
     public JobTree queryTreeById(Integer id) {
@@ -231,18 +237,21 @@ public class JobServiceImpl extends BaseServiceImpl<SchedulerJob,Integer> implem
     }
 
 	@Override
-	public Page<JobResponse> findAll(Integer jobType, String jobName, Page<JobResponse> page) {
-		List<SchedulerJob> jobList = schedulerJobMapper.findAll(jobType, jobName, page);
+	public PageInfo<JobResponse> findAll(Integer jobType, String jobName, int pageSize, int pageNo) {
+		PageHelper.startPage(pageNo,pageSize);
+		List<SchedulerJob> jobList = schedulerJobMapper.findAll(jobType, jobName);
 		JobResponse jobResponse = null;
-		List<JobResponse> response = new ArrayList<JobResponse>();
+		Page<JobResponse> page = new Page<JobResponse>();
 		if(jobList != null && jobList.size() > 0) {
 			for(SchedulerJob job : jobList) {
 				jobResponse = new JobResponse();
 				BeanUtils.copyProperties(job, jobResponse);
   		        setJobResponse(job,jobResponse);
-				response.add(jobResponse);
+  		        page.add(jobResponse);
 			}
 		}
-        return page.setRecords(response);
+		page.setTotal(schedulerJobMapper.getJobCountByIds(null));
+		PageInfo<JobResponse> pageInfo = new PageInfo<JobResponse>(page);
+        return pageInfo;
 	}
 }

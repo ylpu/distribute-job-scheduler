@@ -3,7 +3,6 @@ package com.ylpu.thales.scheduler.dao;
 import java.util.List;
 import java.util.Map;
 import org.apache.ibatis.annotations.Param;
-import com.baomidou.mybatisplus.plugins.pagination.Pagination;
 import com.ylpu.thales.scheduler.common.dao.BaseDao;
 import com.ylpu.thales.scheduler.entity.SchedulerWorker;
 
@@ -13,8 +12,10 @@ public interface SchedulerWorkerMapper extends BaseDao<SchedulerWorker, Integer>
     
     List<SchedulerWorker> getWorkersInfoByGroup(Map<String,Object> map);
     
+    Integer getAllWorkers();
+    
     void updateWorkerByHost(SchedulerWorker worker);
     
     List<SchedulerWorker> findAll(@Param("nodeGroup") String nodeGroup,
-            @Param("worker") String worker, Pagination pagination);
+            @Param("worker") String worker);
 }

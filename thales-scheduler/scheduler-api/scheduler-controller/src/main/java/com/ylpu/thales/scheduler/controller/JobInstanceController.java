@@ -2,8 +2,7 @@ package com.ylpu.thales.scheduler.controller;
 
 import java.util.List;
 import java.util.Map;
-
-import com.baomidou.mybatisplus.plugins.Page;
+import com.github.pagehelper.PageInfo;
 import com.ylpu.thales.scheduler.request.JobInstanceRequest;
 import com.ylpu.thales.scheduler.request.JobStatusRequest;
 import com.ylpu.thales.scheduler.request.ScheduleRequest;
@@ -11,7 +10,6 @@ import com.ylpu.thales.scheduler.response.JobInstanceResponse;
 import com.ylpu.thales.scheduler.response.JobInstanceStateResponse;
 import com.ylpu.thales.scheduler.response.SchedulerResponse;
 import com.ylpu.thales.scheduler.service.JobInstanceService;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
@@ -56,13 +54,11 @@ public class JobInstanceController {
     
     @ResponseBody
     @RequestMapping(value="/paging",method=RequestMethod.GET)
-    public SchedulerResponse<Page<JobInstanceResponse>> paging(@RequestParam(value = "pageNo", required = false, defaultValue = "1") Integer pageNo,
+    public SchedulerResponse<PageInfo<JobInstanceResponse>> paging(@RequestParam(value = "pageNo", required = false, defaultValue = "1") Integer pageNo,
                                          @RequestParam(value = "pageSize", required = false, defaultValue = "10") Integer pageSize,
                                          @RequestParam(value = "taskState", required = false) Integer taskState,
                                          @RequestParam(value = "worker", required = false) String worker) {
-        Page<JobInstanceResponse> pageable = new Page<JobInstanceResponse>(pageNo, pageSize);
-        Page<JobInstanceResponse> page = jobInstanceService.findAll(taskState, worker, pageable);
-        return new SchedulerResponse<Page<JobInstanceResponse>>(page);
+        return new SchedulerResponse<PageInfo<JobInstanceResponse>>(jobInstanceService.findAll(taskState, worker,pageNo,pageSize));
     }
     
     @ResponseBody

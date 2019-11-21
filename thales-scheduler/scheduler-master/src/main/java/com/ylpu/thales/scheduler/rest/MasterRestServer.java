@@ -44,7 +44,7 @@ public class MasterRestServer {
         //static files handler        
         ResourceHandler resource_handler = new ResourceHandler();
         resource_handler.setDirectoriesListed(true);
-        resource_handler.setResourceBase("./content");
+        resource_handler.setResourceBase("./");
 
         ContextHandler staticContext = new ContextHandler();
         staticContext.setHandler(resource_handler);

@@ -32,6 +32,7 @@
             <property name="rowBoundsWithCount" value="true" />
             <property name="pageSizeZero" value="true" />
             <property name="reasonable" value="true" />
+            <property name="returnPageInfo" value="none" />
         </plugin>
     </plugins>
 </configuration>

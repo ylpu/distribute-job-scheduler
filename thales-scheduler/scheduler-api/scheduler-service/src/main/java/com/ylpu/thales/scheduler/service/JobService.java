@@ -1,6 +1,6 @@
 package com.ylpu.thales.scheduler.service;
 
-import com.baomidou.mybatisplus.plugins.Page;
+import com.github.pagehelper.PageInfo;
 import com.ylpu.thales.scheduler.common.service.BaseService;
 import com.ylpu.thales.scheduler.entity.SchedulerJob;
 import com.ylpu.thales.scheduler.request.JobRequest;
@@ -24,6 +24,6 @@ public interface JobService extends BaseService<SchedulerJob,Integer>{
     
     public void downJob(ScheduleRequest request);
     
-    public Page<JobResponse> findAll(Integer jobType, String jobName, Page<JobResponse> page);
+    public PageInfo<JobResponse> findAll(Integer jobType, String jobName, int pageSize, int pageNo);
     
 }

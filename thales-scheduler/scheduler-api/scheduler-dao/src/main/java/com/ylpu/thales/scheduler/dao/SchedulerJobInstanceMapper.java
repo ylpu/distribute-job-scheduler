@@ -22,5 +22,8 @@ public interface SchedulerJobInstanceMapper extends BaseDao<SchedulerJobInstance
     public void updateJobStatus(@Param("ids")List<Integer> ids, @Param("status")Integer status);
     
     List<SchedulerJobInstance> findAll(@Param("taskState") Integer taskState,
-            @Param("worker") String worker, Pagination pagination);
+            @Param("worker") String worker);
+    
+    public Integer getInstantCount();
+
 }

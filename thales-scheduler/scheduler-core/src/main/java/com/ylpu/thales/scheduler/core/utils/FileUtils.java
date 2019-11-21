@@ -200,12 +200,19 @@ public final class FileUtils {
        return new ArrayList<String>(appIds);
    }
    
-   public static void removeFile(String fileName) {  
-       File file = new File(fileName);
-       if(file.exists()) {
-          file.delete();    	   
+   public static void removeFile(String fileName) { 
+	   File file = new File(fileName);
+       if(exist(file)) {
+    	      file.delete();
        }
    } 
+   
+   public static boolean exist(File file) {  
+       if(file.exists()) {
+          return true;    	   
+       }
+       return false;
+   }
 
    public static void main(String[] args) {
        try {

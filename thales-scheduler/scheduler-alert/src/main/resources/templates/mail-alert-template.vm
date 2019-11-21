@@ -1,0 +1,11 @@
+<html>
+<head>
+<title></title>
+</head>
+<body>
+    taskid : $taskId</br>
+    hostname : $hostName</br>
+    eventType : $eventType</br>
+    logUrl : $logUrl</br>
+</body>
+</html>

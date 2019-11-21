@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import com.baomidou.mybatisplus.plugins.Page;
+import com.github.pagehelper.PageInfo;
 import com.ylpu.thales.scheduler.request.JobRequest;
 import com.ylpu.thales.scheduler.request.ScheduleRequest;
 import com.ylpu.thales.scheduler.response.JobResponse;
@@ -62,13 +62,11 @@ public class JobController {
     
     @ResponseBody
     @RequestMapping(value="/paging",method=RequestMethod.GET)
-    public SchedulerResponse<Page<JobResponse>> paging(@RequestParam(value = "pageNo", required = false, defaultValue = "1") Integer pageNo,
+    public SchedulerResponse<PageInfo<JobResponse>> paging(@RequestParam(value = "pageNo", required = false, defaultValue = "1") Integer pageNo,
                                          @RequestParam(value = "pageSize", required = false, defaultValue = "10") Integer pageSize,
                                          @RequestParam(value = "jobType", required = false) Integer jobType,
                                          @RequestParam(value = "jobName", required = false) String jobName) {
-        Page<JobResponse> pageable = new Page<JobResponse>(pageNo, pageSize);
-        Page<JobResponse> page = jobService.findAll(jobType, jobName, pageable);
-        return new SchedulerResponse<Page<JobResponse>>(page);
+        return new SchedulerResponse<PageInfo<JobResponse>>(jobService.findAll(jobType, jobName, pageSize, pageNo));
     }
     
     @ResponseBody

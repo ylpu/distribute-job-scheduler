@@ -23,9 +23,7 @@ public class Event implements Serializable{
     private String logUrl;
     
     private String hostName;
-    
-    private String exception;
-    
+        
     public int getTaskId() {
         return taskId;
     }
@@ -72,13 +70,5 @@ public class Event implements Serializable{
 
     public void setHostName(String hostName) {
         this.hostName = hostName;
-    }
-
-    public String getException() {
-        return exception;
-    }
-
-    public void setException(String exception) {
-        this.exception = exception;
     }
 }

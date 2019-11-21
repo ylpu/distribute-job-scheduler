@@ -60,6 +60,21 @@ public class Configuration {
         return config;
     }
     
+    public static Properties getConfigFile(String propFileName) {
+	    Properties config = configMap.get(propFileName);
+	    if(config == null){
+            Properties prop = new Properties();
+        try {
+            prop.load(Thread.currentThread().getContextClassLoader().getResourceAsStream(propFileName));
+        } catch (IOException e) {
+        	    LOG.error(e);
+        }
+            config = prop;
+            configMap.put(propFileName, prop);
+	    }
+       return config;
+   }
+    
     public static int getInt(Properties prop,String key,int defaultValue) {
         return NumberUtils.toInt(getString(prop,key,String.valueOf(defaultValue)));
     }

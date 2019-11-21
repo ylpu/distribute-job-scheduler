@@ -11,7 +11,10 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import com.baomidou.mybatisplus.plugins.Page;
+
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import com.ylpu.thales.scheduler.common.dao.BaseDao;
 import com.ylpu.thales.scheduler.common.rest.ScheduleManager;
 import com.ylpu.thales.scheduler.common.service.impl.BaseServiceImpl;
@@ -179,10 +182,11 @@ public class JobInstanceServiceImpl extends BaseServiceImpl<SchedulerJobInstance
     }
 
 	@Override
-	public Page<JobInstanceResponse> findAll(Integer taskState, String worker, Page<JobInstanceResponse> page) {
-		List<SchedulerJobInstance> jobInstanceList = schedulerJobInstanceMapper.findAll(taskState, worker, page);
+	public PageInfo<JobInstanceResponse> findAll(Integer taskState, String worker,int pageNo,int pageSize) {
+		PageHelper.startPage(pageNo,pageSize);
+		List<SchedulerJobInstance> jobInstanceList = schedulerJobInstanceMapper.findAll(taskState, worker);
 		JobInstanceResponse jobInstanceResponse = null;
-		List<JobInstanceResponse> response = new ArrayList<JobInstanceResponse>();
+		Page<JobInstanceResponse> page = new Page<JobInstanceResponse>();
 		if(jobInstanceList != null && jobInstanceList.size() > 0) {
 			for(SchedulerJobInstance jobInstance : jobInstanceList) {
 				jobInstanceResponse = new JobInstanceResponse();
@@ -197,9 +201,11 @@ public class JobInstanceServiceImpl extends BaseServiceImpl<SchedulerJobInstance
 				if(jobInstance.getEndTime() != null) {
 					jobInstanceResponse.setEndTime(DateUtils.getDateAsString(jobInstance.getEndTime(),DateUtils.DATE_TIME_FORMAT));
 				}
-				response.add(jobInstanceResponse);
+				page.add(jobInstanceResponse);
 			}
 		}
-        return page.setRecords(response);
+		page.setTotal(schedulerJobInstanceMapper.getInstantCount());
+		PageInfo<JobInstanceResponse> pageInfo = new PageInfo<JobInstanceResponse>(page);
+        return pageInfo;
 	}
 }

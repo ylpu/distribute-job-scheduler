@@ -151,7 +151,7 @@ public class WorkerServer {
             WorkerGrpcClient client = null;
             boolean isFirstReport = true;
             int nodeStatus = NodeStatus.ADDED.getCode();
-//            while(!stop) {
+            while(!stop) {
                 try {
                     String master = CuratorHelper.getActiveMaster();
                     String[] masters = master.split(":");
@@ -191,6 +191,6 @@ public class WorkerServer {
                     LOG.error(e);
                 }
             }
-//        }
+        }
     }
 }

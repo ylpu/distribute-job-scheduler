@@ -10,7 +10,9 @@ import javax.transaction.Transactional;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import com.baomidou.mybatisplus.plugins.Page;
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import com.ylpu.thales.scheduler.common.dao.BaseDao;
 import com.ylpu.thales.scheduler.common.service.impl.BaseServiceImpl;
 import com.ylpu.thales.scheduler.common.utils.DateUtils;
@@ -94,19 +96,23 @@ public class WorkerServiceImpl extends BaseServiceImpl<SchedulerWorker,Integer> 
     }
 
 	@Override
-	public Page<WorkerResponse> findAll(String nodeGroup, String worker, Page<WorkerResponse> pageable) {
-		List<SchedulerWorker> workerList = schedulerWorkerMapper.findAll(nodeGroup, worker, pageable);
+	public PageInfo<WorkerResponse> findAll(String nodeGroup,String worker,int pageNo,int pageSize) {
+		PageHelper.startPage(pageNo,pageSize);
+
+		List<SchedulerWorker> workerList = schedulerWorkerMapper.findAll(nodeGroup, worker);
 		WorkerResponse workerResponse = null;
-		List<WorkerResponse> response = new ArrayList<WorkerResponse>();
+		Page<WorkerResponse> page = new Page<WorkerResponse>();
 		if(workerList != null && workerList.size() > 0) {
 			for(SchedulerWorker schedulerWorker : workerList) {
 				workerResponse = new WorkerResponse();
 				BeanUtils.copyProperties(schedulerWorker, workerResponse);
 				workerResponse.setNodeStatus(NodeStatus.getNodeStatus(schedulerWorker.getNodeStatus()));
 				workerResponse.setLastHeartbeatTime(DateUtils.getDateAsString(schedulerWorker.getLastHeartbeatTime(),DateUtils.DATE_TIME_FORMAT));
-				response.add(workerResponse);
+				page.add(workerResponse);
 			}
 		}
-        return pageable.setRecords(response);
+		page.setTotal(schedulerWorkerMapper.getAllWorkers());
+		PageInfo<WorkerResponse> pageInfo = new PageInfo<WorkerResponse>(page);
+        return pageInfo;
 	}
 }

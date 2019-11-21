@@ -8,6 +8,8 @@ import com.ylpu.thales.scheduler.executor.AbstractCommonExecutor;
 import com.ylpu.thales.scheduler.request.JobInstanceRequest;
 
 import org.apache.commons.lang3.StringUtils;
+
+import java.io.File;
 import java.util.List;
 import java.util.Map;
 
@@ -50,6 +52,9 @@ public class ShellExecutor extends AbstractCommonExecutor{
     public String buildCommand(String configFile) throws Exception {
         Map<String,Object> map = JsonUtils.jsonToMap(configFile);
         String fileName = String.valueOf(map.get("fileName"));
+        if(!FileUtils.exist(new File(fileName))) {
+        	    throw new RuntimeException("file does not exist");
+        }
         String parameters = String.valueOf(map.get("parameters"));
         StringBuilder sb = new StringBuilder("sh " + fileName);
         if(StringUtils.isNotBlank(parameters)) {

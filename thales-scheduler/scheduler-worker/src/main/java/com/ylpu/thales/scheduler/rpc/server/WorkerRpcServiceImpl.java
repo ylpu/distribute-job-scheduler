@@ -57,7 +57,6 @@ public class WorkerRpcServiceImpl extends GrpcJobServiceGrpc.GrpcJobServiceImplB
                       "failed to execute task " + requestRpc.getId());
               //任务失败告警
               Event event = new Event();
-              event.setException(e.getMessage());
               setAlertEvent(event,requestRpc.getJob(),request);
               //publish event
         }finally {

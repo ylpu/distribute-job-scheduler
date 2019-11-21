@@ -244,4 +244,8 @@
        </foreach>
      </if>
   </select>
+  
+   <select id = "getAllWorkers" resultType="java.lang.Integer">
+      select count(*) from t_thales_scheduler_node
+   </select>
 </mapper>

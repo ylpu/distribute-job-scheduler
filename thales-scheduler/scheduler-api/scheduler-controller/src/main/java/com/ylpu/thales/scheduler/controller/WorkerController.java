@@ -1,13 +1,11 @@
 package com.ylpu.thales.scheduler.controller;
 
-import com.baomidou.mybatisplus.plugins.Page;
+import com.github.pagehelper.PageInfo;
 import com.ylpu.thales.scheduler.request.WorkerGroupRequest;
 import com.ylpu.thales.scheduler.request.WorkerRequest;
-import com.ylpu.thales.scheduler.response.JobInstanceResponse;
 import com.ylpu.thales.scheduler.response.SchedulerResponse;
 import com.ylpu.thales.scheduler.response.WorkerResponse;
 import com.ylpu.thales.scheduler.service.WorkerService;
-
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -51,12 +49,10 @@ public class WorkerController {
     
     @ResponseBody
     @RequestMapping(value="/paging",method=RequestMethod.GET)
-    public SchedulerResponse<Page<WorkerResponse>> paging(@RequestParam(value = "pageNo", required = false, defaultValue = "1") Integer pageNo,
+    public SchedulerResponse<PageInfo<WorkerResponse>> paging(@RequestParam(value = "pageNo", required = false, defaultValue = "1") Integer pageNo,
                                          @RequestParam(value = "pageSize", required = false, defaultValue = "10") Integer pageSize,
                                          @RequestParam(value = "nodeGroup", required = false) String nodeGroup,
                                          @RequestParam(value = "worker", required = false) String worker) {
-        Page<WorkerResponse> pageable = new Page<WorkerResponse>(pageNo, pageSize);
-        Page<WorkerResponse> page = workerService.findAll(nodeGroup, worker, pageable);
-        return new SchedulerResponse<Page<WorkerResponse>>(page);
+        return new SchedulerResponse<PageInfo<WorkerResponse>>(workerService.findAll(nodeGroup, worker, pageNo,pageSize));
     }
 }
