@@ -21,7 +21,7 @@ public class JobManager {
      * @param request
      * @return
      */
-    public static int updateJobInstanceSelective(JobInstanceRequest request) {
+    public static int updateJobInstanceSelective(JobInstanceRequest request) throws Exception{
         String apiUrl = Configuration.getString(Configuration.getConfig(),
                 "thales.api.url",GlobalConstants.DEFAULT_API_URL);
         @SuppressWarnings("rawtypes")
@@ -36,7 +36,7 @@ public class JobManager {
      * @param request
      * @return
      */
-    public static int updateJobInstanceByKey(JobInstanceRequest request) {
+    public static int updateJobInstanceByKey(JobInstanceRequest request) throws Exception{
         String apiUrl = Configuration.getString(Configuration.getConfig(),
                 "thales.api.url",GlobalConstants.DEFAULT_API_URL);
         @SuppressWarnings("rawtypes")
@@ -51,7 +51,7 @@ public class JobManager {
      * @param request
      * @return
      */
-    public static int updateJobStatus(JobStatusRequest request) {
+    public static int updateJobStatus(JobStatusRequest request) throws Exception{
         String apiUrl = Configuration.getString(Configuration.getConfig(),
                 "thales.api.url",GlobalConstants.DEFAULT_API_URL);
         @SuppressWarnings("rawtypes")
@@ -66,7 +66,7 @@ public class JobManager {
      * @param request
      * @return
      */
-    public static int markAsFailed(List<JobInstanceRequest> list) {
+    public static int markAsFailed(List<JobInstanceRequest> list) throws Exception{
         String apiUrl = Configuration.getString(Configuration.getConfig(),
                 "thales.api.url",GlobalConstants.DEFAULT_API_URL);
         @SuppressWarnings("rawtypes")
@@ -81,7 +81,7 @@ public class JobManager {
      * @param request
      * @return
      */
-    public static Integer addJobInstance(JobInstanceRequest request) {
+    public static Integer addJobInstance(JobInstanceRequest request) throws Exception{
         String apiUrl = Configuration.getString(Configuration.getConfig(),
                 "thales.api.url",GlobalConstants.DEFAULT_API_URL);
         @SuppressWarnings("rawtypes")
@@ -95,7 +95,7 @@ public class JobManager {
      * 获取所有任务实例的状态，用于master恢复。
      * @return
      */
-    public static List<JobInstanceStateResponse> getAllJobStatus() {
+    public static List<JobInstanceStateResponse> getAllJobStatus() throws Exception{
         String apiUrl = Configuration.getString(Configuration.getConfig(),
                 "thales.api.url",GlobalConstants.DEFAULT_API_URL);
         ParameterizedTypeReference<SchedulerResponse<List<JobInstanceStateResponse>>> typeRef = new ParameterizedTypeReference<SchedulerResponse<List<JobInstanceStateResponse>>>() {};
@@ -107,7 +107,7 @@ public class JobManager {
      * @param id
      * @return
      */
-    public static JobInstanceResponse getJobInstanceById(Integer id) {
+    public static JobInstanceResponse getJobInstanceById(Integer id) throws Exception{
         String apiUrl = Configuration.getString(Configuration.getConfig(),
                 "thales.api.url",GlobalConstants.DEFAULT_API_URL);
         Map<String,Object> map = new HashMap<String,Object>();
@@ -121,7 +121,7 @@ public class JobManager {
      * @param id
      * @return
      */
-    public static JobResponse getJobById(Integer id) {
+    public static JobResponse getJobById(Integer id) throws Exception{
         String apiUrl = Configuration.getString(Configuration.getConfig(),
                 "thales.api.url",GlobalConstants.DEFAULT_API_URL);
         Map<String,Object> map = new HashMap<String,Object>();
@@ -135,7 +135,7 @@ public class JobManager {
      * @param id
      * @return
      */
-    public static JobTree queryTreeById(Integer id) {
+    public static JobTree queryTreeById(Integer id) throws Exception{
         String apiUrl = Configuration.getString(Configuration.getConfig(),
                 "thales.api.url",GlobalConstants.DEFAULT_API_URL);
         Map<String,Object> map = new HashMap<String,Object>();
@@ -150,7 +150,7 @@ public class JobManager {
      * @param scheduleTime
      * @return
      */
-    public static Integer getInstanceIdByTime(Integer jobId,String scheduleTime) {
+    public static Integer getInstanceIdByTime(Integer jobId,String scheduleTime) throws Exception{
         String apiUrl = Configuration.getString(Configuration.getConfig(),
                 "thales.api.url",GlobalConstants.DEFAULT_API_URL);
         Map<String,Object> map = new HashMap<String,Object>();

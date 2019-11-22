@@ -22,18 +22,13 @@ public class JobGrpcBlockingClient extends AbstractJobGrpcClient{
     private final ManagedChannel channel;
     private final GrpcJobServiceGrpc.GrpcJobServiceBlockingStub blockStub;
     
-    private String host;
-    private int port;
-    
     public JobGrpcBlockingClient(String host, int port) {
-        this.host = host;
-        this.port = port;
         channel = ManagedChannelBuilder.forAddress(host, port).usePlaintext().build();
         blockStub = GrpcJobServiceGrpc.newBlockingStub(channel);
     }
  
     @Override
-    public void submitJob(JobInstanceRequestRpc requestRpc) {
+    public void submitJob(JobInstanceRequestRpc requestRpc) throws Exception {
         JobInstanceResponseRpc responseRpc = null;
         JobInstanceRequest request  = new JobInstanceRequest();
         setJobInstanceRequest(requestRpc,request);
@@ -45,13 +40,21 @@ public class JobGrpcBlockingClient extends AbstractJobGrpcClient{
              responseRpc = buildResponse(requestRpc,TaskState.FAIL,500,
                      "failed to execute task " + requestRpc.getId());
         }
-        updateTaskStatus(request,responseRpc.getTaskState());
+        try {
+            updateTaskStatus(request,responseRpc.getTaskState());
+        }catch(Exception e) {
+            responseRpc = buildResponse(requestRpc,TaskState.FAIL,500,
+                    "failed to execute task " + requestRpc.getId());
+        }
         JobStatusCheck.addResponse(responseRpc);
         LOG.info("任务 " + requestRpc.getId() + " 返回值 " + 
         responseRpc.getErrorCode() + " ,返回消息 " +  responseRpc.getErrorMsg());
+        if(responseRpc.getErrorCode() != 200) {
+          	rerunIfNeeded(requestRpc);
+        }
     }
     
-    public void kill(JobInstanceRequestRpc requestRpc){
+    public void kill(JobInstanceRequestRpc requestRpc) throws Exception{
         JobInstanceResponseRpc responseRpc = null;
         JobInstanceRequest request  = new JobInstanceRequest();
         setJobInstanceRequest(requestRpc,request);
@@ -65,13 +68,17 @@ public class JobGrpcBlockingClient extends AbstractJobGrpcClient{
         
         LOG.info("任务 " + requestRpc.getId() + " 返回值 " + 
         responseRpc.getErrorCode() + " ,返回消息 " +  responseRpc.getErrorMsg());
-        
+        try {
+            updateTaskStatus(request,responseRpc.getTaskState());
+        }catch(Exception e) {
+            LOG.error(e.getMessage());
+            responseRpc = buildResponse(requestRpc,TaskState.RUNNING,500,
+                    "failed to kill task " + requestRpc.getId());
+        }
         JobStatusCheck.getJobInstanceRequestMap().remove(requestRpc.getRequestId());
-
-        updateTaskStatus(request,responseRpc.getTaskState());
-        
         JobStatusCheck.addResponse(responseRpc);
-        if(responseRpc.getErrorCode() == 500) {
+        
+        if(responseRpc.getErrorCode() != 200) {
             throw new RuntimeException("failed to kill task " + requestRpc.getId());
         }
     }

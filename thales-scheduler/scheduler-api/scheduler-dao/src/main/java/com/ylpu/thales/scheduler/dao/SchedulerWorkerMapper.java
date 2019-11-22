@@ -18,4 +18,6 @@ public interface SchedulerWorkerMapper extends BaseDao<SchedulerWorker, Integer>
     
     List<SchedulerWorker> findAll(@Param("nodeGroup") String nodeGroup,
             @Param("worker") String worker);
+    
+    List<String> getAvailiableWorkerGroup();
 }

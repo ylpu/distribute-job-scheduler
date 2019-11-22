@@ -48,6 +48,12 @@ public class WorkerController {
     } 
     
     @ResponseBody
+    @RequestMapping(value="/getWorkerGroup",method=RequestMethod.GET)
+    public SchedulerResponse<List<String>> getWorkerGroup() {
+        return new SchedulerResponse<List<String>>(workerService.getAvailiableWorkerGroup());
+    }
+    
+    @ResponseBody
     @RequestMapping(value="/paging",method=RequestMethod.GET)
     public SchedulerResponse<PageInfo<WorkerResponse>> paging(@RequestParam(value = "pageNo", required = false, defaultValue = "1") Integer pageNo,
                                          @RequestParam(value = "pageSize", required = false, defaultValue = "10") Integer pageSize,

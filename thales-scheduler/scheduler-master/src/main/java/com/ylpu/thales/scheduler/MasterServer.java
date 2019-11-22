@@ -54,10 +54,14 @@ public class MasterServer {
         public void run() {
             //删除zk master节点
             removeZkPath();
-            //更新数据库任务状态为失败
-            markAsFailed();
             //关掉任务调度
             JobScheduler.shutdownJobs();
+            //更新数据库任务状态为失败
+            try {
+				markAsFailed();
+			} catch (Exception e) {
+				LOG.error(e);
+			}
         }
         
         /**
@@ -85,7 +89,7 @@ public class MasterServer {
         /**
          *  master在意外退出时设置任务状态为失败
          */
-        private void markAsFailed() {
+        private void markAsFailed() throws Exception{
             Map<String, JobInstanceResponseRpc> responses = JobStatusCheck.getResponses();
             List<JobInstanceRequest> list = new ArrayList<JobInstanceRequest>();
             JobInstanceRequest request = null;

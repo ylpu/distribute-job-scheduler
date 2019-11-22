@@ -25,11 +25,17 @@ public class SchedulerJob implements Job{
         request.setStartTime(context.getFireTime());
         
         JobSubmission.initJobInstance(request,jobResponse);
-        int jobInstanceId = JobManager.addJobInstance(request);
+        int jobInstanceId = 0;
+		try {
+			jobInstanceId = JobManager.addJobInstance(request);
+		} catch (Exception e) {
+			LOG.error(e);
+			throw new RuntimeException("failed to add job instance");
+		}
         request.setId(jobInstanceId);
         
         LOG.info("start to schedule job "  + jobInstanceId + " with schedule time " + 
-                context.getScheduledFireTime() + ",next fire time is " + context.getNextFireTime());
+                context.getScheduledFireTime());
         
         JobStatusCheck.addResponse(JobSubmission.buildJobStatus(
                 jobResponse.getId(), context.getScheduledFireTime(),TaskState.SUBMIT));

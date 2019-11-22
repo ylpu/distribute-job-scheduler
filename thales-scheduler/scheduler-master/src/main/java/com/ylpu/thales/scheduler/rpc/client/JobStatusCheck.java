@@ -9,13 +9,14 @@ import com.ylpu.thales.scheduler.enums.GrpcType;
 import com.ylpu.thales.scheduler.enums.TaskState;
 import com.ylpu.thales.scheduler.manager.JobSubmission;
 import com.ylpu.thales.scheduler.manager.TaskCall;
-
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -34,12 +35,9 @@ public class JobStatusCheck {
     private static final long CHECK_INTERVAL = 2000;
         
     public static void start(){
-    	    JobStatusCheckThread statusCheckThread = new JobStatusCheckThread();
-    	    statusCheckThread.setDaemon(true);
-    	    statusCheckThread.start();
-        TimeoutThread timeoutThread = new TimeoutThread();
-        timeoutThread.setDaemon(true);
-        timeoutThread.start();
+        ExecutorService es = Executors.newFixedThreadPool(2);
+        es.execute(new JobStatusCheckThread());
+        es.execute(new TimeoutThread());
     }
     
     public static void addResponse(JobInstanceResponseRpc response) {

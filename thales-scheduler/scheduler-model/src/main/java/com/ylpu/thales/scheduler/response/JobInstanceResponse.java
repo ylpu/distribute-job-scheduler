@@ -10,6 +10,8 @@ public class JobInstanceResponse implements Serializable {
     private Integer id;
 
     private JobResponse jobConf;
+    
+    private Integer jobId;
 
     private TaskState taskState;
 

@@ -194,8 +194,9 @@ public class MasterManager{
     
     /**
      *目前任务状态都保存在mysql中，master在启动的时候需要从mysql中恢复任务状态
+     * @throws Exception 
      */
-    private void restoreTaskState() {
+    private void restoreTaskState() throws Exception {
         JobInstanceResponseRpc responseRpc = null;
         List<JobInstanceStateResponse> list = JobManager.getAllJobStatus();
         if(list != null && list.size() > 0) {

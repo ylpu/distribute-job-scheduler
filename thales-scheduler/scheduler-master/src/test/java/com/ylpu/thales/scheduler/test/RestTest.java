@@ -67,7 +67,11 @@ public class RestTest {
       jr.setPid(null);
       jr.setElapseTime(53);
       jr.setEndTime(new Date());
-      System.out.println(JobManager.addJobInstance(jr));
+      try {
+		System.out.println(JobManager.addJobInstance(jr));
+	} catch (Exception e) {
+		e.printStackTrace();
+	}
   }
     
     @Test
@@ -75,19 +79,34 @@ public class RestTest {
         JobStatusRequest request = new JobStatusRequest();
         request.setIds(Arrays.asList(130));
         request.setStatus(TaskState.FAIL);
-        System.out.println(JobManager.updateJobStatus(request));
+        try {
+			System.out.println(JobManager.updateJobStatus(request));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
     }
     
     @Test
     public void testgetAllJobStatus() {
-        List<JobInstanceStateResponse> responses = JobManager.getAllJobStatus();
-        for(JobInstanceStateResponse response : responses) {
-            System.out.println(response.getTaskState());
-        }
+        List<JobInstanceStateResponse> responses = null;
+		try {
+			responses = JobManager.getAllJobStatus();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		if(responses != null) {
+	        for(JobInstanceStateResponse response : responses) {
+	            System.out.println(response.getTaskState());
+	        }
+		}
     }
     
     @Test
     public void testJobInstanceById() {
-        System.out.println(JobManager.getJobInstanceById(140).getLogPath());
+        try {
+			System.out.println(JobManager.getJobInstanceById(140).getLogPath());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
     }
 }

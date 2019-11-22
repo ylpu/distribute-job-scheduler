@@ -14,5 +14,7 @@ public interface SchedulerJobMapper extends BaseDao<SchedulerJob, Integer>{
             @Param("jobName") String jobName);
     
     public Integer getJobCountByIds(@Param("ids")List<String> ids);
+    
+    public Integer getJobCountByName(@Param("jobName")String jobName);
    
 }

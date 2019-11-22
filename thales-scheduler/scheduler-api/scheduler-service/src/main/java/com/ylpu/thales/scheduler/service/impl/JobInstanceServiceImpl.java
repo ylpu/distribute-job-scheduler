@@ -82,6 +82,7 @@ public class JobInstanceServiceImpl extends BaseServiceImpl<SchedulerJobInstance
         if(schedulerJobInstance != null) {
             BeanUtils.copyProperties(schedulerJobInstance, response);
             response.setTaskState(TaskState.getTaskStateById(schedulerJobInstance.getTaskState()));
+            response.setJobId(schedulerJobInstance.getJobId());
 			if(schedulerJobInstance.getScheduleTime() != null) {
 				response.setScheduleTime(DateUtils.getDateAsString(schedulerJobInstance.getScheduleTime(),DateUtils.DATE_TIME_FORMAT));
 			}
@@ -192,6 +193,7 @@ public class JobInstanceServiceImpl extends BaseServiceImpl<SchedulerJobInstance
 				jobInstanceResponse = new JobInstanceResponse();
 				BeanUtils.copyProperties(jobInstance, jobInstanceResponse);
 				jobInstanceResponse.setTaskState(TaskState.getTaskStateById(jobInstance.getTaskState()));
+				jobInstanceResponse.setJobId(jobInstance.getJobId());
 				if(jobInstance.getScheduleTime() != null) {
 					jobInstanceResponse.setScheduleTime(DateUtils.getDateAsString(jobInstance.getScheduleTime(),DateUtils.DATE_TIME_FORMAT));
 				}

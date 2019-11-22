@@ -11,7 +11,6 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -51,8 +50,17 @@ public class JobServiceImpl extends BaseServiceImpl<SchedulerJob,Integer> implem
 
 	@Override
     public void addJob(JobRequest job) {	
-		if(!isValidJobDependIds(job.getDependIds())) {
-			throw new ThalesRuntimeException("任务依赖不存在");
+		List<String> depencies = new ArrayList<String>();
+		if(schedulerJobMapper.getJobCountByName(job.getJobName()) >=1) {
+			throw new ThalesRuntimeException("任务名称已经存在");
+		}
+		if(StringUtils.isBlank(job.getDependIds())){
+			depencies = Arrays.asList("-1");
+		}else {
+			if(!isValidJobDependIds(job.getDependIds())) {
+				throw new ThalesRuntimeException("任务依赖不存在");
+			}
+	        depencies = Arrays.asList(job.getDependIds().split(","));
 		}
         SchedulerJob schedulerJob = new SchedulerJob();
         if(job != null) {
@@ -61,7 +69,6 @@ public class JobServiceImpl extends BaseServiceImpl<SchedulerJob,Integer> implem
             insertSelective(schedulerJob);
         }
         SchedulerJobRelation sr = null; 
-        List<String> depencies = Arrays.asList(job.getDependIds().split(","));
         if(depencies != null && depencies.size() > 0) {
            for(String parentJobId : depencies) {
                 sr = new SchedulerJobRelation();
@@ -74,27 +81,30 @@ public class JobServiceImpl extends BaseServiceImpl<SchedulerJob,Integer> implem
 	
 	private boolean isValidJobDependIds(String ids) {
 		String[] jobIds = ids.split(",");
-		if(!(jobIds.length == 1 && jobIds[0].equals("-1"))) {
-			Integer count = schedulerJobMapper.getJobCountByIds(Arrays.asList(ids));
-			if(count != jobIds.length) {
-				return false;
-			}
+		Integer count = schedulerJobMapper.getJobCountByIds(Arrays.asList(ids));
+		if(count != jobIds.length) {
+			return false;
 		}
 		return true;
 	}
 	
     @Override
     public void updateJob(JobRequest job) {  
-		if(!isValidJobDependIds(job.getDependIds())) {
-			throw new ThalesRuntimeException("任务依赖不存在");
+		List<String> depencies = new ArrayList<String>();
+		if(StringUtils.isBlank(job.getDependIds())){
+			depencies = Arrays.asList("-1");
+		}else {
+			if(!isValidJobDependIds(job.getDependIds())) {
+				throw new ThalesRuntimeException("任务依赖不存在");
+			}
+	        depencies = Arrays.asList(job.getDependIds().split(","));
 		}
-        SchedulerJob schedulerJob = new SchedulerJob();
         if(job != null) {
+            SchedulerJob schedulerJob = new SchedulerJob();
             BeanUtils.copyProperties(job, schedulerJob);
             setJobRequest(schedulerJob,job);
             updateByPrimaryKeySelective(schedulerJob);
         }
-        List<String> depencies = Arrays.asList(job.getDependIds().split(","));
         if(depencies != null && depencies.size() > 0) {
             schedulerJobRelationMapper.deleteByJobId(job.getId());
             SchedulerJobRelation sr = null;
@@ -180,7 +190,11 @@ public class JobServiceImpl extends BaseServiceImpl<SchedulerJob,Integer> implem
 	                .stream()
 	                .map(p->p.getParentjobId())
 	                .collect(Collectors.toList());
-	      response.setDependIds(com.ylpu.thales.scheduler.common.utils.StringUtils.convertListAsString(collect));
+	        if(collect.size() ==1 && collect.get(0).equals(-1)) {
+	  	      response.setDependIds("");
+	        }else {
+	  	      response.setDependIds(com.ylpu.thales.scheduler.common.utils.StringUtils.convertListAsString(collect));
+	        }
 	}
 	
 	private void setJobRequest(SchedulerJob schedulerJob,JobRequest job) {

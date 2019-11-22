@@ -245,6 +245,10 @@
      </if>
   </select>
   
+ <select id = "getAvailiableWorkerGroup" resultType="java.lang.String">
+     select node_group from t_thales_scheduler_node where node_status !=3 group by node_group
+  </select>
+  
    <select id = "getAllWorkers" resultType="java.lang.Integer">
       select count(*) from t_thales_scheduler_node
    </select>

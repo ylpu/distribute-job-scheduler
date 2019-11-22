@@ -49,13 +49,13 @@
     ,
     <include refid="Blob_Column_List" />
     from t_thales_scheduler_job
-    where job_ReleaseState = 0 and id = #{id,jdbcType=INTEGER}
+    where job_ReleaseState != -1 and id = #{id,jdbcType=INTEGER}
   </select>
   
   <select id="findAll" resultMap="ResultMapWithRelations">
      select *
         from t_thales_scheduler_job job left join t_thales_scheduler_job_relation job_relation on job.id = job_relation.job_id
-        where job.job_ReleaseState = 0
+        where job.job_ReleaseState != -1
             <if test="jobType != null and jobType != ''">
                 and job.job_type = #{jobType}
             </if>
@@ -68,7 +68,7 @@
   <select id="getJobParentsByIds" resultMap="ResultMapWithRelations" >
     select *
     from t_thales_scheduler_job job left join t_thales_scheduler_job_relation job_relation on job.id = job_relation.job_id
-    where job.job_ReleaseState = 0
+    where job.job_ReleaseState != -1
     <if test="list != null and list.size > 0">
        and job.id in
        <foreach collection="list" index="index" item="id" open="(" separator="," close=")">  
@@ -80,13 +80,18 @@
   <select id = "getJobCountByIds" resultType="java.lang.Integer">
         select count(*)
     from t_thales_scheduler_job job left join t_thales_scheduler_job_relation job_relation on job.id = job_relation.job_id
-    where job.job_ReleaseState = 0
+    where job.job_ReleaseState != -1
     <if test="ids != null and ids.size > 0">
        and id in
        <foreach collection="ids" index="index" item="id" open="(" separator="," close=")">  
           #{id}
        </foreach>
     </if>
+  </select>
+    <select id = "getJobCountByName" resultType="java.lang.Integer">
+        select count(*)
+    from t_thales_scheduler_job job left join t_thales_scheduler_job_relation job_relation on job.id = job_relation.job_id
+    where job.job_ReleaseState != -1 and job_name = #{jobName}
   </select>
   
   <resultMap id="baseResult" type="com.ylpu.thales.scheduler.entity.JobTree">

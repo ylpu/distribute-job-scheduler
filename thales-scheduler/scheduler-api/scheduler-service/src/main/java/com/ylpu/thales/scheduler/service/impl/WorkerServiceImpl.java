@@ -115,4 +115,9 @@ public class WorkerServiceImpl extends BaseServiceImpl<SchedulerWorker,Integer> 
 		PageInfo<WorkerResponse> pageInfo = new PageInfo<WorkerResponse>(page);
         return pageInfo;
 	}
+
+	@Override
+	public List<String> getAvailiableWorkerGroup() {
+		return schedulerWorkerMapper.getAvailiableWorkerGroup();
+	}
 }
