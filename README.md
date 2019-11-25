@@ -24,7 +24,6 @@ thales是一款自主研发的调度系统，系统支持调度shell,hive,spark�
 	    - log --任务日志
 	    - execute thread -- 任务执行
 	- core --核心实现
-	- common --通用帮助类
 # scheduler-master
 master作为调度的核心，主要有如下功能：
 * 初始化任务实例状态
