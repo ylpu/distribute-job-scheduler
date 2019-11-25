@@ -1,5 +1,5 @@
 # Introduction
-thales是一款自主研发的调度系统，系统支持调度sql,shell,spark等各种任务类型。
+thales是一款自主研发的调度系统，系统支持调度shell,hive,spark等各种任务类型。
 
 # Architecture
 ![image](https://github.com/ylpu/distribute-job-scheduler/tree/master/docs/thales-arch.png)
@@ -25,9 +25,3 @@ thales是一款自主研发的调度系统，系统支持调度sql,shell,spark�
 	    - execute thread -- 任务执行
 	- core --核心实现
 	- common --通用帮助类
-- webapp --整个web系统
-	- ui --web系统前端
-	- backend --web系统后端
-		- controller --后端系统控制层
-		- dao --后端系统数据层
-		- service --后端系统服务层
