@@ -16,14 +16,14 @@ public  final class WorkerRequestRpc extends
   }
   private WorkerRequestRpc() {
     id_ = 0;
-    nodeType_ = 0;
+    workerType_ = 0;
     host_ = "";
     port_ = 0;
-    nodeGroup_ = "";
+    workerGroup_ = "";
     zkdirectory_ = "";
     cpuUsage_ = 0D;
     memoryUsage_ = 0D;
-    nodeStatus_ = 0;
+    workerStatus_ = 0;
   }
 
   @java.lang.Override
@@ -58,7 +58,7 @@ public  final class WorkerRequestRpc extends
           }
           case 16: {
 
-            nodeType_ = input.readInt32();
+            workerType_ = input.readInt32();
             break;
           }
           case 26: {
@@ -75,7 +75,7 @@ public  final class WorkerRequestRpc extends
           case 42: {
             java.lang.String s = input.readStringRequireUtf8();
 
-            nodeGroup_ = s;
+            workerGroup_ = s;
             break;
           }
           case 50: {
@@ -109,7 +109,7 @@ public  final class WorkerRequestRpc extends
           }
           case 80: {
 
-            nodeStatus_ = input.readInt32();
+            workerStatus_ = input.readInt32();
             break;
           }
         }
@@ -144,13 +144,13 @@ public  final class WorkerRequestRpc extends
     return id_;
   }
 
-  public static final int NODETYPE_FIELD_NUMBER = 2;
-  private int nodeType_;
+  public static final int WORKERTYPE_FIELD_NUMBER = 2;
+  private int workerType_;
   /**
-   * <code>int32 nodeType = 2;</code>
+   * <code>int32 workerType = 2;</code>
    */
-  public int getNodeType() {
-    return nodeType_;
+  public int getWorkerType() {
+    return workerType_;
   }
 
   public static final int HOST_FIELD_NUMBER = 3;
@@ -196,34 +196,34 @@ public  final class WorkerRequestRpc extends
     return port_;
   }
 
-  public static final int NODEGROUP_FIELD_NUMBER = 5;
-  private volatile java.lang.Object nodeGroup_;
+  public static final int WORKERGROUP_FIELD_NUMBER = 5;
+  private volatile java.lang.Object workerGroup_;
   /**
-   * <code>string nodeGroup = 5;</code>
+   * <code>string workerGroup = 5;</code>
    */
-  public java.lang.String getNodeGroup() {
-    java.lang.Object ref = nodeGroup_;
+  public java.lang.String getWorkerGroup() {
+    java.lang.Object ref = workerGroup_;
     if (ref instanceof java.lang.String) {
       return (java.lang.String) ref;
     } else {
       com.google.protobuf.ByteString bs = 
           (com.google.protobuf.ByteString) ref;
       java.lang.String s = bs.toStringUtf8();
-      nodeGroup_ = s;
+      workerGroup_ = s;
       return s;
     }
   }
   /**
-   * <code>string nodeGroup = 5;</code>
+   * <code>string workerGroup = 5;</code>
    */
   public com.google.protobuf.ByteString
-      getNodeGroupBytes() {
-    java.lang.Object ref = nodeGroup_;
+      getWorkerGroupBytes() {
+    java.lang.Object ref = workerGroup_;
     if (ref instanceof java.lang.String) {
       com.google.protobuf.ByteString b = 
           com.google.protobuf.ByteString.copyFromUtf8(
               (java.lang.String) ref);
-      nodeGroup_ = b;
+      workerGroup_ = b;
       return b;
     } else {
       return (com.google.protobuf.ByteString) ref;
@@ -303,13 +303,13 @@ public  final class WorkerRequestRpc extends
     return getLastHeartbeatTime();
   }
 
-  public static final int NODESTATUS_FIELD_NUMBER = 10;
-  private int nodeStatus_;
+  public static final int WORKERSTATUS_FIELD_NUMBER = 10;
+  private int workerStatus_;
   /**
-   * <code>int32 nodeStatus = 10;</code>
+   * <code>int32 workerStatus = 10;</code>
    */
-  public int getNodeStatus() {
-    return nodeStatus_;
+  public int getWorkerStatus() {
+    return workerStatus_;
   }
 
   private byte memoizedIsInitialized = -1;
@@ -327,8 +327,8 @@ public  final class WorkerRequestRpc extends
     if (id_ != 0) {
       output.writeInt32(1, id_);
     }
-    if (nodeType_ != 0) {
-      output.writeInt32(2, nodeType_);
+    if (workerType_ != 0) {
+      output.writeInt32(2, workerType_);
     }
     if (!getHostBytes().isEmpty()) {
       com.google.protobuf.GeneratedMessageV3.writeString(output, 3, host_);
@@ -336,8 +336,8 @@ public  final class WorkerRequestRpc extends
     if (port_ != 0) {
       output.writeInt32(4, port_);
     }
-    if (!getNodeGroupBytes().isEmpty()) {
-      com.google.protobuf.GeneratedMessageV3.writeString(output, 5, nodeGroup_);
+    if (!getWorkerGroupBytes().isEmpty()) {
+      com.google.protobuf.GeneratedMessageV3.writeString(output, 5, workerGroup_);
     }
     if (!getZkdirectoryBytes().isEmpty()) {
       com.google.protobuf.GeneratedMessageV3.writeString(output, 6, zkdirectory_);
@@ -351,8 +351,8 @@ public  final class WorkerRequestRpc extends
     if (lastHeartbeatTime_ != null) {
       output.writeMessage(9, getLastHeartbeatTime());
     }
-    if (nodeStatus_ != 0) {
-      output.writeInt32(10, nodeStatus_);
+    if (workerStatus_ != 0) {
+      output.writeInt32(10, workerStatus_);
     }
   }
 
@@ -365,9 +365,9 @@ public  final class WorkerRequestRpc extends
       size += com.google.protobuf.CodedOutputStream
         .computeInt32Size(1, id_);
     }
-    if (nodeType_ != 0) {
+    if (workerType_ != 0) {
       size += com.google.protobuf.CodedOutputStream
-        .computeInt32Size(2, nodeType_);
+        .computeInt32Size(2, workerType_);
     }
     if (!getHostBytes().isEmpty()) {
       size += com.google.protobuf.GeneratedMessageV3.computeStringSize(3, host_);
@@ -376,8 +376,8 @@ public  final class WorkerRequestRpc extends
       size += com.google.protobuf.CodedOutputStream
         .computeInt32Size(4, port_);
     }
-    if (!getNodeGroupBytes().isEmpty()) {
-      size += com.google.protobuf.GeneratedMessageV3.computeStringSize(5, nodeGroup_);
+    if (!getWorkerGroupBytes().isEmpty()) {
+      size += com.google.protobuf.GeneratedMessageV3.computeStringSize(5, workerGroup_);
     }
     if (!getZkdirectoryBytes().isEmpty()) {
       size += com.google.protobuf.GeneratedMessageV3.computeStringSize(6, zkdirectory_);
@@ -394,9 +394,9 @@ public  final class WorkerRequestRpc extends
       size += com.google.protobuf.CodedOutputStream
         .computeMessageSize(9, getLastHeartbeatTime());
     }
-    if (nodeStatus_ != 0) {
+    if (workerStatus_ != 0) {
       size += com.google.protobuf.CodedOutputStream
-        .computeInt32Size(10, nodeStatus_);
+        .computeInt32Size(10, workerStatus_);
     }
     memoizedSize = size;
     return size;
@@ -416,14 +416,14 @@ public  final class WorkerRequestRpc extends
     boolean result = true;
     result = result && (getId()
         == other.getId());
-    result = result && (getNodeType()
-        == other.getNodeType());
+    result = result && (getWorkerType()
+        == other.getWorkerType());
     result = result && getHost()
         .equals(other.getHost());
     result = result && (getPort()
         == other.getPort());
-    result = result && getNodeGroup()
-        .equals(other.getNodeGroup());
+    result = result && getWorkerGroup()
+        .equals(other.getWorkerGroup());
     result = result && getZkdirectory()
         .equals(other.getZkdirectory());
     result = result && (
@@ -439,8 +439,8 @@ public  final class WorkerRequestRpc extends
       result = result && getLastHeartbeatTime()
           .equals(other.getLastHeartbeatTime());
     }
-    result = result && (getNodeStatus()
-        == other.getNodeStatus());
+    result = result && (getWorkerStatus()
+        == other.getWorkerStatus());
     return result;
   }
 
@@ -453,14 +453,14 @@ public  final class WorkerRequestRpc extends
     hash = (19 * hash) + getDescriptor().hashCode();
     hash = (37 * hash) + ID_FIELD_NUMBER;
     hash = (53 * hash) + getId();
-    hash = (37 * hash) + NODETYPE_FIELD_NUMBER;
-    hash = (53 * hash) + getNodeType();
+    hash = (37 * hash) + WORKERTYPE_FIELD_NUMBER;
+    hash = (53 * hash) + getWorkerType();
     hash = (37 * hash) + HOST_FIELD_NUMBER;
     hash = (53 * hash) + getHost().hashCode();
     hash = (37 * hash) + PORT_FIELD_NUMBER;
     hash = (53 * hash) + getPort();
-    hash = (37 * hash) + NODEGROUP_FIELD_NUMBER;
-    hash = (53 * hash) + getNodeGroup().hashCode();
+    hash = (37 * hash) + WORKERGROUP_FIELD_NUMBER;
+    hash = (53 * hash) + getWorkerGroup().hashCode();
     hash = (37 * hash) + ZKDIRECTORY_FIELD_NUMBER;
     hash = (53 * hash) + getZkdirectory().hashCode();
     hash = (37 * hash) + CPUUSAGE_FIELD_NUMBER;
@@ -473,8 +473,8 @@ public  final class WorkerRequestRpc extends
       hash = (37 * hash) + LASTHEARTBEATTIME_FIELD_NUMBER;
       hash = (53 * hash) + getLastHeartbeatTime().hashCode();
     }
-    hash = (37 * hash) + NODESTATUS_FIELD_NUMBER;
-    hash = (53 * hash) + getNodeStatus();
+    hash = (37 * hash) + WORKERSTATUS_FIELD_NUMBER;
+    hash = (53 * hash) + getWorkerStatus();
     hash = (29 * hash) + unknownFields.hashCode();
     memoizedHashCode = hash;
     return hash;
@@ -595,13 +595,13 @@ public  final class WorkerRequestRpc extends
       super.clear();
       id_ = 0;
 
-      nodeType_ = 0;
+      workerType_ = 0;
 
       host_ = "";
 
       port_ = 0;
 
-      nodeGroup_ = "";
+      workerGroup_ = "";
 
       zkdirectory_ = "";
 
@@ -615,7 +615,7 @@ public  final class WorkerRequestRpc extends
         lastHeartbeatTime_ = null;
         lastHeartbeatTimeBuilder_ = null;
       }
-      nodeStatus_ = 0;
+      workerStatus_ = 0;
 
       return this;
     }
@@ -640,10 +640,10 @@ public  final class WorkerRequestRpc extends
     public com.ylpu.thales.scheduler.core.rpc.entity.WorkerRequestRpc buildPartial() {
       com.ylpu.thales.scheduler.core.rpc.entity.WorkerRequestRpc result = new com.ylpu.thales.scheduler.core.rpc.entity.WorkerRequestRpc(this);
       result.id_ = id_;
-      result.nodeType_ = nodeType_;
+      result.workerType_ = workerType_;
       result.host_ = host_;
       result.port_ = port_;
-      result.nodeGroup_ = nodeGroup_;
+      result.workerGroup_ = workerGroup_;
       result.zkdirectory_ = zkdirectory_;
       result.cpuUsage_ = cpuUsage_;
       result.memoryUsage_ = memoryUsage_;
@@ -652,7 +652,7 @@ public  final class WorkerRequestRpc extends
       } else {
         result.lastHeartbeatTime_ = lastHeartbeatTimeBuilder_.build();
       }
-      result.nodeStatus_ = nodeStatus_;
+      result.workerStatus_ = workerStatus_;
       onBuilt();
       return result;
     }
@@ -697,8 +697,8 @@ public  final class WorkerRequestRpc extends
       if (other.getId() != 0) {
         setId(other.getId());
       }
-      if (other.getNodeType() != 0) {
-        setNodeType(other.getNodeType());
+      if (other.getWorkerType() != 0) {
+        setWorkerType(other.getWorkerType());
       }
       if (!other.getHost().isEmpty()) {
         host_ = other.host_;
@@ -707,8 +707,8 @@ public  final class WorkerRequestRpc extends
       if (other.getPort() != 0) {
         setPort(other.getPort());
       }
-      if (!other.getNodeGroup().isEmpty()) {
-        nodeGroup_ = other.nodeGroup_;
+      if (!other.getWorkerGroup().isEmpty()) {
+        workerGroup_ = other.workerGroup_;
         onChanged();
       }
       if (!other.getZkdirectory().isEmpty()) {
@@ -724,8 +724,8 @@ public  final class WorkerRequestRpc extends
       if (other.hasLastHeartbeatTime()) {
         mergeLastHeartbeatTime(other.getLastHeartbeatTime());
       }
-      if (other.getNodeStatus() != 0) {
-        setNodeStatus(other.getNodeStatus());
+      if (other.getWorkerStatus() != 0) {
+        setWorkerStatus(other.getWorkerStatus());
       }
       onChanged();
       return this;
@@ -779,28 +779,28 @@ public  final class WorkerRequestRpc extends
       return this;
     }
 
-    private int nodeType_ ;
+    private int workerType_ ;
     /**
-     * <code>int32 nodeType = 2;</code>
+     * <code>int32 workerType = 2;</code>
      */
-    public int getNodeType() {
-      return nodeType_;
+    public int getWorkerType() {
+      return workerType_;
     }
     /**
-     * <code>int32 nodeType = 2;</code>
+     * <code>int32 workerType = 2;</code>
      */
-    public Builder setNodeType(int value) {
+    public Builder setWorkerType(int value) {
       
-      nodeType_ = value;
+      workerType_ = value;
       onChanged();
       return this;
     }
     /**
-     * <code>int32 nodeType = 2;</code>
+     * <code>int32 workerType = 2;</code>
      */
-    public Builder clearNodeType() {
+    public Builder clearWorkerType() {
       
-      nodeType_ = 0;
+      workerType_ = 0;
       onChanged();
       return this;
     }
@@ -900,71 +900,71 @@ public  final class WorkerRequestRpc extends
       return this;
     }
 
-    private java.lang.Object nodeGroup_ = "";
+    private java.lang.Object workerGroup_ = "";
     /**
-     * <code>string nodeGroup = 5;</code>
+     * <code>string workerGroup = 5;</code>
      */
-    public java.lang.String getNodeGroup() {
-      java.lang.Object ref = nodeGroup_;
+    public java.lang.String getWorkerGroup() {
+      java.lang.Object ref = workerGroup_;
       if (!(ref instanceof java.lang.String)) {
         com.google.protobuf.ByteString bs =
             (com.google.protobuf.ByteString) ref;
         java.lang.String s = bs.toStringUtf8();
-        nodeGroup_ = s;
+        workerGroup_ = s;
         return s;
       } else {
         return (java.lang.String) ref;
       }
     }
     /**
-     * <code>string nodeGroup = 5;</code>
+     * <code>string workerGroup = 5;</code>
      */
     public com.google.protobuf.ByteString
-        getNodeGroupBytes() {
-      java.lang.Object ref = nodeGroup_;
+        getWorkerGroupBytes() {
+      java.lang.Object ref = workerGroup_;
       if (ref instanceof String) {
         com.google.protobuf.ByteString b = 
             com.google.protobuf.ByteString.copyFromUtf8(
                 (java.lang.String) ref);
-        nodeGroup_ = b;
+        workerGroup_ = b;
         return b;
       } else {
         return (com.google.protobuf.ByteString) ref;
       }
     }
     /**
-     * <code>string nodeGroup = 5;</code>
+     * <code>string workerGroup = 5;</code>
      */
-    public Builder setNodeGroup(
+    public Builder setWorkerGroup(
         java.lang.String value) {
       if (value == null) {
     throw new NullPointerException();
   }
   
-      nodeGroup_ = value;
+      workerGroup_ = value;
       onChanged();
       return this;
     }
     /**
-     * <code>string nodeGroup = 5;</code>
+     * <code>string workerGroup = 5;</code>
      */
-    public Builder clearNodeGroup() {
+    public Builder clearWorkerGroup() {
       
-      nodeGroup_ = getDefaultInstance().getNodeGroup();
+      workerGroup_ = getDefaultInstance().getWorkerGroup();
       onChanged();
       return this;
     }
     /**
-     * <code>string nodeGroup = 5;</code>
+     * <code>string workerGroup = 5;</code>
      */
-    public Builder setNodeGroupBytes(
+    public Builder setWorkerGroupBytes(
         com.google.protobuf.ByteString value) {
       if (value == null) {
     throw new NullPointerException();
   }
   checkByteStringIsUtf8(value);
       
-      nodeGroup_ = value;
+      workerGroup_ = value;
       onChanged();
       return this;
     }
@@ -1207,28 +1207,28 @@ public  final class WorkerRequestRpc extends
       return lastHeartbeatTimeBuilder_;
     }
 
-    private int nodeStatus_ ;
+    private int workerStatus_ ;
     /**
-     * <code>int32 nodeStatus = 10;</code>
+     * <code>int32 workerStatus = 10;</code>
      */
-    public int getNodeStatus() {
-      return nodeStatus_;
+    public int getWorkerStatus() {
+      return workerStatus_;
     }
     /**
-     * <code>int32 nodeStatus = 10;</code>
+     * <code>int32 workerStatus = 10;</code>
      */
-    public Builder setNodeStatus(int value) {
+    public Builder setWorkerStatus(int value) {
       
-      nodeStatus_ = value;
+      workerStatus_ = value;
       onChanged();
       return this;
     }
     /**
-     * <code>int32 nodeStatus = 10;</code>
+     * <code>int32 workerStatus = 10;</code>
      */
-    public Builder clearNodeStatus() {
+    public Builder clearWorkerStatus() {
       
-      nodeStatus_ = 0;
+      workerStatus_ = 0;
       onChanged();
       return this;
     }

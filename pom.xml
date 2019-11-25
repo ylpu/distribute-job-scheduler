@@ -43,6 +43,10 @@
         <swagger.version>2.2.2</swagger.version>
         <log4j.version>2.11.0</log4j.version>
         <slf4j.version>1.8.0-alpha2</slf4j.version>
+        <mail.version>1.4.7</mail.version>
+        <velocity.version>1.7</velocity.version>
+        <jersey-servlet.version>1.19.4</jersey-servlet.version>
+        <cglib.version>3.2.5</cglib.version>
     </properties>
   <dependencyManagement>
      <dependencies>
@@ -52,6 +56,16 @@
             <version>${lombok.version}</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>javax.mail</groupId>
+            <artifactId>mail</artifactId>
+            <version>${mail.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.velocity</groupId>
+            <artifactId>velocity</artifactId>
+            <version>${velocity.version}</version>
+            </dependency>
         <dependency>  
            <groupId>com.101tec</groupId>  
            <artifactId>zkclient</artifactId>  
@@ -87,6 +101,11 @@
             <groupId>org.glassfish.jersey.core</groupId>
             <artifactId>jersey-client</artifactId>
             <version>${jersey.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.jersey</groupId>
+            <artifactId>jersey-servlet</artifactId>
+             <version>${jersey-servlet.version}</version>
         </dependency>
         <dependency>
 	        <groupId>com.sun.jdmk </groupId>
@@ -245,6 +264,11 @@
 		    <version>2.4</version>    
 		    <classifier>jdk15</classifier>    
 		</dependency>
+		<dependency>
+	        <groupId>cglib</groupId>
+	        <artifactId>cglib</artifactId>
+	        <version>${cglib.version}</version>
+        </dependency>
      </dependencies>
   </dependencyManagement>
     <build>
@@ -252,7 +276,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.3</version>
                 <configuration>
                     <source>1.8</source>
                     <target>1.8</target>

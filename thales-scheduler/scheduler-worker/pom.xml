@@ -12,13 +12,16 @@
            <artifactId>scheduler-core</artifactId>
        </dependency>
        <dependency>
+           <groupId>com.ylpu.thales</groupId>
+           <artifactId>scheduler-alert</artifactId>
+       </dependency>
+       <dependency>
          <groupId>org.eclipse.jetty.aggregate</groupId>
          <artifactId>jetty-all</artifactId>
       </dependency>
       <dependency>
          <groupId>com.sun.jersey</groupId>
          <artifactId>jersey-servlet</artifactId>
-         <version>1.19.4</version>
       </dependency>
       <dependency>
          <groupId>javax.servlet</groupId>
@@ -28,16 +31,6 @@
          <groupId>org.eclipse.jetty</groupId>
          <artifactId>jetty-jsp</artifactId>
       </dependency>
-      	<dependency>
-    		<groupId>org.apache.kafka</groupId>
-    		<artifactId>kafka-clients</artifactId>
-    		<version>0.11.0.0</version>
-    	</dependency>
-   	    <dependency>
-            <groupId>org.apache.kafka</groupId>
-            <artifactId>kafka-streams</artifactId>
-            <version>0.11.0.0</version>
-    	</dependency>
   </dependencies>
     <build>
         <plugins>

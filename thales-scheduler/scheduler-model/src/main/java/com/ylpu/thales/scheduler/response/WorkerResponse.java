@@ -1,10 +1,7 @@
 package com.ylpu.thales.scheduler.response;
 
 import java.io.Serializable;
-import java.util.Date;
-
-import com.ylpu.thales.scheduler.enums.NodeStatus;
-
+import com.ylpu.thales.scheduler.enums.WorkerStatus;
 import lombok.Data;
 
 @Data
@@ -12,13 +9,13 @@ public class WorkerResponse implements Serializable {
     
     private Integer id;
 
-    private Integer nodeType;
+    private Integer workerType;
 
     private String host;
 
     private Integer port;
 
-    private String nodeGroup;
+    private String workerGroup;
 
     private String zkdirectory;
 
@@ -28,7 +25,7 @@ public class WorkerResponse implements Serializable {
 
     private String lastHeartbeatTime;
 
-    private NodeStatus nodeStatus;
+    private WorkerStatus workerStatus;
 
     private static final long serialVersionUID = 1L;
   }

@@ -13,9 +13,9 @@ public interface WorkerRequestRpcOrBuilder extends
   int getId();
 
   /**
-   * <code>int32 nodeType = 2;</code>
+   * <code>int32 workerType = 2;</code>
    */
-  int getNodeType();
+  int getWorkerType();
 
   /**
    * <code>string host = 3;</code>
@@ -33,14 +33,14 @@ public interface WorkerRequestRpcOrBuilder extends
   int getPort();
 
   /**
-   * <code>string nodeGroup = 5;</code>
+   * <code>string workerGroup = 5;</code>
    */
-  java.lang.String getNodeGroup();
+  java.lang.String getWorkerGroup();
   /**
-   * <code>string nodeGroup = 5;</code>
+   * <code>string workerGroup = 5;</code>
    */
   com.google.protobuf.ByteString
-      getNodeGroupBytes();
+      getWorkerGroupBytes();
 
   /**
    * <code>string zkdirectory = 6;</code>
@@ -76,7 +76,7 @@ public interface WorkerRequestRpcOrBuilder extends
   com.google.protobuf.TimestampOrBuilder getLastHeartbeatTimeOrBuilder();
 
   /**
-   * <code>int32 nodeStatus = 10;</code>
+   * <code>int32 workerStatus = 10;</code>
    */
-  int getNodeStatus();
+  int getWorkerStatus();
 }

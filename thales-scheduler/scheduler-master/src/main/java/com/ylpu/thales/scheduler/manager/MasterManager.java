@@ -9,7 +9,7 @@ import com.ylpu.thales.scheduler.core.utils.DateUtils;
 import com.ylpu.thales.scheduler.core.utils.MetricsUtils;
 import com.ylpu.thales.scheduler.core.utils.SSHUtils;
 import com.ylpu.thales.scheduler.core.zk.CuratorHelper;
-import com.ylpu.thales.scheduler.enums.NodeStatus;
+import com.ylpu.thales.scheduler.enums.WorkerStatus;
 import com.ylpu.thales.scheduler.jmx.MasterJmxServer;
 import com.ylpu.thales.scheduler.manager.strategy.JobStrategy;
 import com.ylpu.thales.scheduler.manager.strategy.ResourceStrategy;
@@ -221,7 +221,7 @@ public class MasterManager{
         String workerGroup = groupPath.substring(groupPath.lastIndexOf("/") + 1);
         WorkerGroupRequest param = new WorkerGroupRequest();
         param.setGroupName(workerGroup);
-        param.setStatus(NodeStatus.REMOVED);
+        param.setStatus(WorkerStatus.REMOVED);
         param.setWorkers(disconnectedChildren);
         WorkerManager.updateWorkersStatusByGroup(param);
     }
@@ -241,12 +241,12 @@ public class MasterManager{
             workerInfo.setHost(request.getHost());
             workerInfo.setCpuUsage(request.getCpuUsage());
             workerInfo.setMemoryUsage(request.getMemoryUsage());
-            workerInfo.setNodeStatus(NodeStatus.getNodeStatus(request.getNodeStatus()));
-            workerInfo.setNodeGroup(request.getNodeGroup());
+            workerInfo.setWorkerStatus(WorkerStatus.getWorkerStatus(request.getWorkerStatus()));
+            workerInfo.setWorkerGroup(request.getWorkerGroup());
             workerInfo.setLastHeartbeatTime(DateUtils.getDateAsString(request.getLastHeartbeatTime(),DateUtils.DATE_TIME_FORMAT));
             workerInfo.setPort(request.getPort());
             workerInfo.setZkdirectory(request.getZkdirectory());
-            workerInfo.setNodeType(request.getNodeType());
+            workerInfo.setWorkerType(request.getWorkerType());
         }
     }
     

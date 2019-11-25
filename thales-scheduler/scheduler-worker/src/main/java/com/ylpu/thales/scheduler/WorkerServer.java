@@ -7,7 +7,7 @@ import com.ylpu.thales.scheduler.core.utils.DateUtils;
 import com.ylpu.thales.scheduler.core.utils.MetricsUtils;
 import com.ylpu.thales.scheduler.core.zk.CuratorHelper;
 import com.ylpu.thales.scheduler.enums.NodeType;
-import com.ylpu.thales.scheduler.enums.NodeStatus;
+import com.ylpu.thales.scheduler.enums.WorkerStatus;
 import com.ylpu.thales.scheduler.log.LogServer;
 import com.ylpu.thales.scheduler.rpc.client.WorkerGrpcClient;
 import com.ylpu.thales.scheduler.rpc.server.WorkerRpcServer;
@@ -117,7 +117,7 @@ public class WorkerServer {
 			master = CuratorHelper.getActiveMaster();
 	        String[] masters = master.split(":");
 	        client = new WorkerGrpcClient(masters[0],NumberUtils.toInt(masters[1]));
-	        WorkerRequestRpc request = WorkerRequestRpc.newBuilder().setNodeGroup(workerGroup).build();
+	        WorkerRequestRpc request = WorkerRequestRpc.newBuilder().setWorkerGroup(workerGroup).build();
 	        client.insertOrUpdateGroup(request);
 		} catch (Exception e) {
 			LOG.error(e);
@@ -150,25 +150,25 @@ public class WorkerServer {
         public void run() {
             WorkerGrpcClient client = null;
             boolean isFirstReport = true;
-            int nodeStatus = NodeStatus.ADDED.getCode();
+            int nodeStatus = WorkerStatus.ADDED.getCode();
             while(!stop) {
                 try {
                     String master = CuratorHelper.getActiveMaster();
                     String[] masters = master.split(":");
                     client = new WorkerGrpcClient(masters[0],NumberUtils.toInt(masters[1]));
                     if(isFirstReport) {
-                    	   nodeStatus = NodeStatus.ADDED.getCode();
+                    	   nodeStatus = WorkerStatus.ADDED.getCode();
                     	   isFirstReport = false;
                     }else {
-                       nodeStatus = NodeStatus.UPDATED.getCode();
+                       nodeStatus = WorkerStatus.UPDATED.getCode();
                     }
                     WorkerRequestRpc request = WorkerRequestRpc.newBuilder()
                             .setHost(MetricsUtils.getHostIpAddress())
                             .setCpuUsage(MetricsUtils.getCpuUsage())
                             .setMemoryUsage(MetricsUtils.getMemoryUsage())
-                            .setNodeGroup(workerGroup)
-                            .setNodeStatus(nodeStatus)
-                            .setNodeType(NodeType.WORKER.getCode())
+                            .setWorkerGroup(workerGroup)
+                            .setWorkerStatus(nodeStatus)
+                            .setWorkerType(NodeType.WORKER.getCode())
                             .setPort(workerPort)
                             .setZkdirectory(workerPath)
                             .setLastHeartbeatTime(DateUtils.getProtobufTime())

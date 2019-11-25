@@ -1,11 +1,8 @@
 package com.ylpu.thales.scheduler.common.test;
 
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
-
-import com.ylpu.thales.scheduler.response.WorkerResponse;
 
 class TaskCall{
     

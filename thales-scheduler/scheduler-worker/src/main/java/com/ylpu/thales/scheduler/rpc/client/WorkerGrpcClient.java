@@ -33,7 +33,7 @@ public class WorkerGrpcClient {
     
     public void insertOrUpdateGroup(WorkerRequestRpc request){
         WorkerResponseRpc response = blockStub.insertOrUpdateGroup(request);
-        LOG.info("update Group :" + request.getNodeGroup() + " with response code " + response.getErrorCode() 
+        LOG.info("update Group :" + request.getWorkerGroup() + " with response code " + response.getErrorCode() 
         + " and message " + response.getErrorMsg());
     }
     

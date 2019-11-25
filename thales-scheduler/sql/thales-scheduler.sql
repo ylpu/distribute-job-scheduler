@@ -57,17 +57,17 @@ CREATE TABLE `t_thales_scheduler_job_relation` (
   PRIMARY KEY (`id`)
  ) ENGINE=InnoDB AUTO_INCREMENT=29 DEFAULT CHARSET=utf8;
 
-CREATE TABLE `t_thales_scheduler_node` (
+CREATE TABLE `t_thales_scheduler_worker` (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键',
-  `node_type` tinyint(4) DEFAULT NULL COMMENT '节点类型，1-master,2-worker',
+  `worker_type` tinyint(4) DEFAULT NULL COMMENT '节点类型，1-master,2-worker',
   `host` varchar(128) DEFAULT NULL COMMENT '节点主机名称',
   `port` int(4) DEFAULT NULL COMMENT '节点端口',
-  `node_group` varchar(50) DEFAULT NULL COMMENT '节点组',
+  `worker_group` varchar(50) DEFAULT NULL COMMENT '节点组',
   `zkDirectory` varchar(512) DEFAULT NULL COMMENT '节点目录',
   `cpu_usage` double(5,2) DEFAULT NULL COMMENT 'cpu使用率',
   `memory_usage` double(5,2) DEFAULT NULL COMMENT '内存使用率',
   `last_heartbeat_time` datetime DEFAULT NULL COMMENT '节点心跳时间',
-  `node_status` tinyint(4) DEFAULT NULL COMMENT '节点状态，1-added,2-removed',
+  `worker_status` tinyint(4) DEFAULT NULL COMMENT '节点状态，1-added,2-removed',
   `create_time` datetime DEFAULT NULL COMMENT '节点创建时间',
   `update_time` datetime DEFAULT NULL COMMENT '节点修改时间',
   PRIMARY KEY (`id`)

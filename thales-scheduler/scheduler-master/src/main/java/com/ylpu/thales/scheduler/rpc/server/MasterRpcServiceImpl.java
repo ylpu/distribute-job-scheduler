@@ -48,7 +48,7 @@ public class MasterRpcServiceImpl extends GrpcWorkerServiceGrpc.GrpcWorkerServic
     public void insertOrUpdateGroup(WorkerRequestRpc request,StreamObserver<WorkerResponseRpc> responseObserver) {
         WorkerResponseRpc.Builder builder = WorkerResponseRpc.newBuilder(); 
         try {
-            MasterManager.getInstance().insertOrUpdateGroup(request.getNodeGroup());
+            MasterManager.getInstance().insertOrUpdateGroup(request.getWorkerGroup());
             builder.setErrorCode(200);
             builder.setErrorMsg("");
         }catch(Exception e) {
@@ -133,8 +133,8 @@ public class MasterRpcServiceImpl extends GrpcWorkerServiceGrpc.GrpcWorkerServic
         workerRequest.setCpuUsage(requestRpc.getCpuUsage());
         workerRequest.setMemoryUsage(requestRpc.getMemoryUsage());
         workerRequest.setZkdirectory(requestRpc.getZkdirectory());
-        workerRequest.setNodeGroup(requestRpc.getNodeGroup());
-        workerRequest.setNodeType(requestRpc.getNodeType());
-        workerRequest.setNodeStatus(requestRpc.getNodeStatus());
+        workerRequest.setWorkerGroup(requestRpc.getWorkerGroup());
+        workerRequest.setWorkerType(requestRpc.getWorkerType());
+        workerRequest.setWorkerStatus(requestRpc.getWorkerStatus());
     }
 }

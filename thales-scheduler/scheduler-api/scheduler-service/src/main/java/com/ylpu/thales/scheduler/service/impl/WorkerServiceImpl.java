@@ -18,7 +18,7 @@ import com.ylpu.thales.scheduler.common.service.impl.BaseServiceImpl;
 import com.ylpu.thales.scheduler.common.utils.DateUtils;
 import com.ylpu.thales.scheduler.dao.SchedulerWorkerMapper;
 import com.ylpu.thales.scheduler.entity.SchedulerWorker;
-import com.ylpu.thales.scheduler.enums.NodeStatus;
+import com.ylpu.thales.scheduler.enums.WorkerStatus;
 import com.ylpu.thales.scheduler.request.WorkerGroupRequest;
 import com.ylpu.thales.scheduler.request.WorkerRequest;
 import com.ylpu.thales.scheduler.response.WorkerResponse;
@@ -85,7 +85,7 @@ public class WorkerServiceImpl extends BaseServiceImpl<SchedulerWorker,Integer> 
     @Override
     public void insertOrUpdateWorker(WorkerRequest request) {
         WorkerGroupRequest param = new WorkerGroupRequest();
-        param.setGroupName(request.getNodeGroup());
+        param.setGroupName(request.getWorkerGroup());
         param.setWorkers(Arrays.asList(request.getHost()));
         List<WorkerResponse> list = getWorkersInfoByGroup(param);
         if(list == null || list.size() == 0) {
@@ -96,17 +96,17 @@ public class WorkerServiceImpl extends BaseServiceImpl<SchedulerWorker,Integer> 
     }
 
 	@Override
-	public PageInfo<WorkerResponse> findAll(String nodeGroup,String worker,int pageNo,int pageSize) {
+	public PageInfo<WorkerResponse> findAll(String workerGroup,String worker,int pageNo,int pageSize) {
 		PageHelper.startPage(pageNo,pageSize);
 
-		List<SchedulerWorker> workerList = schedulerWorkerMapper.findAll(nodeGroup, worker);
+		List<SchedulerWorker> workerList = schedulerWorkerMapper.findAll(workerGroup, worker);
 		WorkerResponse workerResponse = null;
 		Page<WorkerResponse> page = new Page<WorkerResponse>();
 		if(workerList != null && workerList.size() > 0) {
 			for(SchedulerWorker schedulerWorker : workerList) {
 				workerResponse = new WorkerResponse();
 				BeanUtils.copyProperties(schedulerWorker, workerResponse);
-				workerResponse.setNodeStatus(NodeStatus.getNodeStatus(schedulerWorker.getNodeStatus()));
+				workerResponse.setWorkerStatus(WorkerStatus.getWorkerStatus(schedulerWorker.getWorkerStatus()));
 				workerResponse.setLastHeartbeatTime(DateUtils.getDateAsString(schedulerWorker.getLastHeartbeatTime(),DateUtils.DATE_TIME_FORMAT));
 				page.add(workerResponse);
 			}

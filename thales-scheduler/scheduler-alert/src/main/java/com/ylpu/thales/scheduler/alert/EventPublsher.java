@@ -26,7 +26,7 @@ public class EventPublsher {
 		event.setHostName("loalhost");
 		event.setLogUrl("http://localhost:8090/api/task/1");
 		event.setAlertType(AlertType.EMAIL);
-		event.setAlertUsers("pyl198403@163.com");
+		event.setAlertUsers("username@163.com");
 		event.setEventType(EventType.TASKFAIL);
 		eventPublsher.publish(event);
 	}

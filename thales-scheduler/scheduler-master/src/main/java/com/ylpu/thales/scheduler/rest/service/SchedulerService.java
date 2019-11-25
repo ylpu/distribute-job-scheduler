@@ -22,7 +22,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import java.util.Calendar;
 import java.util.Date;
 
@@ -140,6 +139,9 @@ public class SchedulerService {
     public void rerun(Integer id) throws Exception {
         try {
             JobInstanceResponse jobInstanceResponse = JobManager.getJobInstanceById(id);
+            if(jobInstanceResponse.getTaskState() == TaskState.RUNNING) {
+            	   throw new RuntimeException("job "+ id + " has already running");
+            }
             //初始化任务
             JobInstanceRequest request = new JobInstanceRequest();
             JobSubmission.initJobInstance(request,jobInstanceResponse.getJobConf());

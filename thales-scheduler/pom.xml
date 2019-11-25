@@ -31,6 +31,11 @@
             <version>${thales-scheduler.version}</version>
         </dependency> 
         <dependency>
+           <groupId>com.ylpu.thales</groupId>
+           <artifactId>scheduler-alert</artifactId>
+           <version>${thales-scheduler.version}</version>
+       </dependency>
+        <dependency>
             <groupId>com.ylpu.thales</groupId>
             <artifactId>scheduler-model</artifactId>
             <version>${thales-scheduler.version}</version>

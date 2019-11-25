@@ -7,7 +7,6 @@
   </parent>
   <artifactId>scheduler-alert</artifactId>
  <dependencies>
- 
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
@@ -20,12 +19,10 @@
     <dependency>
         <groupId>javax.mail</groupId>
         <artifactId>mail</artifactId>
-        <version>1.4.7</version>
     </dependency>
     <dependency>
         <groupId>org.apache.velocity</groupId>
         <artifactId>velocity</artifactId>
-        <version>1.7</version>
     </dependency>
     <dependency>
         <groupId>com.google.code.gson</groupId>

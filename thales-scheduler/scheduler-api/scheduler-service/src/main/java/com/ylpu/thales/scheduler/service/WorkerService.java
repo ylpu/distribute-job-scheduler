@@ -20,7 +20,7 @@ public interface WorkerService extends BaseService<SchedulerWorker,Integer>{
     
     public void updateWorkerByHost(WorkerRequest request);
     
-    public PageInfo<WorkerResponse> findAll(String nodeGroup, String worker, int pageNo,int pageSize);
+    public PageInfo<WorkerResponse> findAll(String workerGroup, String worker, int pageNo,int pageSize);
     
     public List<String> getAvailiableWorkerGroup();
     

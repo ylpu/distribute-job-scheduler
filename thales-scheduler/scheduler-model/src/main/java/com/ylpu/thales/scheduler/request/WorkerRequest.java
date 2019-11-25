@@ -9,13 +9,13 @@ public class WorkerRequest implements Serializable {
     
     private Integer id;
 
-    private Integer nodeType;
+    private Integer workerType;
  
     private String host;
 
     private Integer port;
 
-    private String nodeGroup;
+    private String workerGroup;
 
     private String zkdirectory;
 
@@ -25,7 +25,7 @@ public class WorkerRequest implements Serializable {
 
     private Date lastHeartbeatTime;
 
-    private Integer nodeStatus;
+    private Integer workerStatus;
 
     private static final long serialVersionUID = 1L;
   }

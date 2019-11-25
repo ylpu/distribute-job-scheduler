@@ -43,26 +43,27 @@ public final class WorkerGrpc {
       descriptor;
   static {
     java.lang.String[] descriptorData = {
-      "\n\014worker.proto\032\017timestamp.proto\"\346\001\n\020Work" +
-      "erRequestRpc\022\n\n\002id\030\001 \001(\005\022\020\n\010nodeType\030\002 \001" +
-      "(\005\022\014\n\004host\030\003 \001(\t\022\014\n\004port\030\004 \001(\005\022\021\n\tnodeGr" +
-      "oup\030\005 \001(\t\022\023\n\013zkdirectory\030\006 \001(\t\022\020\n\010cpuUsa" +
-      "ge\030\007 \001(\001\022\023\n\013memoryUsage\030\010 \001(\001\0225\n\021lastHea" +
-      "rtbeatTime\030\t \001(\0132\032.google.protobuf.Times" +
-      "tamp\022\022\n\nnodeStatus\030\n \001(\005\"#\n\017WorkerParame" +
-      "ter\022\020\n\010hostname\030\001 \001(\t\"R\n\021WorkerResponseR" +
-      "pc\022\n\n\002id\030\001 \001(\005\022\021\n\terrorCode\030\002 \001(\005\022\020\n\010err" +
-      "orMsg\030\003 \001(\t\022\014\n\004data\030\004 \001(\014\"I\n\023JobStatusRe",
-      "questRpc\022\021\n\trequestId\030\001 \001(\t\022\021\n\ttaskState" +
-      "\030\002 \001(\005\022\014\n\004data\030\003 \001(\0142\353\001\n\021GrpcWorkerServi" +
-      "ce\022/\n\007incTask\022\020.WorkerParameter\032\022.Worker" +
-      "ResponseRpc\022/\n\007decTask\022\020.WorkerParameter" +
-      "\032\022.WorkerResponseRpc\0227\n\016updateResource\022\021" +
-      ".WorkerRequestRpc\032\022.WorkerResponseRpc\022;\n" +
-      "\017updateJobStatus\022\024.JobStatusRequestRpc\032\022" +
-      ".WorkerResponseRpcB9\n)com.ylpu.thales.sc" +
-      "heduler.core.rpc.entityB\nWorkerGrpcP\001P\000b" +
-      "\006proto3"
+      "\n\014worker.proto\032\017timestamp.proto\"\354\001\n\020Work" +
+      "erRequestRpc\022\n\n\002id\030\001 \001(\005\022\022\n\nworkerType\030\002" +
+      " \001(\005\022\014\n\004host\030\003 \001(\t\022\014\n\004port\030\004 \001(\005\022\023\n\013work" +
+      "erGroup\030\005 \001(\t\022\023\n\013zkdirectory\030\006 \001(\t\022\020\n\010cp" +
+      "uUsage\030\007 \001(\001\022\023\n\013memoryUsage\030\010 \001(\001\0225\n\021las" +
+      "tHeartbeatTime\030\t \001(\0132\032.google.protobuf.T" +
+      "imestamp\022\024\n\014workerStatus\030\n \001(\005\"#\n\017Worker" +
+      "Parameter\022\020\n\010hostname\030\001 \001(\t\"R\n\021WorkerRes" +
+      "ponseRpc\022\n\n\002id\030\001 \001(\005\022\021\n\terrorCode\030\002 \001(\005\022" +
+      "\020\n\010errorMsg\030\003 \001(\t\022\014\n\004data\030\004 \001(\014\"I\n\023JobSt",
+      "atusRequestRpc\022\021\n\trequestId\030\001 \001(\t\022\021\n\ttas" +
+      "kState\030\002 \001(\005\022\014\n\004data\030\003 \001(\0142\251\002\n\021GrpcWorke" +
+      "rService\022/\n\007incTask\022\020.WorkerParameter\032\022." +
+      "WorkerResponseRpc\022/\n\007decTask\022\020.WorkerPar" +
+      "ameter\032\022.WorkerResponseRpc\0227\n\016updateReso" +
+      "urce\022\021.WorkerRequestRpc\032\022.WorkerResponse" +
+      "Rpc\022<\n\023insertOrUpdateGroup\022\021.WorkerReque" +
+      "stRpc\032\022.WorkerResponseRpc\022;\n\017updateJobSt" +
+      "atus\022\024.JobStatusRequestRpc\032\022.WorkerRespo" +
+      "nseRpcB9\n)com.ylpu.thales.scheduler.core",
+      ".rpc.entityB\nWorkerGrpcP\001P\000b\006proto3"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -82,7 +83,7 @@ public final class WorkerGrpc {
     internal_static_WorkerRequestRpc_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_WorkerRequestRpc_descriptor,
-        new java.lang.String[] { "Id", "NodeType", "Host", "Port", "NodeGroup", "Zkdirectory", "CpuUsage", "MemoryUsage", "LastHeartbeatTime", "NodeStatus", });
+        new java.lang.String[] { "Id", "WorkerType", "Host", "Port", "WorkerGroup", "Zkdirectory", "CpuUsage", "MemoryUsage", "LastHeartbeatTime", "WorkerStatus", });
     internal_static_WorkerParameter_descriptor =
       getDescriptor().getMessageTypes().get(1);
     internal_static_WorkerParameter_fieldAccessorTable = new

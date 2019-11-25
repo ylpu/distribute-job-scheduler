@@ -57,8 +57,8 @@ public class WorkerController {
     @RequestMapping(value="/paging",method=RequestMethod.GET)
     public SchedulerResponse<PageInfo<WorkerResponse>> paging(@RequestParam(value = "pageNo", required = false, defaultValue = "1") Integer pageNo,
                                          @RequestParam(value = "pageSize", required = false, defaultValue = "10") Integer pageSize,
-                                         @RequestParam(value = "nodeGroup", required = false) String nodeGroup,
+                                         @RequestParam(value = "workerGroup", required = false) String workerGroup,
                                          @RequestParam(value = "worker", required = false) String worker) {
-        return new SchedulerResponse<PageInfo<WorkerResponse>>(workerService.findAll(nodeGroup, worker, pageNo,pageSize));
+        return new SchedulerResponse<PageInfo<WorkerResponse>>(workerService.findAll(workerGroup, worker, pageNo,pageSize));
     }
 }

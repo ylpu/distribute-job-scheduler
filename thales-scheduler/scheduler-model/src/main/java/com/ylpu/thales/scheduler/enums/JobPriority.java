@@ -16,7 +16,7 @@ public enum JobPriority {
                 return jobPriority;
             }
         }
-        throw new IllegalArgumentException("unsupported node status " + priority);
+        throw new IllegalArgumentException("unsupported job priority " + priority);
     }
     
     public static JobPriority getJobPriority(String name) {

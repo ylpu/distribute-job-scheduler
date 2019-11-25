@@ -1,6 +1,7 @@
 package com.ylpu.thales.scheduler.rpc.server;
 
 import com.ylpu.thales.scheduler.WorkerServer;
+import com.ylpu.thales.scheduler.alert.EventPublsher;
 import com.ylpu.thales.scheduler.core.alert.entity.Event;
 import com.ylpu.thales.scheduler.core.config.Configuration;
 import com.ylpu.thales.scheduler.core.rest.JobManager;
@@ -59,6 +60,8 @@ public class WorkerRpcServiceImpl extends GrpcJobServiceGrpc.GrpcJobServiceImplB
               Event event = new Event();
               setAlertEvent(event,requestRpc.getJob(),request);
               //publish event
+//              EventPublsher eventPublsher = new EventPublsher();
+//              eventPublsher.publish(event);
         }finally {
             //减少任务个数
             jobMetric.decreaseTask();
@@ -87,6 +90,7 @@ public class WorkerRpcServiceImpl extends GrpcJobServiceGrpc.GrpcJobServiceImplB
         try {
             AbstractCommonExecutor executor = getExecutor(requestRpc,request);
             executor.kill();
+            //等待任务失败
             while(true) {
                 JobInstanceResponse instanceResponse = JobManager.getJobInstanceById(requestRpc.getId());
                 if(instanceResponse.getTaskState() == TaskState.FAIL) {

@@ -16,7 +16,7 @@ public interface SchedulerWorkerMapper extends BaseDao<SchedulerWorker, Integer>
     
     void updateWorkerByHost(SchedulerWorker worker);
     
-    List<SchedulerWorker> findAll(@Param("nodeGroup") String nodeGroup,
+    List<SchedulerWorker> findAll(@Param("workerGroup") String workerGroup,
             @Param("worker") String worker);
     
     List<String> getAvailiableWorkerGroup();
