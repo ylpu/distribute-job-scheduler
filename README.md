@@ -1,5 +1,5 @@
 # Introduction
-thales是一款自主研发的调度系统，系统支持调度shell,hive,spark等各种任务类型。
+thales是一款自主研发的分布式任务调度系统，系统支持shell,hive,spark等各种类型任务的调用。
 
 # Architecture
 ![image](https://github.com/ylpu/distribute-job-scheduler/tree/master/docs/thales-arch.png)
