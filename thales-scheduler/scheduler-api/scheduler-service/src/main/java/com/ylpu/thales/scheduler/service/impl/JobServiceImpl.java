@@ -99,6 +99,9 @@ public class JobServiceImpl extends BaseServiceImpl<SchedulerJob,Integer> implem
 			}
 	        depencies = Arrays.asList(job.getDependIds().split(","));
 		}
+        if(isCycleReference(job)) {
+     	   throw new ThalesRuntimeException("任务 " + job.getId() + " 存在环形依赖");
+        }
         if(job != null) {
             SchedulerJob schedulerJob = new SchedulerJob();
             BeanUtils.copyProperties(job, schedulerJob);
@@ -119,6 +122,32 @@ public class JobServiceImpl extends BaseServiceImpl<SchedulerJob,Integer> implem
         scheduleRequest.setId(job.getId());
         rescheduleJob(scheduleRequest);
     }	
+    
+    private boolean isCycleReference(JobRequest job) {
+    	    JobTree jobTree = queryTreeById(job.getId());
+    	    List<Integer> children = new ArrayList<Integer>();
+    	    listChildren(jobTree,children);
+    	    if(StringUtils.isNotBlank(job.getDependIds())){
+    	    	   String[] dependIds = job.getDependIds().split(",");
+    	    	   for(String str : dependIds) {
+    	    		   if(children.contains(NumberUtils.toInt(str))) {
+    	    			   return true;
+    	    		   }
+    	    	   }
+    	    }
+    	    return false;
+    }
+    
+	private static void listChildren(JobTree jobTree,List<Integer> children){
+		if(jobTree.getChildren() == null) {
+			return;
+		}else {
+			for(JobTree job : jobTree.getChildren()) {
+				children.add(job.getJobId());
+				listChildren(job,children);
+			}
+		}
+	}
     
     public JobTree queryTreeById(Integer id) {
         JobTree targetTree = new JobTree();
@@ -148,6 +177,7 @@ public class JobServiceImpl extends BaseServiceImpl<SchedulerJob,Integer> implem
         target.setScheduleCron(source.getScheduleCron());
         target.setJobId(source.getJobId());
         target.setParentJobId(source.getParentJobId());
+        target.setJobName(source.getJobName());
     }
 
 	@Override

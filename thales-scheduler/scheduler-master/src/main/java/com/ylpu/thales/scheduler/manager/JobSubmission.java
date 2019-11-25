@@ -83,12 +83,12 @@ public class JobSubmission {
             
             responseRpc = buildResponse(requestRpc,TaskState.WAITING,200,"");
         }catch(Exception e) {
-             LOG.error("任务 " + requestRpc.getId() + " 执行失败,异常" + e.getMessage());
+            LOG.error("任务 " + requestRpc.getId() + " 执行失败,异常" + e.getMessage());
              try {
-				updateTaskStatus(request,TaskState.FAIL.getCode());
-			} catch (Exception e1) {
-                 LOG.error(e1);
-			}
+                  updateTaskStatus(request,TaskState.FAIL.getCode());
+             } catch (Exception e1) {
+                  LOG.error(e1);
+             }
              responseRpc = buildResponse(requestRpc,TaskState.FAIL,500,
                      "failed to execute task " + requestRpc.getId());
         }
@@ -156,10 +156,10 @@ public class JobSubmission {
                     try {
                         client = getClient(taskCall.getRpcRequest(),taskCall.getGrpcType());
                         try {
-							client.submitJob(taskCall.getRpcRequest());
-						} catch (Exception e) {
-							LOG.error(e);
-						}
+                             client.submitJob(taskCall.getRpcRequest());
+                        } catch (Exception e) {
+                             LOG.error(e);
+                        }
                     }finally {
                         //同步rpc直接关闭，异步rpc需要内部关闭
                         if(taskCall.getGrpcType() == GrpcType.SYNC) {
@@ -183,10 +183,10 @@ public class JobSubmission {
                     try {
                         client = getClient(taskCall.getRpcRequest(),taskCall.getGrpcType());
                         try {
-							client.kill(taskCall.getRpcRequest());
-						} catch (Exception e) {
+                             client.kill(taskCall.getRpcRequest());
+                        } catch (Exception e) {
                              LOG.error(e);
-						}
+                        }
                     }finally {
                         //同步rpc直接关闭，异步rpc需要内部关闭
                         if(taskCall.getGrpcType() == GrpcType.SYNC) {

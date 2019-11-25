@@ -87,11 +87,11 @@ public class JobGrpcNonBlockingClient extends AbstractJobGrpcClient{
                         LOG.info("任务" + requestRpc.getId() + "执行完成");
                         JobStatusCheck.getJobInstanceRequestMap().remove(requestRpc.getRequestId());
                         try {
-							updateTaskStatus(request,result.getTaskState());
-						} catch (Exception e) {
-							result = buildResponse(requestRpc,TaskState.FAIL,500,
+                            updateTaskStatus(request,result.getTaskState());
+                        } catch (Exception e) {
+                            result = buildResponse(requestRpc,TaskState.FAIL,500,
 	                                "failed to execute task " + requestRpc.getId());
-						}
+                        }
                         JobStatusCheck.addResponse(result);
                         shutdown();
                     }
@@ -100,15 +100,15 @@ public class JobGrpcNonBlockingClient extends AbstractJobGrpcClient{
                         LOG.error("任务" + requestRpc.getId() + "执行失败,异常" + t.getMessage());
                         JobStatusCheck.getJobInstanceRequestMap().remove(requestRpc.getRequestId());
                         try {
-							updateTaskStatus(request,TaskState.FAIL.getCode());
-						} catch (Exception e) {
-							LOG.error(e);
-						}
+                            updateTaskStatus(request,TaskState.FAIL.getCode());
+                        } catch (Exception e) {
+                            LOG.error(e);
+                        }
                         JobInstanceResponseRpc responseRpc = buildResponse(requestRpc,TaskState.FAIL,500,
                                 "failed to execute task " + requestRpc.getId());;
                         JobStatusCheck.addResponse(responseRpc);
                         shutdown();
-					    rerunIfNeeded(requestRpc);
+                        rerunIfNeeded(requestRpc);
                     }
                 },executorService);
     }

@@ -4,10 +4,10 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import org.apache.ibatis.annotations.Param;
-import com.baomidou.mybatisplus.plugins.pagination.Pagination;
 import com.ylpu.thales.scheduler.common.dao.BaseDao;
 import com.ylpu.thales.scheduler.entity.JobInstanceState;
 import com.ylpu.thales.scheduler.entity.SchedulerJobInstance;
+import com.ylpu.thales.scheduler.entity.TaskSummary;
 
 public interface SchedulerJobInstanceMapper extends BaseDao<SchedulerJobInstance, Integer>{
     
@@ -25,5 +25,7 @@ public interface SchedulerJobInstanceMapper extends BaseDao<SchedulerJobInstance
             @Param("worker") String worker);
     
     public Integer getInstantCount();
+    
+    public List<TaskSummary> getTaskSummary();
 
 }

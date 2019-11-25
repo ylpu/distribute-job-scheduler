@@ -15,5 +15,6 @@ public class JobTree implements Serializable{
     private Integer parentJobId;
     private Integer jobCycle;
     private String scheduleCron;
+    private String jobName;
     private List<JobTree> children;
 }

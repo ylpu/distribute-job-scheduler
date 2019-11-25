@@ -26,6 +26,10 @@
     <result column="task_state" property="taskState" jdbcType="TINYINT" />
     <result column="schedule_time" property="scheduleTime" jdbcType="TIMESTAMP" />
   </resultMap>
+  <resultMap id="taskSummaryMap" type="com.ylpu.thales.scheduler.entity.TaskSummary" >
+    <result column="task_state" property="taskState" jdbcType="INTEGER" />
+    <result column="task_Count" property="taskCount" jdbcType="INTEGER" />
+  </resultMap>
   <sql id="Base_Column_List" >
     id, job_id, task_state, log_url, log_path, worker, creator_name, creator_email, retry_times, 
     pid, applicationId, elapse_time, create_time, update_time,schedule_time,start_time,end_time
@@ -39,7 +43,9 @@
   <select id = "getRunningJobCount" resultType="java.util.HashMap">
       select worker,count(*) as cnt from t_thales_scheduler_job_instance  where task_state = 4 group by worker
   </select>
-  
+  <select id = "getTaskSummary" resultMap="taskSummaryMap">
+      select task_state,count(*) as task_Count from t_thales_scheduler_job_instance group by task_state
+  </select>
   <select id = "getInstanceIdByTime" resultType="java.lang.Integer">
       select id from t_thales_scheduler_job_instance  where job_id = #{jobId,jdbcType=INTEGER} and schedule_time = #{scheduleTime,jdbcType=VARCHAR}
   </select>

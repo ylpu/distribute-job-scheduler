@@ -22,12 +22,14 @@ import com.ylpu.thales.scheduler.common.utils.DateUtils;
 import com.ylpu.thales.scheduler.dao.SchedulerJobInstanceMapper;
 import com.ylpu.thales.scheduler.entity.JobInstanceState;
 import com.ylpu.thales.scheduler.entity.SchedulerJobInstance;
+import com.ylpu.thales.scheduler.entity.TaskSummary;
 import com.ylpu.thales.scheduler.enums.TaskState;
 import com.ylpu.thales.scheduler.request.JobInstanceRequest;
 import com.ylpu.thales.scheduler.request.ScheduleRequest;
 import com.ylpu.thales.scheduler.response.JobInstanceResponse;
 import com.ylpu.thales.scheduler.response.JobInstanceStateResponse;
 import com.ylpu.thales.scheduler.response.JobResponse;
+import com.ylpu.thales.scheduler.response.TaskSummaryResponse;
 import com.ylpu.thales.scheduler.service.JobInstanceService;
 import com.ylpu.thales.scheduler.service.JobService;
 import com.ylpu.thales.scheduler.service.exception.ThalesRuntimeException;
@@ -209,5 +211,20 @@ public class JobInstanceServiceImpl extends BaseServiceImpl<SchedulerJobInstance
 		page.setTotal(schedulerJobInstanceMapper.getInstantCount());
 		PageInfo<JobInstanceResponse> pageInfo = new PageInfo<JobInstanceResponse>(page);
         return pageInfo;
+	}
+	
+	public List<TaskSummaryResponse> getTaskSummary(){
+		List<TaskSummaryResponse> responses = new ArrayList<TaskSummaryResponse>();
+		TaskSummaryResponse response = null;
+		List<TaskSummary> list = schedulerJobInstanceMapper.getTaskSummary();
+		if(list != null && list.size() > 0) {
+			for(TaskSummary taskSummary : list) {
+				response = new TaskSummaryResponse();
+				response.setTaskState(TaskState.getTaskStateById(taskSummary.getTaskState()).toString());
+				response.setTaskCount(taskSummary.getTaskCount());
+				responses.add(response);
+			}
+		}
+		return responses;
 	}
 }

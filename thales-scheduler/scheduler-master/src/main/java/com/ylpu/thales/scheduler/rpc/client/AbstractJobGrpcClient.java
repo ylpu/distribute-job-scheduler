@@ -2,10 +2,8 @@ package com.ylpu.thales.scheduler.rpc.client;
 
 import java.util.Date;
 import java.util.Properties;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import com.ylpu.thales.scheduler.core.config.Configuration;
 import com.ylpu.thales.scheduler.core.rest.JobManager;
 import com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc;
@@ -55,17 +53,17 @@ public abstract class AbstractJobGrpcClient {
        try {
             JobInstanceResponse jobInstance = JobManager.getJobInstanceById(requestRpc.getId());
             if(jobInstance.getRetryTimes() < jobInstance.getJobConf().getMaxRetrytimes()) {
-       	    	    Thread.sleep(retryInterval * 1000 * 60);
-			    new SchedulerService().rerun(requestRpc.getId());
-		    } 
+               Thread.sleep(retryInterval * 1000 * 60);
+               new SchedulerService().rerun(requestRpc.getId());
+            } 
         }catch (Exception e) {
-		    LOG.error(e);
-		    try {
-				Thread.sleep(retryInterval * 1000 * 60);
-			} catch (InterruptedException e1) {
-				LOG.error(e1);
-			}
-		    rerunIfNeeded(requestRpc);
-	   }
+            LOG.error(e);
+            try {
+                Thread.sleep(retryInterval * 1000 * 60);
+            } catch (InterruptedException e1) {
+                LOG.error(e1);
+            }
+            rerunIfNeeded(requestRpc);
+        }
     }
 }

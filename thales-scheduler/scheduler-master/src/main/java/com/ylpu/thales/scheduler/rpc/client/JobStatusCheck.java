@@ -106,22 +106,22 @@ public class JobStatusCheck {
             }  
         }
         private boolean isRootJob(List<JobDependency> list) {
-        	  if(list != null && list.size() == 1) {
-        		  JobDependency dependency = list.get(0);
-        		  if(dependency.toString().split("-")[1].equals("root")) {
-        			  return true;
-        		  }
-        	  }
-        	  return false;
+            if(list != null && list.size() == 1) {
+               JobDependency dependency = list.get(0);
+               if(dependency.toString().split("-")[1].equals("root")) {
+                  return true;
+               }
+            }
+            return false;
         }
-    }
+   }
     
     private static class TimeoutThread extends Thread{
  	   public void run() {
            long interval = Configuration.getLong(Configuration.getConfig(GlobalConstants.CONFIG_FILE), 
                    "thales.scheduler.timeout.check.interval", CHECK_INTERVAL);
- 		   while(true) {
-               for(Entry<String, JobInstanceRequestRpc> entry : jobInstanceRequestMap.entrySet()) {
+           while(true) {
+                for(Entry<String, JobInstanceRequestRpc> entry : jobInstanceRequestMap.entrySet()) {
                    if(entry.getValue() != null) {
                 	      Date startTime = DateUtils.getDatetime(entry.getValue().getStartTime());
                 	      int elapseTime = DateUtils.getElapseTime(startTime,new Date());
@@ -131,13 +131,13 @@ public class JobStatusCheck {
                 	    	      }
                 	      }
                    }
- 		       }
+               }
                try {
                    Thread.sleep(interval);
                } catch (InterruptedException e) {
                    LOG.error(e);
                }
- 	       }
+          }
        } 		   
     }
 }

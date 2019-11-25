@@ -99,6 +99,7 @@
      <result column="job_cycle" jdbcType="INTEGER" property="jobCycle" />
      <result column="schedule_cron" jdbcType="VARCHAR" property="scheduleCron"/>
      <result column="parentJob_id" jdbcType="INTEGER" property="parentJobId" />
+     <result column="job_name" jdbcType="VARCHAR" property="jobName" />
      <collection property="children" javaType="java.util.ArrayList"
             column="job_Id" ofType="com.ylpu.thales.scheduler.entity.JobTree" select="childrenSelect"></collection>
   </resultMap>
@@ -108,18 +109,19 @@
         <result column="job_cycle" jdbcType="INTEGER" property="jobCycle" />
         <result column="schedule_cron" jdbcType="VARCHAR" property="scheduleCron"/>
         <result column="parentJob_Id" jdbcType="INTEGER" property="parentJobId" />
+        <result column="job_name" jdbcType="VARCHAR" property="jobName" />
         <collection property="children" javaType="java.util.ArrayList"
             column="job_Id" ofType="com.ylpu.thales.scheduler.entity.JobTree" select="childrenSelect"></collection>
   </resultMap>
   
   <select id="queryTreeById" resultMap="baseResult">
-    select job_relation.job_id,job_relation.parentJob_id,job.job_cycle,job.schedule_cron
+    select job_relation.job_id,job_relation.parentJob_id,job.job_cycle,job.schedule_cron,job.job_name
     from t_thales_scheduler_job job left join t_thales_scheduler_job_relation job_relation on job.id = job_relation.job_id
     where job_id = #{jobId}
   </select>
   
   <select id="childrenSelect" resultMap="childrenResult">
-    select job_relation.job_id,job_relation.parentJob_id,job.job_cycle,job.schedule_cron
+    select job_relation.job_id,job_relation.parentJob_id,job.job_cycle,job.schedule_cron,job.job_name
     from t_thales_scheduler_job job left join t_thales_scheduler_job_relation job_relation on job.id = job_relation.job_id
     WHERE parentJob_Id = #{jobId}
   </select>

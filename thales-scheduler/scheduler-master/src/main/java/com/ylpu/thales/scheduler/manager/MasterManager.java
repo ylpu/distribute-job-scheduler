@@ -102,7 +102,7 @@ public class MasterManager{
         
         public MyLeaderSelectorListenerAdapter(CuratorFramework client, String path,Properties prop){
         	
-        	    this.prop = prop;
+            this.prop = prop;
 
             leaderSelector = new LeaderSelector(client, path, this);
 
@@ -113,7 +113,7 @@ public class MasterManager{
             //保证在此实例释放领导权之后还可能获得领导权。
             leaderSelector.autoRequeue();
         	
-        	    leaderSelector.start();
+            leaderSelector.start();
         }
 
     	    public void takeLeadership(CuratorFramework client) throws Exception{

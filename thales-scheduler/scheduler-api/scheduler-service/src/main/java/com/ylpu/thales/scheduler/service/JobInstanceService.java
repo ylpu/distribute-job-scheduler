@@ -11,6 +11,7 @@ import com.ylpu.thales.scheduler.request.JobInstanceRequest;
 import com.ylpu.thales.scheduler.request.ScheduleRequest;
 import com.ylpu.thales.scheduler.response.JobInstanceResponse;
 import com.ylpu.thales.scheduler.response.JobInstanceStateResponse;
+import com.ylpu.thales.scheduler.response.TaskSummaryResponse;
 
 public interface JobInstanceService extends BaseService<SchedulerJobInstance,Integer>{
 
@@ -39,5 +40,7 @@ public interface JobInstanceService extends BaseService<SchedulerJobInstance,Int
     public void updateJobStatus(List<Integer> ids,TaskState status);
     
     public PageInfo<JobInstanceResponse> findAll(Integer taskState, String worker,int pageNo,int pageSize);
+    
+    public List<TaskSummaryResponse> getTaskSummary();
 
 }

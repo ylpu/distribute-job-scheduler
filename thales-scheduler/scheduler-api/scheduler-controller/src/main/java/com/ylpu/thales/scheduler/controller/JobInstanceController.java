@@ -3,14 +3,20 @@ package com.ylpu.thales.scheduler.controller;
 import java.util.List;
 import java.util.Map;
 import com.github.pagehelper.PageInfo;
+import com.ylpu.thales.scheduler.common.rest.RestClient;
 import com.ylpu.thales.scheduler.request.JobInstanceRequest;
 import com.ylpu.thales.scheduler.request.JobStatusRequest;
 import com.ylpu.thales.scheduler.request.ScheduleRequest;
 import com.ylpu.thales.scheduler.response.JobInstanceResponse;
 import com.ylpu.thales.scheduler.response.JobInstanceStateResponse;
 import com.ylpu.thales.scheduler.response.SchedulerResponse;
+import com.ylpu.thales.scheduler.response.TaskSummaryResponse;
 import com.ylpu.thales.scheduler.service.JobInstanceService;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -86,6 +92,14 @@ public class JobInstanceController {
         return new SchedulerResponse<List<JobInstanceStateResponse>>(jobInstanceService.getAllJobStatus());
     }
     
+    @ResponseBody
+    @RequestMapping(value="/viewLog",method=RequestMethod.GET)
+    public SchedulerResponse<String> viewLog(@RequestParam(value = "logPath", required = false) String logPath){
+        ParameterizedTypeReference<String> typeRef = new ParameterizedTypeReference<String>() {};
+        String str = RestClient.getForObject(logPath,typeRef,null);
+        return new SchedulerResponse<String>(str);
+    }
+    
     /**
      * 杀任务
      * @param request
@@ -131,10 +145,35 @@ public class JobInstanceController {
        return SchedulerResponse.success();
     }
     
+    /**
+     * master意外down掉时使用
+     * @param request
+     * @return
+     */
+    @ResponseBody
+    @RequestMapping(value="/batchRerun",method=RequestMethod.POST)
+    public SchedulerResponse<Void> batchRerun(@RequestParam("ids") String ids) {
+    	    if(StringUtils.isNotBlank(ids)) {
+    	      	String[] idArray = ids.split(",");
+    	      	for(String id : idArray) {
+        	      	ScheduleRequest request = new ScheduleRequest();
+        	      	request.setId(NumberUtils.toInt(id));
+        	        jobInstanceService.rerun(request);
+    	      	}
+    	    }
+    	    return SchedulerResponse.success();
+    }
+    
     @ResponseBody
     @RequestMapping(value="/updateJobStatus",method=RequestMethod.POST)
     public SchedulerResponse<Void> updateJobStatus(@Validated @RequestBody JobStatusRequest request) {
         jobInstanceService.updateJobStatus(request.getIds(), request.getStatus());
        return SchedulerResponse.success();
+    }
+    
+    @ResponseBody
+    @RequestMapping(value="/getTaskSummary",method=RequestMethod.GET)
+    public SchedulerResponse<List<TaskSummaryResponse>> getTaskSummary() {
+       return new SchedulerResponse<List<TaskSummaryResponse>>(jobInstanceService.getTaskSummary());
     }
 }
