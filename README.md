@@ -4,6 +4,17 @@ thales是一款自主研发的分布式任务调度系统，系统支持shell,hi
 # Architecture
 ![image](https://github.com/ylpu/distribute-job-scheduler/tree/master/docs/thales-arch.png)
 
+# Feature
+* 分布式部署
+* 基于真实资源
+* 资源隔离，相同类型的任务可以提交到对应的资源池
+* 支持大规模任务调度
+* 节点掉线自动发现
+* 任务失败后自动重试
+* 任务失败后自动告警
+* 可以通过页面调度，停止，查看任务详情和依赖等等
+* 可以调度大数据任务
+
 # 目录结构
 
 ## 1. Project structure 
