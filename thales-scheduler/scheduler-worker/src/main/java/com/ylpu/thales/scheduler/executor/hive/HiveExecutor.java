@@ -1,14 +1,18 @@
 package com.ylpu.thales.scheduler.executor.hive;
 
+import java.io.File;
 import java.util.List;
-
+import java.util.Map;
 import com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc;
 import com.ylpu.thales.scheduler.core.utils.FileUtils;
+import com.ylpu.thales.scheduler.core.utils.JsonUtils;
 import com.ylpu.thales.scheduler.core.utils.TaskProcessUtils;
 import com.ylpu.thales.scheduler.executor.AbstractCommonExecutor;
 import com.ylpu.thales.scheduler.request.JobInstanceRequest;
 
 public class HiveExecutor extends AbstractCommonExecutor{
+	
+	private static final String HIVE_COMMAND = "hive";
         
     private JobInstanceRequestRpc requestRpc;
                 
@@ -39,7 +43,14 @@ public class HiveExecutor extends AbstractCommonExecutor{
      * @return
      */
     public String buildCommand(String configFile) throws Exception {
-        // TODO Auto-generated method stub
-        return null;
+        StringBuilder sb = new StringBuilder();
+        Map<String,Object> map = JsonUtils.jsonToMap(configFile);
+        String fileName = String.valueOf(map.get("fileName"));
+        if(!FileUtils.exist(new File(fileName))) {
+        	    throw new RuntimeException("file does not exist");
+        }
+        sb.append("$HIVE_HOME/bin/" + HIVE_COMMAND);
+        sb.append(" -f " + fileName);
+        return sb.toString();
     }
 }
