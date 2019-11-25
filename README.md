@@ -49,6 +49,6 @@ api作为接口层，主要有如下功能：
 * 在mysql数据库中执行distribute-job-scheduler/thales-scheduler/sql/thales-scheduler.sql
 * 在distribute-job-scheduler中执行mvn clean install -Dmaven.test.skip=true
 * 执行如下脚本
-  * scheduler-controller/src/script//start-api.sh
+  * scheduler-controller/src/script/start-api.sh
   * scheduler-master/src/script/start-master.sh
   * scheduler-worker/src/script/start-worker.sh
