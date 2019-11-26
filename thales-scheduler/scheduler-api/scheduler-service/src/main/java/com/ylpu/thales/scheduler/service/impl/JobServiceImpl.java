@@ -81,7 +81,7 @@ public class JobServiceImpl extends BaseServiceImpl<SchedulerJob,Integer> implem
 	
 	private boolean isValidJobDependIds(String ids) {
 		String[] jobIds = ids.split(",");
-		Integer count = schedulerJobMapper.getJobCountByIds(Arrays.asList(ids));
+		Integer count = schedulerJobMapper.getJobCountByIds(Arrays.asList(jobIds));
 		if(count != jobIds.length) {
 			return false;
 		}
@@ -232,6 +232,7 @@ public class JobServiceImpl extends BaseServiceImpl<SchedulerJob,Integer> implem
         schedulerJob.setJobPriority(JobPriority.getJobPriority(job.getJobPriority()).getPriority());
         schedulerJob.setJobType(JobType.getJobType(job.getJobType()).getCode());
         schedulerJob.setAlertTypes(AlertType.getAlertType(job.getAlertTypes()).getCode());
+        schedulerJob.setJobReleasestate(JobReleaseState.ONLINE.getCode());
 	}
 
     @Override

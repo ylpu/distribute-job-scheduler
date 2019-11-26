@@ -48,8 +48,6 @@ public class JobRequest implements Serializable {
 
     private String jobConfiguration;
     
-    //如果是root任务，依赖的任务id为-1
-    @NotEmpty(message = "dependency can not be null")
     private String dependIds;
 
     private static final long serialVersionUID = 1L;
