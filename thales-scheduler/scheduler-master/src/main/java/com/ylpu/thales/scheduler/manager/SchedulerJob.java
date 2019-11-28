@@ -38,7 +38,7 @@ public class SchedulerJob implements Job{
                 context.getScheduledFireTime());
         
         JobStatusCheck.addResponse(JobSubmission.buildJobStatus(
-                jobResponse.getId(), context.getScheduledFireTime(),TaskState.SUBMIT));
+                jobResponse, context.getScheduledFireTime(),TaskState.SUBMIT));
         
         JobInstanceRequestRpc rpcRequest = JobSubmission.initJobInstanceRequestRpc(request,
                 jobResponse);

@@ -73,6 +73,15 @@ CREATE TABLE `t_thales_scheduler_worker` (
   PRIMARY KEY (`id`)
  ) ENGINE=InnoDB AUTO_INCREMENT=29 DEFAULT CHARSET=utf8;
  
+ CREATE TABLE `t_thales_scheduler_user` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `user_name` varchar(512) DEFAULT NULL COMMENT '用户名',
+  `password` varchar(512) DEFAULT NULL COMMENT '密码',
+  `create_time` datetime DEFAULT NULL COMMENT '用户创建时间',
+  `update_time` datetime DEFAULT NULL COMMENT '用户修改时间',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=66 DEFAULT CHARSET=utf8;
+ 
 CREATE INDEX idx_schedule ON t_thales_scheduler_job_instance (job_id,schedule_time);
 CREATE INDEX idx_job_name ON t_thales_scheduler_job (job_name);
 CREATE INDEX idx_job_type ON t_thales_scheduler_job (job_type);

@@ -106,7 +106,7 @@ public class MasterServer {
                     list.add(request);
                 }
             }
-            JobManager.markAsFailed(list);
+            JobManager.markStatus(list);
         }
     }
 }

@@ -10,6 +10,7 @@ import com.ylpu.thales.scheduler.manager.JobScheduler;
 import com.ylpu.thales.scheduler.manager.JobSubmission;
 import com.ylpu.thales.scheduler.manager.SchedulerJob;
 import com.ylpu.thales.scheduler.request.JobInstanceRequest;
+import com.ylpu.thales.scheduler.request.JobStatusRequest;
 import com.ylpu.thales.scheduler.request.ScheduleRequest;
 import com.ylpu.thales.scheduler.response.JobInstanceResponse;
 import com.ylpu.thales.scheduler.response.JobResponse;
@@ -22,6 +23,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -58,6 +61,28 @@ public class SchedulerService {
             LOG.error(e);
             throw e;
         }
+    }
+    
+    public void markStatus(ScheduleRequest scheduleRequest,TaskState taskState) throws Exception{
+       JobInstanceResponse jobInstanceResponse = JobManager.getJobInstanceById(scheduleRequest.getId());
+    	   if(jobInstanceResponse.getTaskState() == TaskState.RUNNING) {
+    		   killJob(scheduleRequest);
+    	   }
+    	   if(jobInstanceResponse.getTaskState() != taskState) {
+        	   try {
+        		    JobStatusRequest jr = new JobStatusRequest();
+        		    jr.setIds(Arrays.asList(scheduleRequest.getId()));
+        		    jr.setStatus(taskState);
+                JobManager.updateJobStatus(jr);
+                JobStatusCheck.addResponse(JobSubmission.buildJobStatus(
+                           jobInstanceResponse.getJobConf(),
+                           DateUtils.getDateFromString(jobInstanceResponse.getScheduleTime(),DateUtils.DATE_TIME_FORMAT),
+                           taskState));
+       		} catch (Exception e) {
+       			LOG.error(e);
+       			throw e;
+       		}
+    	   }
     }
     
     private JobInstanceRequestRpc setRequest(JobInstanceResponse response ) {
@@ -140,28 +165,28 @@ public class SchedulerService {
         try {
             JobInstanceResponse jobInstanceResponse = JobManager.getJobInstanceById(id);
             if(jobInstanceResponse.getTaskState() == TaskState.RUNNING) {
-            	   throw new RuntimeException("job "+ id + " has already running");
+            	   LOG.warn("job "+ id + " has already running");
+            }else {
+                //初始化任务
+                JobInstanceRequest request = new JobInstanceRequest();
+                JobSubmission.initJobInstance(request,jobInstanceResponse.getJobConf());
+                request.setId(jobInstanceResponse.getId());
+                request.setRetryTimes(jobInstanceResponse.getRetryTimes() + 1);
+                request.setScheduleTime(DateUtils.getDateFromString(jobInstanceResponse.getScheduleTime(),DateUtils.DATE_TIME_FORMAT));
+                request.setStartTime(new Date());
+                request.setCreateTime(new Date());
+                JobManager.updateJobInstanceByKey(request);
+                
+                JobStatusCheck.addResponse(JobSubmission.buildJobStatus(
+                        jobInstanceResponse.getJobConf(),
+                        DateUtils.getDateFromString(jobInstanceResponse.getScheduleTime(),DateUtils.DATE_TIME_FORMAT),
+                        TaskState.SUBMIT));
+                
+                JobInstanceRequestRpc rpcRequest = JobSubmission.initJobInstanceRequestRpc(request,
+                        jobInstanceResponse.getJobConf());
+                
+                JobSubmission.addJob(rpcRequest);
             }
-            //初始化任务
-            JobInstanceRequest request = new JobInstanceRequest();
-            JobSubmission.initJobInstance(request,jobInstanceResponse.getJobConf());
-            request.setId(jobInstanceResponse.getId());
-            request.setRetryTimes(jobInstanceResponse.getRetryTimes() + 1);
-            request.setScheduleTime(DateUtils.getDateFromString(jobInstanceResponse.getScheduleTime(),DateUtils.DATE_TIME_FORMAT));
-            request.setStartTime(new Date());
-            request.setCreateTime(new Date());
-            JobManager.updateJobInstanceByKey(request);
-            
-            JobStatusCheck.addResponse(JobSubmission.buildJobStatus(
-                    jobInstanceResponse.getJobConf().getId(),
-                    DateUtils.getDateFromString(jobInstanceResponse.getScheduleTime(),DateUtils.DATE_TIME_FORMAT),
-                    TaskState.SUBMIT));
-            
-            JobInstanceRequestRpc rpcRequest = JobSubmission.initJobInstanceRequestRpc(request,
-                    jobInstanceResponse.getJobConf());
-            
-            JobSubmission.addJob(rpcRequest);
-            
         }catch(Exception e) {
             LOG.error(e);
             throw e;

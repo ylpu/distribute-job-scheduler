@@ -31,6 +31,10 @@
     <result column="task_state" property="taskState" jdbcType="INTEGER" />
     <result column="task_Count" property="taskCount" jdbcType="INTEGER" />
   </resultMap>
+  <resultMap id="taskElapseMap" type="com.ylpu.thales.scheduler.entity.TaskElapseChart" >
+    <result column="schedule_time" property="scheduleTime" jdbcType="TIMESTAMP" />
+    <result column="elapse_time" property="elapseTime" jdbcType="INTEGER" />
+  </resultMap>
   <sql id="Base_Column_List" >
     id, job_id, task_state, log_url, log_path, worker, creator_name, creator_email, retry_times, 
     pid, applicationId, elapse_time, create_time, update_time,schedule_time,start_time,end_time
@@ -63,8 +67,8 @@
             <if test="taskState != null and taskState != ''">
                 and instance.task_state = #{taskState}
             </if>
-            <if test="worker != null and worker != ''">
-                and instance.worker like concat(concat('%',#{worker}),'%')
+            <if test="jobName != null and jobName != ''">
+                and job.job_name like concat(concat('%',#{jobName}),'%')
             </if>
         ORDER BY instance.create_time DESC
     </select>
@@ -286,11 +290,14 @@
     </if>
   </update>
   
-  <update id="markAsFailed" parameterType="com.ylpu.thales.scheduler.entity.SchedulerJobInstance" >
+  <update id="markStatus" parameterType="com.ylpu.thales.scheduler.entity.SchedulerJobInstance" >
     update t_thales_scheduler_job_instance
     set task_state = #{taskState,jdbcType=TINYINT},
     schedule_time = #{scheduleTime,jdbcType=TIMESTAMP}
     where job_id = #{jobId,jdbcType=INTEGER} and schedule_time = #{scheduleTime,jdbcType=TIMESTAMP}
   </update>
-  
+  <select id = "getTaskLineByJobId" parameterType="java.lang.Integer" resultMap="taskElapseMap">
+    select schedule_time,elapse_time from t_thales_scheduler_job_instance where job_id = #{id,jdbcType=INTEGER}
+      group by schedule_time,elapse_time having count(*) between 0 and 30
+  </select>
 </mapper>

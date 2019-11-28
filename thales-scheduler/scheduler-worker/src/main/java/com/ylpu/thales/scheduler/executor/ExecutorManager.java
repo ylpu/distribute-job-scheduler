@@ -3,6 +3,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.ylpu.thales.scheduler.enums.JobType;
+import com.ylpu.thales.scheduler.executor.command.CommandExecutor;
 import com.ylpu.thales.scheduler.executor.hive.HiveExecutor;
 import com.ylpu.thales.scheduler.executor.shell.ShellExecutor;
 import com.ylpu.thales.scheduler.executor.spark.*;
@@ -15,6 +16,7 @@ public class ExecutorManager {
         executors.put(JobType.SHELL, ShellExecutor.class);
         executors.put(JobType.HQL, HiveExecutor.class);
         executors.put(JobType.SPARK, SparkExecutor.class);
+        executors.put(JobType.COMMAND, CommandExecutor.class);
     }
     public static Class<? extends AbstractCommonExecutor> getExecutor(JobType jobType){
         if(jobType == null || executors.get(jobType) == null) {

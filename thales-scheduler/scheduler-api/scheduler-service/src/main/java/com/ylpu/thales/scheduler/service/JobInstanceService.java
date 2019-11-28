@@ -6,11 +6,13 @@ import java.util.Map;
 import com.github.pagehelper.PageInfo;
 import com.ylpu.thales.scheduler.common.service.BaseService;
 import com.ylpu.thales.scheduler.entity.SchedulerJobInstance;
+import com.ylpu.thales.scheduler.entity.TaskElapseChart;
 import com.ylpu.thales.scheduler.enums.TaskState;
 import com.ylpu.thales.scheduler.request.JobInstanceRequest;
 import com.ylpu.thales.scheduler.request.ScheduleRequest;
 import com.ylpu.thales.scheduler.response.JobInstanceResponse;
 import com.ylpu.thales.scheduler.response.JobInstanceStateResponse;
+import com.ylpu.thales.scheduler.response.TaskElapseChartResponse;
 import com.ylpu.thales.scheduler.response.TaskSummaryResponse;
 
 public interface JobInstanceService extends BaseService<SchedulerJobInstance,Integer>{
@@ -35,12 +37,18 @@ public interface JobInstanceService extends BaseService<SchedulerJobInstance,Int
     
     public void rerunAll(ScheduleRequest request);
         
-    public void markAsFailed(List<JobInstanceRequest> list);
+    public void markStatus(List<JobInstanceRequest> list);
+    
+    public void markSuccess(ScheduleRequest request);
+    
+    public void markFail(ScheduleRequest request);
     
     public void updateJobStatus(List<Integer> ids,TaskState status);
     
-    public PageInfo<JobInstanceResponse> findAll(Integer taskState, String worker,int pageNo,int pageSize);
+    public PageInfo<JobInstanceResponse> findAll(Integer taskState, String jobName,int pageNo,int pageSize);
     
     public List<TaskSummaryResponse> getTaskSummary();
+    
+    public List<TaskElapseChartResponse> getTaskLineByJobId(Integer id);
 
 }

@@ -107,6 +107,7 @@ public abstract class BaseServiceImpl<T extends BaseEntity,D extends Serializabl
                 }
             }catch(Exception e) {
                 LOG.error(e);
+                return null;
             }finally {
                 CuratorHelper.close(client);
             }  

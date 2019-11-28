@@ -251,14 +251,47 @@ public class JobSubmission {
         request.setElapseTime(0);
     }
     
-    public static JobInstanceResponseRpc buildJobStatus(int jobId,Date scheduleTime,TaskState state) {
-        return JobInstanceResponseRpc.newBuilder()
-        .setResponseId(jobId + "-" + DateUtils.getDateAsString(scheduleTime,DateUtils.TIME_FORMAT))
-        .setErrorCode(200)
-        .setTaskState(state.getCode())
-        .setErrorMsg("")
-        .build();
+    public static JobInstanceResponseRpc buildJobStatus(JobResponse jobResponse,Date scheduleTime,TaskState state) {
+    	    String responseId = "";
+    	    if(jobResponse.getDependencies() == null || jobResponse.getDependencies().size() == 0) {
+    	       responseId = jobResponse.getId() + "-root";
+    	    }else {
+    	    	   responseId = jobResponse.getId() + "-" + DateUtils.getDateAsString(scheduleTime,DateUtils.TIME_FORMAT);
+    	    }
+    	    if(state == TaskState.FAIL) {
+    	        return JobInstanceResponseRpc.newBuilder()
+    	                .setResponseId(responseId)
+    	                .setErrorCode(500)
+    	                .setTaskState(state.getCode())
+    	                .setErrorMsg("failed to execute job")
+    	                .build();
+    	    }else {
+    	        return JobInstanceResponseRpc.newBuilder()
+    	                .setResponseId(responseId)
+    	                .setErrorCode(200)
+    	                .setTaskState(state.getCode())
+    	                .setErrorMsg("")
+    	                .build();
+    	    }
     }
+    
+    public static JobInstanceResponseRpc buildRootJobStatus(int jobId,Date scheduleTime,TaskState state) {
+	    if(state == TaskState.FAIL) {
+	        return JobInstanceResponseRpc.newBuilder()
+	                .setResponseId(jobId + "-root")
+	                .setErrorCode(500)
+	                .setTaskState(state.getCode())
+	                .setErrorMsg("failed to execute job")
+	                .build();
+	    }else {
+	        return JobInstanceResponseRpc.newBuilder()
+	                .setResponseId(jobId + "-root")
+	                .setErrorCode(200)
+	                .setTaskState(state.getCode())
+	                .setErrorMsg("")
+	                .build();
+	    }
+}
     
     /**
      * 设置任务实例rpc请求

@@ -1,5 +1,6 @@
 package com.ylpu.thales.scheduler.controller;
 
+import javax.servlet.http.HttpSession;
 import javax.ws.rs.core.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -16,6 +17,7 @@ import com.ylpu.thales.scheduler.request.ScheduleRequest;
 import com.ylpu.thales.scheduler.response.JobResponse;
 import com.ylpu.thales.scheduler.response.JobTree;
 import com.ylpu.thales.scheduler.response.SchedulerResponse;
+import com.ylpu.thales.scheduler.response.UserResponse;
 import com.ylpu.thales.scheduler.service.JobService;
 
 @Controller
@@ -30,7 +32,9 @@ public class JobController {
     
     @ResponseBody
     @RequestMapping(value="/addJob",method=RequestMethod.POST)
-    public SchedulerResponse<Void> addJob(@Validated @RequestBody JobRequest job) {
+    public SchedulerResponse<Void> addJob(@Validated @RequestBody JobRequest job,HttpSession session) {
+        UserResponse user = (UserResponse) session.getAttribute("user");
+        job.setCreatorId(user.getUserName());
         jobService.addJob(job);
         return SchedulerResponse.success();
     }

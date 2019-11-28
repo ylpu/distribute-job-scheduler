@@ -1,5 +1,6 @@
 package com.ylpu.thales.scheduler.rest.resources;
 
+import com.ylpu.thales.scheduler.enums.TaskState;
 import com.ylpu.thales.scheduler.request.ScheduleRequest;
 import com.ylpu.thales.scheduler.rest.service.SchedulerService;
 
@@ -58,5 +59,21 @@ public class SchedulerJobResource {
     @Produces(MediaType.APPLICATION_JSON)
     public void rerunAll(ScheduleRequest request) throws Exception {
         new SchedulerService().rerunAll(request.getId());
+    }
+    
+    @POST
+    @Path("markSuccess")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public void markSuccess(ScheduleRequest request) throws Exception {
+        new SchedulerService().markStatus(request,TaskState.SUCCESS);
+    }
+    
+    @POST
+    @Path("markFail")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public void markFail(ScheduleRequest request) throws Exception {
+        new SchedulerService().markStatus(request,TaskState.FAIL);
     }
 }

@@ -30,6 +30,7 @@ import com.ylpu.thales.scheduler.request.JobRequest;
 import com.ylpu.thales.scheduler.request.ScheduleRequest;
 import com.ylpu.thales.scheduler.response.JobResponse;
 import com.ylpu.thales.scheduler.response.JobTree;
+import com.ylpu.thales.scheduler.response.UserResponse;
 import com.ylpu.thales.scheduler.service.JobService;
 import com.ylpu.thales.scheduler.service.exception.ThalesRuntimeException;
 

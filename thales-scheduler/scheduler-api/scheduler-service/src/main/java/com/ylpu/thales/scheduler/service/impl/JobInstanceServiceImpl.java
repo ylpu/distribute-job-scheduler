@@ -21,6 +21,7 @@ import com.ylpu.thales.scheduler.common.utils.DateUtils;
 import com.ylpu.thales.scheduler.dao.SchedulerJobInstanceMapper;
 import com.ylpu.thales.scheduler.entity.JobInstanceState;
 import com.ylpu.thales.scheduler.entity.SchedulerJobInstance;
+import com.ylpu.thales.scheduler.entity.TaskElapseChart;
 import com.ylpu.thales.scheduler.entity.TaskSummary;
 import com.ylpu.thales.scheduler.enums.TaskState;
 import com.ylpu.thales.scheduler.request.JobInstanceRequest;
@@ -28,6 +29,7 @@ import com.ylpu.thales.scheduler.request.ScheduleRequest;
 import com.ylpu.thales.scheduler.response.JobInstanceResponse;
 import com.ylpu.thales.scheduler.response.JobInstanceStateResponse;
 import com.ylpu.thales.scheduler.response.JobResponse;
+import com.ylpu.thales.scheduler.response.TaskElapseChartResponse;
 import com.ylpu.thales.scheduler.response.TaskSummaryResponse;
 import com.ylpu.thales.scheduler.service.JobInstanceService;
 import com.ylpu.thales.scheduler.service.JobService;
@@ -169,12 +171,12 @@ public class JobInstanceServiceImpl extends BaseServiceImpl<SchedulerJobInstance
     }
     
     @Override
-    public void markAsFailed(List<JobInstanceRequest> list) {
+    public void markStatus(List<JobInstanceRequest> list) {
         for(JobInstanceRequest request : list) {
             if(request != null) {
                 SchedulerJobInstance jobInstance = new SchedulerJobInstance();
                 BeanUtils.copyProperties(request, jobInstance);
-                schedulerJobInstanceMapper.markAsFailed(jobInstance);
+                schedulerJobInstanceMapper.markStatus(jobInstance);
             }
         }
     }
@@ -184,9 +186,9 @@ public class JobInstanceServiceImpl extends BaseServiceImpl<SchedulerJobInstance
     }
 
 	@Override
-	public PageInfo<JobInstanceResponse> findAll(Integer taskState, String worker,int pageNo,int pageSize) {
+	public PageInfo<JobInstanceResponse> findAll(Integer taskState, String jobName,int pageNo,int pageSize) {
 		PageHelper.startPage(pageNo,pageSize);
-		List<SchedulerJobInstance> jobInstanceList = schedulerJobInstanceMapper.findAll(taskState, worker);
+		List<SchedulerJobInstance> jobInstanceList = schedulerJobInstanceMapper.findAll(taskState, jobName);
 		JobInstanceResponse jobInstanceResponse = null;
 		Page<JobInstanceResponse> page = new Page<JobInstanceResponse>();
 		if(jobInstanceList != null && jobInstanceList.size() > 0) {
@@ -225,5 +227,51 @@ public class JobInstanceServiceImpl extends BaseServiceImpl<SchedulerJobInstance
 			}
 		}
 		return responses;
+	}
+
+	@Override
+	public List<TaskElapseChartResponse> getTaskLineByJobId(Integer id) {
+		TaskElapseChartResponse response = null;
+		List<TaskElapseChartResponse> responses = new ArrayList<TaskElapseChartResponse>();
+		List<TaskElapseChart> list = schedulerJobInstanceMapper.getTaskLineByJobId(id);
+		if(list != null && list.size() > 0) {
+			for(TaskElapseChart chart : list) {
+				 response = new TaskElapseChartResponse();
+				 response.setScheduleTime(DateUtils.getDateAsString(chart.getScheduleTime(),DateUtils.DATE_TIME_FORMAT));
+				 response.setElapseTime(chart.getElapseTime());
+				 responses.add(response);
+			}
+		}
+		return responses;
+	}
+
+	@Override
+	public void markSuccess(ScheduleRequest request) {
+        String masterUrl = getMasterServiceUri(request.getId());
+        if(StringUtils.isNotBlank(masterUrl)) {
+            int status = ScheduleManager.markSuccess(getMasterServiceUri(request.getId()), request);
+            //204-执行成功，但无内容返回
+            if(status != HttpStatus.NO_CONTENT.value()) {
+                throw new ThalesRuntimeException("failed to mark job " + request.getId() + " as success");
+            }
+        }else {
+            throw new RuntimeException("can not find master for job " + request.getId());
+        }
+		
+	}
+
+	@Override
+	public void markFail(ScheduleRequest request) {
+        String masterUrl = getMasterServiceUri(request.getId());
+        if(StringUtils.isNotBlank(masterUrl)) {
+            int status = ScheduleManager.markFail(getMasterServiceUri(request.getId()), request);
+            //204-执行成功，但无内容返回
+            if(status != HttpStatus.NO_CONTENT.value()) {
+                throw new ThalesRuntimeException("failed to mark job " + request.getId() + " as fail");
+            }
+        }else {
+            throw new RuntimeException("can not find master for job " + request.getId());
+        }
+		
 	}
 }

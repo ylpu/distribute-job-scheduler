@@ -2,16 +2,16 @@ package com.ylpu.thales.scheduler.executor.spark;
 
 public class SparkParameters {
 
-
-  /**
-   * major class
-   */
-  private String mainClass;
-
   /**
    * deploy mode
    */
   private String deployMode;
+  
+  /**
+   * master url
+   */
+  
+  private String masterUrl;
 
   /**
    * arguments
@@ -33,6 +33,11 @@ public class SparkParameters {
    * num-executors Number of executors to launch
    */
   private int numExecutors;
+  
+  /**
+   * total-executor-cores Number of cores per executor
+   */
+  private int totalExecutorCores;
 
   /**
    * executor-cores Number of cores per executor
@@ -48,24 +53,6 @@ public class SparkParameters {
    * The YARN queue to submit to
    */
   private String queue;
-
-  /**
-   * other arguments
-   */
-  private String others;
-  
-  /**
-   * spark jar包
-   */
-  private String jars;
-
-  public String getMainClass() {
-    return mainClass;
-  }
-
-  public void setMainClass(String mainClass) {
-    this.mainClass = mainClass;
-  }
 
   public String getDeployMode() {
     return deployMode;
@@ -131,19 +118,19 @@ public class SparkParameters {
     this.queue = queue;
   }
 
-  public String getOthers() {
-    return others;
+  public int getTotalExecutorCores() {
+	return totalExecutorCores;
   }
 
-  public void setOthers(String others) {
-    this.others = others;
+  public void setTotalExecutorCores(int totalExecutorCores) {
+	this.totalExecutorCores = totalExecutorCores;
   }
 
-  public String getJars() {
-    return jars;
+  public String getMasterUrl() {
+	return masterUrl;
   }
 
-  public void setJars(String jars) {
-    this.jars = jars;
+  public void setMasterUrl(String masterUrl) {
+	this.masterUrl = masterUrl;
   }
 }
