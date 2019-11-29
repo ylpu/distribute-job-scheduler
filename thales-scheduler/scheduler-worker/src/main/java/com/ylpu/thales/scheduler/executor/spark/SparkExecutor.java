@@ -42,7 +42,7 @@ public class SparkExecutor extends AbstractCommonExecutor{
      * @param configFile
      * @return
      */
-    public String buildCommand(String configFile) throws Exception {
+    public String[] buildCommand(String configFile) throws Exception {
         StringBuilder commandBuilder = new StringBuilder();
         commandBuilder.append("$SPARK_HOME/bin/" + SPARK_COMMAND);
         
@@ -73,7 +73,8 @@ public class SparkExecutor extends AbstractCommonExecutor{
         commandBuilder.append("\n");
         
         commandBuilder.append("--total-executor-cores " + sparkParameters.getTotalExecutorCores());
-
-        return commandBuilder.toString();
+        String[] commands = new String[1];
+        commands[0] = commandBuilder.toString();
+        return commands;
     }
 }

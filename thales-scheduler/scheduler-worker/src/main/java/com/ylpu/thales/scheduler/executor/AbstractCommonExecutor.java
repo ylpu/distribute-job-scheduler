@@ -48,7 +48,7 @@ public abstract class AbstractCommonExecutor{
         String logOutPath = logPath + ".out";
         String logErrorPath = logPath + ".error";
 
-        String command = buildCommand(requestRpc.getJob().getJobConfiguration());
+        String[] command = buildCommand(requestRpc.getJob().getJobConfiguration());
         Process process = Runtime.getRuntime().exec(command);
         FileUtils.writeOuput(process.getInputStream(),logOutPath);
         FileUtils.writeOuput(process.getErrorStream(),logErrorPath);
@@ -111,5 +111,5 @@ public abstract class AbstractCommonExecutor{
     
     public abstract void kill() throws Exception;
     
-    public abstract String buildCommand(String configFile) throws Exception;
+    public abstract String[] buildCommand(String configFile) throws Exception;
 }

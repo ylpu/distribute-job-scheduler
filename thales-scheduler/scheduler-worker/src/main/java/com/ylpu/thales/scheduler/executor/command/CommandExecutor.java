@@ -46,13 +46,17 @@ public class CommandExecutor extends AbstractCommonExecutor{
      * @param configFile
      * @return
      */
-    public String buildCommand(String configFile) throws Exception {
-    	
+    public String[] buildCommand(String configFile) throws Exception {
+
         Map<String,Object> map = JsonUtils.jsonToMap(configFile);
         String commandLine = String.valueOf(map.get("commandLine"));
         if(StringUtils.isBlank(commandLine)) {
         	   throw new RuntimeException("commandLine can not empty");
         }
-        return commandLine;
+	    String[] strs = new String[3];
+	    strs[0] = "/bin/bash";
+	    strs[1] = "-c";
+	    strs[2] = commandLine;
+        return strs;
     }
 }

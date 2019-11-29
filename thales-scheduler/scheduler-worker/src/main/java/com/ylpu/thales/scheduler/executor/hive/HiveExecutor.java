@@ -42,7 +42,8 @@ public class HiveExecutor extends AbstractCommonExecutor{
      * @param configFile
      * @return
      */
-    public String buildCommand(String configFile) throws Exception {
+    public String[] buildCommand(String configFile) throws Exception {
+    	    String[] commands = new String[1];
         StringBuilder sb = new StringBuilder();
         Map<String,Object> map = JsonUtils.jsonToMap(configFile);
         String fileName = String.valueOf(map.get("fileName"));
@@ -51,6 +52,7 @@ public class HiveExecutor extends AbstractCommonExecutor{
         }
         sb.append("$HIVE_HOME/bin/" + HIVE_COMMAND);
         sb.append(" -f " + fileName);
-        return sb.toString();
+        commands[0] = sb.toString();
+        return commands;
     }
 }

@@ -49,18 +49,20 @@ public class ShellExecutor extends AbstractCommonExecutor{
      * @return
      */
     @Override
-    public String buildCommand(String configFile) throws Exception {
+    public String[] buildCommand(String configFile) throws Exception {
+    	    String[] commands = new String[1];
         Map<String,Object> map = JsonUtils.jsonToMap(configFile);
         String fileName = String.valueOf(map.get("fileName"));
         if(!FileUtils.exist(new File(fileName))) {
         	    throw new RuntimeException("file does not exist");
         }
         String parameters = String.valueOf(map.get("parameters"));
-        StringBuilder sb = new StringBuilder("sh " + fileName);
+        StringBuilder sb = new StringBuilder(fileName);
         if(StringUtils.isNotBlank(parameters)) {
             sb.append(" ");
             sb.append(parameters);
         }
-        return sb.toString();
+        commands[0] = sb.toString();
+        return commands;
     }
 }
