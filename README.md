@@ -60,7 +60,7 @@ api作为接口层，主要有如下功能：
 * 本地安装mysql,zookeeper,如非本地安装，需要修改controller,master,worker里config.properties,application.yml中的zookeeper和mysql地址和端口
 * 在mysql数据库中执行distribute-job-scheduler/thales-scheduler/sql/thales-scheduler.sql
 * 在distribute-job-scheduler中执行mvn clean install -Dmaven.test.skip=true
-* 执行如下脚本
+* 依次执行如下脚本
   * scheduler-controller/src/script/start-api.sh start
   * scheduler-master/src/script/start-master.sh start
   * scheduler-worker/src/script/start-worker.sh start
