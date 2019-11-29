@@ -293,9 +293,7 @@
   
   <update id="markStatus" parameterType="com.ylpu.thales.scheduler.entity.SchedulerJobInstance" >
     update t_thales_scheduler_job_instance
-    set task_state = #{taskState,jdbcType=TINYINT},
-    schedule_time = #{scheduleTime,jdbcType=TIMESTAMP}
-    where job_id = #{jobId,jdbcType=INTEGER} and schedule_time = #{scheduleTime,jdbcType=TIMESTAMP}
+    set task_state = 7,update_time = #{date,jdbcType=TIMESTAMP} where task_state in (1,2,3,4)
   </update>
   <select id = "getTaskLineByJobId" parameterType="java.lang.Integer" resultMap="taskElapseMap">
     select schedule_time,elapse_time from t_thales_scheduler_job_instance where job_id = #{id,jdbcType=INTEGER}

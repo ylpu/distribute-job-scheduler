@@ -66,11 +66,11 @@ public class JobManager {
      * @param request
      * @return
      */
-    public static int markStatus(List<JobInstanceRequest> list) throws Exception{
+    public static int markStatus() throws Exception{
         String apiUrl = Configuration.getString(Configuration.getConfig(),
                 "thales.api.url",GlobalConstants.DEFAULT_API_URL);
         @SuppressWarnings("rawtypes")
-        ResponseEntity<SchedulerResponse> response = RestClient.post(apiUrl + "jobInstance/markStatus",list,SchedulerResponse.class);
+        ResponseEntity<SchedulerResponse> response = RestClient.post(apiUrl + "jobInstance/markStatus",SchedulerResponse.class);
         @SuppressWarnings("unchecked")
         SchedulerResponse<Void> schedulerResponse = response.getBody();
         return schedulerResponse.getErrorCode();

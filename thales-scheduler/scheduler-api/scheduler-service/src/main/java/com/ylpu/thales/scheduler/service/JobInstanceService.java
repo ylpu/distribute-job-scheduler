@@ -37,7 +37,7 @@ public interface JobInstanceService extends BaseService<SchedulerJobInstance,Int
     
     public void rerunAll(ScheduleRequest request);
         
-    public void markStatus(List<JobInstanceRequest> list);
+    public void markStatus();
     
     public void markSuccess(ScheduleRequest request);
     

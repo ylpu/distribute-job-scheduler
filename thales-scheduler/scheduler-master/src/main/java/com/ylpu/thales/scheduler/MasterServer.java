@@ -2,26 +2,13 @@ package com.ylpu.thales.scheduler;
 
 import com.ylpu.thales.scheduler.core.config.Configuration;
 import com.ylpu.thales.scheduler.core.constants.GlobalConstants;
-import com.ylpu.thales.scheduler.core.rest.JobManager;
-import com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc;
-import com.ylpu.thales.scheduler.core.utils.DateUtils;
 import com.ylpu.thales.scheduler.core.utils.MetricsUtils;
 import com.ylpu.thales.scheduler.core.zk.CuratorHelper;
-import com.ylpu.thales.scheduler.enums.TaskState;
 import com.ylpu.thales.scheduler.manager.JobScheduler;
 import com.ylpu.thales.scheduler.manager.MasterManager;
-import com.ylpu.thales.scheduler.request.JobInstanceRequest;
-import com.ylpu.thales.scheduler.rpc.client.JobStatusCheck;
-import org.apache.commons.lang.math.NumberUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.curator.framework.CuratorFramework;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Properties;
 
 public class MasterServer {
@@ -56,12 +43,6 @@ public class MasterServer {
             removeZkPath();
             //关掉任务调度
             JobScheduler.shutdownJobs();
-            //更新数据库任务状态为失败
-            try {
-				markAsFailed();
-			} catch (Exception e) {
-				LOG.error(e);
-			}
         }
         
         /**
@@ -85,28 +66,6 @@ public class MasterServer {
             }finally{
             	CuratorHelper.close(client);
             }
-        }
-        /**
-         *  master在意外退出时设置任务状态为失败
-         */
-        private void markAsFailed() throws Exception{
-            Map<String, JobInstanceResponseRpc> responses = JobStatusCheck.getResponses();
-            List<JobInstanceRequest> list = new ArrayList<JobInstanceRequest>();
-            JobInstanceRequest request = null;
-            for(Entry<String, JobInstanceResponseRpc> entry : responses.entrySet()) {
-                String key = entry.getKey();
-                if(StringUtils.isNotBlank(key) && (entry.getValue().getTaskState() == TaskState.SUBMIT.getCode()
-                        || entry.getValue().getTaskState() == TaskState.PENDING.getCode()
-                        || entry.getValue().getTaskState() == TaskState.WAITING.getCode()
-                        || entry.getValue().getTaskState() == TaskState.RUNNING.getCode())) {
-                    request = new JobInstanceRequest();
-                    request.setJobId(NumberUtils.toInt(key.split("-")[0]));
-                    request.setScheduleTime(DateUtils.getDateFromString(key.split("-")[1], DateUtils.TIME_FORMAT));
-                    request.setTaskState(TaskState.FAIL.getCode());
-                    list.add(request);
-                }
-            }
-            JobManager.markStatus(list);
         }
     }
 }

@@ -152,6 +152,8 @@ public class MasterManager{
                 addNodeChangeListener(client,groupPath);  
             }
         }
+//      标识以前的任务状态为失败
+        JobManager.markStatus();
 //      加载任务实例状态，比较耗时
         restoreTaskState();
 //      调度所有任务

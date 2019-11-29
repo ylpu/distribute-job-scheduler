@@ -171,14 +171,8 @@ public class JobInstanceServiceImpl extends BaseServiceImpl<SchedulerJobInstance
     }
     
     @Override
-    public void markStatus(List<JobInstanceRequest> list) {
-        for(JobInstanceRequest request : list) {
-            if(request != null) {
-                SchedulerJobInstance jobInstance = new SchedulerJobInstance();
-                BeanUtils.copyProperties(request, jobInstance);
-                schedulerJobInstanceMapper.markStatus(jobInstance);
-            }
-        }
+    public void markStatus() {
+      	schedulerJobInstanceMapper.markStatus(new Date());
     }
     
     public void updateJobStatus(List<Integer> ids,TaskState status) {

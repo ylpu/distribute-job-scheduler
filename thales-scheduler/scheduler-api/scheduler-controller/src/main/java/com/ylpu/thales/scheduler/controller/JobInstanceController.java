@@ -141,8 +141,8 @@ public class JobInstanceController {
      */
     @ResponseBody
     @RequestMapping(value="/markStatus",method=RequestMethod.POST)
-    public SchedulerResponse<Void> markStatus(@RequestBody List<JobInstanceRequest> list) {
-        jobInstanceService.markStatus(list);
+    public SchedulerResponse<Void> markStatus() {
+        jobInstanceService.markStatus();
        return SchedulerResponse.success();
     }
     
