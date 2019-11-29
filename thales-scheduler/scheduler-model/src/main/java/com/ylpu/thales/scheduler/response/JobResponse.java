@@ -37,7 +37,7 @@ public class JobResponse implements Serializable {
 
     private String workerGroupname;
 
-    private String jobReleasestate;
+    private Integer jobReleasestate;
 
     private String description;
 

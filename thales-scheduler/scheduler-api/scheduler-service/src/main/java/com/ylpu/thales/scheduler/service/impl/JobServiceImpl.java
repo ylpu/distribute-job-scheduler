@@ -214,7 +214,6 @@ public class JobServiceImpl extends BaseServiceImpl<SchedulerJob,Integer> implem
 	      response.setJobPriority(JobPriority.getJobPriority(schedulerJob.getJobPriority()).name());
 	      response.setJobType(JobType.getJobType(schedulerJob.getJobType()).name());
 	      response.setAlertTypes(AlertType.getAlertType(schedulerJob.getAlertTypes()).name());
-	      response.setJobReleasestate(JobReleaseState.getJobReleaseState(schedulerJob.getJobReleasestate()).name());
 	        List<Integer> collect = schedulerJob.getRelations()
 	                .stream()
 	                .map(p->p.getParentjobId())
