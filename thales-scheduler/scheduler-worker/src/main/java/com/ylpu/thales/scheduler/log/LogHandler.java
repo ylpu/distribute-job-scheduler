@@ -7,7 +7,6 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import org.apache.commons.lang3.StringUtils;
-
 import com.ylpu.thales.scheduler.core.rest.JobManager;
 import com.ylpu.thales.scheduler.core.utils.ScriptUtils;
 import com.ylpu.thales.scheduler.response.JobInstanceResponse;
@@ -22,7 +21,8 @@ public class LogHandler {
         JobInstanceResponse jobInstanceResponse = JobManager.getJobInstanceById(taskId);
         String logPath = jobInstanceResponse.getLogPath();
         if(StringUtils.isNotBlank(logPath)) {
-            return ScriptUtils.execToString("cat",jobInstanceResponse.getLogPath(), new String[] {}); 
+        	    String log = ScriptUtils.execToList("cat",jobInstanceResponse.getLogPath(), new String[] {});
+            return log; 
         }
         return "";
     }

@@ -55,6 +55,7 @@ public final class FileUtils {
            String errline = null;
            while ((errline = brError.readLine()) != null) {
                bw.write(errline);
+               bw.write("\r\n");
                bw.flush();
            }
        } catch (IOException e) {

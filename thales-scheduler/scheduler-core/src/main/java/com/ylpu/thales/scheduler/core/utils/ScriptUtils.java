@@ -9,14 +9,24 @@ import org.apache.commons.logging.LogFactory;
 import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.LinkedList;
-import java.util.List;
 
 /**
  * 脚本执行类
  * 优点：使用apache帮助类，简单，方便
  * 缺点：无法获取process类，因而无法得到执行任务的进程id
  */
+
+ class CollectingLogOutputStream extends LogOutputStream {
+
+    private final StringBuilder lines = new StringBuilder();
+    @Override protected void processLine(String line, int level) {
+    	    lines.append(line);
+    	    lines.append("\n");
+    }   
+    public String getLines() {
+        return lines.substring(0,lines.toString().lastIndexOf("\n"));
+    }
+}
 public class ScriptUtils {
     
     private static Log LOG = LogFactory.getLog(ScriptUtils.class);
@@ -113,6 +123,25 @@ public class ScriptUtils {
      * @return
      * @throws IOException
      */
+    public static String execToList(String command,String scriptFile, String... params) throws IOException {
+    	   CollectingLogOutputStream outputStream = new CollectingLogOutputStream();
+      	try {
+            PumpStreamHandler streamHandler = new PumpStreamHandler(outputStream, outputStream);
+            execCmd(command, scriptFile, params, streamHandler);
+        } catch (Exception e) {
+            LOG.error(e);
+            return null;
+        } finally {
+            if (outputStream != null) {
+                try {
+                    outputStream.close();
+                } catch (IOException e) {
+                }
+
+            }
+        }
+        return outputStream.getLines();
+    }
     public static String execToString(String command, String scriptFile, String... params) throws IOException {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         try {
@@ -132,22 +161,13 @@ public class ScriptUtils {
         }
         return outputStream.toString();
     }
-    
-    private static class CollectingLogOutputStream extends LogOutputStream {
 
-        private final List<String> lines = new LinkedList<String>();
-        @Override protected void processLine(String line, int level) {
-            lines.add(line);
-        }   
-        public List<String> getLines() {
-            return lines;
-        }
-    }
     
     public static void main(String[] args) {
         try {
 //            System.out.println(ScriptUtils.execToFile("sh", "/tmp/script/test.sh", "/tmp/log/1.out", "/tmp/log/1.error", new String[1]));
-            System.out.println(ScriptUtils.execToString("tail","/tmp/log/worker/test.out", new String[] {}));
+            System.out.println(ScriptUtils.execToList("cat","/tmp/log/scheduler-worker/warn.log", new String[] {}));
+            System.out.println("test");
         } catch (Exception e) {
             e.printStackTrace();
         }
