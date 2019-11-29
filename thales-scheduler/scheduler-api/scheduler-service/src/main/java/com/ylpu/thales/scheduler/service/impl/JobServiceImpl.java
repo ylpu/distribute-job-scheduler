@@ -2,6 +2,7 @@ package com.ylpu.thales.scheduler.service.impl;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.transaction.Transactional;
@@ -30,7 +31,6 @@ import com.ylpu.thales.scheduler.request.JobRequest;
 import com.ylpu.thales.scheduler.request.ScheduleRequest;
 import com.ylpu.thales.scheduler.response.JobResponse;
 import com.ylpu.thales.scheduler.response.JobTree;
-import com.ylpu.thales.scheduler.response.UserResponse;
 import com.ylpu.thales.scheduler.service.JobService;
 import com.ylpu.thales.scheduler.service.exception.ThalesRuntimeException;
 
@@ -269,6 +269,7 @@ public class JobServiceImpl extends BaseServiceImpl<SchedulerJob,Integer> implem
         SchedulerJob schedulerJob = new SchedulerJob();
         schedulerJob.setId(request.getId());
         schedulerJob.setJobReleasestate(JobReleaseState.OFFLINE.getCode());
+        schedulerJob.setUpdateTime(new Date());
         updateByPrimaryKeySelective(schedulerJob);
         String masterUrl = getMasterServiceUri(request.getId());
         if(StringUtils.isNotBlank(masterUrl)) {

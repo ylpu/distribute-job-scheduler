@@ -182,7 +182,7 @@ public class JobInstanceServiceImpl extends BaseServiceImpl<SchedulerJobInstance
     }
     
     public void updateJobStatus(List<Integer> ids,TaskState status) {
-        schedulerJobInstanceMapper.updateJobStatus(ids, status.getCode());
+        schedulerJobInstanceMapper.updateJobStatus(ids, status.getCode(),new Date());
     }
 
 	@Override

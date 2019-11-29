@@ -280,7 +280,8 @@
   
   <update id = "updateJobStatus">
     update t_thales_scheduler_job_instance
-    set task_state = #{status,jdbcType=TINYINT} 
+    set task_state = #{status,jdbcType=TINYINT},
+    update_time = #{date,jdbcType=TIMESTAMP} 
     where 1=1 
     <if test="ids != null and ids.size > 0">
        and id in
