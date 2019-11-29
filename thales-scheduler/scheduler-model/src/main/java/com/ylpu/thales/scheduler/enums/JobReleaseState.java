@@ -10,13 +10,22 @@ public enum JobReleaseState {
         this.code = code;
     }
     
-    public static JobReleaseState getTaskType(int code) {
+    public static JobReleaseState getJobReleaseState(int code) {
         for(JobReleaseState state : JobReleaseState.values()) {
             if(state.code == code) {
                 return state;
             }
         }
         throw new IllegalArgumentException("unsupported job state " + code);
+    }
+    
+    public static JobReleaseState getJobReleaseStateByName(String name) {
+        for(JobReleaseState jobReleaseState : JobReleaseState.values()) {
+            if(jobReleaseState.toString().equalsIgnoreCase(name)) {
+                return jobReleaseState;
+            }
+        }
+        throw new IllegalArgumentException("unsupported job release state " + name);
     }
     
     public int getCode() {

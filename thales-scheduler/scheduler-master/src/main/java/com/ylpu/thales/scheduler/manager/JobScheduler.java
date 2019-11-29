@@ -82,17 +82,20 @@ public class JobScheduler {
             if (trigger == null) {  
                 return;  
             }  
+            String oldTime = trigger.getCronExpression();  
+            if (!oldTime.equalsIgnoreCase(scheduleInfo.getCron())) { 
+                // 触发器  
+                TriggerBuilder<Trigger> triggerBuilder = TriggerBuilder.newTrigger();
+                // 触发器名,触发器组  
+                triggerBuilder.withIdentity(scheduleInfo.getTriggerName(), scheduleInfo.getTriggerGroupName());
+                triggerBuilder.startNow();
+                // 触发器时间设定  
+                triggerBuilder.withSchedule(CronScheduleBuilder.cronSchedule(scheduleInfo.getCron()));
+                // 创建Trigger对象
+                trigger = (CronTrigger) triggerBuilder.build();
+                sched.rescheduleJob(triggerKey, trigger);
+            }
 
-            // 触发器  
-            TriggerBuilder<Trigger> triggerBuilder = TriggerBuilder.newTrigger();
-            // 触发器名,触发器组  
-            triggerBuilder.withIdentity(scheduleInfo.getTriggerName(), scheduleInfo.getTriggerGroupName());
-            triggerBuilder.startNow();
-            // 触发器时间设定  
-            triggerBuilder.withSchedule(CronScheduleBuilder.cronSchedule(scheduleInfo.getCron()));
-            // 创建Trigger对象
-            trigger = (CronTrigger) triggerBuilder.build();
-            sched.rescheduleJob(triggerKey, trigger);
         } catch (Exception e) {  
             LOG.error(e);
             throw new RuntimeException(e);  

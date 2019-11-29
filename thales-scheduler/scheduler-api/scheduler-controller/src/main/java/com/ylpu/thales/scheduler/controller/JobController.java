@@ -34,7 +34,9 @@ public class JobController {
     @RequestMapping(value="/addJob",method=RequestMethod.POST)
     public SchedulerResponse<Void> addJob(@Validated @RequestBody JobRequest job,HttpSession session) {
         UserResponse user = (UserResponse) session.getAttribute("user");
-        job.setCreatorId(user.getUserName());
+        if(user != null) {
+            job.setCreatorId(user.getUserName());
+        }
         jobService.addJob(job);
         return SchedulerResponse.success();
     }
