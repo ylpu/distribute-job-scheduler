@@ -10,5 +10,6 @@ public class JobScheduleInfo {
     private String triggerGroupName;
     private String cron;
     private int jobPriority;
+    private Integer id;
     private Object data;
 }

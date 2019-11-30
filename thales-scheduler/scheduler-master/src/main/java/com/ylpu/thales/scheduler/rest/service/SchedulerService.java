@@ -260,5 +260,6 @@ public class SchedulerService {
         scheduleInfo.setTriggerName(response.getJobName());
         scheduleInfo.setTriggerGroupName(GlobalConstants.DEFAULT_SCHEDULER_TRIGGER_GROUP);
         scheduleInfo.setData(response);
+        scheduleInfo.setId(response.getId());
     }
 }

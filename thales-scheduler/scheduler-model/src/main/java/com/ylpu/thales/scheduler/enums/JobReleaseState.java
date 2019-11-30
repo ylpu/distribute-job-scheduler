@@ -2,7 +2,7 @@ package com.ylpu.thales.scheduler.enums;
 
 public enum JobReleaseState {
     
-    OFFLINE(1), ONLINE(0), DELETED(-1);
+    OFFLINE(-1), ONLINE(0);
     
     private int code;
     

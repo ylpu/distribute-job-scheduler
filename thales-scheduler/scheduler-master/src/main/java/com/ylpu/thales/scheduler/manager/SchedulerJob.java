@@ -18,7 +18,14 @@ public class SchedulerJob implements Job{
     
     @Override
     public void execute(JobExecutionContext context) throws JobExecutionException{
-        JobResponse jobResponse = (JobResponse) context.getJobDetail().getJobDataMap().get("data");
+        Integer id = (Integer) context.getJobDetail().getJobDataMap().get("id");
+        JobResponse jobResponse = null;
+		try {
+			jobResponse = JobManager.getJobById(id);
+		} catch (Exception e1) {
+			LOG.error(e1);
+			throw new RuntimeException("can not get job detail for jobid " + id);
+		}
         
         JobInstanceRequest request = new JobInstanceRequest();
         request.setScheduleTime(context.getScheduledFireTime());
