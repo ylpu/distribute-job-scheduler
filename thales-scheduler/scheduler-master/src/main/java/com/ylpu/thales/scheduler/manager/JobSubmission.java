@@ -275,24 +275,6 @@ public class JobSubmission {
     	    }
     }
     
-    public static JobInstanceResponseRpc buildRootJobStatus(int jobId,Date scheduleTime,TaskState state) {
-	    if(state == TaskState.FAIL) {
-	        return JobInstanceResponseRpc.newBuilder()
-	                .setResponseId(jobId + "-root")
-	                .setErrorCode(500)
-	                .setTaskState(state.getCode())
-	                .setErrorMsg("failed to execute job")
-	                .build();
-	    }else {
-	        return JobInstanceResponseRpc.newBuilder()
-	                .setResponseId(jobId + "-root")
-	                .setErrorCode(200)
-	                .setTaskState(state.getCode())
-	                .setErrorMsg("")
-	                .build();
-	    }
-}
-    
     /**
      * 设置任务实例rpc请求
      * @param request
