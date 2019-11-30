@@ -19,6 +19,8 @@ import com.ylpu.thales.scheduler.response.JobTree;
 import com.ylpu.thales.scheduler.response.SchedulerResponse;
 import com.ylpu.thales.scheduler.response.UserResponse;
 import com.ylpu.thales.scheduler.service.JobService;
+import com.ylpu.thales.scheduler.service.UserService;
+import com.ylpu.thales.scheduler.service.exception.ThalesRuntimeException;
 
 @Controller
 @RequestMapping("/api/job")
@@ -34,17 +36,15 @@ public class JobController {
     @RequestMapping(value="/addJob",method=RequestMethod.POST)
     public SchedulerResponse<Void> addJob(@Validated @RequestBody JobRequest job,HttpSession session) {
         UserResponse user = (UserResponse) session.getAttribute("user");
-        if(user != null) {
-            job.setCreatorId(user.getUserName());
-        }
-        jobService.addJob(job);
+        jobService.addJob(job,user);
         return SchedulerResponse.success();
     }
     
     @ResponseBody
     @RequestMapping(value="/updateJob",method=RequestMethod.POST)
-    public SchedulerResponse<Void> updateJob(@Validated @RequestBody JobRequest job) {
-        jobService.updateJob(job);
+    public SchedulerResponse<Void> updateJob(@Validated @RequestBody JobRequest job,HttpSession session) {
+        UserResponse user = (UserResponse) session.getAttribute("user");
+        jobService.updateJob(job,user);
         return SchedulerResponse.success();
     }
     
@@ -85,8 +85,9 @@ public class JobController {
     
     @ResponseBody
     @RequestMapping(value="/downJob",method=RequestMethod.POST)
-    public SchedulerResponse<Void> downJob(@Validated @RequestBody ScheduleRequest request) {
-       jobService.downJob(request);
+    public SchedulerResponse<Void> downJob(@Validated @RequestBody ScheduleRequest request,HttpSession session) {
+    	   UserResponse user = (UserResponse) session.getAttribute("user");
+       jobService.downJob(request,user);
        return SchedulerResponse.success();
     }
 }

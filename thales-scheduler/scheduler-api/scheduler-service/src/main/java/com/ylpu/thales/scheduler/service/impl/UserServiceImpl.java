@@ -31,6 +31,17 @@ public class UserServiceImpl extends BaseServiceImpl<SchedulerUser,Integer> impl
             userMapper.insert(user);
         }
     }
+    
+    @Override
+    public UserResponse findByUserName(String userName) {
+        SchedulerUser user = userMapper.findByUserName(userName);
+        if(user != null) {
+            UserResponse response = new UserResponse();
+            BeanUtils.copyProperties(user, response);
+            return response;
+        }
+        return null;
+    }
 
     @Override
     public UserResponse findByUserName(String userName,String password) {

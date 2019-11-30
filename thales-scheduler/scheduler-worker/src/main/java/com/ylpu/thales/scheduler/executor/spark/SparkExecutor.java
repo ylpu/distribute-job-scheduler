@@ -1,9 +1,7 @@
 package com.ylpu.thales.scheduler.executor.spark;
 
 import java.util.List;
-import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
-
 import com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc;
 import com.ylpu.thales.scheduler.core.utils.FileUtils;
 import com.ylpu.thales.scheduler.core.utils.JsonUtils;
@@ -46,31 +44,29 @@ public class SparkExecutor extends AbstractCommonExecutor{
         StringBuilder commandBuilder = new StringBuilder();
         commandBuilder.append("$SPARK_HOME/bin/" + SPARK_COMMAND);
         
-        Map<String,Object> map = JsonUtils.jsonToMap(configFile);
+        SparkConfig sparkConfig = JsonUtils.jsonToBean(configFile, SparkConfig.class);
         
-        String fileName = String.valueOf(map.get("fileName"));
+        String fileName = String.valueOf(sparkConfig.getFileName());
         if(StringUtils.isBlank(fileName) || !fileName.endsWith(".sql")) {
             throw new RuntimeException("请输入sql");
         }
         
-        String parameters = String.valueOf(map.get("parameters"));
-        if(StringUtils.isBlank(parameters)) {
+        SparkParameters sparkParameters = sparkConfig.getParameters();
+        if(sparkParameters == null) {
             throw new RuntimeException("spark任务参数不能为空");
         }
         
-        commandBuilder.append(fileName + " \\");
-        commandBuilder.append("\n");
+        commandBuilder.append(fileName);
+        commandBuilder.append(" ");
         
-        SparkParameters sparkParameters = JsonUtils.jsonToBean(parameters, SparkParameters.class);
+        commandBuilder.append("--master " + sparkParameters.getMasterUrl());
+        commandBuilder.append(" ");
         
-        commandBuilder.append("--master " + sparkParameters.getMasterUrl() + " \\");
-        commandBuilder.append("\n");
+        commandBuilder.append("--executor-memory " + sparkParameters.getExecutorMemory());
+        commandBuilder.append(" ");
         
-        commandBuilder.append("--executor-memory " + sparkParameters.getExecutorMemory() + " \\");
-        commandBuilder.append("\n");
-        
-        commandBuilder.append("--executor-cores " + sparkParameters.getExecutorCores() + " \\");
-        commandBuilder.append("\n");
+        commandBuilder.append("--executor-cores " + sparkParameters.getExecutorCores());
+        commandBuilder.append(" ");
         
         commandBuilder.append("--total-executor-cores " + sparkParameters.getTotalExecutorCores());
         String[] commands = new String[1];

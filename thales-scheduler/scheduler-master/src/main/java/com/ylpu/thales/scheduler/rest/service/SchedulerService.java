@@ -164,8 +164,13 @@ public class SchedulerService {
     public void rerun(Integer id) throws Exception {
         try {
             JobInstanceResponse jobInstanceResponse = JobManager.getJobInstanceById(id);
+            if(jobInstanceResponse.getJobConf() == null) {
+            	   LOG.warn("实例" + id + "对应的任务已经下线或者不存在");
+            	   return;
+            }
             if(jobInstanceResponse.getTaskState() == TaskState.RUNNING) {
-            	   LOG.warn("job "+ id + " has already running");
+            	   LOG.warn("实例"+ id + "已经在运行");
+            	   return;
             }else {
                 //初始化任务
                 JobInstanceRequest request = new JobInstanceRequest();

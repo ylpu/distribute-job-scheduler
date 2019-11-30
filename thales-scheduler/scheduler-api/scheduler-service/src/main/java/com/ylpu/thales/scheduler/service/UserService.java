@@ -37,4 +37,11 @@ public interface UserService extends BaseService<SchedulerUser,Integer>{
      * @return 用户
      */
     UserResponse findByUserId(Integer userId);
+    
+    /**
+     * 根据用户名获得用户
+     * @param userName
+     * @return
+     */
+    UserResponse findByUserName(String userName);
 }

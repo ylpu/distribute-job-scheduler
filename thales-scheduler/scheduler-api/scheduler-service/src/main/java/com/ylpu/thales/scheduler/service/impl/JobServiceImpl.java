@@ -31,6 +31,7 @@ import com.ylpu.thales.scheduler.request.JobRequest;
 import com.ylpu.thales.scheduler.request.ScheduleRequest;
 import com.ylpu.thales.scheduler.response.JobResponse;
 import com.ylpu.thales.scheduler.response.JobTree;
+import com.ylpu.thales.scheduler.response.UserResponse;
 import com.ylpu.thales.scheduler.service.JobService;
 import com.ylpu.thales.scheduler.service.exception.ThalesRuntimeException;
 
@@ -44,13 +45,14 @@ public class JobServiceImpl extends BaseServiceImpl<SchedulerJob,Integer> implem
     @Autowired
     private SchedulerJobRelationMapper schedulerJobRelationMapper;
 
+    
     @Override
     protected BaseDao<SchedulerJob, Integer> getDao() {
         return schedulerJobMapper;
     }
 
 	@Override
-    public void addJob(JobRequest job) {	
+    public void addJob(JobRequest job,UserResponse user) {	
 		List<String> depencies = new ArrayList<String>();
 		if(schedulerJobMapper.getJobCountByName(job.getJobName()) >=1) {
 			throw new ThalesRuntimeException("任务名称已经存在");
@@ -65,6 +67,9 @@ public class JobServiceImpl extends BaseServiceImpl<SchedulerJob,Integer> implem
 		}
         SchedulerJob schedulerJob = new SchedulerJob();
         if(job != null) {
+            if(user != null) {
+                job.setCreatorId(user.getUserName());
+            }
             BeanUtils.copyProperties(job, schedulerJob);
             setJobRequest(schedulerJob,job);
             insertSelective(schedulerJob);
@@ -90,7 +95,7 @@ public class JobServiceImpl extends BaseServiceImpl<SchedulerJob,Integer> implem
 	}
 	
     @Override
-    public void updateJob(JobRequest job) {  
+    public void updateJob(JobRequest job,UserResponse user) {  
 		List<String> depencies = new ArrayList<String>();
 		if(StringUtils.isBlank(job.getDependIds())){
 			depencies = Arrays.asList("-1");
@@ -102,6 +107,9 @@ public class JobServiceImpl extends BaseServiceImpl<SchedulerJob,Integer> implem
 		}
         if(isCycleReference(job)) {
      	   throw new ThalesRuntimeException("任务 " + job.getId() + " 存在环形依赖");
+        }
+        if(!isJobOwner(job.getOwnerIds(),user)) {
+          	throw new ThalesRuntimeException("非任务owner不能修改任务");
         }
         if(job != null) {
             SchedulerJob schedulerJob = new SchedulerJob();
@@ -120,6 +128,15 @@ public class JobServiceImpl extends BaseServiceImpl<SchedulerJob,Integer> implem
             }
         }
     }	
+    
+    private boolean isJobOwner(String ownerId,UserResponse user) {
+        if(user != null) {
+     	   if(user.getUserName().equalsIgnoreCase(ownerId)) {
+     		   return true;
+     	   }
+        }
+        return false;
+    }
     
     private boolean isCycleReference(JobRequest job) {
     	    JobTree jobTree = queryTreeById(job.getId());
@@ -261,8 +278,11 @@ public class JobServiceImpl extends BaseServiceImpl<SchedulerJob,Integer> implem
     }
     
     @Override
-    public void downJob(ScheduleRequest request) {
-        
+    public void downJob(ScheduleRequest request,UserResponse user) {
+    	    JobResponse jobResponse = getJobAndRelationById(request.getId());
+        if(!isJobOwner(jobResponse.getOwnerIds(),user)) {
+           throw new ThalesRuntimeException("非任务owner不能修改任务");
+        }
         SchedulerJob schedulerJob = new SchedulerJob();
         schedulerJob.setId(request.getId());
         schedulerJob.setJobReleasestate(JobReleaseState.OFFLINE.getCode());
