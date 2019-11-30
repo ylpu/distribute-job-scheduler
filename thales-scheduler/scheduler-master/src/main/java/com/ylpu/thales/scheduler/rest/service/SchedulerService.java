@@ -204,7 +204,7 @@ public class SchedulerService {
             JobInstanceResponse jobInstanceResponse = JobManager.getJobInstanceById(id);
             if(jobInstanceResponse != null) {
                 JobTree jobTree = JobManager.queryTreeById(jobInstanceResponse.getJobConf().getId());
-                if(jobTree != null && jobTree.getChildren() != null) {
+                if(jobTree != null && jobTree.getChildren() != null && jobTree.getChildren().size() > 0) {
                     for(JobTree child : jobTree.getChildren()) {
                         rerunChild(DateUtils.getDateFromString(jobInstanceResponse.getScheduleTime(),DateUtils.DATE_TIME_FORMAT),child);
                     }

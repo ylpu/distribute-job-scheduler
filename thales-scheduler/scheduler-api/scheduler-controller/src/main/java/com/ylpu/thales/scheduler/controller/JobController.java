@@ -55,8 +55,8 @@ public class JobController {
     }
     
     @ResponseBody
-    @RequestMapping(value="/queryTreeById/{id}",method=RequestMethod.GET)
-    public SchedulerResponse<JobTree> queryTreeById(@PathVariable("id") Integer id) {
+    @RequestMapping(value="/queryTreeById",method=RequestMethod.GET)
+    public SchedulerResponse<JobTree> queryTreeById(@RequestParam("id") Integer id) {
        return new SchedulerResponse<JobTree>(jobService.queryTreeById(id));
     }
     
