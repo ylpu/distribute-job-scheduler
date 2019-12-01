@@ -60,6 +60,7 @@ api作为接口层，主要有如下功能：
 # 系统运行
 * 本地安装mysql,zookeeper,如非本地安装，需要修改controller,master,worker里config.properties,application.yml中的zookeeper和mysql地址和端口
 * 在mysql数据库中执行distribute-job-scheduler/thales-scheduler/sql/thales-scheduler.sql
+* git clone https://github.com/ylpu/distribute-job-scheduler.git ,将项目导入到intellij或eclipse中并安装lombok.
 * 在distribute-job-scheduler中执行mvn clean install -Dmaven.test.skip=true
 * 依次执行如下脚本
   * scheduler-controller/src/script/start-api.sh start ,启动成功后可以通过http://localhost:8085/swagger-ui.html 查看接口文档
