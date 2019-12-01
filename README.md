@@ -84,11 +84,10 @@ api作为接口层，主要有如下功能：
   * 重试次数：任务失败时最多重试的次数
   * 超时时间：超过多少分钟任务将会被杀死。
   * 任务描述：任务的详细信息
-  * 任务配置：根据类型不同有不同的配置：
+  * 任务配置：根据类型不同有不同的配置（以下为简单例子）：
     * command: {"commandLine" :"cat /tmp/log/scheduler-worker/info.log"}
     * shell: {"fileName" : "/tmp/shell/test.sh","parameters" : ""}
     * hive: {"fileName" : "/tmp/shell/test.sh","parameters" : ""}
     * spark: {"fileName":"/tmp/shell/test.sql","parameters":{"masterUrl":"local[0]","executorMemory":"2g","executorCores":2,"totalExecutorCores":20}}
- * 修改任务（修改后点击重新调度）
-    
-    
+ * 修改任务
+   * 参数有创建任务相同（修改后需要点击重新调度）
