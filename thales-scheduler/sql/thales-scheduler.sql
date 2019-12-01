@@ -1,7 +1,8 @@
 DROP TABLE IF EXISTS t_thales_scheduler_job;  
 DROP TABLE IF EXISTS t_thales_scheduler_job_instance;
 DROP TABLE IF EXISTS t_thales_scheduler_job_relation;
-DROP TABLE IF EXISTS t_thales_scheduler_node;
+DROP TABLE IF EXISTS t_thales_scheduler_worker;
+DROP TABLE IF EXISTS t_thales_scheduler_user;
 
 CREATE TABLE `t_thales_scheduler_job` (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键',
@@ -85,7 +86,8 @@ CREATE TABLE `t_thales_scheduler_worker` (
 CREATE INDEX idx_schedule ON t_thales_scheduler_job_instance (job_id,schedule_time);
 CREATE INDEX idx_job_name ON t_thales_scheduler_job (job_name);
 CREATE INDEX idx_job_type ON t_thales_scheduler_job (job_type);
- 
+CREATE INDEX idx_user_name ON t_thales_scheduler_user (user_name);
+
 DROP TABLE IF EXISTS QRTZ_FIRED_TRIGGERS;  
 DROP TABLE IF EXISTS QRTZ_PAUSED_TRIGGER_GRPS;  
 DROP TABLE IF EXISTS QRTZ_SCHEDULER_STATE;  
