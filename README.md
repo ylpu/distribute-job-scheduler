@@ -65,5 +65,6 @@ api作为接口层，主要有如下功能：
   * scheduler-master/src/script/start-master.sh start
   * scheduler-worker/src/script/start-worker.sh start
 * 在mysql数据库中执行语句
-  * insert into t_thales_scheduler_user(user_name,password,create_time,update_time) values ('test1','test1',CURRENT_TIMESTAMP,CURRENT_TIMESTAMP);
+  * insert into t_thales_scheduler_user(user_name,password,create_time,update_time) values ('test','test',CURRENT_TIMESTAMP,CURRENT_TIMESTAMP);
   
+* 运行distribute-job-scheduler-frontend项目并以如上用户名，密码登陆
