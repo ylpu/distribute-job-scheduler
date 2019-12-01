@@ -69,3 +69,26 @@ api作为接口层，主要有如下功能：
   * insert into t_thales_scheduler_user(user_name,password,create_time,update_time) values ('test','test',CURRENT_TIMESTAMP,CURRENT_TIMESTAMP);
   
 * 运行distribute-job-scheduler-frontend项目并以如上用户名，密码登陆
+# 系统使用
+* 创建任务（创建任务后点击调度）
+  * 任务名称 ： 任务名称，必须唯一
+  * 任务工作组： 任务会被提交到相应的组里
+  * 任务依赖： 需要依赖的任务，任务id以逗号隔开
+  * 任务优先级： 任务的优先度，有低，中，高三种
+  * 任务责任人：任务的所属人
+  * 任务类型：目前command,shell,hive,spark四种
+  * 任务告警人： 任务失败，超时的时候需要通知的人（邮箱格式）
+  * 告警类型：有sms,webchat,email三种，目前只支持emai
+  * 调度时间：cron表达式
+  * 任务周期：分钟，小时，天，周，月，年等
+  * 重试次数：任务失败时最多重试的次数
+  * 超时时间：超过多少分钟任务将会被杀死。
+  * 任务描述：任务的详细信息
+  * 任务配置：根据类型不同有不同的配置：
+    * command: {"commandLine" :"cat /tmp/log/scheduler-worker/info.log"}
+    * shell: {"fileName" : "/tmp/shell/test.sh","parameters" : ""}
+    * hive: {"fileName" : "/tmp/shell/test.sh","parameters" : ""}
+    * spark: {"fileName":"/tmp/shell/test.sql","parameters":{"masterUrl":"local[0]","executorMemory":"2g","executorCores":2,"totalExecutorCores":20}}
+ * 修改任务（修改后点击重新调度）
+    
+    
