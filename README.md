@@ -88,6 +88,6 @@ api作为接口层，主要有如下功能：
     * command: {"commandLine" :"cat /tmp/log/scheduler-worker/info.log"}
     * shell: {"fileName" : "/tmp/shell/test.sh","parameters" : ""}
     * hive: {"fileName" : "/tmp/shell/test.sh","parameters" : ""}
-    * spark: {"fileName":"/tmp/shell/test.sql","parameters":{"masterUrl":"local[0]","executorMemory":"2g","executorCores":2,"totalExecutorCores":20}}
+    * spark: {"fileName":"/tmp/shell/test.sql","parameters":{"masterUrl":"spark://localhost:7077","executorMemory":"2g","executorCores":2,"totalExecutorCores":20}}
  * 修改任务
    * 参数有创建任务相同（修改后需要点击重新调度）
