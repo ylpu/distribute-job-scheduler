@@ -45,7 +45,7 @@ public class JobResponse implements Serializable {
     
     private List<JobResponse> dependencies;
     
-    private String dependIds;
+    private List<Integer> dependIds;
 
     private static final long serialVersionUID = 1L;
 

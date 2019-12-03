@@ -24,13 +24,17 @@ public abstract class AbstractCommonExecutor{
 	
 	private static Log LOG = LogFactory.getLog(AbstractCommonExecutor.class);
     
-    private static final int LOG_SERVER_PORT = 9099;
+    public static final int LOG_SERVER_PORT = 9099;
     
-    private static final String DEFAULT_LOG_DIR = "/tmp/log/worker";
+    public static final String DEFAULT_LOG_DIR = "/tmp/log/worker";
         
     private JobInstanceRequest request;
     
     private JobInstanceRequestRpc requestRpc;
+    
+    public AbstractCommonExecutor() {
+    	
+    }
     
     public AbstractCommonExecutor (JobInstanceRequestRpc requestRpc,JobInstanceRequest request){
         this.requestRpc = requestRpc;
@@ -46,12 +50,11 @@ public abstract class AbstractCommonExecutor{
         String logPath = logDir + File.separator + requestRpc.getJob().getId() + "-" + request.getId() + "-" + 
                 DateUtils.getDateAsString(request.getStartTime(),DateUtils.TIME_FORMAT);
         String logOutPath = logPath + ".out";
-        String logErrorPath = logPath + ".error";
 
         String[] command = buildCommand(requestRpc.getJob().getJobConfiguration());
         Process process = Runtime.getRuntime().exec(command);
         FileUtils.writeOuput(process.getInputStream(),logOutPath);
-        FileUtils.writeOuput(process.getErrorStream(),logErrorPath);
+        FileUtils.writeOuput(process.getErrorStream(),logOutPath);
         Long pid = TaskProcessUtils.getLinuxPid(process);
         
         request.setLogPath(logOutPath);
@@ -75,7 +78,7 @@ public abstract class AbstractCommonExecutor{
         }
     }
     
-    private JobStatusRequestRpc buildJobStatus(String requestId,TaskState taskState,JobInstanceRequest request) {
+    public JobStatusRequestRpc buildJobStatus(String requestId,TaskState taskState,JobInstanceRequest request) {
         JobStatusRequestRpc.Builder builder = JobStatusRequestRpc.newBuilder();
         builder.setRequestId(requestId);
         builder.setTaskState(taskState.getCode());
@@ -83,7 +86,7 @@ public abstract class AbstractCommonExecutor{
         return builder.build();
     }
     
-    private int updateJobStatus(JobStatusRequestRpc request) {
+    public int updateJobStatus(JobStatusRequestRpc request) {
         WorkerGrpcClient client = null;
         int returnCode = 200;
         try {

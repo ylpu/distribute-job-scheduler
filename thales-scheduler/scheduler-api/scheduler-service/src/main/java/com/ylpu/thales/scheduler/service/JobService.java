@@ -1,5 +1,7 @@
 package com.ylpu.thales.scheduler.service;
 
+import java.util.List;
+
 import com.github.pagehelper.PageInfo;
 import com.ylpu.thales.scheduler.common.service.BaseService;
 import com.ylpu.thales.scheduler.entity.SchedulerJob;
@@ -26,5 +28,7 @@ public interface JobService extends BaseService<SchedulerJob,Integer>{
     public void downJob(ScheduleRequest request,UserResponse user);
     
     public PageInfo<JobResponse> findAll(Integer jobType, String jobName, int pageSize, int pageNo);
+    
+    public List<Integer> getAllJobIds();
     
 }

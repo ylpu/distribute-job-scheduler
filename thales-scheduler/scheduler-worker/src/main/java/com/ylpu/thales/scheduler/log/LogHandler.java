@@ -16,7 +16,7 @@ public class LogHandler {
     @GET
     @Path("viewLog/{taskId}")
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces("application/json;charset=gbk")
     public String viewLog(@PathParam("taskId") int taskId) throws Exception {
         JobInstanceResponse jobInstanceResponse = JobManager.getJobInstanceById(taskId);
         String logPath = jobInstanceResponse.getLogPath();

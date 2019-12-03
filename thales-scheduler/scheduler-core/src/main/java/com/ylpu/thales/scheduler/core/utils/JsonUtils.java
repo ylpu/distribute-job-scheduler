@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.serializer.SerializerFeature;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
@@ -18,7 +20,9 @@ public class JsonUtils {
      */
     public static String objToJson(Object obj) {
         JSONObject jSONObject = JSONObject.fromObject(obj);
-        return jSONObject.toString();
+        String jsonString = JSON.toJSONString(jSONObject, SerializerFeature.PrettyFormat, 
+        		SerializerFeature.WriteMapNullValue, SerializerFeature.WriteDateUseDateFormat);
+        return jsonString;
     }
 
     /**

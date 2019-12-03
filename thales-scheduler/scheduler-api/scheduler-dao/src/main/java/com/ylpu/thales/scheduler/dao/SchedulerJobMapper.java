@@ -9,12 +9,14 @@ import com.ylpu.thales.scheduler.entity.SchedulerJob;
 
 public interface SchedulerJobMapper extends BaseDao<SchedulerJob, Integer>{
     public List<SchedulerJob> getJobParentsByIds(List<Integer> ids);
-    public JobTree queryTreeById(Integer jobId);
+    public List<JobTree> queryTreeById(Integer jobId);
     List<SchedulerJob> findAll(@Param("jobType") Integer jobType,
             @Param("jobName") String jobName);
     
-    public Integer getJobCountByIds(@Param("ids")List<String> ids);
+    public Integer getJobCountByIds(@Param("ids")List<Integer> ids);
     
     public Integer getJobCountByName(@Param("jobName")String jobName);
+    
+    public List<Integer> getAllJobIds();
    
 }

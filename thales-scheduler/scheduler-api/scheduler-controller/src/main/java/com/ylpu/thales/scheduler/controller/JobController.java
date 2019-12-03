@@ -1,11 +1,12 @@
 package com.ylpu.thales.scheduler.controller;
 
+import java.util.List;
+
 import javax.servlet.http.HttpSession;
 import javax.ws.rs.core.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -19,8 +20,6 @@ import com.ylpu.thales.scheduler.response.JobTree;
 import com.ylpu.thales.scheduler.response.SchedulerResponse;
 import com.ylpu.thales.scheduler.response.UserResponse;
 import com.ylpu.thales.scheduler.service.JobService;
-import com.ylpu.thales.scheduler.service.UserService;
-import com.ylpu.thales.scheduler.service.exception.ThalesRuntimeException;
 
 @Controller
 @RequestMapping("/api/job")
@@ -89,5 +88,11 @@ public class JobController {
     	   UserResponse user = (UserResponse) session.getAttribute("user");
        jobService.downJob(request,user);
        return SchedulerResponse.success();
+    }
+    
+    @ResponseBody
+    @RequestMapping(value="/getAllJobIds",method=RequestMethod.GET)
+    public SchedulerResponse<List<Integer>> getAllJobIds(){
+       return new SchedulerResponse<List<Integer>>(jobService.getAllJobIds());
     }
 }

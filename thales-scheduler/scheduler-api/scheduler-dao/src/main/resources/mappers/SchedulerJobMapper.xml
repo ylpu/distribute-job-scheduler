@@ -94,6 +94,10 @@
     where job.job_ReleaseState != -1 and job_name = #{jobName}
   </select>
   
+  <select id = "getAllJobIds" resultType="java.lang.Integer">
+     select id from t_thales_scheduler_job where job_ReleaseState != -1
+  </select>
+  
   <resultMap id="baseResult" type="com.ylpu.thales.scheduler.entity.JobTree">
      <result column="job_id" jdbcType="INTEGER" property="jobId" />
      <result column="job_cycle" jdbcType="INTEGER" property="jobCycle" />

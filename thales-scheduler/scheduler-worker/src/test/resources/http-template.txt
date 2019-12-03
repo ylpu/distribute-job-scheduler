@@ -1,0 +1,33 @@
+{"url":"http://localhost:8085/api/job/addJob",
+"method": "post",
+"headers":{"Accept": "text/plain","Content-Type":"application/x-www-form-urlencoded"},
+"parameters":{
+  "alertTypes": "email",
+  "alertUsers": "string",
+  "creatorId": "string",
+  "dependIds": "",
+  "description": "string",
+  "executionTimeout": 0,
+  "isSelfdependent": true,
+  "jobConfiguration": "string",
+  "jobCycle": "DAY",
+  "jobName": "rest-test",
+  "jobPriority": "HIGH",
+  "jobReleasestate": 0,
+  "jobType": "shell",
+  "maxRetrytimes": 0,
+  "ownerIds": "test",
+  "retryInterval": 0,
+  "scheduleCron": "0 3 15 * * ?",
+  "workerGroupname": "hive"
+}
+}
+
+
+{"url":"http://localhost:8085/api/job/getJobById",
+"method": "get",
+"headers":{"Accept": "text/plain","Content-Type":"application/x-www-form-urlencoded"},
+"parameters":{
+  "id":45
+}
+}

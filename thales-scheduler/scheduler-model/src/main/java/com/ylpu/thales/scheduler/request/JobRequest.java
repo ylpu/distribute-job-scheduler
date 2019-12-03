@@ -1,6 +1,8 @@
 package com.ylpu.thales.scheduler.request;
 
 import java.io.Serializable;
+import java.util.List;
+
 import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.NotEmpty;
 import lombok.Data;
@@ -48,7 +50,7 @@ public class JobRequest implements Serializable {
 
     private String jobConfiguration;
     
-    private String dependIds;
+    private List<Integer> dependIds;
 
     private static final long serialVersionUID = 1L;
 
