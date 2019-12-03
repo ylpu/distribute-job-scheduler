@@ -90,5 +90,13 @@ api作为接口层，主要有如下功能：
     * shell: {"fileName" : "/tmp/shell/test.sh","parameters" : ""}
     * hive: {"fileName" : "/tmp/shell/test.sh","parameters" : ""}
     * spark: {"fileName":"/tmp/shell/test.sql","parameters":{"masterUrl":"spark://localhost:7077","executorMemory":"2g","executorCores":2,"totalExecutorCores":20}}
+    * http:
+      * get:{"url":"http://localhost:8085/api/job/getJobById",
+"method": "get",
+"headers":{"Accept": "text/plain","Content-Type":"application/x-www-form-urlencoded"},
+"parameters":{
+  "id":45
+}
+}
  * 修改任务
    * 参数与创建任务相同（修改后需要点击重新调度）
