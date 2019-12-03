@@ -166,11 +166,11 @@ public class SchedulerService {
             JobInstanceResponse jobInstanceResponse = JobManager.getJobInstanceById(id);
             if(jobInstanceResponse.getJobConf() == null) {
             	   LOG.warn("实例" + id + "对应的任务已经下线或者不存在");
-            	   return;
             }
-            if(jobInstanceResponse.getTaskState() == TaskState.RUNNING) {
-            	   LOG.warn("实例"+ id + "已经在运行");
-            	   return;
+            String requestId = JobSubmission.getReqResId(jobInstanceResponse.getJobConf(), 
+            		DateUtils.getDateFromString(jobInstanceResponse.getScheduleTime(),DateUtils.DATE_TIME_FORMAT));
+            if(JobStatusCheck.getJobInstanceRequest(requestId) != null) {
+            	   LOG.warn("已经有一个实例准备运行或者在运行中"+ id);
             }else {
                 //初始化任务
                 JobInstanceRequest request = new JobInstanceRequest();

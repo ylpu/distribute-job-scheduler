@@ -13,6 +13,8 @@ public class JobInstanceResponse implements Serializable {
     
     private String jobName;
     
+    private String jobType;
+    
     private Integer jobId;
 
     private TaskState taskState;

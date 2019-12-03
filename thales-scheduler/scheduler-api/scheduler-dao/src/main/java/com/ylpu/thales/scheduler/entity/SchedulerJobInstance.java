@@ -13,6 +13,8 @@ public class SchedulerJobInstance extends BaseEntity implements Serializable {
     
     private String jobName;
     
+    private Integer jobType;
+    
     private Integer taskState;
 
     private String logUrl;

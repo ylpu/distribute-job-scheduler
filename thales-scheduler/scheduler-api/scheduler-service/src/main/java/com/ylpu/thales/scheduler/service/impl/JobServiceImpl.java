@@ -261,7 +261,7 @@ public class JobServiceImpl extends BaseServiceImpl<SchedulerJob,Integer> implem
                 throw new ThalesRuntimeException("failed to schedule job " + request.getId());
             }
         }else {
-            throw new RuntimeException("can not find master url for job " + request.getId());
+            throw new ThalesRuntimeException("调度服务不可用");
         }
 
     }
@@ -275,7 +275,7 @@ public class JobServiceImpl extends BaseServiceImpl<SchedulerJob,Integer> implem
                 throw new ThalesRuntimeException("failed to reschedule job " + request.getId());
             }
         }else {
-            throw new RuntimeException("can not find master url for job " + request.getId());
+            throw new ThalesRuntimeException("调度服务不可用");
         }
     }
     
@@ -297,7 +297,7 @@ public class JobServiceImpl extends BaseServiceImpl<SchedulerJob,Integer> implem
                 throw new ThalesRuntimeException("failed to down job " + request.getId());
             }
         }else {
-           throw new RuntimeException("can not find master url for job " + request.getId());
+        	    throw new ThalesRuntimeException("调度服务不可用");
         }
 
     }

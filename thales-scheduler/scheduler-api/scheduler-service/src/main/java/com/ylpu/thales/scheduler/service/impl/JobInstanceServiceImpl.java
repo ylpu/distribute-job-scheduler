@@ -23,6 +23,7 @@ import com.ylpu.thales.scheduler.entity.JobInstanceState;
 import com.ylpu.thales.scheduler.entity.SchedulerJobInstance;
 import com.ylpu.thales.scheduler.entity.TaskElapseChart;
 import com.ylpu.thales.scheduler.entity.TaskSummary;
+import com.ylpu.thales.scheduler.enums.JobType;
 import com.ylpu.thales.scheduler.enums.TaskState;
 import com.ylpu.thales.scheduler.request.JobInstanceRequest;
 import com.ylpu.thales.scheduler.request.ScheduleRequest;
@@ -138,7 +139,7 @@ public class JobInstanceServiceImpl extends BaseServiceImpl<SchedulerJobInstance
                 throw new ThalesRuntimeException("failed to kill job " + request.getId());
             }
         }else {
-            throw new RuntimeException("can not find master for job " + request.getId());
+            throw new ThalesRuntimeException("调度服务不可用");
         }
     }
     
@@ -152,7 +153,7 @@ public class JobInstanceServiceImpl extends BaseServiceImpl<SchedulerJobInstance
                 throw new ThalesRuntimeException("failed to rerun job " + request.getId());
             }
         }else {
-            throw new RuntimeException("can not find master for job " + request.getId());
+            throw new ThalesRuntimeException("调度服务不可用");
         }
     }
     
@@ -166,7 +167,7 @@ public class JobInstanceServiceImpl extends BaseServiceImpl<SchedulerJobInstance
                 throw new ThalesRuntimeException("failed to rerun all job " + request.getId());
             }
         }else {
-            throw new RuntimeException("can not find master for job " + request.getId());
+            throw new ThalesRuntimeException("调度服务不可用");
         }
     }
     
@@ -191,6 +192,7 @@ public class JobInstanceServiceImpl extends BaseServiceImpl<SchedulerJobInstance
 				BeanUtils.copyProperties(jobInstance, jobInstanceResponse);
 				jobInstanceResponse.setTaskState(TaskState.getTaskStateById(jobInstance.getTaskState()));
 				jobInstanceResponse.setJobId(jobInstance.getJobId());
+				jobInstanceResponse.setJobType(JobType.getJobType(jobInstance.getJobType()).name());
 				if(jobInstance.getScheduleTime() != null) {
 					jobInstanceResponse.setScheduleTime(DateUtils.getDateAsString(jobInstance.getScheduleTime(),DateUtils.DATE_TIME_FORMAT));
 				}
@@ -249,7 +251,7 @@ public class JobInstanceServiceImpl extends BaseServiceImpl<SchedulerJobInstance
                 throw new ThalesRuntimeException("failed to mark job " + request.getId() + " as success");
             }
         }else {
-            throw new RuntimeException("can not find master for job " + request.getId());
+        	    throw new ThalesRuntimeException("调度服务不可用");
         }
 		
 	}
@@ -264,8 +266,7 @@ public class JobInstanceServiceImpl extends BaseServiceImpl<SchedulerJobInstance
                 throw new ThalesRuntimeException("failed to mark job " + request.getId() + " as fail");
             }
         }else {
-            throw new RuntimeException("can not find master for job " + request.getId());
+        	   throw new ThalesRuntimeException("调度服务不可用");
         }
-		
 	}
 }
