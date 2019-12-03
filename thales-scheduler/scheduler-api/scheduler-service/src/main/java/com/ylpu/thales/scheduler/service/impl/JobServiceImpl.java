@@ -19,6 +19,7 @@ import com.ylpu.thales.scheduler.common.rest.ScheduleManager;
 import com.ylpu.thales.scheduler.common.service.impl.BaseServiceImpl;
 import com.ylpu.thales.scheduler.dao.SchedulerJobMapper;
 import com.ylpu.thales.scheduler.dao.SchedulerJobRelationMapper;
+import com.ylpu.thales.scheduler.entity.JobDependency;
 import com.ylpu.thales.scheduler.entity.SchedulerJob;
 import com.ylpu.thales.scheduler.entity.SchedulerJobRelation;
 import com.ylpu.thales.scheduler.enums.AlertType;
@@ -28,6 +29,7 @@ import com.ylpu.thales.scheduler.enums.JobReleaseState;
 import com.ylpu.thales.scheduler.enums.JobType;
 import com.ylpu.thales.scheduler.request.JobRequest;
 import com.ylpu.thales.scheduler.request.ScheduleRequest;
+import com.ylpu.thales.scheduler.response.JobDependencyResponse;
 import com.ylpu.thales.scheduler.response.JobResponse;
 import com.ylpu.thales.scheduler.response.JobTree;
 import com.ylpu.thales.scheduler.response.UserResponse;
@@ -59,9 +61,6 @@ public class JobServiceImpl extends BaseServiceImpl<SchedulerJob,Integer> implem
 		if(job.getDependIds() == null || job.getDependIds().size() == 0){
 			depencies = Arrays.asList(-1);
 		}else {
-			if(!isValidJobDependIds(job.getDependIds())) {
-				throw new ThalesRuntimeException("任务依赖不存在");
-			}
 	        depencies = job.getDependIds();
 		}
         SchedulerJob schedulerJob = new SchedulerJob();
@@ -84,23 +83,12 @@ public class JobServiceImpl extends BaseServiceImpl<SchedulerJob,Integer> implem
        }
     }
 	
-	private boolean isValidJobDependIds(List<Integer> ids) {
-		Integer count = schedulerJobMapper.getJobCountByIds(ids);
-		if(count != ids.size()) {
-			return false;
-		}
-		return true;
-	}
-	
     @Override
     public void updateJob(JobRequest job,UserResponse user) {  
 		List<Integer> depencies = new ArrayList<Integer>();
 		if(job.getDependIds() == null || job.getDependIds().size() == 0){
 			depencies = Arrays.asList(-1);
 		}else {
-			if(!isValidJobDependIds(job.getDependIds())) {
-				throw new ThalesRuntimeException("任务依赖不存在");
-			}
 	        depencies = job.getDependIds();
 		}
         if(isCycleReference(job)) {
@@ -127,8 +115,18 @@ public class JobServiceImpl extends BaseServiceImpl<SchedulerJob,Integer> implem
         }
     }	
     
-    public List<Integer> getAllJobIds(){
-    	   return schedulerJobMapper.getAllJobIds();
+    public List<JobDependencyResponse> getAllJobs(){
+    	   List<JobDependencyResponse> responses = new ArrayList<JobDependencyResponse>();
+    	   JobDependencyResponse response = null;
+    	   List<JobDependency> list = schedulerJobMapper.getAllJobs();
+    	   if(list != null && list.size() > 0 ) {
+    		   for(JobDependency job : list) {
+    			   response = new JobDependencyResponse();
+    			   BeanUtils.copyProperties(job, response);
+    			   responses.add(response);
+    		   }
+    	   }
+    	   return responses;
     }
     
     private boolean isJobOwner(String ownerId,UserResponse user) {

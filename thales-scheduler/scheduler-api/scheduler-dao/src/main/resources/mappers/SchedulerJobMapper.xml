@@ -22,6 +22,11 @@
     <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
     <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
   </resultMap>
+  
+  <resultMap id="jobMap" type="com.ylpu.thales.scheduler.entity.JobDependency" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="job_name" property="jobName" jdbcType="VARCHAR" />
+  </resultMap>
   <resultMap id="ResultMapWithBLOBs" type="com.ylpu.thales.scheduler.entity.SchedulerJob" extends="BaseResultMap" >
     <result column="job_configuration" property="jobConfiguration" jdbcType="LONGVARCHAR" />
   </resultMap>
@@ -94,8 +99,8 @@
     where job.job_ReleaseState != -1 and job_name = #{jobName}
   </select>
   
-  <select id = "getAllJobIds" resultType="java.lang.Integer">
-     select id from t_thales_scheduler_job where job_ReleaseState != -1
+  <select id = "getAllJobs" resultMap="jobMap">
+     select id,job_name from t_thales_scheduler_job where job_ReleaseState != -1
   </select>
   
   <resultMap id="baseResult" type="com.ylpu.thales.scheduler.entity.JobTree">

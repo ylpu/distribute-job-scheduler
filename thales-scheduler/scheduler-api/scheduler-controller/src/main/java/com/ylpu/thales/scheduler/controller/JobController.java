@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.github.pagehelper.PageInfo;
 import com.ylpu.thales.scheduler.request.JobRequest;
 import com.ylpu.thales.scheduler.request.ScheduleRequest;
+import com.ylpu.thales.scheduler.response.JobDependencyResponse;
 import com.ylpu.thales.scheduler.response.JobResponse;
 import com.ylpu.thales.scheduler.response.JobTree;
 import com.ylpu.thales.scheduler.response.SchedulerResponse;
@@ -91,8 +92,8 @@ public class JobController {
     }
     
     @ResponseBody
-    @RequestMapping(value="/getAllJobIds",method=RequestMethod.GET)
-    public SchedulerResponse<List<Integer>> getAllJobIds(){
-       return new SchedulerResponse<List<Integer>>(jobService.getAllJobIds());
+    @RequestMapping(value="/getAllJobs",method=RequestMethod.GET)
+    public SchedulerResponse<List<JobDependencyResponse>> getAllJobIds(){
+       return new SchedulerResponse<List<JobDependencyResponse>>(jobService.getAllJobs());
     }
 }
