@@ -98,5 +98,29 @@ api作为接口层，主要有如下功能：
   "id":45
 }
 }
+      * post:{"url":"http://localhost:8085/api/job/addJob",
+"method": "post",
+"headers":{"Accept": "text/plain","Content-Type":"application/x-www-form-urlencoded"},
+"parameters":{
+  "alertTypes": "email",
+  "alertUsers": "string",
+  "creatorId": "string",
+  "dependIds": "",
+  "description": "string",
+  "executionTimeout": 0,
+  "isSelfdependent": true,
+  "jobConfiguration": "string",
+  "jobCycle": "DAY",
+  "jobName": "rest-test",
+  "jobPriority": "HIGH",
+  "jobReleasestate": 0,
+  "jobType": "shell",
+  "maxRetrytimes": 0,
+  "ownerIds": "test",
+  "retryInterval": 0,
+  "scheduleCron": "0 3 15 * * ?",
+  "workerGroupname": "hive"
+}
+}
  * 修改任务
    * 参数与创建任务相同（修改后需要点击重新调度）
