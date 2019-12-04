@@ -140,4 +140,26 @@ public class JobStatusCheck {
           }
        } 		   
     }
+    
+    public static void main(String[] args) {
+    	   JobInstanceResponseRpc  rpc = JobInstanceResponseRpc.newBuilder()
+                .setResponseId("77-20191204102000")
+                .setErrorCode(500)
+                .setTaskState(5)
+                .setErrorMsg("error")
+                .build();
+    	
+    	    JobStatusCheck.addResponse(rpc);
+    	    
+     	JobInstanceResponseRpc  rpc1 = JobInstanceResponseRpc.newBuilder()
+                   .setResponseId("77-20191204102000")
+                   .setErrorCode(200)
+                   .setTaskState(6)
+                   .setErrorMsg("")
+                   .build();
+       	
+       	JobStatusCheck.addResponse(rpc1);
+       	    
+        System.out.println(JobStatusCheck.getResponse("77-20191204102000").getTaskState());
+    }
 }

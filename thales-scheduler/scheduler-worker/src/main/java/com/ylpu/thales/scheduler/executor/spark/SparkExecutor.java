@@ -1,7 +1,7 @@
 package com.ylpu.thales.scheduler.executor.spark;
 
+import java.io.File;
 import java.util.List;
-import org.apache.commons.lang3.StringUtils;
 import com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc;
 import com.ylpu.thales.scheduler.core.utils.FileUtils;
 import com.ylpu.thales.scheduler.core.utils.JsonUtils;
@@ -47,8 +47,8 @@ public class SparkExecutor extends AbstractCommonExecutor{
         SparkConfig sparkConfig = JsonUtils.jsonToBean(configFile, SparkConfig.class);
         
         String fileName = String.valueOf(sparkConfig.getFileName());
-        if(StringUtils.isBlank(fileName) || !fileName.endsWith(".sql")) {
-            throw new RuntimeException("请输入sql");
+        if(!FileUtils.exist(new File(fileName)) || !fileName.endsWith(".sql")) {
+           throw new RuntimeException("file does not exist or not end with sql" + fileName);
         }
         
         SparkParameters sparkParameters = sparkConfig.getParameters();

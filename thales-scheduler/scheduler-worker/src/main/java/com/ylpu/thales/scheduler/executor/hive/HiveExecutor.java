@@ -48,7 +48,7 @@ public class HiveExecutor extends AbstractCommonExecutor{
         Map<String,Object> map = JsonUtils.jsonToMap(configFile);
         String fileName = String.valueOf(map.get("fileName"));
         if(!FileUtils.exist(new File(fileName))) {
-        	    throw new RuntimeException("file does not exist");
+        	   throw new RuntimeException("file does not exist or not end with sql " + fileName);
         }
         sb.append("$HIVE_HOME/bin/" + HIVE_COMMAND);
         sb.append(" -f " + fileName);

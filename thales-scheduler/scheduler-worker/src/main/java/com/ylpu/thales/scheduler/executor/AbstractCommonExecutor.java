@@ -2,6 +2,7 @@ package com.ylpu.thales.scheduler.executor;
 
 import com.google.protobuf.ByteString;
 import com.ylpu.thales.scheduler.core.config.Configuration;
+import com.ylpu.thales.scheduler.core.rest.JobManager;
 import com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc;
 import com.ylpu.thales.scheduler.core.rpc.entity.JobStatusRequestRpc;
 import com.ylpu.thales.scheduler.core.utils.ByteUtils;
@@ -50,31 +51,40 @@ public abstract class AbstractCommonExecutor{
         String logPath = logDir + File.separator + requestRpc.getJob().getId() + "-" + request.getId() + "-" + 
                 DateUtils.getDateAsString(request.getStartTime(),DateUtils.TIME_FORMAT);
         String logOutPath = logPath + ".out";
-
-        String[] command = buildCommand(requestRpc.getJob().getJobConfiguration());
-        Process process = Runtime.getRuntime().exec(command);
-        FileUtils.writeOuput(process.getInputStream(),logOutPath);
-        FileUtils.writeOuput(process.getErrorStream(),logOutPath);
-        Long pid = TaskProcessUtils.getLinuxPid(process);
-        
-        request.setLogPath(logOutPath);
-        request.setLogUrl("http://" + MetricsUtils.getHostIpAddress() + ":" + logServerPort
-                + "/api/log/viewLog/" + requestRpc.getId());
-        request.setPid(pid.intValue());
-        request.setTaskState(TaskState.RUNNING.getCode());
-        
-        //修改任务状态
-        JobStatusRequestRpc jobStatusRequestRpc = buildJobStatus(requestRpc.getRequestId(),
-        		TaskState.RUNNING,request);
-        int returnCode = updateJobStatus(jobStatusRequestRpc);
-        
-        if(returnCode != 200) {
-            process.destroy();
-            throw new RuntimeException("failed to update task for " + requestRpc.getId());
-        }        
-        int c = process.waitFor();
-        if(c != 0){
-            throw new RuntimeException("failed to execute task " + requestRpc.getId());
+        try {
+            String[] command = buildCommand(requestRpc.getJob().getJobConfiguration());
+            Process process = Runtime.getRuntime().exec(command);
+            FileUtils.writeOuput(process.getInputStream(),logOutPath);
+            FileUtils.writeOuput(process.getErrorStream(),logOutPath);
+            Long pid = TaskProcessUtils.getLinuxPid(process);
+            
+            request.setLogPath(logOutPath);
+            request.setLogUrl("http://" + MetricsUtils.getHostIpAddress() + ":" + logServerPort
+                    + "/api/log/viewLog/" + requestRpc.getId());
+            request.setPid(pid.intValue());
+            request.setTaskState(TaskState.RUNNING.getCode());
+            
+            //修改任务状态
+            JobStatusRequestRpc jobStatusRequestRpc = buildJobStatus(requestRpc.getRequestId(),
+            		TaskState.RUNNING,request);
+            int returnCode = updateJobStatus(jobStatusRequestRpc);
+            
+            if(returnCode != 200) {
+                process.destroy();
+                throw new RuntimeException("failed to update task " + requestRpc.getId());
+            }        
+            int c = process.waitFor();
+            if(c != 0){
+                throw new RuntimeException("failed to execute task " + requestRpc.getId());
+            }
+        }catch(Exception e) {
+//          非执行异常
+            request.setLogPath(logOutPath);
+            request.setLogUrl("http://" + MetricsUtils.getHostIpAddress() + ":" + logServerPort
+                    + "/api/log/viewLog/" + requestRpc.getId());
+    		   JobManager.updateJobInstanceSelective(request);
+        	   FileUtils.writeFile(e.getMessage(), logOutPath);
+        	   throw e;
         }
     }
     
