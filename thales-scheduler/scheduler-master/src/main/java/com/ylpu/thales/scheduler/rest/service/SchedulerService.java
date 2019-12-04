@@ -168,8 +168,8 @@ public class SchedulerService {
             	   LOG.warn("实例" + id + "对应的任务已经下线或者不存在");
             	   return;
             }
-            String requestId = JobSubmission.getReqResId(jobInstanceResponse.getJobConf(), 
-            		DateUtils.getDateFromString(jobInstanceResponse.getScheduleTime(),DateUtils.DATE_TIME_FORMAT));
+            String requestId = jobInstanceResponse.getJobConf().getId() + "-" + 
+                jobInstanceResponse.getScheduleTime().replace("-", "").replace(":", "").replace(" ", "");
             if(JobStatusCheck.getJobInstanceRequest(requestId) != null) {
             	   LOG.warn("已经有一个实例准备运行或者在运行中"+ id);
             	   return;

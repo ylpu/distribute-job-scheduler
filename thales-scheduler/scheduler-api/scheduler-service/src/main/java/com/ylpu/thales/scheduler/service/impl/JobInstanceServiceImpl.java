@@ -23,6 +23,7 @@ import com.ylpu.thales.scheduler.entity.JobInstanceState;
 import com.ylpu.thales.scheduler.entity.SchedulerJobInstance;
 import com.ylpu.thales.scheduler.entity.TaskElapseChart;
 import com.ylpu.thales.scheduler.entity.TaskSummary;
+import com.ylpu.thales.scheduler.enums.JobReleaseState;
 import com.ylpu.thales.scheduler.enums.JobType;
 import com.ylpu.thales.scheduler.enums.TaskState;
 import com.ylpu.thales.scheduler.request.JobInstanceRequest;
@@ -96,6 +97,7 @@ public class JobInstanceServiceImpl extends BaseServiceImpl<SchedulerJobInstance
 			if(schedulerJobInstance.getEndTime() != null) {
 				response.setEndTime(DateUtils.getDateAsString(schedulerJobInstance.getEndTime(),DateUtils.DATE_TIME_FORMAT));
 			}
+			response.setJobReleasestate(JobReleaseState.getJobReleaseState(schedulerJobInstance.getJobReleasestate()).name());
             JobResponse job = jobService.getJobAndRelationById(schedulerJobInstance.getJobId());
             response.setJobConf(job); 
         }
@@ -202,6 +204,7 @@ public class JobInstanceServiceImpl extends BaseServiceImpl<SchedulerJobInstance
 				if(jobInstance.getEndTime() != null) {
 					jobInstanceResponse.setEndTime(DateUtils.getDateAsString(jobInstance.getEndTime(),DateUtils.DATE_TIME_FORMAT));
 				}
+				jobInstanceResponse.setJobReleasestate(JobReleaseState.getJobReleaseState(jobInstance.getJobReleasestate()).name());
 				page.add(jobInstanceResponse);
 			}
 		}

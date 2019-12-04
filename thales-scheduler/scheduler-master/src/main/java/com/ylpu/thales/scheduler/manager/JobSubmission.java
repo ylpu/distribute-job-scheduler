@@ -251,18 +251,8 @@ public class JobSubmission {
         request.setElapseTime(0);
     }
     
-    public static String getReqResId(JobResponse jobResponse,Date scheduleTime) {
-	    String responseId = "";
-	    if(jobResponse.getDependencies() == null || jobResponse.getDependencies().size() == 0) {
-	       responseId = jobResponse.getId() + "-root";
-	    }else {
-	    	   responseId = jobResponse.getId() + "-" + DateUtils.getDateAsString(scheduleTime,DateUtils.TIME_FORMAT);
-	    }
-	    return responseId;
-    }
-    
     public static JobInstanceResponseRpc buildJobStatus(JobResponse jobResponse,Date scheduleTime,TaskState state) {
-    	    String responseId = getReqResId(jobResponse,scheduleTime);
+    	    String responseId = jobResponse.getId() + "-" + DateUtils.getDateAsString(scheduleTime,DateUtils.TIME_FORMAT);
     	    if(state == TaskState.FAIL) {
     	        return JobInstanceResponseRpc.newBuilder()
     	                .setResponseId(responseId)
