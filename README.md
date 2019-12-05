@@ -93,14 +93,12 @@ api作为接口层，主要有如下功能：
     * http:
       * get:{"url":"http://localhost:8085/api/job/getJobById",
 "method": "get",
-"headers":{"Accept": "text/plain","Content-Type":"application/x-www-form-urlencoded"},
 "parameters":{
   "id":45
 }
 }
       * post:{"url":"http://localhost:8085/api/job/addJob",
 "method": "post",
-"headers":{"Accept": "text/plain","Content-Type":"application/x-www-form-urlencoded"},
 "parameters":{
   "alertTypes": "email",
   "alertUsers": "string",
