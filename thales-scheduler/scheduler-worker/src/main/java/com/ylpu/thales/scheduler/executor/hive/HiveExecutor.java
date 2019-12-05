@@ -2,7 +2,6 @@ package com.ylpu.thales.scheduler.executor.hive;
 
 import java.io.File;
 import java.util.List;
-import java.util.Map;
 import com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc;
 import com.ylpu.thales.scheduler.core.utils.FileUtils;
 import com.ylpu.thales.scheduler.core.utils.JsonUtils;
@@ -45,13 +44,15 @@ public class HiveExecutor extends AbstractCommonExecutor{
     public String[] buildCommand(String configFile) throws Exception {
     	    String[] commands = new String[1];
         StringBuilder sb = new StringBuilder();
-        Map<String,Object> map = JsonUtils.jsonToMap(configFile);
-        String fileName = String.valueOf(map.get("fileName"));
+        HiveConfig hiveConfig = JsonUtils.jsonToBean(configFile, HiveConfig.class);
+        String fileName = hiveConfig.getFileName();
         if(!FileUtils.exist(new File(fileName))) {
         	   throw new RuntimeException("file does not exist or not end with sql " + fileName);
         }
+        String fileContent = FileUtils.readFile(fileName);
+        fileContent = replaceParameters(hiveConfig.getPlaceHolder(),fileContent);
         sb.append("$HIVE_HOME/bin/" + HIVE_COMMAND);
-        sb.append(" -f " + fileName);
+        sb.append(" -e " + fileContent);
         commands[0] = sb.toString();
         return commands;
     }

@@ -11,7 +11,7 @@ import com.ylpu.thales.scheduler.request.JobInstanceRequest;
 
 public class SparkExecutor extends AbstractCommonExecutor{
     
-    private static final String SPARK_COMMAND = "spark-sql -f ";
+    private static final String SPARK_COMMAND = "spark-sql -e ";
     
     private JobInstanceRequestRpc requestRpc;
             
@@ -56,7 +56,10 @@ public class SparkExecutor extends AbstractCommonExecutor{
             throw new RuntimeException("spark任务参数不能为空");
         }
         
-        commandBuilder.append(fileName);
+        String fileContent = FileUtils.readFile(fileName);
+        fileContent = replaceParameters(sparkConfig.getPlaceHolder(),fileContent);
+        
+        commandBuilder.append(fileContent);
         commandBuilder.append(" ");
         
         commandBuilder.append("--master " + sparkParameters.getMasterUrl());
@@ -69,6 +72,7 @@ public class SparkExecutor extends AbstractCommonExecutor{
         commandBuilder.append(" ");
         
         commandBuilder.append("--total-executor-cores " + sparkParameters.getTotalExecutorCores());
+        
         String[] commands = new String[1];
         commands[0] = commandBuilder.toString();
         return commands;

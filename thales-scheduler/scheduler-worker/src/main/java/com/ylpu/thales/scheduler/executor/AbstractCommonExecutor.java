@@ -15,7 +15,10 @@ import com.ylpu.thales.scheduler.enums.TaskState;
 import com.ylpu.thales.scheduler.request.JobInstanceRequest;
 import com.ylpu.thales.scheduler.rpc.client.WorkerGrpcClient;
 import java.io.File;
+import java.util.Map;
 import java.util.Properties;
+import java.util.Map.Entry;
+
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
@@ -125,4 +128,19 @@ public abstract class AbstractCommonExecutor{
     public abstract void kill() throws Exception;
     
     public abstract String[] buildCommand(String configFile) throws Exception;
+    
+    public String replaceParameters(Map<String,Object> parameters,String fileContent) {
+        if(parameters != null) {
+     	   for(Entry<String,Object> entry : parameters.entrySet()) {
+    		       Class<?> cls = entry.getValue().getClass();
+    		       if(cls == Integer.class || cls == Double.class || cls == Long.class || cls == Float.class) {
+    		    	      fileContent = fileContent.replace("${" +entry.getKey() + "}", String.valueOf(entry.getValue()));
+    		       }else {
+    		    	      fileContent = fileContent.replace("${" +entry.getKey() + "}", "'" + String.valueOf(entry.getValue()) + "'");
+    		       }
+    	       }
+     	   return fileContent;
+        }
+        return "";
+    }
 }
