@@ -2,9 +2,7 @@ package com.ylpu.thales.scheduler.controller;
 
 import java.util.List;
 import java.util.Map;
-
 import javax.servlet.http.HttpSession;
-
 import com.github.pagehelper.PageInfo;
 import com.ylpu.thales.scheduler.common.rest.RestClient;
 import com.ylpu.thales.scheduler.request.JobInstanceRequest;
@@ -16,8 +14,11 @@ import com.ylpu.thales.scheduler.response.SchedulerResponse;
 import com.ylpu.thales.scheduler.response.TaskElapseChartResponse;
 import com.ylpu.thales.scheduler.response.TaskSummaryResponse;
 import com.ylpu.thales.scheduler.service.JobInstanceService;
+import com.ylpu.thales.scheduler.service.exception.ThalesRuntimeException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Controller;
@@ -32,6 +33,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @Controller
 @RequestMapping("/api/jobInstance")
 public class JobInstanceController {
+	
+	private static Log LOG = LogFactory.getLog(JobInstanceController.class);
 	
     @Autowired
     private JobInstanceService jobInstanceService;
@@ -100,7 +103,13 @@ public class JobInstanceController {
     @RequestMapping(value="/viewLog",method=RequestMethod.GET)
     public SchedulerResponse<String> viewLog(@RequestParam(value = "logPath", required = false) String logPath){
         ParameterizedTypeReference<String> typeRef = new ParameterizedTypeReference<String>() {};
-        String str = RestClient.getForObject(logPath,typeRef,null);
+        String str = "";
+        try {
+             str = RestClient.getForObject(logPath,typeRef,null);
+        }catch(Exception e) {
+        	     LOG.error(e);
+             throw new ThalesRuntimeException("无法查看日志");
+        }
         return new SchedulerResponse<String>(str);
     }
     
