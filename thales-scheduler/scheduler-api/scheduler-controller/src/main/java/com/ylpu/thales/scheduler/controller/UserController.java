@@ -35,7 +35,7 @@ public class UserController {
     public SchedulerResponse<UserResponse> login(HttpSession session) {
       	UserResponse user = (UserResponse) session.getAttribute("user");
         if (user == null) {
-            return new SchedulerResponse(500,"用户未登陆");
+            return new SchedulerResponse(null);
         };
         return new SchedulerResponse<UserResponse>(user);
     }

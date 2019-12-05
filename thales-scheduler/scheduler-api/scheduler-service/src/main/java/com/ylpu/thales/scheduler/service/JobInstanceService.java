@@ -14,6 +14,7 @@ import com.ylpu.thales.scheduler.response.JobInstanceResponse;
 import com.ylpu.thales.scheduler.response.JobInstanceStateResponse;
 import com.ylpu.thales.scheduler.response.TaskElapseChartResponse;
 import com.ylpu.thales.scheduler.response.TaskSummaryResponse;
+import com.ylpu.thales.scheduler.response.UserResponse;
 
 public interface JobInstanceService extends BaseService<SchedulerJobInstance,Integer>{
 
@@ -31,17 +32,17 @@ public interface JobInstanceService extends BaseService<SchedulerJobInstance,Int
     
     public List<JobInstanceStateResponse> getAllJobStatus();
     
-    public void killJob(ScheduleRequest request);
+    public void killJob(ScheduleRequest request,Object object);
     
-    public void rerun(ScheduleRequest request);
+    public void rerun(ScheduleRequest request,Object object);
     
-    public void rerunAll(ScheduleRequest request);
+    public void rerunAll(ScheduleRequest request,Object object);
         
     public void markStatus();
     
-    public void markSuccess(ScheduleRequest request);
+    public void markSuccess(ScheduleRequest request,Object object);
     
-    public void markFail(ScheduleRequest request);
+    public void markFail(ScheduleRequest request,Object object);
     
     public void updateJobStatus(List<Integer> ids,TaskState status);
     

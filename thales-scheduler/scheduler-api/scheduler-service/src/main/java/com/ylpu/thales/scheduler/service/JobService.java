@@ -14,9 +14,9 @@ import com.ylpu.thales.scheduler.response.UserResponse;
 
 public interface JobService extends BaseService<SchedulerJob,Integer>{
 
-    public void addJob(JobRequest job,UserResponse user);
+    public void addJob(JobRequest job,Object user);
         
-    public void updateJob(JobRequest job,UserResponse user);
+    public void updateJob(JobRequest job,Object user);
 
     public JobResponse getJobAndRelationById(Integer id);
     

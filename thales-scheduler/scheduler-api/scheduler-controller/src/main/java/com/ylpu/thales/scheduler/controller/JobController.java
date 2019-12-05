@@ -35,16 +35,16 @@ public class JobController {
     @ResponseBody
     @RequestMapping(value="/addJob",method=RequestMethod.POST)
     public SchedulerResponse<Void> addJob(@Validated @RequestBody JobRequest job,HttpSession session) {
-        UserResponse user = (UserResponse) session.getAttribute("user");
-        jobService.addJob(job,user);
+    	    Object object = session.getAttribute("user");
+        jobService.addJob(job,object);
         return SchedulerResponse.success();
     }
     
     @ResponseBody
     @RequestMapping(value="/updateJob",method=RequestMethod.POST)
     public SchedulerResponse<Void> updateJob(@Validated @RequestBody JobRequest job,HttpSession session) {
-        UserResponse user = (UserResponse) session.getAttribute("user");
-        jobService.updateJob(job,user);
+        Object object = session.getAttribute("user");
+        jobService.updateJob(job,object);
         return SchedulerResponse.success();
     }
     

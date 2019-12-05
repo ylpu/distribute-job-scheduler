@@ -2,6 +2,9 @@ package com.ylpu.thales.scheduler.controller;
 
 import java.util.List;
 import java.util.Map;
+
+import javax.servlet.http.HttpSession;
+
 import com.github.pagehelper.PageInfo;
 import com.ylpu.thales.scheduler.common.rest.RestClient;
 import com.ylpu.thales.scheduler.request.JobInstanceRequest;
@@ -107,8 +110,9 @@ public class JobInstanceController {
      */
     @ResponseBody
     @RequestMapping(value="/kill",method=RequestMethod.POST)
-    public SchedulerResponse<Void> killJob(@Validated @RequestBody ScheduleRequest request) {
-        jobInstanceService.killJob(request);
+    public SchedulerResponse<Void> killJob(@Validated @RequestBody ScheduleRequest request,HttpSession session) {
+    	    Object object = session.getAttribute("user");
+    	    jobInstanceService.killJob(request,object);
         return SchedulerResponse.success();
     }
     
@@ -118,8 +122,9 @@ public class JobInstanceController {
      */
     @ResponseBody
     @RequestMapping(value="/rerun",method=RequestMethod.POST)
-    public SchedulerResponse<Void> rerun(@Validated @RequestBody ScheduleRequest request) {
-        jobInstanceService.rerun(request);
+    public SchedulerResponse<Void> rerun(@Validated @RequestBody ScheduleRequest request,HttpSession session) {
+    	    Object object = session.getAttribute("user");
+        jobInstanceService.rerun(request,object);
         return SchedulerResponse.success();
     }
     
@@ -129,8 +134,9 @@ public class JobInstanceController {
      */
     @ResponseBody
     @RequestMapping(value="/rerunAll",method=RequestMethod.POST)
-    public SchedulerResponse<Void> rerunAll(@Validated @RequestBody ScheduleRequest request) {
-        jobInstanceService.rerunAll(request);
+    public SchedulerResponse<Void> rerunAll(@Validated @RequestBody ScheduleRequest request,HttpSession session) {
+    	    Object object = session.getAttribute("user");
+        jobInstanceService.rerunAll(request,object);
         return SchedulerResponse.success();
     }
     
@@ -148,15 +154,17 @@ public class JobInstanceController {
     
     @ResponseBody
     @RequestMapping(value="/markSuccess",method=RequestMethod.POST)
-    public SchedulerResponse<Void> markSuccess(@Validated @RequestBody ScheduleRequest request) {
-        jobInstanceService.markSuccess(request);
+    public SchedulerResponse<Void> markSuccess(@Validated @RequestBody ScheduleRequest request,HttpSession session) {
+      	Object object = session.getAttribute("user");
+        jobInstanceService.markSuccess(request,object);
        return SchedulerResponse.success();
     }
     
     @ResponseBody
     @RequestMapping(value="/markFail",method=RequestMethod.POST)
-    public SchedulerResponse<Void> markFail(@Validated @RequestBody ScheduleRequest request) {
-        jobInstanceService.markFail(request);
+    public SchedulerResponse<Void> markFail(@Validated @RequestBody ScheduleRequest request,HttpSession session) {
+        	Object object = session.getAttribute("user");
+        jobInstanceService.markFail(request,object);
        return SchedulerResponse.success();
     }
     
@@ -167,13 +175,14 @@ public class JobInstanceController {
      */
     @ResponseBody
     @RequestMapping(value="/batchRerun",method=RequestMethod.POST)
-    public SchedulerResponse<Void> batchRerun(@RequestParam("ids") String ids) {
+    public SchedulerResponse<Void> batchRerun(@RequestParam("ids") String ids,HttpSession session) {
+      	Object object =  session.getAttribute("user");
     	    if(StringUtils.isNotBlank(ids)) {
     	      	String[] idArray = ids.split(",");
     	      	for(String id : idArray) {
         	      	ScheduleRequest request = new ScheduleRequest();
         	      	request.setId(NumberUtils.toInt(id));
-        	        jobInstanceService.rerun(request);
+        	        jobInstanceService.rerun(request,object);
     	      	}
     	    }
     	    return SchedulerResponse.success();

@@ -33,6 +33,7 @@ import com.ylpu.thales.scheduler.response.JobInstanceStateResponse;
 import com.ylpu.thales.scheduler.response.JobResponse;
 import com.ylpu.thales.scheduler.response.TaskElapseChartResponse;
 import com.ylpu.thales.scheduler.response.TaskSummaryResponse;
+import com.ylpu.thales.scheduler.response.UserResponse;
 import com.ylpu.thales.scheduler.service.JobInstanceService;
 import com.ylpu.thales.scheduler.service.JobService;
 import com.ylpu.thales.scheduler.service.exception.ThalesRuntimeException;
@@ -133,7 +134,10 @@ public class JobInstanceServiceImpl extends BaseServiceImpl<SchedulerJobInstance
     }
 
     @Override
-    public void killJob(ScheduleRequest request) {
+    public void killJob(ScheduleRequest request,Object object) {
+		if(!isJobOwner(request,object)) {
+			throw new ThalesRuntimeException("非任务所有人不能杀任务");
+		}
         String masterUrl = getMasterServiceUri(request.getId());
         if(StringUtils.isNotBlank(masterUrl)) {
             int status = ScheduleManager.killJob(masterUrl, request);
@@ -146,7 +150,10 @@ public class JobInstanceServiceImpl extends BaseServiceImpl<SchedulerJobInstance
     }
     
     @Override
-    public void rerun(ScheduleRequest request) {
+    public void rerun(ScheduleRequest request,Object object) {
+		if(!isJobOwner(request,object)) {
+			throw new ThalesRuntimeException("非任务所有人不能重跑任务");
+		}
         String masterUrl = getMasterServiceUri(request.getId());
         if(StringUtils.isNotBlank(masterUrl)) {
             int status = ScheduleManager.rerun(masterUrl, request);
@@ -160,7 +167,10 @@ public class JobInstanceServiceImpl extends BaseServiceImpl<SchedulerJobInstance
     }
     
     @Override
-    public void rerunAll(ScheduleRequest request) {
+    public void rerunAll(ScheduleRequest request,Object object) {
+		if(!isJobOwner(request,object)) {
+			throw new ThalesRuntimeException("非任务所有人不能重跑所有任务");
+		}
         String masterUrl = getMasterServiceUri(request.getId());
         if(StringUtils.isNotBlank(masterUrl)) {
             int status = ScheduleManager.rerunAll(getMasterServiceUri(request.getId()), request);
@@ -245,7 +255,10 @@ public class JobInstanceServiceImpl extends BaseServiceImpl<SchedulerJobInstance
 	}
 
 	@Override
-	public void markSuccess(ScheduleRequest request) {
+	public void markSuccess(ScheduleRequest request,Object object) {
+		if(!isJobOwner(request,object)) {
+			throw new ThalesRuntimeException("非任务所有人不能标识成功任务");
+		}
         String masterUrl = getMasterServiceUri(request.getId());
         if(StringUtils.isNotBlank(masterUrl)) {
             int status = ScheduleManager.markSuccess(getMasterServiceUri(request.getId()), request);
@@ -258,9 +271,22 @@ public class JobInstanceServiceImpl extends BaseServiceImpl<SchedulerJobInstance
         }
 		
 	}
+	
+	private boolean isJobOwner(ScheduleRequest request,Object object) {
+ 		JobInstanceResponse instanceResponse = getJobInstanceById(request.getId());
+ 		UserResponse user = (UserResponse)object;
+ 	    if(user.getUserName().equalsIgnoreCase(instanceResponse.getJobConf().getOwnerIds())) {
+ 	        return true;
+ 	    }else {
+            return false;
+ 	    }
+	}
 
 	@Override
-	public void markFail(ScheduleRequest request) {
+	public void markFail(ScheduleRequest request,Object object) {
+		if(!isJobOwner(request,object)) {
+			throw new ThalesRuntimeException("非任务所有人不能标识失败任务");
+		}
         String masterUrl = getMasterServiceUri(request.getId());
         if(StringUtils.isNotBlank(masterUrl)) {
             int status = ScheduleManager.markFail(getMasterServiceUri(request.getId()), request);

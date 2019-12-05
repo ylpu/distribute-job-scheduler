@@ -91,7 +91,8 @@ public class SchedulerService {
                 .setPid(response.getPid())
                 .setId(response.getId())
                 .setRequestId(response.getJobConf().getId() + "-" + 
-                 response.getScheduleTime().replace("-", "").replace(":", ""))
+                		DateUtils.getDateAsString(DateUtils.getDateFromString(response.getScheduleTime(),DateUtils.DATE_TIME_FORMAT),
+                				DateUtils.TIME_FORMAT))
                 .setJob(JobSubmission.setJobRequest(response.getJobConf()))
                 .setCreatorEmail(response.getCreatorEmail())
                 .setCreatorName(response.getCreatorName())
@@ -169,7 +170,8 @@ public class SchedulerService {
             	   return;
             }
             String requestId = jobInstanceResponse.getJobConf().getId() + "-" + 
-                jobInstanceResponse.getScheduleTime().replace("-", "").replace(":", "").replace(" ", "");
+            		DateUtils.getDateAsString(DateUtils.getDateFromString(jobInstanceResponse.getScheduleTime(),DateUtils.DATE_TIME_FORMAT),
+            				DateUtils.TIME_FORMAT);
             if(JobStatusCheck.getJobInstanceRequest(requestId) != null) {
             	   LOG.warn("已经有一个实例准备运行或者在运行中"+ id);
             	   return;

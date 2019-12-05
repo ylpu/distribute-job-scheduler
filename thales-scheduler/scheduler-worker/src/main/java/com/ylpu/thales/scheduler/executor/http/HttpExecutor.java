@@ -13,7 +13,6 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.ResponseEntity;
 import com.ylpu.thales.scheduler.core.utils.FileUtils;
 import com.ylpu.thales.scheduler.core.config.Configuration;
-import com.ylpu.thales.scheduler.core.rest.JobManager;
 import com.ylpu.thales.scheduler.core.rest.RestClient;
 import com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc;
 import com.ylpu.thales.scheduler.core.rpc.entity.JobStatusRequestRpc;

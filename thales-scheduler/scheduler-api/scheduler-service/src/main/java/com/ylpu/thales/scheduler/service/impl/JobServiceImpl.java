@@ -53,7 +53,7 @@ public class JobServiceImpl extends BaseServiceImpl<SchedulerJob,Integer> implem
     }
 
 	@Override
-    public void addJob(JobRequest job,UserResponse user) {	
+    public void addJob(JobRequest job,Object object) {	
 		List<Integer> depencies = new ArrayList<Integer>();
 		if(schedulerJobMapper.getJobCountByName(job.getJobName()) >=1) {
 			throw new ThalesRuntimeException("任务名称已经存在");
@@ -65,7 +65,8 @@ public class JobServiceImpl extends BaseServiceImpl<SchedulerJob,Integer> implem
 		}
         SchedulerJob schedulerJob = new SchedulerJob();
         if(job != null) {
-            if(user != null) {
+            if(object != null) {
+              	UserResponse user = (UserResponse)object;
                 job.setCreatorId(user.getUserName());
             }
             BeanUtils.copyProperties(job, schedulerJob);
@@ -84,7 +85,7 @@ public class JobServiceImpl extends BaseServiceImpl<SchedulerJob,Integer> implem
     }
 	
     @Override
-    public void updateJob(JobRequest job,UserResponse user) {  
+    public void updateJob(JobRequest job,Object object) {  
 		List<Integer> depencies = new ArrayList<Integer>();
 		if(job.getDependIds() == null || job.getDependIds().size() == 0){
 			depencies = Arrays.asList(-1);
@@ -94,7 +95,7 @@ public class JobServiceImpl extends BaseServiceImpl<SchedulerJob,Integer> implem
         if(isCycleReference(job)) {
      	   throw new ThalesRuntimeException("任务 " + job.getId() + " 存在环形依赖");
         }
-        if(!isJobOwner(job.getOwnerIds(),user)) {
+        if(!isJobOwner(job.getOwnerIds(),object)) {
           	throw new ThalesRuntimeException("非任务owner不能修改任务");
         }
         if(job != null) {
@@ -129,13 +130,13 @@ public class JobServiceImpl extends BaseServiceImpl<SchedulerJob,Integer> implem
     	   return responses;
     }
     
-    private boolean isJobOwner(String ownerId,UserResponse user) {
-        if(user != null) {
-     	   if(user.getUserName().equalsIgnoreCase(ownerId)) {
-     		   return true;
-     	   }
-        }
-        return false;
+    private boolean isJobOwner(String ownerId,Object object) {
+ 		UserResponse user = (UserResponse)object;
+ 	    if(user.getUserName().equalsIgnoreCase(ownerId)) {
+ 	        return true;
+ 	    }else {
+            return false;
+ 	    }
     }
     
     private boolean isCycleReference(JobRequest job) {
