@@ -88,8 +88,8 @@ api作为接口层，主要有如下功能：
   * 任务配置：根据类型不同有不同的配置（以下为简单例子）：
     * command: {"commandLine" :"cat /tmp/log/scheduler-worker/info.log"}
     * shell: {"fileName" : "/tmp/shell/test.sh","parameters" : ""}
-    * hive: {"fileName" : "/tmp/shell/test.sh","parameters" : ""}
-    * spark: {"fileName":"/tmp/shell/test.sql","parameters":{"masterUrl":"spark://localhost:7077","executorMemory":"2g","executorCores":2,"totalExecutorCores":20}}
+    * hive: {"fileName" : "/tmp/shell/test.sh","parameters" : "","placeHolder":{"dt":"20191205","hm":"1000"}
+    * spark: {"fileName":"/tmp/shell/test.sql","parameters":{"masterUrl":"spark://localhost:7077","executorMemory":"2g","executorCores":2,"totalExecutorCores":20},"placeHolder":{"dt":"20191205","hm":"1000"}
     * http:
       * get:{"url":"http://localhost:8085/api/job/getJobById",
 "method": "get",
