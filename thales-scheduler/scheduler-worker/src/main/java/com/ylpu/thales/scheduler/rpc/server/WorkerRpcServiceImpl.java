@@ -1,7 +1,8 @@
 package com.ylpu.thales.scheduler.rpc.server;
 
+import com.google.common.eventbus.AsyncEventBus;
 import com.ylpu.thales.scheduler.WorkerServer;
-import com.ylpu.thales.scheduler.alert.EventPublsher;
+import com.ylpu.thales.scheduler.alert.EventListener;
 import com.ylpu.thales.scheduler.core.alert.entity.Event;
 import com.ylpu.thales.scheduler.core.config.Configuration;
 import com.ylpu.thales.scheduler.core.rest.JobManager;
@@ -23,8 +24,15 @@ import io.grpc.stub.StreamObserver;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import java.util.Properties;
+import java.util.concurrent.Executors;
 
 public class WorkerRpcServiceImpl extends GrpcJobServiceGrpc.GrpcJobServiceImplBase {
+	
+	private static AsyncEventBus eventBus = new AsyncEventBus(Executors.newFixedThreadPool(1));
+	
+	static {
+		eventBus.register(new EventListener());
+	}
     
     private static Log LOG = LogFactory.getLog(WorkerRpcServiceImpl.class);
     private IJobMetric jobMetric;
@@ -59,9 +67,7 @@ public class WorkerRpcServiceImpl extends GrpcJobServiceGrpc.GrpcJobServiceImplB
               //任务失败告警
               Event event = new Event();
               setAlertEvent(event,requestRpc.getJob(),request);
-              //publish event
-//              EventPublsher eventPublsher = new EventPublsher();
-//              eventPublsher.publish(event);
+//              eventBus.post(event);
         }finally {
             //减少任务个数
             jobMetric.decreaseTask();
