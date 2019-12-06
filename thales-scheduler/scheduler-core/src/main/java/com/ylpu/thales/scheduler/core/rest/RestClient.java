@@ -1,6 +1,7 @@
 package com.ylpu.thales.scheduler.core.rest;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -49,7 +50,7 @@ public class RestClient {
         	   for(Entry<String,Object> entry : headers.entrySet()) {
         		   requestHeaders.add(entry.getKey(), String.valueOf(entry.getValue()));
         	   }
-        	   httpEntity = new HttpEntity<String>(null,requestHeaders);
+        	   httpEntity = new HttpEntity<String>(requestHeaders);
         }
         
         if(map != null && map.size() > 0) {

@@ -32,7 +32,7 @@ public class JobStatusCheck {
     //key是所依赖的任务,value是任务id
     private static Map<List<JobDependency>,String> dependsMap = new ConcurrentHashMap<List<JobDependency>,String>();
     
-    private static final long CHECK_INTERVAL = 2000;
+    private static final long CHECK_INTERVAL = 1;
         
     public static void start(){
         ExecutorService es = Executors.newFixedThreadPool(2);
@@ -133,33 +133,11 @@ public class JobStatusCheck {
                    }
                }
                try {
-                   Thread.sleep(interval);
+                   Thread.sleep(interval * 1000 * 60 );
                } catch (InterruptedException e) {
                    LOG.error(e);
                }
           }
        } 		   
-    }
-    
-    public static void main(String[] args) {
-    	   JobInstanceResponseRpc  rpc = JobInstanceResponseRpc.newBuilder()
-                .setResponseId("77-20191204102000")
-                .setErrorCode(500)
-                .setTaskState(5)
-                .setErrorMsg("error")
-                .build();
-    	
-    	    JobStatusCheck.addResponse(rpc);
-    	    
-     	JobInstanceResponseRpc  rpc1 = JobInstanceResponseRpc.newBuilder()
-                   .setResponseId("77-20191204102000")
-                   .setErrorCode(200)
-                   .setTaskState(6)
-                   .setErrorMsg("")
-                   .build();
-       	
-       	JobStatusCheck.addResponse(rpc1);
-       	    
-        System.out.println(JobStatusCheck.getResponse("77-20191204102000").getTaskState());
     }
 }

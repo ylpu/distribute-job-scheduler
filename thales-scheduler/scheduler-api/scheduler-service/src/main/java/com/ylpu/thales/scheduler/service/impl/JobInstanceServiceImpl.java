@@ -273,6 +273,9 @@ public class JobInstanceServiceImpl extends BaseServiceImpl<SchedulerJobInstance
 	}
 	
 	private boolean isJobOwner(ScheduleRequest request,Object object) {
+		if(object == null) {
+			throw new ThalesRuntimeException("请重新登陆");
+		}
  		JobInstanceResponse instanceResponse = getJobInstanceById(request.getId());
  		UserResponse user = (UserResponse)object;
  	    if(user.getUserName().equalsIgnoreCase(instanceResponse.getJobConf().getOwnerIds())) {
