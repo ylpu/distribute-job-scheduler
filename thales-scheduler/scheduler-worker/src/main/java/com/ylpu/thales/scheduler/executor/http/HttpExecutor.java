@@ -83,16 +83,21 @@ public class HttpExecutor extends AbstractCommonExecutor{
     }
     
     private void executeGetCommand(HttpParameters httpParameters,String logOutPath) throws Exception {
-        Map<String,Object> parameterValues = getParameterValues(httpParameters.getParameters());
-        ParameterizedTypeReference<Object> typeRef = new ParameterizedTypeReference<Object>() {};
-        Object jobResponse = RestClient.getForObject(httpParameters.getUrl(), typeRef,parameterValues);
-        FileUtils.writeFile(JsonUtils.objToJson(jobResponse),logOutPath);
+	    if(httpParameters.getParameters() != null) {
+	        ParameterizedTypeReference<Object> typeRef = new ParameterizedTypeReference<Object>() {};
+	        Object jobResponse = RestClient.getForObject(httpParameters.getUrl(), typeRef,httpParameters.getParameters(),httpParameters.getHeaders());
+	        FileUtils.writeFile(JsonUtils.objToJson(jobResponse),logOutPath);
+	    }
     }
     
     private void executePostCommand(String jsonConfig,HttpParameters httpParameters,String logOutPath) throws Exception {
-	    Object object = getObjectFromJson(jsonConfig,httpParameters.getParameters());
-        ResponseEntity<Object> response = RestClient.post(httpParameters.getUrl(),object,Object.class);
-        FileUtils.writeFile(JsonUtils.objToJson(response),logOutPath);
+//	    Object object = getObjectFromJson(jsonConfig,httpParameters.getParameters());
+	    Map<String,Object> parameters = httpParameters.getParameters();
+	    if(parameters != null) {
+		    String jsonStr = JsonUtils.objToJson(parameters);
+	        ResponseEntity<Object> response = RestClient.postForEntity(httpParameters.getUrl(),jsonStr,Object.class,httpParameters.getHeaders());
+	        FileUtils.writeFile(JsonUtils.objToJson(response),logOutPath);
+	    }
     }
     
     @SuppressWarnings("unchecked")

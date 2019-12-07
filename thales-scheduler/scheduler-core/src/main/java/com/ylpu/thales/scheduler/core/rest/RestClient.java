@@ -1,7 +1,6 @@
 package com.ylpu.thales.scheduler.core.rest;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -10,6 +9,7 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
@@ -74,6 +74,21 @@ public class RestClient {
     
     public static <T> ResponseEntity<T> post(String url,Object request,Class<T> type) {
     	    return post(url,request,type,null);
+    }
+    
+    public static <T> ResponseEntity<T> postForEntity(String url,Object request,Class<T> type,Map<String,Object> headers) {
+        RestTemplate restTemplate = new RestTemplate();
+        HttpHeaders requestHeaders = new HttpHeaders();
+        requestHeaders.setContentType(MediaType.APPLICATION_JSON_UTF8);
+        HttpEntity<Object> httpEntity = null;
+        if(headers != null && headers.size() > 0) {
+     	   for(Entry<String,Object> entry : headers.entrySet()) {
+     		   requestHeaders.add(entry.getKey(), String.valueOf(entry.getValue()));
+     	   }
+        }
+  	    httpEntity = new HttpEntity<Object>(request,requestHeaders);
+        ResponseEntity<T> response = restTemplate.postForEntity(url, httpEntity, type);
+        return response;
     }
     
     public static <T> ResponseEntity<T> post(String url,Object request,Class<T> type,Map<String,Object> headers) {
