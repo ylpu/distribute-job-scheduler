@@ -103,7 +103,7 @@ api作为接口层，主要有如下功能：
   "alertTypes": "email",
   "alertUsers": "string",
   "creatorId": "string",
-  "dependIds": "",
+  "dependIds": [],
   "description": "string",
   "executionTimeout": 0,
   "isSelfdependent": true,
