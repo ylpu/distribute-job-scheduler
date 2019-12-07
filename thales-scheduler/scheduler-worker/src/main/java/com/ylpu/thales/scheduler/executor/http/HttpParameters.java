@@ -33,7 +33,4 @@ public class HttpParameters {
 	public void setParameters(Map<String, Object> parameters) {
 		this.parameters = parameters;
 	}
-
-	
-
 }

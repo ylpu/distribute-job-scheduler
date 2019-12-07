@@ -1,11 +1,10 @@
-package com.ylpu.thales.scheduler.executor.shell;
+package com.ylpu.thales.scheduler.executor.python;
 
 import com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc;
 import com.ylpu.thales.scheduler.core.utils.FileUtils;
 import com.ylpu.thales.scheduler.core.utils.JsonUtils;
 import com.ylpu.thales.scheduler.core.utils.TaskProcessUtils;
 import com.ylpu.thales.scheduler.executor.AbstractCommonExecutor;
-import com.ylpu.thales.scheduler.executor.python.PythonConfig;
 import com.ylpu.thales.scheduler.request.JobInstanceRequest;
 import org.apache.commons.lang3.StringUtils;
 import java.io.File;
@@ -14,13 +13,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-public class ShellExecutor extends AbstractCommonExecutor{ 
+public class PythonExecutor extends AbstractCommonExecutor{ 
 	
-	private static final String SHELL_COMMAND = "/bin/bash";
+	private static final String PYTHON_COMMAND = "python";
             
     private JobInstanceRequestRpc requestRpc;
             
-    public ShellExecutor (JobInstanceRequestRpc requestRpc,JobInstanceRequest request){
+    public PythonExecutor (JobInstanceRequestRpc requestRpc,JobInstanceRequest request){
         super(requestRpc,request);
         this.requestRpc = requestRpc;
     }
@@ -53,19 +52,19 @@ public class ShellExecutor extends AbstractCommonExecutor{
      */
     @Override
     public String[] buildCommand(String configFile) throws Exception {
-	    List<String> commands = new ArrayList<String>();
+    	    List<String> commands = new ArrayList<String>();
         PythonConfig config = JsonUtils.jsonToBean(configFile, PythonConfig.class);
         String fileName = config.getFileName();
         if(!FileUtils.exist(new File(fileName))) {
-    	        throw new RuntimeException("file does not exist " + fileName);
+        	    throw new RuntimeException("file does not exist " + fileName);
         }
-        commands.add(SHELL_COMMAND);
+        commands.add(PYTHON_COMMAND);
         commands.add(fileName);
         Map<String,Object> parameters = config.getParameters();
         if(parameters != null && parameters.size() > 0) {
-    	       for(Entry<String, Object> entry : parameters.entrySet()) {
-    		      commands.add(String.valueOf(entry.getValue()));
-    	       }
+        	  for(Entry<String, Object> entry : parameters.entrySet()) {
+        		  commands.add(String.valueOf(entry.getValue()));
+        	  }
         }
         String[] strings = new String[commands.size()];
         commands.toArray(strings);
