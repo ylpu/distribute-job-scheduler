@@ -21,10 +21,10 @@ import java.io.IOException;
     private final StringBuilder lines = new StringBuilder();
     @Override protected void processLine(String line, int level) {
     	    lines.append(line);
-    	    lines.append("\n");
+    	    lines.append("<br>");
     }   
     public String getLines() {
-        return lines.substring(0,lines.toString().lastIndexOf("\n"));
+        return lines.toString();
     }
 }
 public class ScriptUtils {
@@ -166,8 +166,17 @@ public class ScriptUtils {
     public static void main(String[] args) {
         try {
 //            System.out.println(ScriptUtils.execToFile("sh", "/tmp/script/test.sh", "/tmp/log/1.out", "/tmp/log/1.error", new String[1]));
-            System.out.println(ScriptUtils.execToList("cat","/tmp/log/scheduler-worker/warn.log", new String[] {}));
-            System.out.println("test");
+//            System.out.println(ScriptUtils.execToList("cat","/tmp/log/scheduler-worker/warn.log", new String[] {}));
+//            System.out.println("test");
+            
+    	    String[] strs = new String[3];
+    	    strs[0] = "/bin/bash";
+    	    strs[1] = "-c";
+    	    strs[2] = "tail -100 /tmp/log/scheduler-worker/warn.log";
+    	    Process process = Runtime.getRuntime().exec(strs);
+    	    
+        FileUtils.writeOuput(process.getInputStream(),"/tmp/test.log");
+        FileUtils.writeOuput(process.getErrorStream(),"/tmp/test.log");
         } catch (Exception e) {
             e.printStackTrace();
         }

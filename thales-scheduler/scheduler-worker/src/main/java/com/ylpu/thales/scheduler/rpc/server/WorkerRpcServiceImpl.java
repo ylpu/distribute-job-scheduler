@@ -11,6 +11,7 @@ import com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc;
 import com.ylpu.thales.scheduler.core.rpc.entity.JobRequestRpc;
 import com.ylpu.thales.scheduler.core.rpc.service.GrpcJobServiceGrpc;
 import com.ylpu.thales.scheduler.core.utils.DateUtils;
+import com.ylpu.thales.scheduler.core.utils.FileUtils;
 import com.ylpu.thales.scheduler.core.utils.MetricsUtils;
 import com.ylpu.thales.scheduler.enums.AlertType;
 import com.ylpu.thales.scheduler.enums.EventType;
@@ -97,16 +98,20 @@ public class WorkerRpcServiceImpl extends GrpcJobServiceGrpc.GrpcJobServiceImplB
             AbstractCommonExecutor executor = getExecutor(requestRpc,request);
             executor.kill();
             //等待任务失败
-            while(true) {
+            int i = 0;
+            while(i < 3) {
                 JobInstanceResponse instanceResponse = JobManager.getJobInstanceById(requestRpc.getId());
                 if(instanceResponse.getTaskState() == TaskState.FAIL) {
                 	    break;
                 }
                 Thread.sleep(1000);
+                i++;
             }
+            FileUtils.writeFile("sucessful kill job " + requestRpc.getId(),requestRpc.getLogPath());
             setCodeAndMessage(builder,TaskState.KILL.getCode(),200,"");
         }catch(Exception e) {
             LOG.error(e);
+            FileUtils.writeFile("failed to kill job " + requestRpc.getId(),requestRpc.getLogPath());
             setCodeAndMessage(builder,TaskState.RUNNING.getCode(),500,
                     "failed to kill task" + requestRpc.getId());
         }

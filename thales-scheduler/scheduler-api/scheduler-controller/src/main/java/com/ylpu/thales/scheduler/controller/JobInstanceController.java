@@ -1,10 +1,19 @@
 package com.ylpu.thales.scheduler.controller;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.List;
 import java.util.Map;
+
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import com.github.pagehelper.PageInfo;
 import com.ylpu.thales.scheduler.common.rest.RestClient;
+import com.ylpu.thales.scheduler.common.utils.StreamUtils;
+import com.ylpu.thales.scheduler.core.utils.FileUtils;
 import com.ylpu.thales.scheduler.request.JobInstanceRequest;
 import com.ylpu.thales.scheduler.request.JobStatusRequest;
 import com.ylpu.thales.scheduler.request.ScheduleRequest;
@@ -29,13 +38,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.*;
 
 @Controller
 @RequestMapping("/api/jobInstance")
 public class JobInstanceController {
-	
-	private static Log LOG = LogFactory.getLog(JobInstanceController.class);
-	
+		
     @Autowired
     private JobInstanceService jobInstanceService;
     
@@ -101,16 +110,50 @@ public class JobInstanceController {
     
     @ResponseBody
     @RequestMapping(value="/viewLog",method=RequestMethod.GET)
-    public SchedulerResponse<String> viewLog(@RequestParam(value = "logPath", required = false) String logPath){
-        ParameterizedTypeReference<String> typeRef = new ParameterizedTypeReference<String>() {};
-        String str = "";
-        try {
-             str = RestClient.getForObject(logPath,typeRef,null);
-        }catch(Exception e) {
-        	     LOG.error(e);
-             throw new ThalesRuntimeException("无法查看日志");
+    public void viewLog(@RequestParam(value = "logUrl", required = false) String logUrl){
+//        ParameterizedTypeReference<String> typeRef = new ParameterizedTypeReference<String>() {};
+//        String str = "";
+//        try {
+//             str = RestClient.getForObject(logPath,typeRef,null);
+//        }catch(Exception e) {
+//        	     LOG.error(e);
+//             throw new ThalesRuntimeException("无法查看日志");
+//        }
+//        return new SchedulerResponse<String>(str);
+    	
+        HttpServletResponse response = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getResponse();
+        ServletOutputStream outputStream = null;
+        InputStream inputStream = null;
+        try{
+            inputStream = StreamUtils.getInputStream(logUrl);
+            if(inputStream != null) {
+                outputStream = response.getOutputStream();
+                // 在http响应中输出流
+                byte[] cache = new byte[1024];
+                int nRead = 0;
+                while ((nRead = inputStream.read(cache)) != -1) {
+                    outputStream.write(cache, 0, nRead);
+                    outputStream.flush();
+                }
+                outputStream.flush();
+            }
+
+        }catch (Exception e){
+         	throw new ThalesRuntimeException("无法查看日志",e);
+        }finally {
+        	   if(outputStream != null) {
+        		   try {
+                   if(outputStream != null) {
+       				  outputStream.close();
+                	   }
+                	   if(inputStream != null) {
+                		   inputStream.close();
+                	   }
+				} catch (IOException e) {
+					throw new ThalesRuntimeException("无法查看日志",e);
+				}
+        	   }
         }
-        return new SchedulerResponse<String>(str);
     }
     
     /**

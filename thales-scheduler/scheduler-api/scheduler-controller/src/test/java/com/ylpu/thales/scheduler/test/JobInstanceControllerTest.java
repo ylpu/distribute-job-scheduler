@@ -1,12 +1,26 @@
 package com.ylpu.thales.scheduler.test;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletResponse;
+
 import org.junit.Test;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import com.ylpu.thales.scheduler.common.rest.RestClient;
 import com.ylpu.thales.scheduler.request.JobInstanceRequest;
@@ -109,5 +123,60 @@ public class JobInstanceControllerTest {
         request.setId(234);
         ResponseEntity<SchedulerResponse> response = RestClient.post(API_URI + "jobInstance/killJob",request);
         System.out.println(response.getStatusCodeValue());
+    }
+    
+    @Test
+    public void viewLog(String logUrl){
+        HttpServletResponse response = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getResponse();
+        ServletOutputStream outputStream = null;
+        InputStream decryptInputStream = null;
+        try{
+            decryptInputStream = getInputStream(logUrl);
+            outputStream = response.getOutputStream();
+            // 在http响应中输出流
+            byte[] cache = new byte[1024];
+            int nRead = 0;
+            while ((nRead = decryptInputStream.read(cache)) != -1) {
+                outputStream.write(cache, 0, nRead);
+                outputStream.flush();
+            }
+            outputStream.flush();
+        }catch (Exception e){
+            e.printStackTrace();
+        }finally {
+        	   if(outputStream != null) {
+        		   try {
+					outputStream.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+        	   }
+        	   if(decryptInputStream != null) {
+        		   try {
+					decryptInputStream.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+        	   }
+        }
+    }
+    
+    public static InputStream getInputStream(String logUrl) {
+        InputStream inputStream = null;
+        HttpURLConnection httpURLConnection = null;
+        try {
+            URL url = new URL(logUrl);
+            httpURLConnection = (HttpURLConnection) url.openConnection();
+            httpURLConnection.setConnectTimeout(3000);
+            httpURLConnection.setDoInput(true);
+            httpURLConnection.setRequestMethod("GET");
+            httpURLConnection.setRequestProperty("Content-Type", "application/json; charset=utf-8");
+            inputStream = httpURLConnection.getInputStream();
+            
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return inputStream;
     }
 }
