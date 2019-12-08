@@ -78,6 +78,10 @@ public class SchedulerService {
                            jobInstanceResponse.getJobConf(),
                            DateUtils.getDateFromString(jobInstanceResponse.getScheduleTime(),DateUtils.DATE_TIME_FORMAT),
                            taskState));
+                String requestId = jobInstanceResponse.getJobConf().getId() + "-" + 
+                		DateUtils.getDateAsString(DateUtils.getDateFromString(jobInstanceResponse.getScheduleTime(),DateUtils.DATE_TIME_FORMAT),
+                				DateUtils.TIME_FORMAT);
+                JobStatusCheck.getJobInstanceRequestMap().remove(requestId);
        		} catch (Exception e) {
        			LOG.error(e);
        			throw e;
