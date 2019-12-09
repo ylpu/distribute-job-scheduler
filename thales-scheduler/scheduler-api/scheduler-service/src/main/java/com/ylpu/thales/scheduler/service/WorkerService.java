@@ -16,6 +16,8 @@ public interface WorkerService extends BaseService<SchedulerWorker,Integer>{
     
     public void updateWorkersStatusByGroup(WorkerGroupRequest param);
     
+    public void updateWorkersStatus(WorkerGroupRequest param);
+
     public List<WorkerResponse> getWorkersInfoByGroup(WorkerGroupRequest param);
     
     public void updateWorkerByHost(WorkerRequest request);

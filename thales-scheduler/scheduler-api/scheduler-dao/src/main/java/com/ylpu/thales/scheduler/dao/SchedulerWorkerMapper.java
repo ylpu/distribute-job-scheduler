@@ -10,6 +10,8 @@ public interface SchedulerWorkerMapper extends BaseDao<SchedulerWorker, Integer>
     
     void updateWorkersStatusByGroup(Map<String,Object> map);
     
+    void updateWorkersStatus(Map<String,Object> map);
+    
     List<SchedulerWorker> getWorkersInfoByGroup(Map<String,Object> map);
     
     Integer getAllWorkers();

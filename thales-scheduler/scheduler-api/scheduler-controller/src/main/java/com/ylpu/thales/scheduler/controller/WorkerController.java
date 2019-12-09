@@ -42,6 +42,12 @@ public class WorkerController {
     } 
     
     @ResponseBody
+    @RequestMapping(value="/updateWorkersStatus",method=RequestMethod.POST)
+    public void updateWorkersStatus(@RequestBody WorkerGroupRequest request) {
+        workerService.updateWorkersStatus(request);
+    }
+    
+    @ResponseBody
     @RequestMapping(value="/getWorkersInfoByGroup",method=RequestMethod.POST)
     public SchedulerResponse<List<WorkerResponse>> getWorkersInfoByGroup(@RequestBody WorkerGroupRequest request) {
         return new SchedulerResponse<List<WorkerResponse>>(workerService.getWorkersInfoByGroup(request));

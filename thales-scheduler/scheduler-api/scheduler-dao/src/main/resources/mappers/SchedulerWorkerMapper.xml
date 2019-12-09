@@ -235,6 +235,12 @@
        </foreach>
     </if>
   </update>
+  
+ <update id = "updateWorkersStatus" parameterType="java.util.Map">
+    update t_thales_scheduler_worker
+    set worker_status = #{status,jdbcType=TINYINT} 
+  </update>
+  
   <select id = "getWorkersInfoByGroup" parameterType="java.util.Map" resultMap="BaseResultMap">
   select * from t_thales_scheduler_worker where worker_group = #{groupName,jdbcType=VARCHAR} 
      <if test="workers != null and workers.size > 0">

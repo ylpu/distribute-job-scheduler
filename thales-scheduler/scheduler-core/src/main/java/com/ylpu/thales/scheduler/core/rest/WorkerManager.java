@@ -27,6 +27,12 @@ public class WorkerManager {
         RestClient.post(apiUrl +"worker/updateWorkersStatusByGroup",param,SchedulerResponse.class);
     }
     
+    public static void updateWorkersStatus(WorkerGroupRequest param) {
+        String apiUrl = Configuration.getString(Configuration.getConfig(),
+                "thales.api.url",GlobalConstants.DEFAULT_API_URL);
+        RestClient.post(apiUrl +"worker/updateWorkersStatus",param,SchedulerResponse.class);
+    }
+    
     public static void insertOrUpdateWorker(WorkerRequest workerRequest) {
         String apiUrl = Configuration.getString(Configuration.getConfig(),
                 "thales.api.url",GlobalConstants.DEFAULT_API_URL);

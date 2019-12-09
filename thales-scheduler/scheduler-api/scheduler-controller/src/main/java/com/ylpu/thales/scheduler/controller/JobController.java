@@ -1,9 +1,6 @@
 package com.ylpu.thales.scheduler.controller;
 
-import java.util.Enumeration;
 import java.util.List;
-
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.ws.rs.core.*;
 import org.springframework.beans.factory.annotation.Autowired;

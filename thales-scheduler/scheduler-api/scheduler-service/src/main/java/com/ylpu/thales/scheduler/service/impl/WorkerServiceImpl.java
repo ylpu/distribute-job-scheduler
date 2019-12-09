@@ -120,4 +120,11 @@ public class WorkerServiceImpl extends BaseServiceImpl<SchedulerWorker,Integer> 
 	public List<String> getAvailiableWorkerGroup() {
 		return schedulerWorkerMapper.getAvailiableWorkerGroup();
 	}
+
+    @Override
+    public void updateWorkersStatus(WorkerGroupRequest param) {
+        Map<String,Object> map = new HashMap<String,Object>();
+        map.put("status",param.getStatus().getCode());
+        schedulerWorkerMapper.updateWorkersStatus(map);
+    }
 }
