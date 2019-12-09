@@ -6,7 +6,6 @@ import com.ylpu.thales.scheduler.core.utils.JsonUtils;
 import com.ylpu.thales.scheduler.core.utils.TaskProcessUtils;
 import com.ylpu.thales.scheduler.executor.AbstractCommonExecutor;
 import com.ylpu.thales.scheduler.request.JobInstanceRequest;
-import org.apache.commons.lang3.StringUtils;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;

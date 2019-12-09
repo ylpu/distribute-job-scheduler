@@ -7,6 +7,7 @@ import com.ylpu.thales.scheduler.executor.command.CommandExecutor;
 import com.ylpu.thales.scheduler.executor.hive.HiveExecutor;
 import com.ylpu.thales.scheduler.executor.shell.ShellExecutor;
 import com.ylpu.thales.scheduler.executor.spark.*;
+import com.ylpu.thales.scheduler.executor.sql.SQLExecutor;
 import com.ylpu.thales.scheduler.executor.http.*;
 import com.ylpu.thales.scheduler.executor.python.PythonExecutor;
 
@@ -21,6 +22,7 @@ public class ExecutorManager {
         executors.put(JobType.COMMAND, CommandExecutor.class);
         executors.put(JobType.HTTP, HttpExecutor.class);
         executors.put(JobType.PYTHON, PythonExecutor.class);
+        executors.put(JobType.SQL, SQLExecutor.class);
     }
     public static Class<? extends AbstractCommonExecutor> getExecutor(JobType jobType){
         if(jobType == null || executors.get(jobType) == null) {
