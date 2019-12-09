@@ -84,9 +84,9 @@ public final class FileUtils {
 	       String parentPath = file.getParent();
 	       File parentfile = new File(parentPath);
 	       if (!parentfile.exists()) {
-	    	   parentfile.mkdirs();
+	    	       parentfile.mkdirs();
 	       }
-	       fop = new FileOutputStream(file);
+	       fop = new FileOutputStream(file,true);
 	       byte[] contentInBytes = content.getBytes();
 	       fop.write(contentInBytes);
 	   } catch (IOException e) {
