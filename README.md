@@ -121,7 +121,7 @@ api作为接口层，主要有如下功能：
   "workerGroupname": "hive"
 }
 }
-     * command : {
+     * sql : {
  "datasource":{
   "dbType":"mysql",
   "url": "jdbc:mysql://localhost:3306/thales?characterEncoding=utf8",
