@@ -4,6 +4,9 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletResponse;
+
 public class StreamUtils {
 	
     public static InputStream getInputStream(String logUrl) throws Exception {
@@ -17,5 +20,20 @@ public class StreamUtils {
         httpURLConnection.setRequestProperty("Content-Type", "application/json; charset=utf-8");
         inputStream = httpURLConnection.getInputStream();
         return inputStream;
+    }
+    
+    public static void writeOutput(InputStream inputStream,ServletOutputStream outputStream,HttpServletResponse response,String logUrl) throws Exception{
+        inputStream = getInputStream(logUrl);
+        if(inputStream != null) {
+            outputStream = response.getOutputStream();
+            // 在http响应中输出流
+            byte[] cache = new byte[1024];
+            int nRead = 0;
+            while ((nRead = inputStream.read(cache)) != -1) {
+                outputStream.write(cache, 0, nRead);
+                outputStream.flush();
+            }
+            outputStream.flush();
+        }
     }
 }

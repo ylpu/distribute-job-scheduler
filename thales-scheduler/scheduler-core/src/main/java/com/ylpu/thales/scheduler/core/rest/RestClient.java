@@ -45,6 +45,7 @@ public class RestClient {
         
         ResponseEntity<T> entity = null;
         HttpHeaders requestHeaders = new HttpHeaders();
+        requestHeaders.add("needAuthorize", "false");
         HttpEntity<String> httpEntity = null;
         if(headers != null && headers.size() > 0) {
         	   for(Entry<String,Object> entry : headers.entrySet()) {
@@ -80,6 +81,7 @@ public class RestClient {
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders requestHeaders = new HttpHeaders();
         requestHeaders.setContentType(MediaType.APPLICATION_JSON_UTF8);
+        requestHeaders.add("needAuthorize", "false");
         HttpEntity<Object> httpEntity = null;
         if(headers != null && headers.size() > 0) {
      	   for(Entry<String,Object> entry : headers.entrySet()) {

@@ -2,18 +2,13 @@ package com.ylpu.thales.scheduler.controller;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.List;
 import java.util.Map;
-
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import com.github.pagehelper.PageInfo;
-import com.ylpu.thales.scheduler.common.rest.RestClient;
 import com.ylpu.thales.scheduler.common.utils.StreamUtils;
-import com.ylpu.thales.scheduler.core.utils.FileUtils;
 import com.ylpu.thales.scheduler.request.JobInstanceRequest;
 import com.ylpu.thales.scheduler.request.JobStatusRequest;
 import com.ylpu.thales.scheduler.request.ScheduleRequest;
@@ -26,8 +21,6 @@ import com.ylpu.thales.scheduler.service.JobInstanceService;
 import com.ylpu.thales.scheduler.service.exception.ThalesRuntimeException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Controller;
@@ -125,19 +118,7 @@ public class JobInstanceController {
         ServletOutputStream outputStream = null;
         InputStream inputStream = null;
         try{
-            inputStream = StreamUtils.getInputStream(logUrl);
-            if(inputStream != null) {
-                outputStream = response.getOutputStream();
-                // 在http响应中输出流
-                byte[] cache = new byte[1024];
-                int nRead = 0;
-                while ((nRead = inputStream.read(cache)) != -1) {
-                    outputStream.write(cache, 0, nRead);
-                    outputStream.flush();
-                }
-                outputStream.flush();
-            }
-
+          	StreamUtils.writeOutput(inputStream, outputStream, response, logUrl);
         }catch (Exception e){
          	throw new ThalesRuntimeException("无法查看日志",e);
         }finally {
