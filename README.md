@@ -121,5 +121,16 @@ api作为接口层，主要有如下功能：
   "workerGroupname": "hive"
 }
 }
+   * sql : {
+ "datasource":{
+  "dbType":"mysql",
+  "url": "jdbc:mysql://localhost:3306/thales?characterEncoding=utf8",
+  "userName":"root",
+  "password":123456
+  },
+  "operator":"select",
+  "sql":"select * from t_thales_scheduler_job_instance where id = ?",
+  "parameters":{"param1":76}
+}
  * 修改任务
    * 参数与创建任务相同（修改后需要点击重新调度）
