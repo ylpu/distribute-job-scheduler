@@ -18,7 +18,6 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -95,10 +94,12 @@ public class SQLExecutor extends AbstractCommonExecutor{
         	    ResultSet rs = null;
         	    try {
         	        pstmt = conn.prepareStatement(sql);
-        	      	List<Object> mapValueList = new ArrayList<Object>(map.values()); 
-        	      	for(int i = 0 ; i< mapValueList.size() ; i++) {
-        	      		pstmt.setObject(i+1, mapValueList.get(i));
-        	      	}
+        	    	    if(map != null && map.size() > 0) {
+                	   List<Object> mapValueList = new ArrayList<Object>(map.values()); 
+                	   for(int i = 0 ; i< mapValueList.size() ; i++) {
+                	       pstmt.setObject(i+1, mapValueList.get(i));
+                	   }
+        	    	    }
         	        rs = pstmt.executeQuery();
         	      	extractor.extract(rs);
         	    }catch(Exception e) {
@@ -163,10 +164,12 @@ public class SQLExecutor extends AbstractCommonExecutor{
 		    ResultSet rs = null;
 		    try {
 		        pstmt = conn.prepareStatement(sql);
-		      	List<Object> valueList = new ArrayList<Object>(map.values()); 
-		      	for(int i = 0 ; i< valueList.size() ; i++) {
-		      		pstmt.setObject(i+1, valueList.get(i));
-		      	}
+		        if(map != null && map.size() > 0) {
+			      	List<Object> valueList = new ArrayList<Object>(map.values()); 
+			      	for(int i = 0 ; i< valueList.size() ; i++) {
+			      		pstmt.setObject(i+1, valueList.get(i));
+			      	}
+		        }
 		        pstmt.execute();
 		        FileUtils.writeFile("successful execute task " + request.getId(),logOutPath);
 		    }catch(Exception e) {
