@@ -138,5 +138,3 @@ api作为接口层，主要有如下功能：
    * 查看整个任务的依赖关系
  * 实例图
    * 图表方式查看任务近30天的运行情况
-
-  "url": "jdbc:mysql://localhost:3306/thales?characterEncoding=utf8",
