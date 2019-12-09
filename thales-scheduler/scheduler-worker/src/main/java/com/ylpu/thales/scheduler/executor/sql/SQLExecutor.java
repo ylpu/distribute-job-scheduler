@@ -18,6 +18,7 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -127,20 +128,33 @@ public class SQLExecutor extends AbstractCommonExecutor{
     	   }
     	   
     	   public void extract(ResultSet rs) throws Exception {
+    		   
     		   ResultSetMetaData metaData = rs.getMetaData();
-    		   StringBuilder sb = null;
+    		   writeHeader(metaData,logOutPath);
+           
+           StringBuilder dataBuilder = null;
+           int columnCount = metaData.getColumnCount();
            while(rs.next()){
-        	       sb = new StringBuilder(); 
-               int count = metaData.getColumnCount();
-               for (int i = 0; i < count; i++) {
+        	       dataBuilder = new StringBuilder(); 
+               for (int i = 0; i < columnCount; i++) {
                     String columnName = metaData.getColumnName(i+1);
                     Object object = rs.getObject(columnName);
-                    sb.append(object).append("\t");
+                    dataBuilder.append(object).append("\t");
                }
-               FileUtils.writeFile(sb.toString(),logOutPath);
+               FileUtils.writeFile(dataBuilder.toString(),logOutPath);
                FileUtils.writeFile("\n",logOutPath);
     	       }
         }
+    	    private void writeHeader(ResultSetMetaData metaData,String logOutPath) throws Exception {
+    			StringBuilder headerBuilder = new StringBuilder(); 
+    	        int columnCount = metaData.getColumnCount();
+    	        for (int i = 0; i < columnCount; i++) {
+    	             String columnName = metaData.getColumnName(i+1);
+    	             headerBuilder.append(columnName).append("\t");
+    	        }
+    	        FileUtils.writeFile(headerBuilder.toString(),logOutPath);
+    	        FileUtils.writeFile("\n",logOutPath);
+    	    }
     } 	
     
     private void execute(Connection conn,String sql, Map<String,Object> map,String logOutPath) throws Exception{
