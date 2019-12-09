@@ -98,7 +98,7 @@ api作为接口层，主要有如下功能：
   "id":45
 }
 }
-      * post:{"url":"http://localhost:8085/api/job/addJob",
+    * post:{"url":"http://localhost:8085/api/job/addJob",
 "method": "post",
 "parameters":{
   "alertTypes": "email",
@@ -121,7 +121,7 @@ api作为接口层，主要有如下功能：
   "workerGroupname": "hive"
 }
 }
-   * sql : {
+     * command : {
  "datasource":{
   "dbType":"mysql",
   "url": "jdbc:mysql://localhost:3306/thales?characterEncoding=utf8",
