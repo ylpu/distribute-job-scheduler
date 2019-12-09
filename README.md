@@ -98,7 +98,7 @@ api作为接口层，主要有如下功能：
   "id":45
 }
 }
-    * post:{"url":"http://localhost:8085/api/job/addJob",
+      * post:{"url":"http://localhost:8085/api/job/addJob",
 "method": "post",
 "parameters":{
   "alertTypes": "email",
