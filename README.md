@@ -89,7 +89,7 @@ api作为接口层，主要有如下功能：
     * command: {"commandLine" :"pwd;cat /tmp/log/scheduler-worker/info.log"}
     * shell: {"fileName" : "/tmp/shell/test.sh","parameters" : {"param1":"test"}}
     * python: {"fileName" : "/tmp/python/test.py","parameters" : {"param1":"test"}}
-    * hive: {"fileName" : "/tmp/shell/test.sh","parameters" : "","placeHolder":{"dt":"20191205","hm":"1000"}
+    * hive: {"fileName" : "/tmp/shell/test.hql","parameters" : "","placeHolder":{"dt":"20191205","hm":"1000"}
     * spark: {"fileName":"/tmp/shell/test.sql","parameters":{"masterUrl":"spark://localhost:7077","executorMemory":"2g","executorCores":2,"totalExecutorCores":20},"placeHolder":{"dt":"20191205","hm":"1000"}
     * http:
       * get:{"url":"http://localhost:8085/api/job/getJobById",
