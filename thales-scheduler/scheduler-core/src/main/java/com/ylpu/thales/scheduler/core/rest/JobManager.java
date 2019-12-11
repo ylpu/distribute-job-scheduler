@@ -130,6 +130,21 @@ public class JobManager {
         SchedulerResponse<JobResponse> jobResponse = RestClient.getForObject(apiUrl +"job/getJobById", typeRef,map);
         return jobResponse.getData();
     }
+    
+    /**
+     * 根据connectionId查看连接
+     * @param connectionId
+     * @return
+     */
+    public static ConnectionResponse getConnection(String connectionId) throws Exception{
+        String apiUrl = Configuration.getString(Configuration.getConfig(),
+                "thales.api.url",GlobalConstants.DEFAULT_API_URL);
+        Map<String,Object> map = new HashMap<String,Object>();
+        map.put("connectionId", connectionId);
+        ParameterizedTypeReference<SchedulerResponse<ConnectionResponse>> typeRef = new ParameterizedTypeReference<SchedulerResponse<ConnectionResponse>>() {};
+        SchedulerResponse<ConnectionResponse> jobResponse = RestClient.getForObject(apiUrl +"connection/getConnection", typeRef,map);
+        return jobResponse.getData();
+    }
     /**
      * 根据任务id查看任务树状结构
      * @param id

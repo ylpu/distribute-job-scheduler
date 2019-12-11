@@ -3,6 +3,9 @@ DROP TABLE IF EXISTS t_thales_scheduler_job_instance;
 DROP TABLE IF EXISTS t_thales_scheduler_job_relation;
 DROP TABLE IF EXISTS t_thales_scheduler_worker;
 DROP TABLE IF EXISTS t_thales_scheduler_user;
+DROP TABLE IF EXISTS t_thales_scheduler_role;
+DROP TABLE IF EXISTS t_thales_scheduler_user_role;
+DROP TABLE IF EXISTS t_thales_scheduler_connection;
 
 CREATE TABLE `t_thales_scheduler_job` (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键',
@@ -82,11 +85,45 @@ CREATE TABLE `t_thales_scheduler_worker` (
   `update_time` datetime DEFAULT NULL COMMENT '用户修改时间',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=66 DEFAULT CHARSET=utf8;
- 
+
+CREATE TABLE `t_thales_scheduler_role` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `role_name` varchar(512) DEFAULT NULL COMMENT '角色名',
+  `create_time` datetime DEFAULT NULL COMMENT '角色创建时间',
+  `update_time` datetime DEFAULT NULL COMMENT '角色修改时间',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=66 DEFAULT CHARSET=utf8;
+
+CREATE TABLE `t_thales_scheduler_user_role` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `user_id` int(4) DEFAULT NULL COMMENT '用户id',
+  `role_id` int(4) DEFAULT NULL COMMENT '角色id',
+  `create_time` datetime DEFAULT NULL COMMENT '用户角色创建时间',
+  `update_time` datetime DEFAULT NULL COMMENT '用户角色修改时间',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=66 DEFAULT CHARSET=utf8;
+
+CREATE TABLE `t_thales_scheduler_connection` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `connection_id` varchar(50) DEFAULT NULL COMMENT '连接名',
+  `connection_type` varchar(50) DEFAULT NULL COMMENT '连接类型',
+  `hostname` varchar(50) DEFAULT NULL COMMENT '主机名',
+  `port` int(5) DEFAULT NULL COMMENT '端口号',
+  `db_schema` varchar(50) DEFAULT NULL COMMENT '数据库',
+  `username` varchar(50) DEFAULT NULL COMMENT '用户名',
+  `password` varchar(50) DEFAULT NULL COMMENT '密码',
+  `create_time` datetime DEFAULT NULL COMMENT '连接创建时间',
+  `update_time` datetime DEFAULT NULL COMMENT '连接修改时间',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=66 DEFAULT CHARSET=utf8;
+
 CREATE INDEX idx_schedule ON t_thales_scheduler_job_instance (job_id,schedule_time);
 CREATE INDEX idx_job_name ON t_thales_scheduler_job (job_name);
 CREATE INDEX idx_job_type ON t_thales_scheduler_job (job_type);
 CREATE INDEX idx_user_name ON t_thales_scheduler_user (user_name);
+CREATE INDEX idx_connection_id ON t_thales_scheduler_connection (connection_id);
+CREATE INDEX idx_role_name ON t_thales_scheduler_role (role_name);
+CREATE INDEX idx_user_role ON t_thales_scheduler_user_role (user_id,role_id);
 
 DROP TABLE IF EXISTS QRTZ_FIRED_TRIGGERS;  
 DROP TABLE IF EXISTS QRTZ_PAUSED_TRIGGER_GRPS;  

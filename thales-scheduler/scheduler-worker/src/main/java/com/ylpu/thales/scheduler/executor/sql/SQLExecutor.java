@@ -1,6 +1,7 @@
 package com.ylpu.thales.scheduler.executor.sql;
 
 import com.ylpu.thales.scheduler.core.config.Configuration;
+import com.ylpu.thales.scheduler.core.rest.JobManager;
 import com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc;
 import com.ylpu.thales.scheduler.core.rpc.entity.JobStatusRequestRpc;
 import com.ylpu.thales.scheduler.core.utils.DateUtils;
@@ -12,6 +13,7 @@ import com.ylpu.thales.scheduler.enums.SQLOperator;
 import com.ylpu.thales.scheduler.enums.TaskState;
 import com.ylpu.thales.scheduler.executor.AbstractCommonExecutor;
 import com.ylpu.thales.scheduler.request.JobInstanceRequest;
+import com.ylpu.thales.scheduler.response.ConnectionResponse;
 import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -63,7 +65,7 @@ public class SQLExecutor extends AbstractCommonExecutor{
          	SQLConfig sqlConfig = JsonUtils.jsonToBean(jobConfig, SQLConfig.class);
           	String operator = sqlConfig.getOperator();
           	SQLOperator sqlOperator = SQLOperator.getSQLOperator(operator);
-    		    Connection connection = getConnection(sqlConfig.getDatasource());
+    		    Connection connection = getConnection(sqlConfig.getConnection());
     		    try {
     	          	switch(sqlOperator) {
     	          	   case SELECT:
@@ -191,12 +193,13 @@ public class SQLExecutor extends AbstractCommonExecutor{
 	    }
     }
     
-    private Connection getConnection(Map<String,Object> map) throws Exception {
-    	   DBType dbType = DBType.getDBType(map.get("dbType").toString());
+    private Connection getConnection(String connectionId) throws Exception {
+    	   ConnectionResponse cr = JobManager.getConnection(connectionId);
+    	   DBType dbType = DBType.getDBType(cr.getConnectionType());
     	   String className = DriverProvider.getDriver(dbType);
-    	   String url = map.get("url").toString();
-    	   String userName = map.get("userName").toString();
-    	   String password = map.get("password").toString();
+    	   String url = "jdbc:" + dbType.toString().toLowerCase() + "://" + cr.getHostname() + ":" + cr.getPort() + "/" + cr.getDbSchema();
+    	   String userName = cr.getUsername();
+    	   String password = cr.getPassword();
        Class.forName(className);
        Connection connection =  DriverManager.getConnection(url, userName, password);
        return connection;

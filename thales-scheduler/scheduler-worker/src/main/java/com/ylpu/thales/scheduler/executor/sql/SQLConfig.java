@@ -4,16 +4,16 @@ import java.util.Map;
 
 public class SQLConfig {
 	
-	private Map<String,Object> datasource;
+	private String connectionId;
 	private String operator;
 	private String sql;
 	private Map<String,Object> parameters;
 	
-	public Map<String, Object> getDatasource() {
-		return datasource;
+	public String getConnection() {
+		return connectionId;
 	}
-	public void setDatasource(Map<String, Object> datasource) {
-		this.datasource = datasource;
+	public void setConnection(String connectionId) {
+		this.connectionId = connectionId;
 	}
 	public String getOperator() {
 		return operator;
