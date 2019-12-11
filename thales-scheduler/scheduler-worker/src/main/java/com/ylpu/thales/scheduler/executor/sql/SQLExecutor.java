@@ -62,11 +62,12 @@ public class SQLExecutor extends AbstractCommonExecutor{
         
       	String jobConfig = requestRpc.getJob().getJobConfiguration();
       	if(StringUtils.isNotBlank(jobConfig)) {
-         	SQLConfig sqlConfig = JsonUtils.jsonToBean(jobConfig, SQLConfig.class);
-          	String operator = sqlConfig.getOperator();
-          	SQLOperator sqlOperator = SQLOperator.getSQLOperator(operator);
-    		    Connection connection = getConnection(sqlConfig.getConnection());
+      		Connection connection = null;
     		    try {
+    	         	SQLConfig sqlConfig = JsonUtils.jsonToBean(jobConfig, SQLConfig.class);
+    	          	String operator = sqlConfig.getOperator();
+    	          	SQLOperator sqlOperator = SQLOperator.getSQLOperator(operator);
+    	    		    connection = getConnection(sqlConfig.getConnection());
     	          	switch(sqlOperator) {
     	          	   case SELECT:
     	          		   select(connection,new JdbcExtractor(logOutPath),sqlConfig.getSql(),sqlConfig.getParameters(),logOutPath);
@@ -82,7 +83,10 @@ public class SQLExecutor extends AbstractCommonExecutor{
     	          		   break;
     	          	   default:
     	          	} 	
-    		    }finally {
+    		    }catch(Exception e) {
+    		        FileUtils.writeFile("failed to execute task " + request.getId() + " with exception " + e.getMessage(),logOutPath);
+    	    	        throw e;
+    	        }finally {
     		    	   if(connection != null) {
     		    		  connection.close();
     		    	   }
@@ -105,7 +109,7 @@ public class SQLExecutor extends AbstractCommonExecutor{
         	        rs = pstmt.executeQuery();
         	      	extractor.extract(rs);
         	    }catch(Exception e) {
-    		        FileUtils.writeFile("failed to execute task " + request.getId(),logOutPath);
+    		        FileUtils.writeFile("failed to execute task " + request.getId() + " with exception " + e.getMessage(),logOutPath);
         	    	    throw e;
         	    }finally {
         	    	    try {
@@ -175,7 +179,7 @@ public class SQLExecutor extends AbstractCommonExecutor{
 		        pstmt.execute();
 		        FileUtils.writeFile("successful execute task " + request.getId(),logOutPath);
 		    }catch(Exception e) {
-		        FileUtils.writeFile("failed to execute task " + request.getId(),logOutPath);
+		        FileUtils.writeFile("failed to execute task " + request.getId() + " with exception " + e.getMessage(),logOutPath);
 		    	    throw e;
 		    }finally {
 		    	    try {
@@ -186,7 +190,7 @@ public class SQLExecutor extends AbstractCommonExecutor{
 	  	    	    	   rs.close();
 	  	    	    }
 		    	    }catch(Exception e1) {
-	    		      FileUtils.writeFile("failed to execute task " + request.getId(),logOutPath);
+	    		      FileUtils.writeFile("failed to execute task " + request.getId() + " with exception " + e1.getMessage(),logOutPath);
 		    	    	  throw e1;
 		    	    }
 		    }

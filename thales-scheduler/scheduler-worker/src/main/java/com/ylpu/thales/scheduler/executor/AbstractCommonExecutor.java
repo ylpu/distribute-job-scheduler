@@ -86,7 +86,7 @@ public abstract class AbstractCommonExecutor{
             request.setLogUrl("http://" + MetricsUtils.getHostIpAddress() + ":" + logServerPort
                     + "/api/log/viewLog/" + requestRpc.getId());
     		   JobManager.updateJobInstanceSelective(request);
-        	   FileUtils.writeFile(e.getMessage(), logOutPath);
+        	   FileUtils.writeFile("failed to execute task " + request.getId() + " with exception " + e.getMessage(), logOutPath);
         	   throw e;
         }
     }

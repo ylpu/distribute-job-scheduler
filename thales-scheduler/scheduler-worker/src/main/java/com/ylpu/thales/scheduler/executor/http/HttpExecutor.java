@@ -77,7 +77,7 @@ public class HttpExecutor extends AbstractCommonExecutor{
           	    	default:    		
           	}
         }catch(Exception e) {
-          	FileUtils.writeFile("error to execute task " + request.getId(),logOutPath);
+          	FileUtils.writeFile("failed to execute task " + request.getId() + " with exception " + e.getMessage(),logOutPath);
         	    throw e;
         }
     }
