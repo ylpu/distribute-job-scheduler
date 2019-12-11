@@ -122,12 +122,7 @@ api作为接口层，主要有如下功能：
 }
 }
      * sql : {
- "datasource":{
-  "dbType":"mysql",
-  "url": "jdbc:mysql://localhost:3306/thales?characterEncoding=utf8",
-  "userName":"root",
-  "password":123456
-  },
+  "connection":"mysql-test",
   "operator":"select",
   "sql":"select * from t_thales_scheduler_job_instance where id = ?",
   "parameters":{"param1":76}
