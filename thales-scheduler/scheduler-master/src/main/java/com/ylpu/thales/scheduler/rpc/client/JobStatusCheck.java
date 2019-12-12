@@ -94,7 +94,7 @@ public class JobStatusCheck {
                     }
                     if(ids == list.size() || isRootJob(list)) {
                         String requestId = dependsMap.remove(entry.getKey());
-                        JobInstanceRequestRpc request = jobInstanceRequestMap.get(requestId);
+                        JobInstanceRequestRpc request = jobInstanceRequestMap.remove(requestId);
                         JobSubmission.addWaitingTask(new TaskCall(request,GrpcType.ASYNC));
                     }
                 }

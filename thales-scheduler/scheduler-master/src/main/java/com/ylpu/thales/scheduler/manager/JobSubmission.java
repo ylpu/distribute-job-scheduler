@@ -15,6 +15,7 @@ import com.ylpu.thales.scheduler.enums.JobReleaseState;
 import com.ylpu.thales.scheduler.enums.JobType;
 import com.ylpu.thales.scheduler.enums.TaskState;
 import com.ylpu.thales.scheduler.request.JobInstanceRequest;
+import com.ylpu.thales.scheduler.request.JobStatusRequest;
 import com.ylpu.thales.scheduler.response.JobResponse;
 import com.ylpu.thales.scheduler.response.WorkerResponse;
 import com.ylpu.thales.scheduler.rpc.client.AbstractJobGrpcClient;
@@ -26,6 +27,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -49,7 +51,11 @@ public class JobSubmission {
 
     private static PriorityBlockingQueue<TaskCall> waitingQueue = new PriorityBlockingQueue<TaskCall>();
 
-    static {
+    public static PriorityBlockingQueue<TaskCall> getWaitingQueue() {
+		return waitingQueue;
+	}
+
+	static {
         init();
     }
     
@@ -154,11 +160,12 @@ public class JobSubmission {
                 if(taskCall != null) {
                     AbstractJobGrpcClient client = null;
                     try {
-                        client = getClient(taskCall.getRpcRequest(),taskCall.getGrpcType());
                         try {
+                             client = getClient(taskCall.getRpcRequest(),taskCall.getGrpcType());
                              client.submitJob(taskCall.getRpcRequest());
                         } catch (Exception e) {
                              LOG.error(e);
+                             processException(taskCall.getRpcRequest());
                         }
                     }finally {
                         //同步rpc直接关闭，异步rpc需要内部关闭
@@ -170,6 +177,24 @@ public class JobSubmission {
                     }
                 }
             }
+        }
+        private void processException(JobInstanceRequestRpc request) {
+		    JobStatusRequest jr = new JobStatusRequest();
+		    jr.setIds(Arrays.asList(request.getId()));
+		    jr.setStatus(TaskState.FAIL);
+            try {
+				JobManager.updateJobStatus(jr);
+			} catch (Exception e) {
+				LOG.error(e);
+			}
+    	        String responseId = request.getJob().getId() + "-" + DateUtils.getDateAsString(DateUtils.getDatetime(request.getScheduleTime()),DateUtils.TIME_FORMAT);
+    	        JobInstanceResponseRpc response = JobInstanceResponseRpc.newBuilder()
+    	                .setResponseId(responseId)
+    	                .setErrorCode(500)
+    	                .setTaskState(TaskState.FAIL.getCode())
+    	                .setErrorMsg("failed to execute job")
+    	                .build();
+    	        JobStatusCheck.addResponse(response);
         }
     }
     
@@ -213,20 +238,23 @@ public class JobSubmission {
     
     private static WorkerResponse getAvailableWorker(String workerGroup,int jobId) {
         WorkerResponse worker = null;
-        while(true) {
+        int i = 1 ;
+        while(i <= 3 ) {
             try {      
                 worker = MasterManager.getInstance().getIdleWorker(
                         workerGroup, "");
                 return worker;
             }catch(Exception e) {
-                LOG.error("无法执行任务" + jobId + "因为" + e.getMessage());
+                LOG.error("can not get available resource to execute task " + jobId + " with  " + i + " tries");
             }
             try {
                 Thread.sleep(RESOURCE_CHECK_INTERVAL);
             } catch (InterruptedException e) {
                 LOG.error(e);
             }
+            i++;
         }
+        throw new RuntimeException("can not get available resource to execute task " + jobId);
     }
 
         

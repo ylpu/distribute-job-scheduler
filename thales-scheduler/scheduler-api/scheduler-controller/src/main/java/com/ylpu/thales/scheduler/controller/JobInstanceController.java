@@ -78,8 +78,8 @@ public class JobInstanceController {
     
     @ResponseBody
     @RequestMapping(value="/getInstanceIdByTime",method=RequestMethod.GET)
-    public SchedulerResponse<Integer> getInstanceIdByTime(@RequestParam("jobId") Integer jobId,@RequestParam("scheduleTime") String scheduleTime) {
-       return new SchedulerResponse<Integer>(jobInstanceService.getInstanceIdByTime(jobId,scheduleTime));
+    public SchedulerResponse<JobInstanceResponse> getInstanceIdByTime(@RequestParam("jobId") Integer jobId,@RequestParam("scheduleTime") String scheduleTime) {
+       return new SchedulerResponse<JobInstanceResponse>(jobInstanceService.getInstanceIdByTime(jobId,scheduleTime));
     }
     
     /**

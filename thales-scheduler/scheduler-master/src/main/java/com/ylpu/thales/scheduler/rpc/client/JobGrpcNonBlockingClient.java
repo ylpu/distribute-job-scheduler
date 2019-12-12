@@ -63,7 +63,6 @@ public class JobGrpcNonBlockingClient extends AbstractJobGrpcClient{
             addCallBack(future,executorService,requestRpc,request);
         }catch(Exception e) {
              LOG.error("任务 " + requestRpc.getId() + " 执行失败,异常" + e.getMessage());
-             JobStatusCheck.getJobInstanceRequestMap().remove(requestRpc.getRequestId());
              try {
                  updateTaskStatus(request,TaskState.FAIL.getCode());
              }catch(Exception e1) {
@@ -85,7 +84,6 @@ public class JobGrpcNonBlockingClient extends AbstractJobGrpcClient{
                     @Override
                     public void onSuccess(JobInstanceResponseRpc result) {
                         LOG.info("任务" + requestRpc.getId() + "执行完成");
-                        JobStatusCheck.getJobInstanceRequestMap().remove(requestRpc.getRequestId());
                         try {
                             updateTaskStatus(request,result.getTaskState());
                         } catch (Exception e) {
@@ -101,7 +99,6 @@ public class JobGrpcNonBlockingClient extends AbstractJobGrpcClient{
                     @Override
                     public void onFailure(Throwable t) {
                         LOG.error("任务" + requestRpc.getId() + "执行失败,异常" + t.getMessage());
-                        JobStatusCheck.getJobInstanceRequestMap().remove(requestRpc.getRequestId());
                         try {
                             updateTaskStatus(request,TaskState.FAIL.getCode());
                         } catch (Exception e) {

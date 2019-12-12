@@ -78,10 +78,6 @@ public class SchedulerService {
                            jobInstanceResponse.getJobConf(),
                            DateUtils.getDateFromString(jobInstanceResponse.getScheduleTime(),DateUtils.DATE_TIME_FORMAT),
                            taskState));
-                String requestId = jobInstanceResponse.getJobConf().getId() + "-" + 
-                		DateUtils.getDateAsString(DateUtils.getDateFromString(jobInstanceResponse.getScheduleTime(),DateUtils.DATE_TIME_FORMAT),
-                				DateUtils.TIME_FORMAT);
-                JobStatusCheck.getJobInstanceRequestMap().remove(requestId);
        		} catch (Exception e) {
        			LOG.error(e);
        			throw e;
@@ -173,10 +169,9 @@ public class SchedulerService {
             	   LOG.warn("实例" + id + "对应的任务已经下线或者不存在");
             	   return;
             }
-            String requestId = jobInstanceResponse.getJobConf().getId() + "-" + 
-            		DateUtils.getDateAsString(DateUtils.getDateFromString(jobInstanceResponse.getScheduleTime(),DateUtils.DATE_TIME_FORMAT),
-            				DateUtils.TIME_FORMAT);
-            if(JobStatusCheck.getJobInstanceRequest(requestId) != null) {
+            if(jobInstanceResponse.getTaskState() == TaskState.SUBMIT || jobInstanceResponse.getTaskState() == TaskState.PENDING || 
+            		jobInstanceResponse.getTaskState() == TaskState.WAITING
+            		|| jobInstanceResponse.getTaskState() == TaskState.RUNNING){
             	   LOG.warn("已经有一个实例准备运行或者在运行中"+ id);
             	   return;
             }else {
@@ -238,9 +233,9 @@ public class SchedulerService {
     private void rerunChild(Date startScheduleTime,JobTree jobTree) throws Exception {
         try {
             String scheduleTime  = caculateJobScheduleTime(startScheduleTime,jobTree.getScheduleCron());
-            Integer instanceId = JobManager.getInstanceIdByTime(jobTree.getJobId(),scheduleTime);
-            if(instanceId != null) {
-                rerun(instanceId);
+            JobInstanceResponse response = JobManager.getInstanceIdByTime(jobTree.getJobId(),scheduleTime);
+            if(response != null && response.getId() != null) {
+                rerun(response.getId());
             }
             if(jobTree.getChildren() != null) {
                 for(JobTree child : jobTree.getChildren()) {

@@ -105,8 +105,25 @@ public class JobInstanceServiceImpl extends BaseServiceImpl<SchedulerJobInstance
         return response;
     }	
     
-    public Integer getInstanceIdByTime(Integer jobId,String scheduleTime) {
-        return schedulerJobInstanceMapper.getInstanceIdByTime(jobId, scheduleTime);
+    public JobInstanceResponse getInstanceIdByTime(Integer jobId,String scheduleTime) {
+      	SchedulerJobInstance schedulerJobInstance = schedulerJobInstanceMapper.getInstanceIdByTime(jobId, scheduleTime);
+        JobInstanceResponse response = new JobInstanceResponse();
+        if(schedulerJobInstance != null) {
+            BeanUtils.copyProperties(schedulerJobInstance, response);
+            response.setTaskState(TaskState.getTaskStateById(schedulerJobInstance.getTaskState()));
+            response.setJobId(schedulerJobInstance.getJobId());
+			if(schedulerJobInstance.getScheduleTime() != null) {
+				response.setScheduleTime(DateUtils.getDateAsString(schedulerJobInstance.getScheduleTime(),DateUtils.DATE_TIME_FORMAT));
+			}
+			if(schedulerJobInstance.getStartTime() != null) {
+				response.setStartTime(DateUtils.getDateAsString(schedulerJobInstance.getStartTime(),DateUtils.DATE_TIME_FORMAT));
+			}
+			if(schedulerJobInstance.getEndTime() != null) {
+				response.setEndTime(DateUtils.getDateAsString(schedulerJobInstance.getEndTime(),DateUtils.DATE_TIME_FORMAT));
+			}
+			response.setJobReleasestate(JobReleaseState.getJobReleaseState(schedulerJobInstance.getJobReleasestate()).name());
+        }
+        return response;
     }
 
     

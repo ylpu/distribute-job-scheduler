@@ -165,14 +165,14 @@ public class JobManager {
      * @param scheduleTime
      * @return
      */
-    public static Integer getInstanceIdByTime(Integer jobId,String scheduleTime) throws Exception{
+    public static JobInstanceResponse getInstanceIdByTime(Integer jobId,String scheduleTime) throws Exception{
         String apiUrl = Configuration.getString(Configuration.getConfig(),
                 "thales.api.url",GlobalConstants.DEFAULT_API_URL);
         Map<String,Object> map = new HashMap<String,Object>();
         map.put("jobId", jobId);
         map.put("scheduleTime", scheduleTime);
-        ParameterizedTypeReference<SchedulerResponse<Integer>> typeRef = new ParameterizedTypeReference<SchedulerResponse<Integer>>() {};
-        SchedulerResponse<Integer> jobResponse = RestClient.getForObject(apiUrl +"jobInstance/getInstanceIdByTime", typeRef,map);
+        ParameterizedTypeReference<SchedulerResponse<JobInstanceResponse>> typeRef = new ParameterizedTypeReference<SchedulerResponse<JobInstanceResponse>>() {};
+        SchedulerResponse<JobInstanceResponse> jobResponse = RestClient.getForObject(apiUrl +"jobInstance/getInstanceIdByTime", typeRef,map);
         return jobResponse.getData();
     }
 }

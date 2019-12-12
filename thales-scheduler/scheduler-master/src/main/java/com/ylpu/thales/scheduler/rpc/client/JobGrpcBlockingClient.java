@@ -75,7 +75,6 @@ public class JobGrpcBlockingClient extends AbstractJobGrpcClient{
             responseRpc = buildResponse(requestRpc,TaskState.RUNNING,500,
                     "failed to kill task " + requestRpc.getId());
         }
-        JobStatusCheck.getJobInstanceRequestMap().remove(requestRpc.getRequestId());
         JobStatusCheck.addResponse(responseRpc);
         
         if(responseRpc.getErrorCode() != 200) {
