@@ -88,17 +88,18 @@ public class JobSubmission {
             JobManager.updateJobInstanceSelective(request);
             
             responseRpc = buildResponse(requestRpc,TaskState.WAITING,200,"");
+            JobStatusCheck.addResponse(responseRpc);
         }catch(Exception e) {
             LOG.error("任务 " + requestRpc.getId() + " 执行失败,异常" + e.getMessage());
              try {
                   updateTaskStatus(request,TaskState.FAIL.getCode());
+                  responseRpc = buildResponse(requestRpc,TaskState.FAIL,500,
+                          "failed to execute task " + requestRpc.getId());
+                  JobStatusCheck.addResponse(responseRpc);
              } catch (Exception e1) {
                   LOG.error(e1);
              }
-             responseRpc = buildResponse(requestRpc,TaskState.FAIL,500,
-                     "failed to execute task " + requestRpc.getId());
         }
-        JobStatusCheck.addResponse(responseRpc);
     }
     
     private static List<JobDependency> getLatestJobDepends(JobInstanceRequestRpc request) {
@@ -184,17 +185,17 @@ public class JobSubmission {
 		    jr.setStatus(TaskState.FAIL);
             try {
 				JobManager.updateJobStatus(jr);
-			} catch (Exception e) {
-				LOG.error(e);
-			}
-    	        String responseId = request.getJob().getId() + "-" + DateUtils.getDateAsString(DateUtils.getDatetime(request.getScheduleTime()),DateUtils.TIME_FORMAT);
-    	        JobInstanceResponseRpc response = JobInstanceResponseRpc.newBuilder()
+    	            String responseId = request.getJob().getId() + "-" + DateUtils.getDateAsString(DateUtils.getDatetime(request.getScheduleTime()),DateUtils.TIME_FORMAT);
+    	            JobInstanceResponseRpc response = JobInstanceResponseRpc.newBuilder()
     	                .setResponseId(responseId)
     	                .setErrorCode(500)
     	                .setTaskState(TaskState.FAIL.getCode())
     	                .setErrorMsg("failed to execute job")
     	                .build();
-    	        JobStatusCheck.addResponse(response);
+    	            JobStatusCheck.addResponse(response);
+			} catch (Exception e) {
+				LOG.error(e);
+			}
         }
     }
     
