@@ -251,8 +251,12 @@
      </if>
   </select>
   
- <select id = "getAvailiableWorkerGroup" resultType="java.lang.String">
-     select worker_group from t_thales_scheduler_worker where worker_status !=3 group by worker_group
+ <select id = "getWorkerGroups" resultType="java.lang.String" parameterType="java.lang.Integer">
+     select worker_group from t_thales_scheduler_worker where 1=1
+     <if test="workerStatus != null" >
+        and worker_status != #{workerStatus,jdbcType=INTEGER}
+      </if>
+     group by worker_group
   </select>
   
    <select id = "getAllWorkers" resultType="java.lang.Integer">

@@ -29,7 +29,7 @@
     <include refid="Base_Column_List" />
     from t_thales_scheduler_connection where 1=1
     <if test="connectionId != null and connectionId != ''">
-          and connection_id = #{connectionId}
+          and connection_id like concat(concat('%',#{connectionId}),'%')
     </if>
     ORDER BY create_time DESC
   </select>

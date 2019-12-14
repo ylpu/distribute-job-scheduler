@@ -24,6 +24,6 @@ public interface WorkerService extends BaseService<SchedulerWorker,Integer>{
     
     public PageInfo<WorkerResponse> findAll(String workerGroup, String worker, int pageNo,int pageSize);
     
-    public List<String> getAvailiableWorkerGroup();
+    public List<String> getWorkerGroups(Integer workerStatus);
     
 }

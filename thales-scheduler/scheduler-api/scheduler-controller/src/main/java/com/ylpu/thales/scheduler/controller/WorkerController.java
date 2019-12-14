@@ -54,9 +54,9 @@ public class WorkerController {
     } 
     
     @ResponseBody
-    @RequestMapping(value="/getWorkerGroup",method=RequestMethod.GET)
-    public SchedulerResponse<List<String>> getWorkerGroup() {
-        return new SchedulerResponse<List<String>>(workerService.getAvailiableWorkerGroup());
+    @RequestMapping(value="/getWorkerGroups",method=RequestMethod.GET)
+    public SchedulerResponse<List<String>> getWorkerGroups(@RequestParam(value = "workerStatus",required = false) Integer workerStatus) {
+        return new SchedulerResponse<List<String>>(workerService.getWorkerGroups(workerStatus));
     }
     
     @ResponseBody

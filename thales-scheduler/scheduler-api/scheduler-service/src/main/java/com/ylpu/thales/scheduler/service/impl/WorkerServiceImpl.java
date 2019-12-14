@@ -117,8 +117,8 @@ public class WorkerServiceImpl extends BaseServiceImpl<SchedulerWorker,Integer> 
 	}
 
 	@Override
-	public List<String> getAvailiableWorkerGroup() {
-		return schedulerWorkerMapper.getAvailiableWorkerGroup();
+	public List<String> getWorkerGroups(Integer workerStatus) {
+		return schedulerWorkerMapper.getWorkerGroups(workerStatus);
 	}
 
     @Override
