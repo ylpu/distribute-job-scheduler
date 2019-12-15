@@ -135,7 +135,8 @@ public class JobServiceImpl extends BaseServiceImpl<SchedulerJob,Integer> implem
 			throw new ThalesRuntimeException("请重新登陆");
 		}
  		UserResponse user = (UserResponse)object;
- 	    if(user.getUserName().equalsIgnoreCase(ownerId)) {
+ 		List<String> owners = Arrays.asList(ownerId.split(","));
+ 	    if(owners.contains(user.getUserName())) {
  	        return true;
  	    }else {
             return false;

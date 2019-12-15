@@ -81,6 +81,8 @@ CREATE TABLE `t_thales_scheduler_worker` (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键',
   `user_name` varchar(512) DEFAULT NULL COMMENT '用户名',
   `password` varchar(512) DEFAULT NULL COMMENT '密码',
+  `confirm_pass` varchar(512) DEFAULT NULL COMMENT '确认密码',
+  `email` varchar(512) DEFAULT NULL COMMENT '邮箱地址',
   `create_time` datetime DEFAULT NULL COMMENT '用户创建时间',
   `update_time` datetime DEFAULT NULL COMMENT '用户修改时间',
   PRIMARY KEY (`id`)

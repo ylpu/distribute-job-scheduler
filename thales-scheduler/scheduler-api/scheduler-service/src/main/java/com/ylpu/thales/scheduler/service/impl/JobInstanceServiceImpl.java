@@ -1,6 +1,7 @@
 package com.ylpu.thales.scheduler.service.impl;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -295,7 +296,8 @@ public class JobInstanceServiceImpl extends BaseServiceImpl<SchedulerJobInstance
 		}
  		JobInstanceResponse instanceResponse = getJobInstanceById(request.getId());
  		UserResponse user = (UserResponse)object;
- 	    if(user.getUserName().equalsIgnoreCase(instanceResponse.getJobConf().getOwnerIds())) {
+ 		List<String> owners = Arrays.asList(instanceResponse.getJobConf().getOwnerIds().split(","));
+ 	    if(owners.contains(user.getUserName())) {
  	        return true;
  	    }else {
             return false;

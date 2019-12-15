@@ -1,8 +1,10 @@
 package com.ylpu.thales.scheduler.service;
 
+import com.github.pagehelper.PageInfo;
 import com.ylpu.thales.scheduler.common.service.BaseService;
 import com.ylpu.thales.scheduler.entity.SchedulerUser;
 import com.ylpu.thales.scheduler.request.UserRequest;
+import com.ylpu.thales.scheduler.request.UserRoleRequest;
 import com.ylpu.thales.scheduler.response.UserResponse;
 
 /**
@@ -19,7 +21,7 @@ public interface UserService extends BaseService<SchedulerUser,Integer>{
      * @param user user
      * @return Role
      */
-    void saveByUser(UserRequest user);
+    void insertOrUpdate(UserRequest user);
 
     /**
      * 根据用户名获得用户
@@ -44,4 +46,10 @@ public interface UserService extends BaseService<SchedulerUser,Integer>{
      * @return
      */
     UserResponse findByUserName(String userName);
+    
+    PageInfo<UserResponse> findAll(String jobName,int pageNo,int pageSize);
+    
+    void deleteUser(Integer id);
+    
+    void setRoles(UserRoleRequest request);
 }

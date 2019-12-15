@@ -65,7 +65,7 @@
         </javaClientGenerator>
 
         <!-- 配置表信息 -->
-        <table tableName="t_thales_scheduler_connection" domainObjectName="SchedulerConnection" enableCountByExample="false" enableUpdateByExample="false" 
+        <table tableName="t_thales_scheduler_role" domainObjectName="SchedulerRole" enableCountByExample="false" enableUpdateByExample="false" 
             enableDeleteByExample="false" enableSelectByExample="false" selectByExampleQueryId="false"></table>  
 
     </context>
