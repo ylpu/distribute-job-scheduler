@@ -3,12 +3,13 @@ package com.ylpu.thales.scheduler;
 import com.ylpu.thales.scheduler.core.config.Configuration;
 import com.ylpu.thales.scheduler.core.constants.GlobalConstants;
 import com.ylpu.thales.scheduler.core.rpc.entity.WorkerRequestRpc;
-import com.ylpu.thales.scheduler.core.utils.DateUtils;
+import com.ylpu.thales.scheduler.core.utils.ByteUtils;
 import com.ylpu.thales.scheduler.core.utils.MetricsUtils;
 import com.ylpu.thales.scheduler.core.zk.CuratorHelper;
 import com.ylpu.thales.scheduler.enums.NodeType;
 import com.ylpu.thales.scheduler.enums.WorkerStatus;
 import com.ylpu.thales.scheduler.log.LogServer;
+import com.ylpu.thales.scheduler.request.WorkerRequest;
 import com.ylpu.thales.scheduler.rpc.client.WorkerGrpcClient;
 import com.ylpu.thales.scheduler.rpc.server.WorkerRpcServer;
 import org.I0Itec.zkclient.ZkClient;
@@ -17,6 +18,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.zookeeper.CreateMode;
+import java.util.Date;
 import java.util.Properties;
 
 public class WorkerServer {
@@ -40,7 +42,6 @@ public class WorkerServer {
     public void start() {
         Properties prop = Configuration.getConfig();
         int workerServerPort = Configuration.getInt(prop,"thales.worker.server.port",DEFAULT_WORKER_SERVER_PORT);
-        String workerGroup = Configuration.getString(prop, "thales.worker.group", DEFAULT_WORKER_GROUP);
         long heartBeatInterval = Configuration.getLong(prop,"thales.worker.heartbeat.interval",WORKER_HEARTBEAT_INTERVAL);
         try {
             Runtime.getRuntime().addShutdownHook(new ShutDownHookThread());
@@ -48,7 +49,7 @@ public class WorkerServer {
             String workerPath = regist(prop);
             //启动心跳线程
             WorkerHeartBeatThread heartBeatThread = new WorkerHeartBeatThread(
-                    workerPath,workerGroup,workerServerPort,heartBeatInterval);
+                    workerPath,workerServerPort,heartBeatInterval);
             heartBeatThread.setDaemon(true);
             heartBeatThread.start();
             //启动日志服务
@@ -137,53 +138,48 @@ public class WorkerServer {
     
     private static class WorkerHeartBeatThread extends Thread{
         private String workerPath;
-        private String workerGroup;
         private int workerPort;
         private long heartBeatInterval;
         
-        public WorkerHeartBeatThread(String workerPath,String workerGroup,int workerPort,long heartBeatInterval) {
+        public WorkerHeartBeatThread(String workerPath,int workerPort,long heartBeatInterval) {
             this.workerPath = workerPath;
-            this.workerGroup = workerGroup; 
             this.workerPort = workerPort;
             this.heartBeatInterval = heartBeatInterval;
         }
         public void run() {
-            WorkerGrpcClient client = null;
+          	CuratorFramework client = null;
             boolean isFirstReport = true;
             int nodeStatus = WorkerStatus.ADDED.getCode();
+            
+            Properties prop = Configuration.getConfig();
+            String quorum = prop.getProperty("thales.zookeeper.quorum");
+            int sessionTimeout = Configuration.getInt(prop, "thales.zookeeper.sessionTimeout", GlobalConstants.ZOOKEEPER_SESSION_TIMEOUT);
+            int connectionTimeout = Configuration.getInt(prop, "thales.zookeeper.connectionTimeout", GlobalConstants.ZOOKEEPER_CONNECTION_TIMEOUT);
+            String workerGroup = Configuration.getString(prop, "thales.worker.group", DEFAULT_WORKER_GROUP);
             while(!stop) {
                 try {
-                    String master = CuratorHelper.getActiveMaster();
-                    String[] masters = master.split(":");
-                    client = new WorkerGrpcClient(masters[0],NumberUtils.toInt(masters[1]));
                     if(isFirstReport) {
                     	   nodeStatus = WorkerStatus.ADDED.getCode();
                     	   isFirstReport = false;
                     }else {
                        nodeStatus = WorkerStatus.UPDATED.getCode();
                     }
-                    WorkerRequestRpc request = WorkerRequestRpc.newBuilder()
-                            .setHost(MetricsUtils.getHostIpAddress())
-                            .setCpuUsage(MetricsUtils.getCpuUsage())
-                            .setMemoryUsage(MetricsUtils.getMemoryUsage())
-                            .setWorkerGroup(workerGroup)
-                            .setWorkerStatus(nodeStatus)
-                            .setWorkerType(NodeType.WORKER.getCode())
-                            .setPort(workerPort)
-                            .setZkdirectory(workerPath)
-                            .setLastHeartbeatTime(DateUtils.getProtobufTime())
-                        .build();
-                    client.updateResource(request);
+                    client = CuratorHelper.getCuratorClient(quorum, sessionTimeout, connectionTimeout);
+                    WorkerRequest workerRequest = new WorkerRequest();
+                    workerRequest.setHost(MetricsUtils.getHostIpAddress());
+                    workerRequest.setCpuUsage(MetricsUtils.getCpuUsage());
+                    workerRequest.setMemoryUsage(MetricsUtils.getMemoryUsage());
+                    workerRequest.setWorkerGroup(workerGroup);
+                    workerRequest.setWorkerStatus(nodeStatus);
+                    workerRequest.setWorkerType(NodeType.WORKER.getCode());
+                    workerRequest.setPort(workerPort);
+                    workerRequest.setZkdirectory(workerPath);
+                    workerRequest.setLastHeartbeatTime(new Date());
+                    CuratorHelper.setData(client, workerPath, ByteUtils.objectToByteArray(workerRequest));
                 } catch (Exception e) {
                     LOG.error(e);
                 }finally {
-                    try {
-                        if(client != null) {
-                            client.shutdown();
-                        }
-                    } catch (Exception e) {
-                        LOG.error(e);
-                    }
+                    CuratorHelper.close(client);
                 }
                 try {
                     Thread.sleep(heartBeatInterval);

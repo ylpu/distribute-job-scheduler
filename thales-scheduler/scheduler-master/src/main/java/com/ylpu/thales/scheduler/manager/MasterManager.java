@@ -5,6 +5,7 @@ import com.ylpu.thales.scheduler.core.constants.GlobalConstants;
 import com.ylpu.thales.scheduler.core.rest.JobManager;
 import com.ylpu.thales.scheduler.core.rest.WorkerManager;
 import com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc;
+import com.ylpu.thales.scheduler.core.utils.ByteUtils;
 import com.ylpu.thales.scheduler.core.utils.DateUtils;
 import com.ylpu.thales.scheduler.core.utils.MetricsUtils;
 import com.ylpu.thales.scheduler.core.utils.SSHUtils;
@@ -185,7 +186,7 @@ public class MasterManager{
         }
     }
     
-    private void initTaskCount() {
+    private void initTaskCount() throws Exception {
         synchronized(taskMap) {
             List<Map<String, Object>> list = WorkerManager.getTaskCountByWorker();
             for(Map<String, Object> map : list) {
@@ -217,7 +218,7 @@ public class MasterManager{
         }
     }
     
-    private synchronized void releaseResource(String groupPath,List<String> disconnectedChildren) {
+    private synchronized void releaseResource(String groupPath,List<String> disconnectedChildren) throws Exception {
         if(disconnectedChildren != null && disconnectedChildren.size() > 0) {
             for(String child : disconnectedChildren) {
                 resourceMap.remove(child);                
@@ -292,6 +293,12 @@ public class MasterManager{
 						groups.get(groupPath).remove(removedIp);
 						releaseResource(groupPath,Arrays.asList(removedIp));
 						break;
+					case CHILD_UPDATED:
+						String udpatedPath = pathChildrenCacheEvent.getData().getPath();
+						byte[] bytes = CuratorHelper.getData(curatorFramework, udpatedPath);
+						WorkerRequest request = (WorkerRequest) ByteUtils.byteArrayToObject(bytes);
+						WorkerManager.insertOrUpdateWorker(request);
+						updateResource(request);
 					default:
 						break;
 					}
