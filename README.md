@@ -68,6 +68,8 @@ api作为接口层，主要有如下功能：
   * scheduler-worker/src/script/start-worker.sh start，启动后可以通过查看10001端口判断logserver是否成功
 * 在mysql数据库中执行语句
   * insert into t_thales_scheduler_user(user_name,password,create_time,update_time) values ('test','test',CURRENT_TIMESTAMP,CURRENT_TIMESTAMP);
+  * insert into t_thales_scheduler_role(role_name,create_time,update_time) values ('ROLE_ADMIN',CURRENT_TIMESTAMP,CURRENT_TIMESTAMP);
+  * insert into t_thales_scheduler_user_role(user_id,role_id,create_time,update_time) values ($user_id,$role_id,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP);(其中$user_id,$role_id为上面插入语句的相应id)
   
 * 运行distribute-job-scheduler-frontend项目并以如上用户名，密码登陆
 # 系统使用
