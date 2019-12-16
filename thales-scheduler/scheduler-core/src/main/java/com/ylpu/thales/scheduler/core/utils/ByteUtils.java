@@ -22,20 +22,21 @@ public class ByteUtils {
             objectOutputStream.writeObject(obj);
             objectOutputStream.flush();
             bytes = byteArrayOutputStream.toByteArray();
-
         } catch (IOException e) {
-        	LOG.error(e);
+         	LOG.error(e);
         } finally {
             if (objectOutputStream != null) {
                 try {
                     objectOutputStream.close();
                 } catch (IOException e) {
+                	  LOG.error(e);
                 }
             }
             if (byteArrayOutputStream != null) {
                 try {
                     byteArrayOutputStream.close();
                 } catch (IOException e) {
+                	   LOG.error(e);
                 }
             }
 
@@ -57,19 +58,20 @@ public class ByteUtils {
             objectInputStream = new ObjectInputStream(byteArrayInputStream);
             obj = objectInputStream.readObject();
         } catch (Exception e) {
-        	LOG.error(e);
+          	LOG.error(e);
         } finally {
             if (byteArrayInputStream != null) {
                 try {
                     byteArrayInputStream.close();
                 } catch (IOException e) {
+                    LOG.error(e);
                 }
             }
             if (objectInputStream != null) {
                 try {
                     objectInputStream.close();
                 } catch (IOException e) {
-                	LOG.error(e);
+                	   LOG.error(e);
                 }
             }
         }
