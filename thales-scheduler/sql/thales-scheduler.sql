@@ -1,3 +1,6 @@
+CREATE DATABASE IF NOT EXISTS thales DEFAULT CHARSET utf8 COLLATE utf8_general_ci;
+use thales;
+
 DROP TABLE IF EXISTS t_thales_scheduler_job;  
 DROP TABLE IF EXISTS t_thales_scheduler_job_instance;
 DROP TABLE IF EXISTS t_thales_scheduler_job_relation;
