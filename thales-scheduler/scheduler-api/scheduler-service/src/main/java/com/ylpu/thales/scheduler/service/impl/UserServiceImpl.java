@@ -56,6 +56,7 @@ public class UserServiceImpl extends BaseServiceImpl<SchedulerUser,Integer> impl
         if(user != null) {
             UserResponse response = new UserResponse();
             BeanUtils.copyProperties(user, response);
+			setRole(user,response);
             return response;
         }
         return null;
@@ -72,6 +73,7 @@ public class UserServiceImpl extends BaseServiceImpl<SchedulerUser,Integer> impl
         }
         UserResponse response = new UserResponse();
         BeanUtils.copyProperties(user, response);
+        setRole(user,response);
         return response;
     }
 
@@ -81,7 +83,6 @@ public class UserServiceImpl extends BaseServiceImpl<SchedulerUser,Integer> impl
         if(user != null) {
             UserResponse response = new UserResponse();
             BeanUtils.copyProperties(user, response);
-			setRole(user,response);
             return response;
         }
         return null;

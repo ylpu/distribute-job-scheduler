@@ -9,7 +9,7 @@ import com.ylpu.thales.scheduler.entity.UserRole;
 
 public interface SchedulerUserMapper extends BaseDao<SchedulerUser, Integer>{
  
-    SchedulerUser findByUserName(String userName);
+    SchedulerUser findByUserName(@Param("userName") String userName);
     
     List<SchedulerUser> findAll(@Param("userName") String userName);
     

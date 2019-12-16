@@ -20,11 +20,13 @@
     where id = #{id,jdbcType=INTEGER}
   </select>
   
-  <select id="findByUserName" resultMap="BaseResultMap" parameterType="java.lang.String" >
-    select 
-    <include refid="Base_Column_List" />
-    from t_thales_scheduler_user
-    where user_name = #{userName,jdbcType=VARCHAR}
+  <select id="findByUserName" resultMap="ResultMapWithRelations" parameterType="java.lang.String" >
+   select u.id,u.user_name,u.password,ur.create_time,u.update_time,u.confirm_pass,u.email,r.id role_id,r.role_name 
+    from t_thales_scheduler_user u left join t_thales_scheduler_user_role ur on u.id = ur.user_id left join 
+    t_thales_scheduler_role r on ur.role_id = r.id where 1=1
+    <if test="userName != null and userName != ''">
+        and u.user_name = #{userName,jdbcType=VARCHAR}
+    </if>
   </select>
   
   
