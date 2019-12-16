@@ -1,5 +1,5 @@
 # Introduction
-thales是一款自主研发的分布式任务调度系统，系统支持shell,hive,spark,python,http等各种类型任务的调用。
+thales是一款自主研发的分布式任务调度系统，系统支持command,shell,hive,spark,python,http,sql等各种类型任务的调用。
 
 # Architecture
 ![image](https://github.com/ylpu/distribute-job-scheduler/tree/master/docs/thales-arch.png)
@@ -77,7 +77,7 @@ api作为接口层，主要有如下功能：
   * 任务依赖： 选择需要依赖的任务
   * 任务优先级： 任务的优先度，有低，中，高三种
   * 任务责任人：任务的所属人
-  * 任务类型：目前command,shell,hive,spark四种
+  * 任务类型：目前command,shell,hive,spark,http,sql,pyton 7种。
   * 任务告警人： 任务失败，超时的时候需要通知的人（邮箱格式）
   * 告警类型：有sms,webchat,email三种，目前只支持emai
   * 调度时间：cron表达式
