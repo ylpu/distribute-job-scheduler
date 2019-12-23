@@ -27,6 +27,7 @@ import com.ylpu.thales.scheduler.enums.JobCycle;
 import com.ylpu.thales.scheduler.enums.JobPriority;
 import com.ylpu.thales.scheduler.enums.JobReleaseState;
 import com.ylpu.thales.scheduler.enums.JobType;
+import com.ylpu.thales.scheduler.enums.RoleTypes;
 import com.ylpu.thales.scheduler.request.JobRequest;
 import com.ylpu.thales.scheduler.request.ScheduleRequest;
 import com.ylpu.thales.scheduler.response.JobDependencyResponse;
@@ -136,7 +137,7 @@ public class JobServiceImpl extends BaseServiceImpl<SchedulerJob,Integer> implem
 		}
  		UserResponse user = (UserResponse)object;
  		List<String> owners = Arrays.asList(ownerId.split(","));
- 	    if(owners.contains(user.getUserName())) {
+ 	    if(owners.contains(user.getUserName()) || user.getRoleNames().contains(RoleTypes.ROLE_ADMIN.toString())) {
  	        return true;
  	    }else {
             return false;

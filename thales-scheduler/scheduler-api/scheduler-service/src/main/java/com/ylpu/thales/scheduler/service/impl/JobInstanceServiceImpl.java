@@ -26,6 +26,7 @@ import com.ylpu.thales.scheduler.entity.TaskElapseChart;
 import com.ylpu.thales.scheduler.entity.TaskSummary;
 import com.ylpu.thales.scheduler.enums.JobReleaseState;
 import com.ylpu.thales.scheduler.enums.JobType;
+import com.ylpu.thales.scheduler.enums.RoleTypes;
 import com.ylpu.thales.scheduler.enums.TaskState;
 import com.ylpu.thales.scheduler.request.JobInstanceRequest;
 import com.ylpu.thales.scheduler.request.ScheduleRequest;
@@ -297,7 +298,7 @@ public class JobInstanceServiceImpl extends BaseServiceImpl<SchedulerJobInstance
  		JobInstanceResponse instanceResponse = getJobInstanceById(request.getId());
  		UserResponse user = (UserResponse)object;
  		List<String> owners = Arrays.asList(instanceResponse.getJobConf().getOwnerIds().split(","));
- 	    if(owners.contains(user.getUserName())) {
+ 	    if(owners.contains(user.getUserName()) || user.getRoleNames().contains(RoleTypes.ROLE_ADMIN.toString())) {
  	        return true;
  	    }else {
             return false;
