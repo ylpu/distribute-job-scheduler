@@ -73,34 +73,24 @@ public class JobSubmission {
         request.setId(requestRpc.getId());
         request.setStartTime(DateUtils.getDatetime(requestRpc.getStartTime()));
         request.setScheduleTime(DateUtils.getDatetime(requestRpc.getScheduleTime()));
-        try {
-            List<JobDependency> dependJobs = new ArrayList<JobDependency>();
-            if(requestRpc.getJob().getDependenciesList() == null 
-                    || requestRpc.getJob().getDependenciesList().size() == 0) {
-                dependJobs.add(new JobDependency(requestRpc.getJob().getId(),"root"));
-            }
-            else {
-                dependJobs = getLatestJobDepends(requestRpc);
-            }
-            JobStatusCheck.addJobInstanceRequest(requestRpc);
-            
-            JobStatusCheck.addDepends(dependJobs, requestRpc.getRequestId());
-            
-            request.setTaskState(TaskState.WAITING.getCode());
-            JobManager.updateJobInstanceSelective(request);
-            
-            responseRpc = buildResponse(requestRpc,TaskState.WAITING,200,"");
-            JobStatusCheck.addResponse(responseRpc);
-        }catch(Exception e) {
-            LOG.error("fail to update job "  + requestRpc.getId() +  " to waiting status with exception " + e.getMessage());
-            request.setTaskState(TaskState.FAIL.getCode());
-            request.setEndTime(new Date());
-            request.setElapseTime(DateUtils.getElapseTime(request.getStartTime(),request.getEndTime()));
-            JobManager.updateJobInstanceSelective(request);
-            responseRpc = buildResponse(requestRpc,TaskState.FAIL,500,
-                    "fail to update job " + requestRpc.getId() + " to fail status");
-            JobStatusCheck.addResponse(responseRpc);
+        List<JobDependency> dependJobs = new ArrayList<JobDependency>();
+        
+        if(requestRpc.getJob().getDependenciesList() == null 
+                || requestRpc.getJob().getDependenciesList().size() == 0) {
+            dependJobs.add(new JobDependency(requestRpc.getJob().getId(),"root"));
         }
+        else {
+            dependJobs = getLatestJobDepends(requestRpc);
+        }
+        JobStatusCheck.addJobInstanceRequest(requestRpc);
+        
+        JobStatusCheck.addDepends(dependJobs, requestRpc.getRequestId());
+        
+        request.setTaskState(TaskState.WAITING.getCode());
+        JobManager.updateJobInstanceSelective(request);
+        
+        responseRpc = buildResponse(requestRpc,TaskState.WAITING,200,"");
+        JobStatusCheck.addResponse(responseRpc);
     }
     
     private static List<JobDependency> getLatestJobDepends(JobInstanceRequestRpc request) {
@@ -122,7 +112,7 @@ public class JobSubmission {
         return jobDependencies;
     }
     
-    private static JobInstanceResponseRpc buildResponse(JobInstanceRequestRpc requestRpc,
+    public static JobInstanceResponseRpc buildResponse(JobInstanceRequestRpc requestRpc,
             TaskState taskState,int errorCode,String errorMsg) {
         return JobInstanceResponseRpc.newBuilder()
         .setResponseId(requestRpc.getRequestId())

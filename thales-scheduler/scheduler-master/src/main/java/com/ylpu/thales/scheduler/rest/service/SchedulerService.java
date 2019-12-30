@@ -3,6 +3,7 @@ package com.ylpu.thales.scheduler.rest.service;
 import com.ylpu.thales.scheduler.core.constants.GlobalConstants;
 import com.ylpu.thales.scheduler.core.rest.JobManager;
 import com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc;
+import com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc;
 import com.ylpu.thales.scheduler.core.utils.CronUtils;
 import com.ylpu.thales.scheduler.core.utils.DateUtils;
 import com.ylpu.thales.scheduler.enums.TaskState;
@@ -163,19 +164,20 @@ public class SchedulerService {
      * @throws Exception
      */
     public void rerun(Integer id) throws Exception {
-        try {
-            JobInstanceResponse jobInstanceResponse = JobManager.getJobInstanceById(id);
-            if(jobInstanceResponse.getJobConf() == null) {
-            	   LOG.warn("job does not exist or has already down " + id);
-            	   return;
-            }else if(jobInstanceResponse.getTaskState() == TaskState.SUBMIT || jobInstanceResponse.getTaskState() == TaskState.PENDING || 
-            		jobInstanceResponse.getTaskState() == TaskState.WAITING
-            		|| jobInstanceResponse.getTaskState() == TaskState.RUNNING){
-            	   LOG.warn("one job has already running "+ id);
-            	   return;
-            }else {
+    	    JobInstanceRequestRpc rpcRequest = null;
+        JobInstanceRequest request = new JobInstanceRequest();
+        JobInstanceResponse jobInstanceResponse = JobManager.getJobInstanceById(id);
+        if(jobInstanceResponse.getJobConf() == null) {
+        	   LOG.warn("job does not exist or has already down " + id);
+        	   return;
+        }else if(jobInstanceResponse.getTaskState() == TaskState.SUBMIT || jobInstanceResponse.getTaskState() == TaskState.PENDING || 
+        		jobInstanceResponse.getTaskState() == TaskState.WAITING
+        		|| jobInstanceResponse.getTaskState() == TaskState.RUNNING){
+        	   LOG.warn("one job has already running "+ id);
+        	   return;
+        }else {
+          	try {
                 //初始化任务
-                JobInstanceRequest request = new JobInstanceRequest();
                 JobSubmission.initJobInstance(request,jobInstanceResponse.getJobConf());
                 request.setId(jobInstanceResponse.getId());
                 request.setRetryTimes(jobInstanceResponse.getRetryTimes() + 1);
@@ -183,20 +185,29 @@ public class SchedulerService {
                 request.setStartTime(new Date());
                 request.setCreateTime(new Date());
                 JobManager.updateJobInstanceByKey(request);
-                
                 JobStatusCheck.addResponse(JobSubmission.buildJobStatus(
                         jobInstanceResponse.getJobConf(),
                         DateUtils.getDateFromString(jobInstanceResponse.getScheduleTime(),DateUtils.DATE_TIME_FORMAT),
                         TaskState.SUBMIT));
                 
-                JobInstanceRequestRpc rpcRequest = JobSubmission.initJobInstanceRequestRpc(request,
-                        jobInstanceResponse.getJobConf());
-                
+                rpcRequest = JobSubmission.initJobInstanceRequestRpc(request,
+                       jobInstanceResponse.getJobConf());
                 JobSubmission.updateJobStatus(rpcRequest);
-            }
-        }catch(Exception e) {
-            LOG.error(e);
-            throw e;
+          	}catch(Exception e) {
+                LOG.error("fail to update job "  + rpcRequest.getId() +  " status with exception " + e.getMessage());
+                request.setTaskState(TaskState.FAIL.getCode());
+                request.setEndTime(new Date());
+                request.setElapseTime(DateUtils.getElapseTime(request.getStartTime(),request.getEndTime()));
+                try {
+    				    JobManager.updateJobInstanceSelective(request);
+    			    } catch (Exception e1) {
+    				    LOG.error(e1);
+    				    throw new RuntimeException(e1);
+    			    }
+                JobInstanceResponseRpc responseRpc = JobSubmission.buildResponse(rpcRequest,TaskState.FAIL,500,
+                        "fail to update job " + rpcRequest.getId() + " to fail status");
+                JobStatusCheck.addResponse(responseRpc);
+          	}
         }
     }
     
