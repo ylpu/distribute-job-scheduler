@@ -67,12 +67,14 @@ public class JobSubmission {
         es.execute(new TimeoutThread());
     }
     
-    public static void addJob(JobInstanceRequestRpc requestRpc) {
+    public static void updateJobStatus(JobInstanceRequestRpc requestRpc) throws Exception {
         JobInstanceResponseRpc responseRpc = null;
         JobInstanceRequest request  = new JobInstanceRequest();
-        List<JobDependency> dependJobs = new ArrayList<JobDependency>();
-        setJobInstanceRequest(requestRpc,request);
+        request.setId(requestRpc.getId());
+        request.setStartTime(DateUtils.getDatetime(requestRpc.getStartTime()));
+        request.setScheduleTime(DateUtils.getDatetime(requestRpc.getScheduleTime()));
         try {
+            List<JobDependency> dependJobs = new ArrayList<JobDependency>();
             if(requestRpc.getJob().getDependenciesList() == null 
                     || requestRpc.getJob().getDependenciesList().size() == 0) {
                 dependJobs.add(new JobDependency(requestRpc.getJob().getId(),"root"));
@@ -90,15 +92,14 @@ public class JobSubmission {
             responseRpc = buildResponse(requestRpc,TaskState.WAITING,200,"");
             JobStatusCheck.addResponse(responseRpc);
         }catch(Exception e) {
-            LOG.error("任务 " + requestRpc.getId() + " 执行失败,异常" + e.getMessage());
-             try {
-                  updateTaskStatus(request,TaskState.FAIL.getCode());
-                  responseRpc = buildResponse(requestRpc,TaskState.FAIL,500,
-                          "failed to execute task " + requestRpc.getId());
-                  JobStatusCheck.addResponse(responseRpc);
-             } catch (Exception e1) {
-                  LOG.error(e1);
-             }
+            LOG.error("fail to update job "  + requestRpc.getId() +  " to waiting status with exception " + e.getMessage());
+            request.setTaskState(TaskState.FAIL.getCode());
+            request.setEndTime(new Date());
+            request.setElapseTime(DateUtils.getElapseTime(request.getStartTime(),request.getEndTime()));
+            JobManager.updateJobInstanceSelective(request);
+            responseRpc = buildResponse(requestRpc,TaskState.FAIL,500,
+                    "fail to update job " + requestRpc.getId() + " to fail status");
+            JobStatusCheck.addResponse(responseRpc);
         }
     }
     
@@ -119,19 +120,6 @@ public class JobSubmission {
             jobDependencies.add(jobDependency);
         }
         return jobDependencies;
-    }
-    
-    public static void setJobInstanceRequest(JobInstanceRequestRpc requestRpc,JobInstanceRequest request) {
-        request.setId(requestRpc.getId());
-        request.setStartTime(DateUtils.getDatetime(requestRpc.getStartTime()));
-        request.setScheduleTime(DateUtils.getDatetime(requestRpc.getScheduleTime()));
-    }
-    
-    private static void updateTaskStatus(JobInstanceRequest request,int code) throws Exception {
-        request.setTaskState(code);
-        request.setEndTime(new Date());
-        request.setElapseTime(DateUtils.getElapseTime(request.getStartTime(),request.getEndTime()));
-        JobManager.updateJobInstanceSelective(request);
     }
     
     private static JobInstanceResponseRpc buildResponse(JobInstanceRequestRpc requestRpc,
@@ -246,7 +234,7 @@ public class JobSubmission {
                         workerGroup, "");
                 return worker;
             }catch(Exception e) {
-                LOG.error("can not get available resource to execute task " + jobId + " with  " + i + " tries");
+                LOG.error("can not get available resource to execute job " + jobId + " with  " + i + " tries");
             }
             try {
                 Thread.sleep(RESOURCE_CHECK_INTERVAL);
@@ -255,7 +243,7 @@ public class JobSubmission {
             }
             i++;
         }
-        throw new RuntimeException("can not get available resource to execute task " + jobId);
+        throw new RuntimeException("can not get available resource to execute job " + jobId);
     }
 
         

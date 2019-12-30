@@ -166,13 +166,12 @@ public class SchedulerService {
         try {
             JobInstanceResponse jobInstanceResponse = JobManager.getJobInstanceById(id);
             if(jobInstanceResponse.getJobConf() == null) {
-            	   LOG.warn("实例" + id + "对应的任务已经下线或者不存在");
+            	   LOG.warn("job does not exist or has already down " + id);
             	   return;
-            }
-            if(jobInstanceResponse.getTaskState() == TaskState.SUBMIT || jobInstanceResponse.getTaskState() == TaskState.PENDING || 
+            }else if(jobInstanceResponse.getTaskState() == TaskState.SUBMIT || jobInstanceResponse.getTaskState() == TaskState.PENDING || 
             		jobInstanceResponse.getTaskState() == TaskState.WAITING
             		|| jobInstanceResponse.getTaskState() == TaskState.RUNNING){
-            	   LOG.warn("已经有一个实例准备运行或者在运行中"+ id);
+            	   LOG.warn("one job has already running "+ id);
             	   return;
             }else {
                 //初始化任务
@@ -193,7 +192,7 @@ public class SchedulerService {
                 JobInstanceRequestRpc rpcRequest = JobSubmission.initJobInstanceRequestRpc(request,
                         jobInstanceResponse.getJobConf());
                 
-                JobSubmission.addJob(rpcRequest);
+                JobSubmission.updateJobStatus(rpcRequest);
             }
         }catch(Exception e) {
             LOG.error(e);
