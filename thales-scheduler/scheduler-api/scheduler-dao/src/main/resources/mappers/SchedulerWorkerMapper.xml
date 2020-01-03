@@ -260,6 +260,12 @@
   </select>
   
    <select id = "getAllWorkers" resultType="java.lang.Integer">
-      select count(*) from t_thales_scheduler_worker
+      select count(*) from t_thales_scheduler_worker where 1 =1
+      <if test="workerGroup != null and workerGroup != ''">
+           and worker_group = #{workerGroup}
+      </if>
+      <if test="worker != null and worker != ''">
+           and host like concat(concat('%',#{worker}),'%')
+      </if>
    </select>
 </mapper>

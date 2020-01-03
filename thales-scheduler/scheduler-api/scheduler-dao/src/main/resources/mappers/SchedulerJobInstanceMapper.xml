@@ -58,7 +58,13 @@
   </select>
   
     <select id = "getInstantCount" resultType="java.lang.Integer">
-      select count(*) from t_thales_scheduler_job_instance
+      select count(*) from t_thales_scheduler_job_instance instance left join t_thales_scheduler_job job on instance.job_id = job.id where 1=1
+      <if test="taskState != null and taskState != ''">
+           and instance.task_state = #{taskState}     
+      </if>
+      <if test="jobName != null and jobName != ''">
+           and job.job_name like concat(concat('%',#{jobName}),'%')
+      </if>
    </select>
 
     <select id="findAll" resultMap="BaseResultMap">

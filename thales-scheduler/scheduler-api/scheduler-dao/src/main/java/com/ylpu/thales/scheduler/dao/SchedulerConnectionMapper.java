@@ -11,6 +11,6 @@ public interface SchedulerConnectionMapper extends BaseDao<SchedulerConnection, 
    
 	List<SchedulerConnection> findAll(@Param("connectionId") String connectionId);
 		
-    Integer getConnectionCount();
+    Integer getConnectionCount(@Param("connectionId") String connectionId);
     
 }

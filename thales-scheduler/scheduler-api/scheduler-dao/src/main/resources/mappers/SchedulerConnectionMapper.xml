@@ -35,7 +35,10 @@
   </select>
   
    <select id = "getConnectionCount" resultType="java.lang.Integer">
-      select count(*) from t_thales_scheduler_connection
+      select count(*) from t_thales_scheduler_connection where 1=1
+      <if test="connectionId != null and connectionId != ''">
+          and connection_id like concat(concat('%',#{connectionId}),'%')
+      </if>
    </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
     delete from t_thales_scheduler_connection

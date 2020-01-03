@@ -44,7 +44,7 @@ public class ConnectionServiceImpl extends BaseServiceImpl<SchedulerConnection,I
 				page.add(connectionResponse);
 			}
 		}
-		page.setTotal(schedulerConnectionMapper.getConnectionCount());
+		page.setTotal(schedulerConnectionMapper.getConnectionCount(connectionId));
 		PageInfo<ConnectionResponse> pageInfo = new PageInfo<ConnectionResponse>(page);
         return pageInfo;
 	}

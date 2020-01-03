@@ -322,7 +322,7 @@ public class JobServiceImpl extends BaseServiceImpl<SchedulerJob,Integer> implem
   		        page.add(jobResponse);
 			}
 		}
-		page.setTotal(schedulerJobMapper.getJobCountByIds(null));
+		page.setTotal(schedulerJobMapper.getJobCount(jobType,jobName));
 		PageInfo<JobResponse> pageInfo = new PageInfo<JobResponse>(page);
         return pageInfo;
 	}

@@ -8,7 +8,7 @@ import com.ylpu.thales.scheduler.entity.SchedulerRole;
 
 public interface SchedulerRoleMapper extends BaseDao<SchedulerRole, Integer>{
     
-    Integer getRoleCount();
+    Integer getRoleCount(@Param("roleName") String roleName);
     
     List<SchedulerRole> findAll(@Param("roleName") String roleName);
     

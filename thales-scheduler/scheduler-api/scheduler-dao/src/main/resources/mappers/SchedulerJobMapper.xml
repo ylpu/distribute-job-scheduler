@@ -69,6 +69,19 @@
             </if>
         ORDER BY job.create_time DESC
     </select>
+    
+   <select id="getJobCount" resultType="java.lang.Integer">
+     select count(*)
+        from t_thales_scheduler_job
+        where job_ReleaseState != -1
+        <if test="jobType != null and jobType != ''">
+             and job_type = #{jobType}
+        </if>
+        <if test="jobName != null and jobName != ''">
+             and job_name like concat(concat('%',#{jobName}),'%')
+        </if>
+    </select> 
+    
   
   <select id="getJobParentsByIds" resultMap="ResultMapWithRelations" >
     select *

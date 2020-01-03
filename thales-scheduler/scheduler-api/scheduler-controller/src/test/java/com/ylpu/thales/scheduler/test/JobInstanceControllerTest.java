@@ -12,6 +12,7 @@ import java.util.Map;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang.time.DateUtils;
 import org.junit.Test;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +24,7 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import com.ylpu.thales.scheduler.common.rest.RestClient;
+import com.ylpu.thales.scheduler.enums.TaskState;
 import com.ylpu.thales.scheduler.request.JobInstanceRequest;
 import com.ylpu.thales.scheduler.request.ScheduleRequest;
 import com.ylpu.thales.scheduler.response.JobInstanceResponse;
@@ -31,16 +33,16 @@ import com.ylpu.thales.scheduler.response.SchedulerResponse;
 
 public class JobInstanceControllerTest {
     
-    private static final String API_URI = "http://localhost:8080/api/";
+    private static final String API_URI = "http://localhost:8085/api/";
     
-    @Test
+//    @Test
     public void getRunningJobCount() {
         ParameterizedTypeReference<SchedulerResponse<List<Map<String,Object>>>> typeRef = new ParameterizedTypeReference<SchedulerResponse<List<Map<String,Object>>>>() {};
         SchedulerResponse<List<Map<String,Object>>> schedulerResponse = RestClient.getForObject(API_URI + "jobInstance/getRunningJobCount",typeRef,null);
         System.out.println(schedulerResponse.getData().size());
     }
     
-    @Test
+//    @Test
     public void getAllJobStatus() {
         ParameterizedTypeReference<SchedulerResponse<List<JobInstanceStateResponse>>> typeRef = new ParameterizedTypeReference<SchedulerResponse<List<JobInstanceStateResponse>>>() {};
         SchedulerResponse<List<JobInstanceStateResponse>> schedulerResponse = RestClient.getForObject(API_URI + "jobInstance/getAllJobStatus",typeRef,null);
@@ -49,15 +51,23 @@ public class JobInstanceControllerTest {
     
     @Test
     public void addJobInstance() {
-        JobInstanceRequest jr = new JobInstanceRequest();
-        jr.setJobId(29);
-        jr.setLogUrl("");
-        ResponseEntity<SchedulerResponse> response = RestClient.post(API_URI + "jobInstance/addJobInstance",jr,SchedulerResponse.class);
-        SchedulerResponse schedulerResponse = response.getBody();
-        System.out.println(schedulerResponse.getData());
+    	    String scheduleTime = "2019-12-31 20:00:00";
+    	    for(int i =0 ;i < 100000; i++) {
+    	        JobInstanceRequest jr = new JobInstanceRequest();
+    	        jr.setJobId(55);
+    	        jr.setLogUrl("");
+    	        Date scheduleDateTime = DateUtils.addDays(com.ylpu.thales.scheduler.common.utils.DateUtils.getDateFromString(scheduleTime,com.ylpu.thales.scheduler.common.utils.DateUtils.DATE_TIME_FORMAT), i);
+    	        jr.setScheduleTime(scheduleDateTime);
+    	        jr.setStartTime(new Date());
+    	        jr.setEndTime(new Date());
+    	        jr.setTaskState(TaskState.SUCCESS.getCode());
+    	        ResponseEntity<SchedulerResponse> response = RestClient.post(API_URI + "jobInstance/addJobInstance",jr,SchedulerResponse.class);
+//    	        SchedulerResponse schedulerResponse = response.getBody();
+//    	        System.out.println(schedulerResponse.getData());
+    	    }
     }
     
-    @Test
+//    @Test
     public void updateJobInstance() {
         JobInstanceRequest jr = new JobInstanceRequest();
         jr.setId(114);
@@ -78,14 +88,14 @@ public class JobInstanceControllerTest {
         System.out.println(schedulerResponse.getErrorCode());
     }
     
-    @Test
+//    @Test
     public void markAsFailed() {
         ResponseEntity<SchedulerResponse> response = RestClient.post(API_URI + "jobInstance/markAsFailed",SchedulerResponse.class);
         SchedulerResponse<Void> schedulerResponse = response.getBody();
         System.out.println(schedulerResponse.getErrorCode());
     }
     
-    @Test
+//    @Test
     public void testGetJobInstance() {
         Map<String,Object> map = new HashMap<String,Object>();
         map.put("id", 110);
@@ -94,14 +104,14 @@ public class JobInstanceControllerTest {
         System.out.println(response.getData().getId());
     }
     
-    @Test
+//    @Test
     public void viewLog() {
         ParameterizedTypeReference<String> typeRef = new ParameterizedTypeReference<String>() {};
         String str = RestClient.getForObject("http://localhost:10001/api/log/viewLog/225",typeRef,null);
         System.out.println(str);
     }
     
-    @Test
+//    @Test
     public void rerun() {
         ScheduleRequest request = new ScheduleRequest();
         request.setId(243);
@@ -109,7 +119,7 @@ public class JobInstanceControllerTest {
         System.out.println(response.getStatusCodeValue());
     }
     
-    @Test
+//    @Test
     public void rerunAll() {
         ScheduleRequest request = new ScheduleRequest();
         request.setId(243);
@@ -117,7 +127,7 @@ public class JobInstanceControllerTest {
         System.out.println(response.getStatusCodeValue());
     }
     
-    @Test
+//    @Test
     public void kill() {
         ScheduleRequest request = new ScheduleRequest();
         request.setId(234);
@@ -125,7 +135,7 @@ public class JobInstanceControllerTest {
         System.out.println(response.getStatusCodeValue());
     }
     
-    @Test
+//    @Test
     public void viewLog(String logUrl){
         HttpServletResponse response = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getResponse();
         ServletOutputStream outputStream = null;

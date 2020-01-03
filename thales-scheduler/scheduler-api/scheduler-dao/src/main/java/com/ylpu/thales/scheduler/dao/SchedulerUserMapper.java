@@ -13,7 +13,7 @@ public interface SchedulerUserMapper extends BaseDao<SchedulerUser, Integer>{
     
     List<SchedulerUser> findAll(@Param("userName") String userName);
     
-    Integer getUserCount();
+    Integer getUserCount(@Param("userName") String userName);
     
     void deleteUserRole(Integer userId);
     

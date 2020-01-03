@@ -141,7 +141,7 @@ public class JobInstanceServiceImpl extends BaseServiceImpl<SchedulerJobInstance
         calendar.setTime(new Date());
         calendar.add(Calendar.MONTH, -1);
         
-        List<JobInstanceState> list = schedulerJobInstanceMapper.getAllJobStatus(calendar.getTime(),new Date());
+        List<JobInstanceState> list = schedulerJobInstanceMapper.getAllJobStatus(calendar.getTime(),DateUtils.getDateFromString("2295-01-01 20:00:00", DateUtils.DATE_TIME_FORMAT));
         if(list != null && list.size() > 0 ) {
             for(JobInstanceState state : list) {
                 stateResponse = new JobInstanceStateResponse();
@@ -237,7 +237,7 @@ public class JobInstanceServiceImpl extends BaseServiceImpl<SchedulerJobInstance
 				page.add(jobInstanceResponse);
 			}
 		}
-		page.setTotal(schedulerJobInstanceMapper.getInstantCount());
+		page.setTotal(schedulerJobInstanceMapper.getInstantCount(taskState,jobName));
 		PageInfo<JobInstanceResponse> pageInfo = new PageInfo<JobInstanceResponse>(page);
         return pageInfo;
 	}

@@ -43,7 +43,7 @@ public class RoleServiceImpl extends BaseServiceImpl<SchedulerRole,Integer> impl
 				page.add(roleResponse);
 			}
 		}
-		page.setTotal(schedulerRoleMapper.getRoleCount());
+		page.setTotal(schedulerRoleMapper.getRoleCount(roleName));
 		PageInfo<RoleResponse> pageInfo = new PageInfo<RoleResponse>(page);
         return pageInfo;
 	}

@@ -111,7 +111,7 @@ public class WorkerServiceImpl extends BaseServiceImpl<SchedulerWorker,Integer> 
 				page.add(workerResponse);
 			}
 		}
-		page.setTotal(schedulerWorkerMapper.getAllWorkers());
+		page.setTotal(schedulerWorkerMapper.getAllWorkers(workerGroup,worker));
 		PageInfo<WorkerResponse> pageInfo = new PageInfo<WorkerResponse>(page);
         return pageInfo;
 	}

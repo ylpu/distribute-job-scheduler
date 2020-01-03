@@ -25,8 +25,11 @@
         ORDER BY create_time DESC
   </select>
   
-  <select id ="getRoleCount" resultType = "java.lang.Integer">
-    select count(*) from t_thales_scheduler_role
+  <select id ="getRoleCount" resultType = "java.lang.Integer" parameterType="java.lang.String">
+    select count(*) from t_thales_scheduler_role where 1=1
+    <if test="roleName != null and roleName != ''">
+       and role_name like concat(concat('%',#{roleName}),'%')
+    </if>
   </select>
   
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >

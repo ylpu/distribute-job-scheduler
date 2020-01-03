@@ -89,9 +89,9 @@ public class UserServiceImpl extends BaseServiceImpl<SchedulerUser,Integer> impl
     }
     
 	@Override
-	public PageInfo<UserResponse> findAll(String jobName,int pageNo,int pageSize) {
+	public PageInfo<UserResponse> findAll(String userName,int pageNo,int pageSize) {
 		PageHelper.startPage(pageNo,pageSize);
-		List<SchedulerUser> userList = userMapper.findAll(jobName);
+		List<SchedulerUser> userList = userMapper.findAll(userName);
 		UserResponse userResponse = null;
 		Page<UserResponse> page = new Page<UserResponse>();
 		if(userList != null && userList.size() > 0) {
@@ -102,7 +102,7 @@ public class UserServiceImpl extends BaseServiceImpl<SchedulerUser,Integer> impl
 				page.add(userResponse);
 			}
 		}
-		page.setTotal(userMapper.getUserCount());
+		page.setTotal(userMapper.getUserCount(userName));
 		PageInfo<UserResponse> pageInfo = new PageInfo<UserResponse>(page);
         return pageInfo;
 	}

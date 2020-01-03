@@ -165,7 +165,6 @@ public class SchedulerService {
      */
     public void rerun(Integer id) throws Exception {
     	    JobInstanceRequestRpc rpcRequest = null;
-        JobInstanceRequest request = new JobInstanceRequest();
         JobInstanceResponse jobInstanceResponse = JobManager.getJobInstanceById(id);
         if(jobInstanceResponse.getJobConf() == null) {
         	   LOG.warn("job does not exist or has already down " + id);
@@ -176,6 +175,7 @@ public class SchedulerService {
         	   LOG.warn("one job has already running "+ id);
         	   return;
         }else {
+            JobInstanceRequest request = new JobInstanceRequest();
           	try {
                 //初始化任务
                 JobSubmission.initJobInstance(request,jobInstanceResponse.getJobConf());
