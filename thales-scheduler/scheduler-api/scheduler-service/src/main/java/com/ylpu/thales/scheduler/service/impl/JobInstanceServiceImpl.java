@@ -137,11 +137,15 @@ public class JobInstanceServiceImpl extends BaseServiceImpl<SchedulerJobInstance
         List<JobInstanceStateResponse> responseList = new ArrayList<JobInstanceStateResponse>();
         JobInstanceStateResponse stateResponse = null;
         
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(new Date());
-        calendar.add(Calendar.MONTH, -1);
+//        Calendar startTime = Calendar.getInstance();
+//        startTime.setTime(new Date());
+//        startTime.add(Calendar.MONTH, -1);
+//        
+//        Calendar endTime = Calendar.getInstance();
+//        endTime.setTime(new Date());
+//        endTime.add(Calendar.MONTH, 1);
         
-        List<JobInstanceState> list = schedulerJobInstanceMapper.getAllJobStatus(calendar.getTime(),DateUtils.getDateFromString("2295-01-01 20:00:00", DateUtils.DATE_TIME_FORMAT));
+        List<JobInstanceState> list = schedulerJobInstanceMapper.getAllJobStatus();
         if(list != null && list.size() > 0 ) {
             for(JobInstanceState state : list) {
                 stateResponse = new JobInstanceStateResponse();

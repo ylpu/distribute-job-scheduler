@@ -51,10 +51,10 @@ public class JobInstanceControllerTest {
     
     @Test
     public void addJobInstance() {
-    	    String scheduleTime = "2019-12-31 20:00:00";
-    	    for(int i =0 ;i < 100000; i++) {
+    	    String scheduleTime = "2020-1-1 20:00:00";
+    	    for(int i =0 ;i < 400000; i++) {
     	        JobInstanceRequest jr = new JobInstanceRequest();
-    	        jr.setJobId(55);
+    	        jr.setJobId(58);
     	        jr.setLogUrl("");
     	        Date scheduleDateTime = DateUtils.addDays(com.ylpu.thales.scheduler.common.utils.DateUtils.getDateFromString(scheduleTime,com.ylpu.thales.scheduler.common.utils.DateUtils.DATE_TIME_FORMAT), i);
     	        jr.setScheduleTime(scheduleDateTime);

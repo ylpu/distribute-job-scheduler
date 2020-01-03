@@ -1,22 +1,18 @@
 package com.ylpu.thales.scheduler.executor.sql;
 
 import com.ylpu.thales.scheduler.core.config.Configuration;
-import com.ylpu.thales.scheduler.core.rest.JobManager;
 import com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc;
 import com.ylpu.thales.scheduler.core.rpc.entity.JobStatusRequestRpc;
 import com.ylpu.thales.scheduler.core.utils.DateUtils;
 import com.ylpu.thales.scheduler.core.utils.FileUtils;
 import com.ylpu.thales.scheduler.core.utils.JsonUtils;
 import com.ylpu.thales.scheduler.core.utils.MetricsUtils;
-import com.ylpu.thales.scheduler.enums.DBType;
 import com.ylpu.thales.scheduler.enums.SQLOperator;
 import com.ylpu.thales.scheduler.enums.TaskState;
 import com.ylpu.thales.scheduler.executor.AbstractCommonExecutor;
 import com.ylpu.thales.scheduler.request.JobInstanceRequest;
-import com.ylpu.thales.scheduler.response.ConnectionResponse;
 import java.io.File;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -67,10 +63,10 @@ public class SQLExecutor extends AbstractCommonExecutor{
     	         	SQLConfig sqlConfig = JsonUtils.jsonToBean(jobConfig, SQLConfig.class);
     	          	String operator = sqlConfig.getOperator();
     	          	SQLOperator sqlOperator = SQLOperator.getSQLOperator(operator);
-    	    		    connection = getConnection(sqlConfig.getConnection());
+    	    		    connection = ConnectionManager.getConnection(sqlConfig.getConnection());
     	          	switch(sqlOperator) {
     	          	   case SELECT:
-    	          		   select(connection,new JdbcExtractor(logOutPath),sqlConfig.getSql(),sqlConfig.getParameters(),logOutPath);
+    	          		   select(connection,new JdbcExtractor(),sqlConfig.getSql(),sqlConfig.getParameters(),logOutPath);
     	          	       break;
     	          	   case INSERT:
     	          		   execute(connection,sqlConfig.getSql(),sqlConfig.getParameters(),logOutPath);
@@ -107,7 +103,7 @@ public class SQLExecutor extends AbstractCommonExecutor{
                 	   }
         	    	    }
         	        rs = pstmt.executeQuery();
-        	      	extractor.extract(rs);
+        	      	extractor.extract(rs,logOutPath);
         	    }catch(Exception e) {
     		        FileUtils.writeFile("failed to execute task " + request.getId() + " with exception " + e.getMessage(),logOutPath);
         	    	    throw e;
@@ -127,14 +123,8 @@ public class SQLExecutor extends AbstractCommonExecutor{
     }
    
     private static class JdbcExtractor{
-    	
-    	   private String logOutPath;
     	   
-    	   private JdbcExtractor(String logOutPath) {
-    		   this.logOutPath = logOutPath;
-    	   }
-    	   
-    	   public void extract(ResultSet rs) throws Exception {
+    	   public void extract(ResultSet rs,String logOutPath) throws Exception {
     		   
     		   ResultSetMetaData metaData = rs.getMetaData();
     		   writeHeader(metaData,logOutPath);
@@ -195,18 +185,6 @@ public class SQLExecutor extends AbstractCommonExecutor{
 		    	    }
 		    }
 	    }
-    }
-    
-    private Connection getConnection(String connectionId) throws Exception {
-    	   ConnectionResponse cr = JobManager.getConnection(connectionId);
-    	   DBType dbType = DBType.getDBType(cr.getConnectionType());
-    	   String className = DriverProvider.getDriver(dbType);
-    	   String url = "jdbc:" + dbType.toString().toLowerCase() + "://" + cr.getHostname() + ":" + cr.getPort() + "/" + cr.getDbSchema();
-    	   String userName = cr.getUsername();
-    	   String password = cr.getPassword();
-       Class.forName(className);
-       Connection connection =  DriverManager.getConnection(url, userName, password);
-       return connection;
     }
     
     /**
