@@ -126,8 +126,11 @@ public class MasterManager{
     				    String masterIp = master.split(":")[0];
     			        String username = Configuration.getString(prop, "thales.master.username","default");
     			        String password = Configuration.getString(prop, "thales.master.password","default");
-    				    String command = "jps -m | grep MasterServer | awk '{print $1}' | xargs kill -9";
-    				    SSHUtils.executeCommand(masterIp, username, password, command);
+    				    String command = "ps -ef | grep MasterServer | grep -v grep | awk '{print $2}' | xargs kill -9";
+    				    int returnCode = SSHUtils.executeCommand(masterIp, username, password, command);
+    				    if(returnCode != 0) {
+        				   LOG.error("failed to kill standy by master " + masterIp);
+    				    }
     			    }
     		    }
             int masterServerPort = Configuration.getInt(prop,"thales.master.server.port",DEFAULT_MASTER_SERVER_PORT);

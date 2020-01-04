@@ -24,7 +24,6 @@ public final class SSHUtils {
              }else {
             	   throw new RuntimeException("failed connect to server " + server);
              }
-                         
         } catch (Exception e) {           
              LOG.error(e);
              returnCode = -1;

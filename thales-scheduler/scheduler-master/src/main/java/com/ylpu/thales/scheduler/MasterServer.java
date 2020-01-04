@@ -40,7 +40,7 @@ public class MasterServer {
         @Override
         public void run() {
             //删除zk master节点
-            removeZkPath();
+        	    removeMaster();
             //关掉任务调度
             JobScheduler.shutdownJobs();
         }
@@ -48,7 +48,7 @@ public class MasterServer {
         /**
          *  master在意外退出时删除zk临时节点
          */
-        private void removeZkPath() {
+        private void removeMaster() {
             String masterGroup = GlobalConstants.MASTER_GROUP;
             int masterServerPort = Configuration.getInt(prop,"thales.master.server.port",MasterManager.DEFAULT_MASTER_SERVER_PORT);
             String activeMaster = MetricsUtils.getHostName() + ":" + masterServerPort;
@@ -62,9 +62,9 @@ public class MasterServer {
                 client = CuratorHelper.getCuratorClient(quorum,sessionTimeout,connectionTimeout);
                 CuratorHelper.delete(client, masterGroup + "/" + activeMaster); 
             }catch(Exception e) {
-            	LOG.error(e);
+            	    LOG.error(e);
             }finally{
-            	CuratorHelper.close(client);
+                CuratorHelper.close(client);
             }
         }
     }
