@@ -25,11 +25,11 @@ public class WorkerGrpcClient {
         channel.shutdown().awaitTermination(5, TimeUnit.SECONDS);
     }
     
-    public void updateResource(WorkerRequestRpc request){
-        WorkerResponseRpc response = blockStub.updateResource(request);
-        LOG.info("update worker :" + request.getHost() + " with response code " + response.getErrorCode() 
-        + " and message " + response.getErrorMsg());
-    }
+//    public void updateResource(WorkerRequestRpc request){
+//        WorkerResponseRpc response = blockStub.updateResource(request);
+//        LOG.info("update worker :" + request.getHost() + " with response code " + response.getErrorCode() 
+//        + " and message " + response.getErrorMsg());
+//    }
     
     public void insertOrUpdateGroup(WorkerRequestRpc request){
         WorkerResponseRpc response = blockStub.insertOrUpdateGroup(request);

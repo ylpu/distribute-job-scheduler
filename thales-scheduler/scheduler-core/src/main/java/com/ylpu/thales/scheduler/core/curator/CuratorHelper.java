@@ -1,4 +1,4 @@
-package com.ylpu.thales.scheduler.common.zk;
+package com.ylpu.thales.scheduler.core.curator;
 
 import java.util.List;
 import java.util.Properties;
@@ -8,8 +8,8 @@ import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.data.Stat;
-import com.ylpu.thales.scheduler.common.config.Configuration;
-import com.ylpu.thales.scheduler.common.constants.GlobalConstants;
+import com.ylpu.thales.scheduler.core.config.Configuration;
+import com.ylpu.thales.scheduler.core.constants.GlobalConstants;
 
 public class CuratorHelper {
 	
@@ -24,7 +24,7 @@ public class CuratorHelper {
     }
 	
 	public static CuratorFramework getCuratorClient(String zkServers,int sessionTimeout,int connectionTimeout) {
-		RetryPolicy retryPolicy = new ExponentialBackoffRetry(1000, 1);
+		RetryPolicy retryPolicy = new ExponentialBackoffRetry(1000, 3);
 		CuratorFramework client =
 		CuratorFrameworkFactory.newClient(
 				zkServers,
@@ -32,16 +32,31 @@ public class CuratorHelper {
 				connectionTimeout,
 		        retryPolicy);
 		client.start();
+		
 		return client;
 	}
 	
-	public static void createNode(CuratorFramework client,String path,
+	public static boolean nodeExist(CuratorFramework client,String path) throws Exception {
+		Stat stat = client.checkExists().forPath(path);
+		if(stat == null) {
+			return false;
+		}
+		return true;
+	}
+	
+	public static void createNodeIfNotExist(CuratorFramework client,String path,
 			CreateMode createMode,byte[] bytes) throws Exception {
-		client.create().withMode(createMode).forPath(path,bytes);
+		if(!nodeExist(client,path)) {
+			client.create().withMode(createMode).forPath(path,bytes);
+		}
 	}
 	
 	public static void delete(CuratorFramework client,String path) throws Exception {
 		client.delete().forPath(path);
+	}
+	
+	public static void deleteChildren(CuratorFramework client,String path) throws Exception {
+		client.delete().deletingChildrenIfNeeded().forPath(path);
 	}
 	
 	public static void creatingParentContainersIfNeeded(CuratorFramework client,String path,
@@ -74,21 +89,27 @@ public class CuratorHelper {
 	}
 	
 	public static String getActiveMaster() throws Exception {
-	     Properties prop = Configuration.getConfig();
-	     String quorum = prop.getProperty("thales.zookeeper.quorum");
-	     int sessionTimeout = Configuration.getInt(prop, "thales.zookeeper.sessionTimeout", GlobalConstants.ZOOKEEPER_SESSION_TIMEOUT);
-	     int connectionTimeout = Configuration.getInt(prop, "thales.zookeeper.connectionTimeout", GlobalConstants.ZOOKEEPER_CONNECTION_TIMEOUT);
-	     CuratorFramework client = null;
-	     List<String> masters = null;
-	     try {
+	    Properties prop = Configuration.getConfig();
+	    String quorum = prop.getProperty("thales.zookeeper.quorum");
+	    int sessionTimeout = Configuration.getInt(prop, "thales.zookeeper.sessionTimeout", GlobalConstants.ZOOKEEPER_SESSION_TIMEOUT);
+	    int connectionTimeout = Configuration.getInt(prop, "thales.zookeeper.connectionTimeout", GlobalConstants.ZOOKEEPER_CONNECTION_TIMEOUT);
+	    CuratorFramework client = null;
+	    List<String> masters = null;
+	    try {
 	          client = getCuratorClient(quorum,sessionTimeout,connectionTimeout);
 	          masters = getChildren(client,GlobalConstants.MASTER_GROUP);
 	          if(masters == null || masters.size() == 0) {
 	              throw new RuntimeException("can not get active master");
 	          }
-	     }finally {
+	    }finally {
 	          close(client);
-	     }
-	        return masters.get(0);
 	    }
+	        return masters.get(0);
+	}
+	
+	public static void main(String[] args) throws Exception {
+		CuratorFramework client = CuratorHelper.getCuratorClient();
+		System.out.println(CuratorHelper.getChildren(client, "/thales"));
+		CuratorHelper.createNodeIfNotExist(client, "/thales/workers/127.0.0.1", CreateMode.EPHEMERAL, "127.0.0.1".getBytes());
+	}
 }

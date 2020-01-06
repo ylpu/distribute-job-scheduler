@@ -2,8 +2,8 @@ package com.ylpu.thales.scheduler;
 
 import com.ylpu.thales.scheduler.core.config.Configuration;
 import com.ylpu.thales.scheduler.core.constants.GlobalConstants;
+import com.ylpu.thales.scheduler.core.curator.CuratorHelper;
 import com.ylpu.thales.scheduler.core.utils.MetricsUtils;
-import com.ylpu.thales.scheduler.core.zk.CuratorHelper;
 import com.ylpu.thales.scheduler.manager.JobScheduler;
 import com.ylpu.thales.scheduler.manager.MasterManager;
 import org.apache.commons.logging.Log;
@@ -46,7 +46,7 @@ public class MasterServer {
         }
         
         /**
-         *  master在意外退出时删除zk临时节点
+         *  master在意外退出时删除zk节点
          */
         private void removeMaster() {
             String masterGroup = GlobalConstants.MASTER_GROUP;

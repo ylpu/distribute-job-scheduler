@@ -8,7 +8,8 @@ import org.apache.curator.framework.recipes.cache.PathChildrenCacheListener;
 import org.apache.curator.framework.recipes.leader.LeaderSelector;
 import org.apache.curator.framework.recipes.leader.LeaderSelectorListenerAdapter;
 import org.apache.curator.retry.ExponentialBackoffRetry;
-import com.ylpu.thales.scheduler.core.zk.CuratorHelper;
+
+import com.ylpu.thales.scheduler.core.curator.CuratorHelper;
 
 public class ZookeeperLeaderTest {
 	

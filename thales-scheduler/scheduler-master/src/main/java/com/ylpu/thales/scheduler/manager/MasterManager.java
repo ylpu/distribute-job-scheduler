@@ -2,6 +2,7 @@ package com.ylpu.thales.scheduler.manager;
 
 import com.ylpu.thales.scheduler.core.config.Configuration;
 import com.ylpu.thales.scheduler.core.constants.GlobalConstants;
+import com.ylpu.thales.scheduler.core.curator.CuratorHelper;
 import com.ylpu.thales.scheduler.core.rest.JobManager;
 import com.ylpu.thales.scheduler.core.rest.WorkerManager;
 import com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc;
@@ -9,7 +10,6 @@ import com.ylpu.thales.scheduler.core.utils.ByteUtils;
 import com.ylpu.thales.scheduler.core.utils.DateUtils;
 import com.ylpu.thales.scheduler.core.utils.MetricsUtils;
 import com.ylpu.thales.scheduler.core.utils.SSHUtils;
-import com.ylpu.thales.scheduler.core.zk.CuratorHelper;
 import com.ylpu.thales.scheduler.enums.WorkerStatus;
 import com.ylpu.thales.scheduler.jmx.MasterJmxServer;
 import com.ylpu.thales.scheduler.manager.strategy.JobStrategy;

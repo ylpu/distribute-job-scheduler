@@ -15,8 +15,6 @@ import org.quartz.TriggerKey;
 import org.quartz.SchedulerFactory;  
 import org.quartz.impl.StdSchedulerFactory;
 
-import com.ylpu.thales.scheduler.rest.entity.JobScheduleInfo;
-
 public class JobScheduler {
 	
     private static Log LOG = LogFactory.getLog(JobScheduler.class);

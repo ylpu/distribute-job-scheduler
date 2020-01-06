@@ -4,9 +4,10 @@ import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import com.ylpu.thales.scheduler.core.curator.CuratorHelper;
 import com.ylpu.thales.scheduler.core.rpc.entity.WorkerParameter;
 import com.ylpu.thales.scheduler.core.utils.MetricsUtils;
-import com.ylpu.thales.scheduler.core.zk.CuratorHelper;
 import com.ylpu.thales.scheduler.rpc.client.WorkerGrpcClient;
 /**
  * 增加或减少任务个数，用于监控
