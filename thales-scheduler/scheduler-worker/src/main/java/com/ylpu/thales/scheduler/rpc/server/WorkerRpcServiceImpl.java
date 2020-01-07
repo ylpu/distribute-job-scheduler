@@ -62,13 +62,11 @@ public class WorkerRpcServiceImpl extends GrpcJobServiceGrpc.GrpcJobServiceImplB
             setCodeAndMessage(builder,TaskState.SUCCESS.getCode(),200,"");
         }catch(Exception e) {
               LOG.error(e);
-            //设置任务失败返回状态
-              setCodeAndMessage(builder,TaskState.FAIL.getCode(),500,
-                      "failed to execute task " + requestRpc.getId());
               //任务失败告警
               Event event = new Event();
               setAlertEvent(event,requestRpc.getJob(),request);
 //              eventBus.post(event);
+              throw new RuntimeException(e);
         }finally {
             //减少任务个数
             jobMetric.decreaseTask();

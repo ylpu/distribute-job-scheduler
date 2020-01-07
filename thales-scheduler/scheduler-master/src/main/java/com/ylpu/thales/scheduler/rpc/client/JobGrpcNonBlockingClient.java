@@ -92,9 +92,6 @@ public class JobGrpcNonBlockingClient extends AbstractJobGrpcClient{
                         }
                         JobStatusCheck.addResponse(result);
                         shutdown();
-                        if(result.getErrorCode() != 200) {
-                        	  rerunIfNeeded(requestRpc);
-                        }
                     }
                     @Override
                     public void onFailure(Throwable t) {
