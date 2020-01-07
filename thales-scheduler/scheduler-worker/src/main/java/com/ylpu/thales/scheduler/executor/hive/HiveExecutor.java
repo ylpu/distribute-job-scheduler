@@ -56,4 +56,14 @@ public class HiveExecutor extends AbstractCommonExecutor{
         commands[0] = sb.toString();
         return commands;
     }
+
+	@Override
+	public void preExecute() throws Exception {
+		
+	}
+
+	@Override
+	public void postExecute() throws Exception {
+		
+	}
 }

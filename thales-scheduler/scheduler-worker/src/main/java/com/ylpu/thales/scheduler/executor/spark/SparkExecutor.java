@@ -77,4 +77,14 @@ public class SparkExecutor extends AbstractCommonExecutor{
         commands[0] = commandBuilder.toString();
         return commands;
     }
+
+	@Override
+	public void preExecute() throws Exception {
+		
+	}
+
+	@Override
+	public void postExecute() throws Exception {
+		
+	}
 }

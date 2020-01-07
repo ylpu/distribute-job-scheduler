@@ -44,6 +44,8 @@ public abstract class AbstractCommonExecutor{
         this.requestRpc = requestRpc;
         this.request = request;
     }
+    
+    public abstract void preExecute() throws Exception;
         
     public void execute() throws Exception{
         
@@ -90,6 +92,8 @@ public abstract class AbstractCommonExecutor{
         	   throw e;
         }
     }
+    
+    public abstract void postExecute() throws Exception;
     
     public JobStatusRequestRpc buildJobStatus(String requestId,TaskState taskState,JobInstanceRequest request) {
         JobStatusRequestRpc.Builder builder = JobStatusRequestRpc.newBuilder();

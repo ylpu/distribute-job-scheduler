@@ -70,4 +70,14 @@ public class ShellExecutor extends AbstractCommonExecutor{
         commands.toArray(strings);
         return strings;
     }
+
+	@Override
+	public void preExecute() throws Exception {
+		
+	}
+
+	@Override
+	public void postExecute() throws Exception {
+		
+	}
 }

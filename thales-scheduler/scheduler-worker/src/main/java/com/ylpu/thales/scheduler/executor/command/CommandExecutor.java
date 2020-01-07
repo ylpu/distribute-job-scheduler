@@ -59,4 +59,14 @@ public class CommandExecutor extends AbstractCommonExecutor{
 	    strs[2] = commandLine;
         return strs;
     }
+
+	@Override
+	public void preExecute() throws Exception {
+		
+	}
+
+	@Override
+	public void postExecute() throws Exception {
+		
+	}
 }

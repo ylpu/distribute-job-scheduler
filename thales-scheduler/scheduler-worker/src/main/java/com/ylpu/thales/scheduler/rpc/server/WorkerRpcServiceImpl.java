@@ -57,7 +57,9 @@ public class WorkerRpcServiceImpl extends GrpcJobServiceGrpc.GrpcJobServiceImplB
             //执行任务
             LOG.info("start to execute task " + requestRpc.getId());
             AbstractCommonExecutor executor = getExecutor(requestRpc,request);
+            executor.preExecute();
             executor.execute();
+            executor.postExecute();
             //设置任务成功返回状态
             setCodeAndMessage(builder,TaskState.SUCCESS.getCode(),200,"");
         }catch(Exception e) {

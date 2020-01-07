@@ -204,4 +204,14 @@ public class SQLExecutor extends AbstractCommonExecutor{
     public String[] buildCommand(String configFile) throws Exception {
        return null;
     }
+
+	@Override
+	public void preExecute() throws Exception {
+		
+	}
+
+	@Override
+	public void postExecute() throws Exception {
+		
+	}
 }
