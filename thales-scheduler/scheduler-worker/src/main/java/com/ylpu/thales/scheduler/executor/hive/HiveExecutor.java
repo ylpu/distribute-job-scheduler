@@ -2,6 +2,11 @@ package com.ylpu.thales.scheduler.executor.hive;
 
 import java.io.File;
 import java.util.List;
+import java.util.Properties;
+
+import org.apache.commons.lang3.StringUtils;
+
+import com.ylpu.thales.scheduler.core.config.Configuration;
 import com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc;
 import com.ylpu.thales.scheduler.core.utils.FileUtils;
 import com.ylpu.thales.scheduler.core.utils.JsonUtils;
@@ -46,12 +51,18 @@ public class HiveExecutor extends AbstractCommonExecutor{
         StringBuilder sb = new StringBuilder();
         HiveConfig hiveConfig = JsonUtils.jsonToBean(configFile, HiveConfig.class);
         String fileName = hiveConfig.getFileName();
-        if(!FileUtils.exist(new File(fileName))) {
-        	   throw new RuntimeException("file does not exist or not end with sql " + fileName);
+        if(!FileUtils.exist(new File(fileName)) || !fileName.endsWith(".hql")) {
+        	   throw new RuntimeException("请输入合法的hql文件 " + fileName);
+        }
+        Properties prop = Configuration.getConfig();
+        String hive_home = Configuration.getString(prop,"hive.home","");
+        if(StringUtils.isBlank(hive_home)) {
+        	    sb.append("$HIVE_HOME/bin/" + HIVE_COMMAND);
+        }else {
+            sb.append(hive_home + "/bin/" + HIVE_COMMAND);
         }
         String fileContent = FileUtils.readFile(fileName);
         fileContent = replaceParameters(hiveConfig.getPlaceHolder(),fileContent);
-        sb.append("$HIVE_HOME/bin/" + HIVE_COMMAND);
         sb.append(" -e " + fileContent);
         commands[0] = sb.toString();
         return commands;

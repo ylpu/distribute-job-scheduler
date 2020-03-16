@@ -95,14 +95,17 @@ public class JobGrpcNonBlockingClient extends AbstractJobGrpcClient{
                     }
                     @Override
                     public void onFailure(Throwable t) {
+                    	   JobInstanceResponseRpc responseRpc = null;
                         LOG.error("任务" + requestRpc.getId() + "执行失败,异常" + t.getMessage());
                         try {
                             updateTaskStatus(request,TaskState.FAIL.getCode());
                         } catch (Exception e) {
                             LOG.error(e);
+                            responseRpc = buildResponse(requestRpc,TaskState.RUNNING,500,
+                                    "failed to update task " + requestRpc.getId());
                         }
-                        JobInstanceResponseRpc responseRpc = buildResponse(requestRpc,TaskState.FAIL,500,
-                                "failed to execute task " + requestRpc.getId());;
+                        responseRpc = buildResponse(requestRpc,TaskState.FAIL,500,
+                                "failed to execute task " + requestRpc.getId());
                         JobStatusCheck.addResponse(responseRpc);
                         shutdown();
                         rerunIfNeeded(requestRpc);
