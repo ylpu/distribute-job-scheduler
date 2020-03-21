@@ -31,17 +31,8 @@ public class ShellExecutor extends AbstractCommonExecutor{
     public void kill() throws Exception{
         Integer pid = requestRpc.getPid();
         if(pid != null) {
-            TaskProcessUtils.execCommand("./src/script/kill.sh", 
+            TaskProcessUtils.execCommand("./src/script/killProcess.sh", 
                     "/tmp/pid/" + pid + ".out", "/tmp/pid/" + pid + ".error", pid);
-        }
-        //脚本中如果有hql,杀掉相关的任务
-        String logPath = requestRpc.getLogPath();
-        List<String> applicationList = FileUtils
-                .getApplicationIdFromLog(logPath);
-        if(applicationList != null && applicationList.size() > 0) {
-            for (String application : applicationList) {
-                TaskProcessUtils.killYarnApplication(application);
-            }  
         }
     }
     

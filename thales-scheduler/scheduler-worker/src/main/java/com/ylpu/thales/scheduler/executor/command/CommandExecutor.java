@@ -1,10 +1,8 @@
 package com.ylpu.thales.scheduler.executor.command;
 
-import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc;
-import com.ylpu.thales.scheduler.core.utils.FileUtils;
 import com.ylpu.thales.scheduler.core.utils.JsonUtils;
 import com.ylpu.thales.scheduler.core.utils.TaskProcessUtils;
 import com.ylpu.thales.scheduler.executor.AbstractCommonExecutor;
@@ -26,17 +24,8 @@ public class CommandExecutor extends AbstractCommonExecutor{
     public void kill() throws Exception{
         Integer pid = requestRpc.getPid();
         if(pid != null) {
-            TaskProcessUtils.execCommand("./src/script/kill.sh", 
+            TaskProcessUtils.execCommand("./src/script/killProcess.sh", 
                     "/tmp/pid/" + pid + ".out", "/tmp/pid/" + pid + ".error", pid);
-        }
-        //脚本中如果有hql,杀掉相关的任务
-        String logPath = requestRpc.getLogPath();
-        List<String> applicationList = FileUtils
-                .getApplicationIdFromLog(logPath);
-        if(applicationList != null && applicationList.size() > 0) {
-            for (String application : applicationList) {
-                TaskProcessUtils.killYarnApplication(application);
-            }  
         }
     }
 

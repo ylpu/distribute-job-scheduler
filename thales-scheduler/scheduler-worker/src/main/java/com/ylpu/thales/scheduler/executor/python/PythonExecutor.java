@@ -30,7 +30,7 @@ public class PythonExecutor extends AbstractCommonExecutor{
     public void kill() throws Exception{
         Integer pid = requestRpc.getPid();
         if(pid != null) {
-            TaskProcessUtils.execCommand("./src/script/kill.sh", 
+            TaskProcessUtils.execCommand("./src/script/killProcess.sh", 
                     "/tmp/pid/" + pid + ".out", "/tmp/pid/" + pid + ".error", pid);
         }
         //脚本中如果有hql,杀掉相关的任务

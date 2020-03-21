@@ -1,11 +1,8 @@
 package com.ylpu.thales.scheduler.executor.hive;
 
 import java.io.File;
-import java.util.List;
 import java.util.Properties;
-
 import org.apache.commons.lang3.StringUtils;
-
 import com.ylpu.thales.scheduler.core.config.Configuration;
 import com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc;
 import com.ylpu.thales.scheduler.core.utils.FileUtils;
@@ -16,7 +13,7 @@ import com.ylpu.thales.scheduler.request.JobInstanceRequest;
 
 public class HiveExecutor extends AbstractCommonExecutor{
 	
-	private static final String HIVE_COMMAND = "hive";
+	private static final String HIVE_COMMAND = "hive -e ";
         
     private JobInstanceRequestRpc requestRpc;
                 
@@ -30,14 +27,11 @@ public class HiveExecutor extends AbstractCommonExecutor{
      */
     @Override
     public void kill() throws Exception{
-        String logPath = requestRpc.getLogPath();
-        List<String> applicationList = FileUtils
-                .getApplicationIdFromLog(logPath);
-        if(applicationList != null && applicationList.size() > 0) {
-            for (String application : applicationList) {
-                TaskProcessUtils.killYarnApplication(application);
-            }  
-        }
+        Properties prop = Configuration.getConfig();
+        String hadoopHome = Configuration.getString(prop,"hadoop.home","");
+        TaskProcessUtils.execCommand("./src/script/killMR.sh", 
+                "/tmp/pid/" + requestRpc.getPid() + ".out", "/tmp/pid/" + requestRpc.getPid() + ".error", 
+                requestRpc.getJob().getJobName(),hadoopHome);
     }
 
     @Override
@@ -63,7 +57,10 @@ public class HiveExecutor extends AbstractCommonExecutor{
         }
         String fileContent = FileUtils.readFile(fileName);
         fileContent = replaceParameters(hiveConfig.getPlaceHolder(),fileContent);
-        sb.append(" -e " + fileContent);
+        sb.append("\"");
+        sb.append("set mapred.job.name=" + requestRpc.getJob().getJobName() + ";");
+        sb.append(fileContent + ";");
+        sb.append("\"");
         commands[0] = sb.toString();
         return commands;
     }

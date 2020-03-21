@@ -1,11 +1,8 @@
 package com.ylpu.thales.scheduler.executor.spark;
 
 import java.io.File;
-import java.util.List;
 import java.util.Properties;
-
 import org.apache.commons.lang3.StringUtils;
-
 import com.ylpu.thales.scheduler.core.config.Configuration;
 import com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc;
 import com.ylpu.thales.scheduler.core.utils.FileUtils;
@@ -30,13 +27,11 @@ public class SparkExecutor extends AbstractCommonExecutor{
      */
     @Override
     public void kill() throws Exception{
-        String logPath = requestRpc.getLogPath();
-        List<String> applicationList = FileUtils.getSparkAppIds(logPath);
-        if(applicationList != null && applicationList.size() > 0) {
-            for (String application : applicationList) {
-                TaskProcessUtils.killYarnApplication(application);
-            }  
-        }
+        Properties prop = Configuration.getConfig();
+        String hadoopHome = Configuration.getString(prop,"hadoop.home","");
+        TaskProcessUtils.execCommand("./src/script/killSpark.sh", 
+                "/tmp/pid/" + requestRpc.getPid() + ".out", "/tmp/pid/" + requestRpc.getPid() + ".error", 
+                requestRpc.getJob().getJobName(),hadoopHome);
     }
 
     @Override
@@ -69,7 +64,11 @@ public class SparkExecutor extends AbstractCommonExecutor{
         String fileContent = FileUtils.readFile(fileName);
         fileContent = replaceParameters(sparkConfig.getPlaceHolder(),fileContent);
         
-        commandBuilder.append(fileContent);
+        commandBuilder.append("\"");
+        commandBuilder.append("set spark.app.name=" + requestRpc.getJob().getJobName() + ";");
+        commandBuilder.append(fileContent + ";");
+        commandBuilder.append("\"");
+        
         commandBuilder.append(" ");
         
         commandBuilder.append("--master " + sparkParameters.getMasterUrl());
