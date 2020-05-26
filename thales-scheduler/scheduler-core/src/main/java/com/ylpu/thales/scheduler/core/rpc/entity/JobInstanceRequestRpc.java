@@ -6,2265 +6,2249 @@ package com.ylpu.thales.scheduler.core.rpc.entity;
 /**
  * Protobuf type {@code JobInstanceRequestRpc}
  */
-public  final class JobInstanceRequestRpc extends
-    com.google.protobuf.GeneratedMessageV3 implements
-    // @@protoc_insertion_point(message_implements:JobInstanceRequestRpc)
-    JobInstanceRequestRpcOrBuilder {
-  // Use JobInstanceRequestRpc.newBuilder() to construct.
-  private JobInstanceRequestRpc(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
-    super(builder);
-  }
-  private JobInstanceRequestRpc() {
-    id_ = 0;
-    requestId_ = "";
-    taskState_ = 0;
-    logUrl_ = "";
-    logPath_ = "";
-    worker_ = "";
-    creatorName_ = "";
-    creatorEmail_ = "";
-    retryTimes_ = 0;
-    pid_ = 0;
-    applicationid_ = "";
-    elapseTime_ = 0;
-  }
+public final class JobInstanceRequestRpc extends com.google.protobuf.GeneratedMessageV3 implements
+        // @@protoc_insertion_point(message_implements:JobInstanceRequestRpc)
+        JobInstanceRequestRpcOrBuilder {
+    // Use JobInstanceRequestRpc.newBuilder() to construct.
+    private JobInstanceRequestRpc(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
+        super(builder);
+    }
 
-  @java.lang.Override
-  public final com.google.protobuf.UnknownFieldSet
-  getUnknownFields() {
-    return com.google.protobuf.UnknownFieldSet.getDefaultInstance();
-  }
-  private JobInstanceRequestRpc(
-      com.google.protobuf.CodedInputStream input,
-      com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-      throws com.google.protobuf.InvalidProtocolBufferException {
-    this();
-    int mutable_bitField0_ = 0;
-    try {
-      boolean done = false;
-      while (!done) {
-        int tag = input.readTag();
-        switch (tag) {
-          case 0:
-            done = true;
-            break;
-          default: {
-            if (!input.skipField(tag)) {
-              done = true;
+    private JobInstanceRequestRpc() {
+        id_ = 0;
+        requestId_ = "";
+        taskState_ = 0;
+        logUrl_ = "";
+        logPath_ = "";
+        worker_ = "";
+        creatorName_ = "";
+        creatorEmail_ = "";
+        retryTimes_ = 0;
+        pid_ = 0;
+        applicationid_ = "";
+        elapseTime_ = 0;
+    }
+
+    @java.lang.Override
+    public final com.google.protobuf.UnknownFieldSet getUnknownFields() {
+        return com.google.protobuf.UnknownFieldSet.getDefaultInstance();
+    }
+
+    private JobInstanceRequestRpc(com.google.protobuf.CodedInputStream input,
+            com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+            throws com.google.protobuf.InvalidProtocolBufferException {
+        this();
+        int mutable_bitField0_ = 0;
+        try {
+            boolean done = false;
+            while (!done) {
+                int tag = input.readTag();
+                switch (tag) {
+                case 0:
+                    done = true;
+                    break;
+                default: {
+                    if (!input.skipField(tag)) {
+                        done = true;
+                    }
+                    break;
+                }
+                case 8: {
+
+                    id_ = input.readInt32();
+                    break;
+                }
+                case 18: {
+                    java.lang.String s = input.readStringRequireUtf8();
+
+                    requestId_ = s;
+                    break;
+                }
+                case 26: {
+                    com.ylpu.thales.scheduler.core.rpc.entity.JobRequestRpc.Builder subBuilder = null;
+                    if (job_ != null) {
+                        subBuilder = job_.toBuilder();
+                    }
+                    job_ = input.readMessage(com.ylpu.thales.scheduler.core.rpc.entity.JobRequestRpc.parser(),
+                            extensionRegistry);
+                    if (subBuilder != null) {
+                        subBuilder.mergeFrom(job_);
+                        job_ = subBuilder.buildPartial();
+                    }
+
+                    break;
+                }
+                case 32: {
+
+                    taskState_ = input.readInt32();
+                    break;
+                }
+                case 42: {
+                    java.lang.String s = input.readStringRequireUtf8();
+
+                    logUrl_ = s;
+                    break;
+                }
+                case 50: {
+                    java.lang.String s = input.readStringRequireUtf8();
+
+                    logPath_ = s;
+                    break;
+                }
+                case 58: {
+                    java.lang.String s = input.readStringRequireUtf8();
+
+                    worker_ = s;
+                    break;
+                }
+                case 66: {
+                    java.lang.String s = input.readStringRequireUtf8();
+
+                    creatorName_ = s;
+                    break;
+                }
+                case 74: {
+                    java.lang.String s = input.readStringRequireUtf8();
+
+                    creatorEmail_ = s;
+                    break;
+                }
+                case 80: {
+
+                    retryTimes_ = input.readInt32();
+                    break;
+                }
+                case 88: {
+
+                    pid_ = input.readInt32();
+                    break;
+                }
+                case 98: {
+                    java.lang.String s = input.readStringRequireUtf8();
+
+                    applicationid_ = s;
+                    break;
+                }
+                case 106: {
+                    com.google.protobuf.Timestamp.Builder subBuilder = null;
+                    if (scheduleTime_ != null) {
+                        subBuilder = scheduleTime_.toBuilder();
+                    }
+                    scheduleTime_ = input.readMessage(com.google.protobuf.Timestamp.parser(), extensionRegistry);
+                    if (subBuilder != null) {
+                        subBuilder.mergeFrom(scheduleTime_);
+                        scheduleTime_ = subBuilder.buildPartial();
+                    }
+
+                    break;
+                }
+                case 114: {
+                    com.google.protobuf.Timestamp.Builder subBuilder = null;
+                    if (startTime_ != null) {
+                        subBuilder = startTime_.toBuilder();
+                    }
+                    startTime_ = input.readMessage(com.google.protobuf.Timestamp.parser(), extensionRegistry);
+                    if (subBuilder != null) {
+                        subBuilder.mergeFrom(startTime_);
+                        startTime_ = subBuilder.buildPartial();
+                    }
+
+                    break;
+                }
+                case 122: {
+                    com.google.protobuf.Timestamp.Builder subBuilder = null;
+                    if (endTime_ != null) {
+                        subBuilder = endTime_.toBuilder();
+                    }
+                    endTime_ = input.readMessage(com.google.protobuf.Timestamp.parser(), extensionRegistry);
+                    if (subBuilder != null) {
+                        subBuilder.mergeFrom(endTime_);
+                        endTime_ = subBuilder.buildPartial();
+                    }
+
+                    break;
+                }
+                case 128: {
+
+                    elapseTime_ = input.readInt32();
+                    break;
+                }
+                }
             }
-            break;
-          }
-          case 8: {
-
-            id_ = input.readInt32();
-            break;
-          }
-          case 18: {
-            java.lang.String s = input.readStringRequireUtf8();
-
-            requestId_ = s;
-            break;
-          }
-          case 26: {
-            com.ylpu.thales.scheduler.core.rpc.entity.JobRequestRpc.Builder subBuilder = null;
-            if (job_ != null) {
-              subBuilder = job_.toBuilder();
-            }
-            job_ = input.readMessage(com.ylpu.thales.scheduler.core.rpc.entity.JobRequestRpc.parser(), extensionRegistry);
-            if (subBuilder != null) {
-              subBuilder.mergeFrom(job_);
-              job_ = subBuilder.buildPartial();
-            }
-
-            break;
-          }
-          case 32: {
-
-            taskState_ = input.readInt32();
-            break;
-          }
-          case 42: {
-            java.lang.String s = input.readStringRequireUtf8();
-
-            logUrl_ = s;
-            break;
-          }
-          case 50: {
-            java.lang.String s = input.readStringRequireUtf8();
-
-            logPath_ = s;
-            break;
-          }
-          case 58: {
-            java.lang.String s = input.readStringRequireUtf8();
-
-            worker_ = s;
-            break;
-          }
-          case 66: {
-            java.lang.String s = input.readStringRequireUtf8();
-
-            creatorName_ = s;
-            break;
-          }
-          case 74: {
-            java.lang.String s = input.readStringRequireUtf8();
-
-            creatorEmail_ = s;
-            break;
-          }
-          case 80: {
-
-            retryTimes_ = input.readInt32();
-            break;
-          }
-          case 88: {
-
-            pid_ = input.readInt32();
-            break;
-          }
-          case 98: {
-            java.lang.String s = input.readStringRequireUtf8();
-
-            applicationid_ = s;
-            break;
-          }
-          case 106: {
-            com.google.protobuf.Timestamp.Builder subBuilder = null;
-            if (scheduleTime_ != null) {
-              subBuilder = scheduleTime_.toBuilder();
-            }
-            scheduleTime_ = input.readMessage(com.google.protobuf.Timestamp.parser(), extensionRegistry);
-            if (subBuilder != null) {
-              subBuilder.mergeFrom(scheduleTime_);
-              scheduleTime_ = subBuilder.buildPartial();
-            }
-
-            break;
-          }
-          case 114: {
-            com.google.protobuf.Timestamp.Builder subBuilder = null;
-            if (startTime_ != null) {
-              subBuilder = startTime_.toBuilder();
-            }
-            startTime_ = input.readMessage(com.google.protobuf.Timestamp.parser(), extensionRegistry);
-            if (subBuilder != null) {
-              subBuilder.mergeFrom(startTime_);
-              startTime_ = subBuilder.buildPartial();
-            }
-
-            break;
-          }
-          case 122: {
-            com.google.protobuf.Timestamp.Builder subBuilder = null;
-            if (endTime_ != null) {
-              subBuilder = endTime_.toBuilder();
-            }
-            endTime_ = input.readMessage(com.google.protobuf.Timestamp.parser(), extensionRegistry);
-            if (subBuilder != null) {
-              subBuilder.mergeFrom(endTime_);
-              endTime_ = subBuilder.buildPartial();
-            }
-
-            break;
-          }
-          case 128: {
-
-            elapseTime_ = input.readInt32();
-            break;
-          }
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+            throw e.setUnfinishedMessage(this);
+        } catch (java.io.IOException e) {
+            throw new com.google.protobuf.InvalidProtocolBufferException(e).setUnfinishedMessage(this);
+        } finally {
+            makeExtensionsImmutable();
         }
-      }
-    } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-      throw e.setUnfinishedMessage(this);
-    } catch (java.io.IOException e) {
-      throw new com.google.protobuf.InvalidProtocolBufferException(
-          e).setUnfinishedMessage(this);
-    } finally {
-      makeExtensionsImmutable();
-    }
-  }
-  public static final com.google.protobuf.Descriptors.Descriptor
-      getDescriptor() {
-    return com.ylpu.thales.scheduler.core.rpc.entity.JobGrpc.internal_static_JobInstanceRequestRpc_descriptor;
-  }
-
-  protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-      internalGetFieldAccessorTable() {
-    return com.ylpu.thales.scheduler.core.rpc.entity.JobGrpc.internal_static_JobInstanceRequestRpc_fieldAccessorTable
-        .ensureFieldAccessorsInitialized(
-            com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc.class, com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc.Builder.class);
-  }
-
-  public static final int ID_FIELD_NUMBER = 1;
-  private int id_;
-  /**
-   * <code>int32 id = 1;</code>
-   */
-  public int getId() {
-    return id_;
-  }
-
-  public static final int REQUESTID_FIELD_NUMBER = 2;
-  private volatile java.lang.Object requestId_;
-  /**
-   * <code>string requestId = 2;</code>
-   */
-  public java.lang.String getRequestId() {
-    java.lang.Object ref = requestId_;
-    if (ref instanceof java.lang.String) {
-      return (java.lang.String) ref;
-    } else {
-      com.google.protobuf.ByteString bs = 
-          (com.google.protobuf.ByteString) ref;
-      java.lang.String s = bs.toStringUtf8();
-      requestId_ = s;
-      return s;
-    }
-  }
-  /**
-   * <code>string requestId = 2;</code>
-   */
-  public com.google.protobuf.ByteString
-      getRequestIdBytes() {
-    java.lang.Object ref = requestId_;
-    if (ref instanceof java.lang.String) {
-      com.google.protobuf.ByteString b = 
-          com.google.protobuf.ByteString.copyFromUtf8(
-              (java.lang.String) ref);
-      requestId_ = b;
-      return b;
-    } else {
-      return (com.google.protobuf.ByteString) ref;
-    }
-  }
-
-  public static final int JOB_FIELD_NUMBER = 3;
-  private com.ylpu.thales.scheduler.core.rpc.entity.JobRequestRpc job_;
-  /**
-   * <code>.JobRequestRpc job = 3;</code>
-   */
-  public boolean hasJob() {
-    return job_ != null;
-  }
-  /**
-   * <code>.JobRequestRpc job = 3;</code>
-   */
-  public com.ylpu.thales.scheduler.core.rpc.entity.JobRequestRpc getJob() {
-    return job_ == null ? com.ylpu.thales.scheduler.core.rpc.entity.JobRequestRpc.getDefaultInstance() : job_;
-  }
-  /**
-   * <code>.JobRequestRpc job = 3;</code>
-   */
-  public com.ylpu.thales.scheduler.core.rpc.entity.JobRequestRpcOrBuilder getJobOrBuilder() {
-    return getJob();
-  }
-
-  public static final int TASKSTATE_FIELD_NUMBER = 4;
-  private int taskState_;
-  /**
-   * <code>int32 taskState = 4;</code>
-   */
-  public int getTaskState() {
-    return taskState_;
-  }
-
-  public static final int LOGURL_FIELD_NUMBER = 5;
-  private volatile java.lang.Object logUrl_;
-  /**
-   * <code>string logUrl = 5;</code>
-   */
-  public java.lang.String getLogUrl() {
-    java.lang.Object ref = logUrl_;
-    if (ref instanceof java.lang.String) {
-      return (java.lang.String) ref;
-    } else {
-      com.google.protobuf.ByteString bs = 
-          (com.google.protobuf.ByteString) ref;
-      java.lang.String s = bs.toStringUtf8();
-      logUrl_ = s;
-      return s;
-    }
-  }
-  /**
-   * <code>string logUrl = 5;</code>
-   */
-  public com.google.protobuf.ByteString
-      getLogUrlBytes() {
-    java.lang.Object ref = logUrl_;
-    if (ref instanceof java.lang.String) {
-      com.google.protobuf.ByteString b = 
-          com.google.protobuf.ByteString.copyFromUtf8(
-              (java.lang.String) ref);
-      logUrl_ = b;
-      return b;
-    } else {
-      return (com.google.protobuf.ByteString) ref;
-    }
-  }
-
-  public static final int LOGPATH_FIELD_NUMBER = 6;
-  private volatile java.lang.Object logPath_;
-  /**
-   * <code>string logPath = 6;</code>
-   */
-  public java.lang.String getLogPath() {
-    java.lang.Object ref = logPath_;
-    if (ref instanceof java.lang.String) {
-      return (java.lang.String) ref;
-    } else {
-      com.google.protobuf.ByteString bs = 
-          (com.google.protobuf.ByteString) ref;
-      java.lang.String s = bs.toStringUtf8();
-      logPath_ = s;
-      return s;
-    }
-  }
-  /**
-   * <code>string logPath = 6;</code>
-   */
-  public com.google.protobuf.ByteString
-      getLogPathBytes() {
-    java.lang.Object ref = logPath_;
-    if (ref instanceof java.lang.String) {
-      com.google.protobuf.ByteString b = 
-          com.google.protobuf.ByteString.copyFromUtf8(
-              (java.lang.String) ref);
-      logPath_ = b;
-      return b;
-    } else {
-      return (com.google.protobuf.ByteString) ref;
-    }
-  }
-
-  public static final int WORKER_FIELD_NUMBER = 7;
-  private volatile java.lang.Object worker_;
-  /**
-   * <code>string worker = 7;</code>
-   */
-  public java.lang.String getWorker() {
-    java.lang.Object ref = worker_;
-    if (ref instanceof java.lang.String) {
-      return (java.lang.String) ref;
-    } else {
-      com.google.protobuf.ByteString bs = 
-          (com.google.protobuf.ByteString) ref;
-      java.lang.String s = bs.toStringUtf8();
-      worker_ = s;
-      return s;
-    }
-  }
-  /**
-   * <code>string worker = 7;</code>
-   */
-  public com.google.protobuf.ByteString
-      getWorkerBytes() {
-    java.lang.Object ref = worker_;
-    if (ref instanceof java.lang.String) {
-      com.google.protobuf.ByteString b = 
-          com.google.protobuf.ByteString.copyFromUtf8(
-              (java.lang.String) ref);
-      worker_ = b;
-      return b;
-    } else {
-      return (com.google.protobuf.ByteString) ref;
-    }
-  }
-
-  public static final int CREATORNAME_FIELD_NUMBER = 8;
-  private volatile java.lang.Object creatorName_;
-  /**
-   * <code>string creatorName = 8;</code>
-   */
-  public java.lang.String getCreatorName() {
-    java.lang.Object ref = creatorName_;
-    if (ref instanceof java.lang.String) {
-      return (java.lang.String) ref;
-    } else {
-      com.google.protobuf.ByteString bs = 
-          (com.google.protobuf.ByteString) ref;
-      java.lang.String s = bs.toStringUtf8();
-      creatorName_ = s;
-      return s;
-    }
-  }
-  /**
-   * <code>string creatorName = 8;</code>
-   */
-  public com.google.protobuf.ByteString
-      getCreatorNameBytes() {
-    java.lang.Object ref = creatorName_;
-    if (ref instanceof java.lang.String) {
-      com.google.protobuf.ByteString b = 
-          com.google.protobuf.ByteString.copyFromUtf8(
-              (java.lang.String) ref);
-      creatorName_ = b;
-      return b;
-    } else {
-      return (com.google.protobuf.ByteString) ref;
-    }
-  }
-
-  public static final int CREATOREMAIL_FIELD_NUMBER = 9;
-  private volatile java.lang.Object creatorEmail_;
-  /**
-   * <code>string creatorEmail = 9;</code>
-   */
-  public java.lang.String getCreatorEmail() {
-    java.lang.Object ref = creatorEmail_;
-    if (ref instanceof java.lang.String) {
-      return (java.lang.String) ref;
-    } else {
-      com.google.protobuf.ByteString bs = 
-          (com.google.protobuf.ByteString) ref;
-      java.lang.String s = bs.toStringUtf8();
-      creatorEmail_ = s;
-      return s;
-    }
-  }
-  /**
-   * <code>string creatorEmail = 9;</code>
-   */
-  public com.google.protobuf.ByteString
-      getCreatorEmailBytes() {
-    java.lang.Object ref = creatorEmail_;
-    if (ref instanceof java.lang.String) {
-      com.google.protobuf.ByteString b = 
-          com.google.protobuf.ByteString.copyFromUtf8(
-              (java.lang.String) ref);
-      creatorEmail_ = b;
-      return b;
-    } else {
-      return (com.google.protobuf.ByteString) ref;
-    }
-  }
-
-  public static final int RETRYTIMES_FIELD_NUMBER = 10;
-  private int retryTimes_;
-  /**
-   * <code>int32 retryTimes = 10;</code>
-   */
-  public int getRetryTimes() {
-    return retryTimes_;
-  }
-
-  public static final int PID_FIELD_NUMBER = 11;
-  private int pid_;
-  /**
-   * <code>int32 pid = 11;</code>
-   */
-  public int getPid() {
-    return pid_;
-  }
-
-  public static final int APPLICATIONID_FIELD_NUMBER = 12;
-  private volatile java.lang.Object applicationid_;
-  /**
-   * <code>string applicationid = 12;</code>
-   */
-  public java.lang.String getApplicationid() {
-    java.lang.Object ref = applicationid_;
-    if (ref instanceof java.lang.String) {
-      return (java.lang.String) ref;
-    } else {
-      com.google.protobuf.ByteString bs = 
-          (com.google.protobuf.ByteString) ref;
-      java.lang.String s = bs.toStringUtf8();
-      applicationid_ = s;
-      return s;
-    }
-  }
-  /**
-   * <code>string applicationid = 12;</code>
-   */
-  public com.google.protobuf.ByteString
-      getApplicationidBytes() {
-    java.lang.Object ref = applicationid_;
-    if (ref instanceof java.lang.String) {
-      com.google.protobuf.ByteString b = 
-          com.google.protobuf.ByteString.copyFromUtf8(
-              (java.lang.String) ref);
-      applicationid_ = b;
-      return b;
-    } else {
-      return (com.google.protobuf.ByteString) ref;
-    }
-  }
-
-  public static final int SCHEDULETIME_FIELD_NUMBER = 13;
-  private com.google.protobuf.Timestamp scheduleTime_;
-  /**
-   * <code>.google.protobuf.Timestamp scheduleTime = 13;</code>
-   */
-  public boolean hasScheduleTime() {
-    return scheduleTime_ != null;
-  }
-  /**
-   * <code>.google.protobuf.Timestamp scheduleTime = 13;</code>
-   */
-  public com.google.protobuf.Timestamp getScheduleTime() {
-    return scheduleTime_ == null ? com.google.protobuf.Timestamp.getDefaultInstance() : scheduleTime_;
-  }
-  /**
-   * <code>.google.protobuf.Timestamp scheduleTime = 13;</code>
-   */
-  public com.google.protobuf.TimestampOrBuilder getScheduleTimeOrBuilder() {
-    return getScheduleTime();
-  }
-
-  public static final int STARTTIME_FIELD_NUMBER = 14;
-  private com.google.protobuf.Timestamp startTime_;
-  /**
-   * <code>.google.protobuf.Timestamp startTime = 14;</code>
-   */
-  public boolean hasStartTime() {
-    return startTime_ != null;
-  }
-  /**
-   * <code>.google.protobuf.Timestamp startTime = 14;</code>
-   */
-  public com.google.protobuf.Timestamp getStartTime() {
-    return startTime_ == null ? com.google.protobuf.Timestamp.getDefaultInstance() : startTime_;
-  }
-  /**
-   * <code>.google.protobuf.Timestamp startTime = 14;</code>
-   */
-  public com.google.protobuf.TimestampOrBuilder getStartTimeOrBuilder() {
-    return getStartTime();
-  }
-
-  public static final int ENDTIME_FIELD_NUMBER = 15;
-  private com.google.protobuf.Timestamp endTime_;
-  /**
-   * <code>.google.protobuf.Timestamp endTime = 15;</code>
-   */
-  public boolean hasEndTime() {
-    return endTime_ != null;
-  }
-  /**
-   * <code>.google.protobuf.Timestamp endTime = 15;</code>
-   */
-  public com.google.protobuf.Timestamp getEndTime() {
-    return endTime_ == null ? com.google.protobuf.Timestamp.getDefaultInstance() : endTime_;
-  }
-  /**
-   * <code>.google.protobuf.Timestamp endTime = 15;</code>
-   */
-  public com.google.protobuf.TimestampOrBuilder getEndTimeOrBuilder() {
-    return getEndTime();
-  }
-
-  public static final int ELAPSETIME_FIELD_NUMBER = 16;
-  private int elapseTime_;
-  /**
-   * <code>int32 elapseTime = 16;</code>
-   */
-  public int getElapseTime() {
-    return elapseTime_;
-  }
-
-  private byte memoizedIsInitialized = -1;
-  public final boolean isInitialized() {
-    byte isInitialized = memoizedIsInitialized;
-    if (isInitialized == 1) return true;
-    if (isInitialized == 0) return false;
-
-    memoizedIsInitialized = 1;
-    return true;
-  }
-
-  public void writeTo(com.google.protobuf.CodedOutputStream output)
-                      throws java.io.IOException {
-    if (id_ != 0) {
-      output.writeInt32(1, id_);
-    }
-    if (!getRequestIdBytes().isEmpty()) {
-      com.google.protobuf.GeneratedMessageV3.writeString(output, 2, requestId_);
-    }
-    if (job_ != null) {
-      output.writeMessage(3, getJob());
-    }
-    if (taskState_ != 0) {
-      output.writeInt32(4, taskState_);
-    }
-    if (!getLogUrlBytes().isEmpty()) {
-      com.google.protobuf.GeneratedMessageV3.writeString(output, 5, logUrl_);
-    }
-    if (!getLogPathBytes().isEmpty()) {
-      com.google.protobuf.GeneratedMessageV3.writeString(output, 6, logPath_);
-    }
-    if (!getWorkerBytes().isEmpty()) {
-      com.google.protobuf.GeneratedMessageV3.writeString(output, 7, worker_);
-    }
-    if (!getCreatorNameBytes().isEmpty()) {
-      com.google.protobuf.GeneratedMessageV3.writeString(output, 8, creatorName_);
-    }
-    if (!getCreatorEmailBytes().isEmpty()) {
-      com.google.protobuf.GeneratedMessageV3.writeString(output, 9, creatorEmail_);
-    }
-    if (retryTimes_ != 0) {
-      output.writeInt32(10, retryTimes_);
-    }
-    if (pid_ != 0) {
-      output.writeInt32(11, pid_);
-    }
-    if (!getApplicationidBytes().isEmpty()) {
-      com.google.protobuf.GeneratedMessageV3.writeString(output, 12, applicationid_);
-    }
-    if (scheduleTime_ != null) {
-      output.writeMessage(13, getScheduleTime());
-    }
-    if (startTime_ != null) {
-      output.writeMessage(14, getStartTime());
-    }
-    if (endTime_ != null) {
-      output.writeMessage(15, getEndTime());
-    }
-    if (elapseTime_ != 0) {
-      output.writeInt32(16, elapseTime_);
-    }
-  }
-
-  public int getSerializedSize() {
-    int size = memoizedSize;
-    if (size != -1) return size;
-
-    size = 0;
-    if (id_ != 0) {
-      size += com.google.protobuf.CodedOutputStream
-        .computeInt32Size(1, id_);
-    }
-    if (!getRequestIdBytes().isEmpty()) {
-      size += com.google.protobuf.GeneratedMessageV3.computeStringSize(2, requestId_);
-    }
-    if (job_ != null) {
-      size += com.google.protobuf.CodedOutputStream
-        .computeMessageSize(3, getJob());
-    }
-    if (taskState_ != 0) {
-      size += com.google.protobuf.CodedOutputStream
-        .computeInt32Size(4, taskState_);
-    }
-    if (!getLogUrlBytes().isEmpty()) {
-      size += com.google.protobuf.GeneratedMessageV3.computeStringSize(5, logUrl_);
-    }
-    if (!getLogPathBytes().isEmpty()) {
-      size += com.google.protobuf.GeneratedMessageV3.computeStringSize(6, logPath_);
-    }
-    if (!getWorkerBytes().isEmpty()) {
-      size += com.google.protobuf.GeneratedMessageV3.computeStringSize(7, worker_);
-    }
-    if (!getCreatorNameBytes().isEmpty()) {
-      size += com.google.protobuf.GeneratedMessageV3.computeStringSize(8, creatorName_);
-    }
-    if (!getCreatorEmailBytes().isEmpty()) {
-      size += com.google.protobuf.GeneratedMessageV3.computeStringSize(9, creatorEmail_);
-    }
-    if (retryTimes_ != 0) {
-      size += com.google.protobuf.CodedOutputStream
-        .computeInt32Size(10, retryTimes_);
-    }
-    if (pid_ != 0) {
-      size += com.google.protobuf.CodedOutputStream
-        .computeInt32Size(11, pid_);
-    }
-    if (!getApplicationidBytes().isEmpty()) {
-      size += com.google.protobuf.GeneratedMessageV3.computeStringSize(12, applicationid_);
-    }
-    if (scheduleTime_ != null) {
-      size += com.google.protobuf.CodedOutputStream
-        .computeMessageSize(13, getScheduleTime());
-    }
-    if (startTime_ != null) {
-      size += com.google.protobuf.CodedOutputStream
-        .computeMessageSize(14, getStartTime());
-    }
-    if (endTime_ != null) {
-      size += com.google.protobuf.CodedOutputStream
-        .computeMessageSize(15, getEndTime());
-    }
-    if (elapseTime_ != 0) {
-      size += com.google.protobuf.CodedOutputStream
-        .computeInt32Size(16, elapseTime_);
-    }
-    memoizedSize = size;
-    return size;
-  }
-
-  private static final long serialVersionUID = 0L;
-  @java.lang.Override
-  public boolean equals(final java.lang.Object obj) {
-    if (obj == this) {
-     return true;
-    }
-    if (!(obj instanceof com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc)) {
-      return super.equals(obj);
-    }
-    com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc other = (com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc) obj;
-
-    boolean result = true;
-    result = result && (getId()
-        == other.getId());
-    result = result && getRequestId()
-        .equals(other.getRequestId());
-    result = result && (hasJob() == other.hasJob());
-    if (hasJob()) {
-      result = result && getJob()
-          .equals(other.getJob());
-    }
-    result = result && (getTaskState()
-        == other.getTaskState());
-    result = result && getLogUrl()
-        .equals(other.getLogUrl());
-    result = result && getLogPath()
-        .equals(other.getLogPath());
-    result = result && getWorker()
-        .equals(other.getWorker());
-    result = result && getCreatorName()
-        .equals(other.getCreatorName());
-    result = result && getCreatorEmail()
-        .equals(other.getCreatorEmail());
-    result = result && (getRetryTimes()
-        == other.getRetryTimes());
-    result = result && (getPid()
-        == other.getPid());
-    result = result && getApplicationid()
-        .equals(other.getApplicationid());
-    result = result && (hasScheduleTime() == other.hasScheduleTime());
-    if (hasScheduleTime()) {
-      result = result && getScheduleTime()
-          .equals(other.getScheduleTime());
-    }
-    result = result && (hasStartTime() == other.hasStartTime());
-    if (hasStartTime()) {
-      result = result && getStartTime()
-          .equals(other.getStartTime());
-    }
-    result = result && (hasEndTime() == other.hasEndTime());
-    if (hasEndTime()) {
-      result = result && getEndTime()
-          .equals(other.getEndTime());
-    }
-    result = result && (getElapseTime()
-        == other.getElapseTime());
-    return result;
-  }
-
-  @java.lang.Override
-  public int hashCode() {
-    if (memoizedHashCode != 0) {
-      return memoizedHashCode;
-    }
-    int hash = 41;
-    hash = (19 * hash) + getDescriptor().hashCode();
-    hash = (37 * hash) + ID_FIELD_NUMBER;
-    hash = (53 * hash) + getId();
-    hash = (37 * hash) + REQUESTID_FIELD_NUMBER;
-    hash = (53 * hash) + getRequestId().hashCode();
-    if (hasJob()) {
-      hash = (37 * hash) + JOB_FIELD_NUMBER;
-      hash = (53 * hash) + getJob().hashCode();
-    }
-    hash = (37 * hash) + TASKSTATE_FIELD_NUMBER;
-    hash = (53 * hash) + getTaskState();
-    hash = (37 * hash) + LOGURL_FIELD_NUMBER;
-    hash = (53 * hash) + getLogUrl().hashCode();
-    hash = (37 * hash) + LOGPATH_FIELD_NUMBER;
-    hash = (53 * hash) + getLogPath().hashCode();
-    hash = (37 * hash) + WORKER_FIELD_NUMBER;
-    hash = (53 * hash) + getWorker().hashCode();
-    hash = (37 * hash) + CREATORNAME_FIELD_NUMBER;
-    hash = (53 * hash) + getCreatorName().hashCode();
-    hash = (37 * hash) + CREATOREMAIL_FIELD_NUMBER;
-    hash = (53 * hash) + getCreatorEmail().hashCode();
-    hash = (37 * hash) + RETRYTIMES_FIELD_NUMBER;
-    hash = (53 * hash) + getRetryTimes();
-    hash = (37 * hash) + PID_FIELD_NUMBER;
-    hash = (53 * hash) + getPid();
-    hash = (37 * hash) + APPLICATIONID_FIELD_NUMBER;
-    hash = (53 * hash) + getApplicationid().hashCode();
-    if (hasScheduleTime()) {
-      hash = (37 * hash) + SCHEDULETIME_FIELD_NUMBER;
-      hash = (53 * hash) + getScheduleTime().hashCode();
-    }
-    if (hasStartTime()) {
-      hash = (37 * hash) + STARTTIME_FIELD_NUMBER;
-      hash = (53 * hash) + getStartTime().hashCode();
-    }
-    if (hasEndTime()) {
-      hash = (37 * hash) + ENDTIME_FIELD_NUMBER;
-      hash = (53 * hash) + getEndTime().hashCode();
-    }
-    hash = (37 * hash) + ELAPSETIME_FIELD_NUMBER;
-    hash = (53 * hash) + getElapseTime();
-    hash = (29 * hash) + unknownFields.hashCode();
-    memoizedHashCode = hash;
-    return hash;
-  }
-
-  public static com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc parseFrom(
-      com.google.protobuf.ByteString data)
-      throws com.google.protobuf.InvalidProtocolBufferException {
-    return PARSER.parseFrom(data);
-  }
-  public static com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc parseFrom(
-      com.google.protobuf.ByteString data,
-      com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-      throws com.google.protobuf.InvalidProtocolBufferException {
-    return PARSER.parseFrom(data, extensionRegistry);
-  }
-  public static com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc parseFrom(byte[] data)
-      throws com.google.protobuf.InvalidProtocolBufferException {
-    return PARSER.parseFrom(data);
-  }
-  public static com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc parseFrom(
-      byte[] data,
-      com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-      throws com.google.protobuf.InvalidProtocolBufferException {
-    return PARSER.parseFrom(data, extensionRegistry);
-  }
-  public static com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc parseFrom(java.io.InputStream input)
-      throws java.io.IOException {
-    return com.google.protobuf.GeneratedMessageV3
-        .parseWithIOException(PARSER, input);
-  }
-  public static com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc parseFrom(
-      java.io.InputStream input,
-      com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-      throws java.io.IOException {
-    return com.google.protobuf.GeneratedMessageV3
-        .parseWithIOException(PARSER, input, extensionRegistry);
-  }
-  public static com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc parseDelimitedFrom(java.io.InputStream input)
-      throws java.io.IOException {
-    return com.google.protobuf.GeneratedMessageV3
-        .parseDelimitedWithIOException(PARSER, input);
-  }
-  public static com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc parseDelimitedFrom(
-      java.io.InputStream input,
-      com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-      throws java.io.IOException {
-    return com.google.protobuf.GeneratedMessageV3
-        .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
-  }
-  public static com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc parseFrom(
-      com.google.protobuf.CodedInputStream input)
-      throws java.io.IOException {
-    return com.google.protobuf.GeneratedMessageV3
-        .parseWithIOException(PARSER, input);
-  }
-  public static com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc parseFrom(
-      com.google.protobuf.CodedInputStream input,
-      com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-      throws java.io.IOException {
-    return com.google.protobuf.GeneratedMessageV3
-        .parseWithIOException(PARSER, input, extensionRegistry);
-  }
-
-  public Builder newBuilderForType() { return newBuilder(); }
-  public static Builder newBuilder() {
-    return DEFAULT_INSTANCE.toBuilder();
-  }
-  public static Builder newBuilder(com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc prototype) {
-    return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
-  }
-  public Builder toBuilder() {
-    return this == DEFAULT_INSTANCE
-        ? new Builder() : new Builder().mergeFrom(this);
-  }
-
-  @java.lang.Override
-  protected Builder newBuilderForType(
-      com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
-    Builder builder = new Builder(parent);
-    return builder;
-  }
-  /**
-   * Protobuf type {@code JobInstanceRequestRpc}
-   */
-  public static final class Builder extends
-      com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
-      // @@protoc_insertion_point(builder_implements:JobInstanceRequestRpc)
-      com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpcOrBuilder {
-    public static final com.google.protobuf.Descriptors.Descriptor
-        getDescriptor() {
-      return com.ylpu.thales.scheduler.core.rpc.entity.JobGrpc.internal_static_JobInstanceRequestRpc_descriptor;
     }
 
-    protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-        internalGetFieldAccessorTable() {
-      return com.ylpu.thales.scheduler.core.rpc.entity.JobGrpc.internal_static_JobInstanceRequestRpc_fieldAccessorTable
-          .ensureFieldAccessorsInitialized(
-              com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc.class, com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc.Builder.class);
+    public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
+        return com.ylpu.thales.scheduler.core.rpc.entity.JobGrpc.internal_static_JobInstanceRequestRpc_descriptor;
     }
 
-    // Construct using com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc.newBuilder()
-    private Builder() {
-      maybeForceBuilderInitialization();
+    protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable internalGetFieldAccessorTable() {
+        return com.ylpu.thales.scheduler.core.rpc.entity.JobGrpc.internal_static_JobInstanceRequestRpc_fieldAccessorTable
+                .ensureFieldAccessorsInitialized(com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc.class,
+                        com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc.Builder.class);
     }
 
-    private Builder(
-        com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
-      super(parent);
-      maybeForceBuilderInitialization();
-    }
-    private void maybeForceBuilderInitialization() {
-      if (com.google.protobuf.GeneratedMessageV3
-              .alwaysUseFieldBuilders) {
-      }
-    }
-    public Builder clear() {
-      super.clear();
-      id_ = 0;
+    public static final int ID_FIELD_NUMBER = 1;
+    private int id_;
 
-      requestId_ = "";
-
-      if (jobBuilder_ == null) {
-        job_ = null;
-      } else {
-        job_ = null;
-        jobBuilder_ = null;
-      }
-      taskState_ = 0;
-
-      logUrl_ = "";
-
-      logPath_ = "";
-
-      worker_ = "";
-
-      creatorName_ = "";
-
-      creatorEmail_ = "";
-
-      retryTimes_ = 0;
-
-      pid_ = 0;
-
-      applicationid_ = "";
-
-      if (scheduleTimeBuilder_ == null) {
-        scheduleTime_ = null;
-      } else {
-        scheduleTime_ = null;
-        scheduleTimeBuilder_ = null;
-      }
-      if (startTimeBuilder_ == null) {
-        startTime_ = null;
-      } else {
-        startTime_ = null;
-        startTimeBuilder_ = null;
-      }
-      if (endTimeBuilder_ == null) {
-        endTime_ = null;
-      } else {
-        endTime_ = null;
-        endTimeBuilder_ = null;
-      }
-      elapseTime_ = 0;
-
-      return this;
-    }
-
-    public com.google.protobuf.Descriptors.Descriptor
-        getDescriptorForType() {
-      return com.ylpu.thales.scheduler.core.rpc.entity.JobGrpc.internal_static_JobInstanceRequestRpc_descriptor;
-    }
-
-    public com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc getDefaultInstanceForType() {
-      return com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc.getDefaultInstance();
-    }
-
-    public com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc build() {
-      com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc result = buildPartial();
-      if (!result.isInitialized()) {
-        throw newUninitializedMessageException(result);
-      }
-      return result;
-    }
-
-    public com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc buildPartial() {
-      com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc result = new com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc(this);
-      result.id_ = id_;
-      result.requestId_ = requestId_;
-      if (jobBuilder_ == null) {
-        result.job_ = job_;
-      } else {
-        result.job_ = jobBuilder_.build();
-      }
-      result.taskState_ = taskState_;
-      result.logUrl_ = logUrl_;
-      result.logPath_ = logPath_;
-      result.worker_ = worker_;
-      result.creatorName_ = creatorName_;
-      result.creatorEmail_ = creatorEmail_;
-      result.retryTimes_ = retryTimes_;
-      result.pid_ = pid_;
-      result.applicationid_ = applicationid_;
-      if (scheduleTimeBuilder_ == null) {
-        result.scheduleTime_ = scheduleTime_;
-      } else {
-        result.scheduleTime_ = scheduleTimeBuilder_.build();
-      }
-      if (startTimeBuilder_ == null) {
-        result.startTime_ = startTime_;
-      } else {
-        result.startTime_ = startTimeBuilder_.build();
-      }
-      if (endTimeBuilder_ == null) {
-        result.endTime_ = endTime_;
-      } else {
-        result.endTime_ = endTimeBuilder_.build();
-      }
-      result.elapseTime_ = elapseTime_;
-      onBuilt();
-      return result;
-    }
-
-    public Builder clone() {
-      return (Builder) super.clone();
-    }
-    public Builder setField(
-        com.google.protobuf.Descriptors.FieldDescriptor field,
-        Object value) {
-      return (Builder) super.setField(field, value);
-    }
-    public Builder clearField(
-        com.google.protobuf.Descriptors.FieldDescriptor field) {
-      return (Builder) super.clearField(field);
-    }
-    public Builder clearOneof(
-        com.google.protobuf.Descriptors.OneofDescriptor oneof) {
-      return (Builder) super.clearOneof(oneof);
-    }
-    public Builder setRepeatedField(
-        com.google.protobuf.Descriptors.FieldDescriptor field,
-        int index, Object value) {
-      return (Builder) super.setRepeatedField(field, index, value);
-    }
-    public Builder addRepeatedField(
-        com.google.protobuf.Descriptors.FieldDescriptor field,
-        Object value) {
-      return (Builder) super.addRepeatedField(field, value);
-    }
-    public Builder mergeFrom(com.google.protobuf.Message other) {
-      if (other instanceof com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc) {
-        return mergeFrom((com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc)other);
-      } else {
-        super.mergeFrom(other);
-        return this;
-      }
-    }
-
-    public Builder mergeFrom(com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc other) {
-      if (other == com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc.getDefaultInstance()) return this;
-      if (other.getId() != 0) {
-        setId(other.getId());
-      }
-      if (!other.getRequestId().isEmpty()) {
-        requestId_ = other.requestId_;
-        onChanged();
-      }
-      if (other.hasJob()) {
-        mergeJob(other.getJob());
-      }
-      if (other.getTaskState() != 0) {
-        setTaskState(other.getTaskState());
-      }
-      if (!other.getLogUrl().isEmpty()) {
-        logUrl_ = other.logUrl_;
-        onChanged();
-      }
-      if (!other.getLogPath().isEmpty()) {
-        logPath_ = other.logPath_;
-        onChanged();
-      }
-      if (!other.getWorker().isEmpty()) {
-        worker_ = other.worker_;
-        onChanged();
-      }
-      if (!other.getCreatorName().isEmpty()) {
-        creatorName_ = other.creatorName_;
-        onChanged();
-      }
-      if (!other.getCreatorEmail().isEmpty()) {
-        creatorEmail_ = other.creatorEmail_;
-        onChanged();
-      }
-      if (other.getRetryTimes() != 0) {
-        setRetryTimes(other.getRetryTimes());
-      }
-      if (other.getPid() != 0) {
-        setPid(other.getPid());
-      }
-      if (!other.getApplicationid().isEmpty()) {
-        applicationid_ = other.applicationid_;
-        onChanged();
-      }
-      if (other.hasScheduleTime()) {
-        mergeScheduleTime(other.getScheduleTime());
-      }
-      if (other.hasStartTime()) {
-        mergeStartTime(other.getStartTime());
-      }
-      if (other.hasEndTime()) {
-        mergeEndTime(other.getEndTime());
-      }
-      if (other.getElapseTime() != 0) {
-        setElapseTime(other.getElapseTime());
-      }
-      onChanged();
-      return this;
-    }
-
-    public final boolean isInitialized() {
-      return true;
-    }
-
-    public Builder mergeFrom(
-        com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc parsedMessage = null;
-      try {
-        parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
-      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-        parsedMessage = (com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc) e.getUnfinishedMessage();
-        throw e.unwrapIOException();
-      } finally {
-        if (parsedMessage != null) {
-          mergeFrom(parsedMessage);
-        }
-      }
-      return this;
-    }
-
-    private int id_ ;
     /**
      * <code>int32 id = 1;</code>
      */
     public int getId() {
-      return id_;
-    }
-    /**
-     * <code>int32 id = 1;</code>
-     */
-    public Builder setId(int value) {
-      
-      id_ = value;
-      onChanged();
-      return this;
-    }
-    /**
-     * <code>int32 id = 1;</code>
-     */
-    public Builder clearId() {
-      
-      id_ = 0;
-      onChanged();
-      return this;
+        return id_;
     }
 
-    private java.lang.Object requestId_ = "";
+    public static final int REQUESTID_FIELD_NUMBER = 2;
+    private volatile java.lang.Object requestId_;
+
     /**
      * <code>string requestId = 2;</code>
      */
     public java.lang.String getRequestId() {
-      java.lang.Object ref = requestId_;
-      if (!(ref instanceof java.lang.String)) {
-        com.google.protobuf.ByteString bs =
-            (com.google.protobuf.ByteString) ref;
-        java.lang.String s = bs.toStringUtf8();
-        requestId_ = s;
-        return s;
-      } else {
-        return (java.lang.String) ref;
-      }
-    }
-    /**
-     * <code>string requestId = 2;</code>
-     */
-    public com.google.protobuf.ByteString
-        getRequestIdBytes() {
-      java.lang.Object ref = requestId_;
-      if (ref instanceof String) {
-        com.google.protobuf.ByteString b = 
-            com.google.protobuf.ByteString.copyFromUtf8(
-                (java.lang.String) ref);
-        requestId_ = b;
-        return b;
-      } else {
-        return (com.google.protobuf.ByteString) ref;
-      }
-    }
-    /**
-     * <code>string requestId = 2;</code>
-     */
-    public Builder setRequestId(
-        java.lang.String value) {
-      if (value == null) {
-    throw new NullPointerException();
-  }
-  
-      requestId_ = value;
-      onChanged();
-      return this;
-    }
-    /**
-     * <code>string requestId = 2;</code>
-     */
-    public Builder clearRequestId() {
-      
-      requestId_ = getDefaultInstance().getRequestId();
-      onChanged();
-      return this;
-    }
-    /**
-     * <code>string requestId = 2;</code>
-     */
-    public Builder setRequestIdBytes(
-        com.google.protobuf.ByteString value) {
-      if (value == null) {
-    throw new NullPointerException();
-  }
-  checkByteStringIsUtf8(value);
-      
-      requestId_ = value;
-      onChanged();
-      return this;
+        java.lang.Object ref = requestId_;
+        if (ref instanceof java.lang.String) {
+            return (java.lang.String) ref;
+        } else {
+            com.google.protobuf.ByteString bs = (com.google.protobuf.ByteString) ref;
+            java.lang.String s = bs.toStringUtf8();
+            requestId_ = s;
+            return s;
+        }
     }
 
-    private com.ylpu.thales.scheduler.core.rpc.entity.JobRequestRpc job_ = null;
-    private com.google.protobuf.SingleFieldBuilderV3<
-        com.ylpu.thales.scheduler.core.rpc.entity.JobRequestRpc, com.ylpu.thales.scheduler.core.rpc.entity.JobRequestRpc.Builder, com.ylpu.thales.scheduler.core.rpc.entity.JobRequestRpcOrBuilder> jobBuilder_;
+    /**
+     * <code>string requestId = 2;</code>
+     */
+    public com.google.protobuf.ByteString getRequestIdBytes() {
+        java.lang.Object ref = requestId_;
+        if (ref instanceof java.lang.String) {
+            com.google.protobuf.ByteString b = com.google.protobuf.ByteString.copyFromUtf8((java.lang.String) ref);
+            requestId_ = b;
+            return b;
+        } else {
+            return (com.google.protobuf.ByteString) ref;
+        }
+    }
+
+    public static final int JOB_FIELD_NUMBER = 3;
+    private com.ylpu.thales.scheduler.core.rpc.entity.JobRequestRpc job_;
+
     /**
      * <code>.JobRequestRpc job = 3;</code>
      */
     public boolean hasJob() {
-      return jobBuilder_ != null || job_ != null;
+        return job_ != null;
     }
+
     /**
      * <code>.JobRequestRpc job = 3;</code>
      */
     public com.ylpu.thales.scheduler.core.rpc.entity.JobRequestRpc getJob() {
-      if (jobBuilder_ == null) {
         return job_ == null ? com.ylpu.thales.scheduler.core.rpc.entity.JobRequestRpc.getDefaultInstance() : job_;
-      } else {
-        return jobBuilder_.getMessage();
-      }
     }
-    /**
-     * <code>.JobRequestRpc job = 3;</code>
-     */
-    public Builder setJob(com.ylpu.thales.scheduler.core.rpc.entity.JobRequestRpc value) {
-      if (jobBuilder_ == null) {
-        if (value == null) {
-          throw new NullPointerException();
-        }
-        job_ = value;
-        onChanged();
-      } else {
-        jobBuilder_.setMessage(value);
-      }
 
-      return this;
-    }
-    /**
-     * <code>.JobRequestRpc job = 3;</code>
-     */
-    public Builder setJob(
-        com.ylpu.thales.scheduler.core.rpc.entity.JobRequestRpc.Builder builderForValue) {
-      if (jobBuilder_ == null) {
-        job_ = builderForValue.build();
-        onChanged();
-      } else {
-        jobBuilder_.setMessage(builderForValue.build());
-      }
-
-      return this;
-    }
-    /**
-     * <code>.JobRequestRpc job = 3;</code>
-     */
-    public Builder mergeJob(com.ylpu.thales.scheduler.core.rpc.entity.JobRequestRpc value) {
-      if (jobBuilder_ == null) {
-        if (job_ != null) {
-          job_ =
-            com.ylpu.thales.scheduler.core.rpc.entity.JobRequestRpc.newBuilder(job_).mergeFrom(value).buildPartial();
-        } else {
-          job_ = value;
-        }
-        onChanged();
-      } else {
-        jobBuilder_.mergeFrom(value);
-      }
-
-      return this;
-    }
-    /**
-     * <code>.JobRequestRpc job = 3;</code>
-     */
-    public Builder clearJob() {
-      if (jobBuilder_ == null) {
-        job_ = null;
-        onChanged();
-      } else {
-        job_ = null;
-        jobBuilder_ = null;
-      }
-
-      return this;
-    }
-    /**
-     * <code>.JobRequestRpc job = 3;</code>
-     */
-    public com.ylpu.thales.scheduler.core.rpc.entity.JobRequestRpc.Builder getJobBuilder() {
-      
-      onChanged();
-      return getJobFieldBuilder().getBuilder();
-    }
     /**
      * <code>.JobRequestRpc job = 3;</code>
      */
     public com.ylpu.thales.scheduler.core.rpc.entity.JobRequestRpcOrBuilder getJobOrBuilder() {
-      if (jobBuilder_ != null) {
-        return jobBuilder_.getMessageOrBuilder();
-      } else {
-        return job_ == null ?
-            com.ylpu.thales.scheduler.core.rpc.entity.JobRequestRpc.getDefaultInstance() : job_;
-      }
-    }
-    /**
-     * <code>.JobRequestRpc job = 3;</code>
-     */
-    private com.google.protobuf.SingleFieldBuilderV3<
-        com.ylpu.thales.scheduler.core.rpc.entity.JobRequestRpc, com.ylpu.thales.scheduler.core.rpc.entity.JobRequestRpc.Builder, com.ylpu.thales.scheduler.core.rpc.entity.JobRequestRpcOrBuilder> 
-        getJobFieldBuilder() {
-      if (jobBuilder_ == null) {
-        jobBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<
-            com.ylpu.thales.scheduler.core.rpc.entity.JobRequestRpc, com.ylpu.thales.scheduler.core.rpc.entity.JobRequestRpc.Builder, com.ylpu.thales.scheduler.core.rpc.entity.JobRequestRpcOrBuilder>(
-                getJob(),
-                getParentForChildren(),
-                isClean());
-        job_ = null;
-      }
-      return jobBuilder_;
+        return getJob();
     }
 
-    private int taskState_ ;
+    public static final int TASKSTATE_FIELD_NUMBER = 4;
+    private int taskState_;
+
     /**
      * <code>int32 taskState = 4;</code>
      */
     public int getTaskState() {
-      return taskState_;
-    }
-    /**
-     * <code>int32 taskState = 4;</code>
-     */
-    public Builder setTaskState(int value) {
-      
-      taskState_ = value;
-      onChanged();
-      return this;
-    }
-    /**
-     * <code>int32 taskState = 4;</code>
-     */
-    public Builder clearTaskState() {
-      
-      taskState_ = 0;
-      onChanged();
-      return this;
+        return taskState_;
     }
 
-    private java.lang.Object logUrl_ = "";
+    public static final int LOGURL_FIELD_NUMBER = 5;
+    private volatile java.lang.Object logUrl_;
+
     /**
      * <code>string logUrl = 5;</code>
      */
     public java.lang.String getLogUrl() {
-      java.lang.Object ref = logUrl_;
-      if (!(ref instanceof java.lang.String)) {
-        com.google.protobuf.ByteString bs =
-            (com.google.protobuf.ByteString) ref;
-        java.lang.String s = bs.toStringUtf8();
-        logUrl_ = s;
-        return s;
-      } else {
-        return (java.lang.String) ref;
-      }
-    }
-    /**
-     * <code>string logUrl = 5;</code>
-     */
-    public com.google.protobuf.ByteString
-        getLogUrlBytes() {
-      java.lang.Object ref = logUrl_;
-      if (ref instanceof String) {
-        com.google.protobuf.ByteString b = 
-            com.google.protobuf.ByteString.copyFromUtf8(
-                (java.lang.String) ref);
-        logUrl_ = b;
-        return b;
-      } else {
-        return (com.google.protobuf.ByteString) ref;
-      }
-    }
-    /**
-     * <code>string logUrl = 5;</code>
-     */
-    public Builder setLogUrl(
-        java.lang.String value) {
-      if (value == null) {
-    throw new NullPointerException();
-  }
-  
-      logUrl_ = value;
-      onChanged();
-      return this;
-    }
-    /**
-     * <code>string logUrl = 5;</code>
-     */
-    public Builder clearLogUrl() {
-      
-      logUrl_ = getDefaultInstance().getLogUrl();
-      onChanged();
-      return this;
-    }
-    /**
-     * <code>string logUrl = 5;</code>
-     */
-    public Builder setLogUrlBytes(
-        com.google.protobuf.ByteString value) {
-      if (value == null) {
-    throw new NullPointerException();
-  }
-  checkByteStringIsUtf8(value);
-      
-      logUrl_ = value;
-      onChanged();
-      return this;
+        java.lang.Object ref = logUrl_;
+        if (ref instanceof java.lang.String) {
+            return (java.lang.String) ref;
+        } else {
+            com.google.protobuf.ByteString bs = (com.google.protobuf.ByteString) ref;
+            java.lang.String s = bs.toStringUtf8();
+            logUrl_ = s;
+            return s;
+        }
     }
 
-    private java.lang.Object logPath_ = "";
+    /**
+     * <code>string logUrl = 5;</code>
+     */
+    public com.google.protobuf.ByteString getLogUrlBytes() {
+        java.lang.Object ref = logUrl_;
+        if (ref instanceof java.lang.String) {
+            com.google.protobuf.ByteString b = com.google.protobuf.ByteString.copyFromUtf8((java.lang.String) ref);
+            logUrl_ = b;
+            return b;
+        } else {
+            return (com.google.protobuf.ByteString) ref;
+        }
+    }
+
+    public static final int LOGPATH_FIELD_NUMBER = 6;
+    private volatile java.lang.Object logPath_;
+
     /**
      * <code>string logPath = 6;</code>
      */
     public java.lang.String getLogPath() {
-      java.lang.Object ref = logPath_;
-      if (!(ref instanceof java.lang.String)) {
-        com.google.protobuf.ByteString bs =
-            (com.google.protobuf.ByteString) ref;
-        java.lang.String s = bs.toStringUtf8();
-        logPath_ = s;
-        return s;
-      } else {
-        return (java.lang.String) ref;
-      }
-    }
-    /**
-     * <code>string logPath = 6;</code>
-     */
-    public com.google.protobuf.ByteString
-        getLogPathBytes() {
-      java.lang.Object ref = logPath_;
-      if (ref instanceof String) {
-        com.google.protobuf.ByteString b = 
-            com.google.protobuf.ByteString.copyFromUtf8(
-                (java.lang.String) ref);
-        logPath_ = b;
-        return b;
-      } else {
-        return (com.google.protobuf.ByteString) ref;
-      }
-    }
-    /**
-     * <code>string logPath = 6;</code>
-     */
-    public Builder setLogPath(
-        java.lang.String value) {
-      if (value == null) {
-    throw new NullPointerException();
-  }
-  
-      logPath_ = value;
-      onChanged();
-      return this;
-    }
-    /**
-     * <code>string logPath = 6;</code>
-     */
-    public Builder clearLogPath() {
-      
-      logPath_ = getDefaultInstance().getLogPath();
-      onChanged();
-      return this;
-    }
-    /**
-     * <code>string logPath = 6;</code>
-     */
-    public Builder setLogPathBytes(
-        com.google.protobuf.ByteString value) {
-      if (value == null) {
-    throw new NullPointerException();
-  }
-  checkByteStringIsUtf8(value);
-      
-      logPath_ = value;
-      onChanged();
-      return this;
+        java.lang.Object ref = logPath_;
+        if (ref instanceof java.lang.String) {
+            return (java.lang.String) ref;
+        } else {
+            com.google.protobuf.ByteString bs = (com.google.protobuf.ByteString) ref;
+            java.lang.String s = bs.toStringUtf8();
+            logPath_ = s;
+            return s;
+        }
     }
 
-    private java.lang.Object worker_ = "";
+    /**
+     * <code>string logPath = 6;</code>
+     */
+    public com.google.protobuf.ByteString getLogPathBytes() {
+        java.lang.Object ref = logPath_;
+        if (ref instanceof java.lang.String) {
+            com.google.protobuf.ByteString b = com.google.protobuf.ByteString.copyFromUtf8((java.lang.String) ref);
+            logPath_ = b;
+            return b;
+        } else {
+            return (com.google.protobuf.ByteString) ref;
+        }
+    }
+
+    public static final int WORKER_FIELD_NUMBER = 7;
+    private volatile java.lang.Object worker_;
+
     /**
      * <code>string worker = 7;</code>
      */
     public java.lang.String getWorker() {
-      java.lang.Object ref = worker_;
-      if (!(ref instanceof java.lang.String)) {
-        com.google.protobuf.ByteString bs =
-            (com.google.protobuf.ByteString) ref;
-        java.lang.String s = bs.toStringUtf8();
-        worker_ = s;
-        return s;
-      } else {
-        return (java.lang.String) ref;
-      }
-    }
-    /**
-     * <code>string worker = 7;</code>
-     */
-    public com.google.protobuf.ByteString
-        getWorkerBytes() {
-      java.lang.Object ref = worker_;
-      if (ref instanceof String) {
-        com.google.protobuf.ByteString b = 
-            com.google.protobuf.ByteString.copyFromUtf8(
-                (java.lang.String) ref);
-        worker_ = b;
-        return b;
-      } else {
-        return (com.google.protobuf.ByteString) ref;
-      }
-    }
-    /**
-     * <code>string worker = 7;</code>
-     */
-    public Builder setWorker(
-        java.lang.String value) {
-      if (value == null) {
-    throw new NullPointerException();
-  }
-  
-      worker_ = value;
-      onChanged();
-      return this;
-    }
-    /**
-     * <code>string worker = 7;</code>
-     */
-    public Builder clearWorker() {
-      
-      worker_ = getDefaultInstance().getWorker();
-      onChanged();
-      return this;
-    }
-    /**
-     * <code>string worker = 7;</code>
-     */
-    public Builder setWorkerBytes(
-        com.google.protobuf.ByteString value) {
-      if (value == null) {
-    throw new NullPointerException();
-  }
-  checkByteStringIsUtf8(value);
-      
-      worker_ = value;
-      onChanged();
-      return this;
+        java.lang.Object ref = worker_;
+        if (ref instanceof java.lang.String) {
+            return (java.lang.String) ref;
+        } else {
+            com.google.protobuf.ByteString bs = (com.google.protobuf.ByteString) ref;
+            java.lang.String s = bs.toStringUtf8();
+            worker_ = s;
+            return s;
+        }
     }
 
-    private java.lang.Object creatorName_ = "";
+    /**
+     * <code>string worker = 7;</code>
+     */
+    public com.google.protobuf.ByteString getWorkerBytes() {
+        java.lang.Object ref = worker_;
+        if (ref instanceof java.lang.String) {
+            com.google.protobuf.ByteString b = com.google.protobuf.ByteString.copyFromUtf8((java.lang.String) ref);
+            worker_ = b;
+            return b;
+        } else {
+            return (com.google.protobuf.ByteString) ref;
+        }
+    }
+
+    public static final int CREATORNAME_FIELD_NUMBER = 8;
+    private volatile java.lang.Object creatorName_;
+
     /**
      * <code>string creatorName = 8;</code>
      */
     public java.lang.String getCreatorName() {
-      java.lang.Object ref = creatorName_;
-      if (!(ref instanceof java.lang.String)) {
-        com.google.protobuf.ByteString bs =
-            (com.google.protobuf.ByteString) ref;
-        java.lang.String s = bs.toStringUtf8();
-        creatorName_ = s;
-        return s;
-      } else {
-        return (java.lang.String) ref;
-      }
-    }
-    /**
-     * <code>string creatorName = 8;</code>
-     */
-    public com.google.protobuf.ByteString
-        getCreatorNameBytes() {
-      java.lang.Object ref = creatorName_;
-      if (ref instanceof String) {
-        com.google.protobuf.ByteString b = 
-            com.google.protobuf.ByteString.copyFromUtf8(
-                (java.lang.String) ref);
-        creatorName_ = b;
-        return b;
-      } else {
-        return (com.google.protobuf.ByteString) ref;
-      }
-    }
-    /**
-     * <code>string creatorName = 8;</code>
-     */
-    public Builder setCreatorName(
-        java.lang.String value) {
-      if (value == null) {
-    throw new NullPointerException();
-  }
-  
-      creatorName_ = value;
-      onChanged();
-      return this;
-    }
-    /**
-     * <code>string creatorName = 8;</code>
-     */
-    public Builder clearCreatorName() {
-      
-      creatorName_ = getDefaultInstance().getCreatorName();
-      onChanged();
-      return this;
-    }
-    /**
-     * <code>string creatorName = 8;</code>
-     */
-    public Builder setCreatorNameBytes(
-        com.google.protobuf.ByteString value) {
-      if (value == null) {
-    throw new NullPointerException();
-  }
-  checkByteStringIsUtf8(value);
-      
-      creatorName_ = value;
-      onChanged();
-      return this;
+        java.lang.Object ref = creatorName_;
+        if (ref instanceof java.lang.String) {
+            return (java.lang.String) ref;
+        } else {
+            com.google.protobuf.ByteString bs = (com.google.protobuf.ByteString) ref;
+            java.lang.String s = bs.toStringUtf8();
+            creatorName_ = s;
+            return s;
+        }
     }
 
-    private java.lang.Object creatorEmail_ = "";
+    /**
+     * <code>string creatorName = 8;</code>
+     */
+    public com.google.protobuf.ByteString getCreatorNameBytes() {
+        java.lang.Object ref = creatorName_;
+        if (ref instanceof java.lang.String) {
+            com.google.protobuf.ByteString b = com.google.protobuf.ByteString.copyFromUtf8((java.lang.String) ref);
+            creatorName_ = b;
+            return b;
+        } else {
+            return (com.google.protobuf.ByteString) ref;
+        }
+    }
+
+    public static final int CREATOREMAIL_FIELD_NUMBER = 9;
+    private volatile java.lang.Object creatorEmail_;
+
     /**
      * <code>string creatorEmail = 9;</code>
      */
     public java.lang.String getCreatorEmail() {
-      java.lang.Object ref = creatorEmail_;
-      if (!(ref instanceof java.lang.String)) {
-        com.google.protobuf.ByteString bs =
-            (com.google.protobuf.ByteString) ref;
-        java.lang.String s = bs.toStringUtf8();
-        creatorEmail_ = s;
-        return s;
-      } else {
-        return (java.lang.String) ref;
-      }
-    }
-    /**
-     * <code>string creatorEmail = 9;</code>
-     */
-    public com.google.protobuf.ByteString
-        getCreatorEmailBytes() {
-      java.lang.Object ref = creatorEmail_;
-      if (ref instanceof String) {
-        com.google.protobuf.ByteString b = 
-            com.google.protobuf.ByteString.copyFromUtf8(
-                (java.lang.String) ref);
-        creatorEmail_ = b;
-        return b;
-      } else {
-        return (com.google.protobuf.ByteString) ref;
-      }
-    }
-    /**
-     * <code>string creatorEmail = 9;</code>
-     */
-    public Builder setCreatorEmail(
-        java.lang.String value) {
-      if (value == null) {
-    throw new NullPointerException();
-  }
-  
-      creatorEmail_ = value;
-      onChanged();
-      return this;
-    }
-    /**
-     * <code>string creatorEmail = 9;</code>
-     */
-    public Builder clearCreatorEmail() {
-      
-      creatorEmail_ = getDefaultInstance().getCreatorEmail();
-      onChanged();
-      return this;
-    }
-    /**
-     * <code>string creatorEmail = 9;</code>
-     */
-    public Builder setCreatorEmailBytes(
-        com.google.protobuf.ByteString value) {
-      if (value == null) {
-    throw new NullPointerException();
-  }
-  checkByteStringIsUtf8(value);
-      
-      creatorEmail_ = value;
-      onChanged();
-      return this;
+        java.lang.Object ref = creatorEmail_;
+        if (ref instanceof java.lang.String) {
+            return (java.lang.String) ref;
+        } else {
+            com.google.protobuf.ByteString bs = (com.google.protobuf.ByteString) ref;
+            java.lang.String s = bs.toStringUtf8();
+            creatorEmail_ = s;
+            return s;
+        }
     }
 
-    private int retryTimes_ ;
+    /**
+     * <code>string creatorEmail = 9;</code>
+     */
+    public com.google.protobuf.ByteString getCreatorEmailBytes() {
+        java.lang.Object ref = creatorEmail_;
+        if (ref instanceof java.lang.String) {
+            com.google.protobuf.ByteString b = com.google.protobuf.ByteString.copyFromUtf8((java.lang.String) ref);
+            creatorEmail_ = b;
+            return b;
+        } else {
+            return (com.google.protobuf.ByteString) ref;
+        }
+    }
+
+    public static final int RETRYTIMES_FIELD_NUMBER = 10;
+    private int retryTimes_;
+
     /**
      * <code>int32 retryTimes = 10;</code>
      */
     public int getRetryTimes() {
-      return retryTimes_;
-    }
-    /**
-     * <code>int32 retryTimes = 10;</code>
-     */
-    public Builder setRetryTimes(int value) {
-      
-      retryTimes_ = value;
-      onChanged();
-      return this;
-    }
-    /**
-     * <code>int32 retryTimes = 10;</code>
-     */
-    public Builder clearRetryTimes() {
-      
-      retryTimes_ = 0;
-      onChanged();
-      return this;
+        return retryTimes_;
     }
 
-    private int pid_ ;
+    public static final int PID_FIELD_NUMBER = 11;
+    private int pid_;
+
     /**
      * <code>int32 pid = 11;</code>
      */
     public int getPid() {
-      return pid_;
-    }
-    /**
-     * <code>int32 pid = 11;</code>
-     */
-    public Builder setPid(int value) {
-      
-      pid_ = value;
-      onChanged();
-      return this;
-    }
-    /**
-     * <code>int32 pid = 11;</code>
-     */
-    public Builder clearPid() {
-      
-      pid_ = 0;
-      onChanged();
-      return this;
+        return pid_;
     }
 
-    private java.lang.Object applicationid_ = "";
+    public static final int APPLICATIONID_FIELD_NUMBER = 12;
+    private volatile java.lang.Object applicationid_;
+
     /**
      * <code>string applicationid = 12;</code>
      */
     public java.lang.String getApplicationid() {
-      java.lang.Object ref = applicationid_;
-      if (!(ref instanceof java.lang.String)) {
-        com.google.protobuf.ByteString bs =
-            (com.google.protobuf.ByteString) ref;
-        java.lang.String s = bs.toStringUtf8();
-        applicationid_ = s;
-        return s;
-      } else {
-        return (java.lang.String) ref;
-      }
-    }
-    /**
-     * <code>string applicationid = 12;</code>
-     */
-    public com.google.protobuf.ByteString
-        getApplicationidBytes() {
-      java.lang.Object ref = applicationid_;
-      if (ref instanceof String) {
-        com.google.protobuf.ByteString b = 
-            com.google.protobuf.ByteString.copyFromUtf8(
-                (java.lang.String) ref);
-        applicationid_ = b;
-        return b;
-      } else {
-        return (com.google.protobuf.ByteString) ref;
-      }
-    }
-    /**
-     * <code>string applicationid = 12;</code>
-     */
-    public Builder setApplicationid(
-        java.lang.String value) {
-      if (value == null) {
-    throw new NullPointerException();
-  }
-  
-      applicationid_ = value;
-      onChanged();
-      return this;
-    }
-    /**
-     * <code>string applicationid = 12;</code>
-     */
-    public Builder clearApplicationid() {
-      
-      applicationid_ = getDefaultInstance().getApplicationid();
-      onChanged();
-      return this;
-    }
-    /**
-     * <code>string applicationid = 12;</code>
-     */
-    public Builder setApplicationidBytes(
-        com.google.protobuf.ByteString value) {
-      if (value == null) {
-    throw new NullPointerException();
-  }
-  checkByteStringIsUtf8(value);
-      
-      applicationid_ = value;
-      onChanged();
-      return this;
+        java.lang.Object ref = applicationid_;
+        if (ref instanceof java.lang.String) {
+            return (java.lang.String) ref;
+        } else {
+            com.google.protobuf.ByteString bs = (com.google.protobuf.ByteString) ref;
+            java.lang.String s = bs.toStringUtf8();
+            applicationid_ = s;
+            return s;
+        }
     }
 
-    private com.google.protobuf.Timestamp scheduleTime_ = null;
-    private com.google.protobuf.SingleFieldBuilderV3<
-        com.google.protobuf.Timestamp, com.google.protobuf.Timestamp.Builder, com.google.protobuf.TimestampOrBuilder> scheduleTimeBuilder_;
+    /**
+     * <code>string applicationid = 12;</code>
+     */
+    public com.google.protobuf.ByteString getApplicationidBytes() {
+        java.lang.Object ref = applicationid_;
+        if (ref instanceof java.lang.String) {
+            com.google.protobuf.ByteString b = com.google.protobuf.ByteString.copyFromUtf8((java.lang.String) ref);
+            applicationid_ = b;
+            return b;
+        } else {
+            return (com.google.protobuf.ByteString) ref;
+        }
+    }
+
+    public static final int SCHEDULETIME_FIELD_NUMBER = 13;
+    private com.google.protobuf.Timestamp scheduleTime_;
+
     /**
      * <code>.google.protobuf.Timestamp scheduleTime = 13;</code>
      */
     public boolean hasScheduleTime() {
-      return scheduleTimeBuilder_ != null || scheduleTime_ != null;
+        return scheduleTime_ != null;
     }
+
     /**
      * <code>.google.protobuf.Timestamp scheduleTime = 13;</code>
      */
     public com.google.protobuf.Timestamp getScheduleTime() {
-      if (scheduleTimeBuilder_ == null) {
         return scheduleTime_ == null ? com.google.protobuf.Timestamp.getDefaultInstance() : scheduleTime_;
-      } else {
-        return scheduleTimeBuilder_.getMessage();
-      }
     }
-    /**
-     * <code>.google.protobuf.Timestamp scheduleTime = 13;</code>
-     */
-    public Builder setScheduleTime(com.google.protobuf.Timestamp value) {
-      if (scheduleTimeBuilder_ == null) {
-        if (value == null) {
-          throw new NullPointerException();
-        }
-        scheduleTime_ = value;
-        onChanged();
-      } else {
-        scheduleTimeBuilder_.setMessage(value);
-      }
 
-      return this;
-    }
-    /**
-     * <code>.google.protobuf.Timestamp scheduleTime = 13;</code>
-     */
-    public Builder setScheduleTime(
-        com.google.protobuf.Timestamp.Builder builderForValue) {
-      if (scheduleTimeBuilder_ == null) {
-        scheduleTime_ = builderForValue.build();
-        onChanged();
-      } else {
-        scheduleTimeBuilder_.setMessage(builderForValue.build());
-      }
-
-      return this;
-    }
-    /**
-     * <code>.google.protobuf.Timestamp scheduleTime = 13;</code>
-     */
-    public Builder mergeScheduleTime(com.google.protobuf.Timestamp value) {
-      if (scheduleTimeBuilder_ == null) {
-        if (scheduleTime_ != null) {
-          scheduleTime_ =
-            com.google.protobuf.Timestamp.newBuilder(scheduleTime_).mergeFrom(value).buildPartial();
-        } else {
-          scheduleTime_ = value;
-        }
-        onChanged();
-      } else {
-        scheduleTimeBuilder_.mergeFrom(value);
-      }
-
-      return this;
-    }
-    /**
-     * <code>.google.protobuf.Timestamp scheduleTime = 13;</code>
-     */
-    public Builder clearScheduleTime() {
-      if (scheduleTimeBuilder_ == null) {
-        scheduleTime_ = null;
-        onChanged();
-      } else {
-        scheduleTime_ = null;
-        scheduleTimeBuilder_ = null;
-      }
-
-      return this;
-    }
-    /**
-     * <code>.google.protobuf.Timestamp scheduleTime = 13;</code>
-     */
-    public com.google.protobuf.Timestamp.Builder getScheduleTimeBuilder() {
-      
-      onChanged();
-      return getScheduleTimeFieldBuilder().getBuilder();
-    }
     /**
      * <code>.google.protobuf.Timestamp scheduleTime = 13;</code>
      */
     public com.google.protobuf.TimestampOrBuilder getScheduleTimeOrBuilder() {
-      if (scheduleTimeBuilder_ != null) {
-        return scheduleTimeBuilder_.getMessageOrBuilder();
-      } else {
-        return scheduleTime_ == null ?
-            com.google.protobuf.Timestamp.getDefaultInstance() : scheduleTime_;
-      }
-    }
-    /**
-     * <code>.google.protobuf.Timestamp scheduleTime = 13;</code>
-     */
-    private com.google.protobuf.SingleFieldBuilderV3<
-        com.google.protobuf.Timestamp, com.google.protobuf.Timestamp.Builder, com.google.protobuf.TimestampOrBuilder> 
-        getScheduleTimeFieldBuilder() {
-      if (scheduleTimeBuilder_ == null) {
-        scheduleTimeBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<
-            com.google.protobuf.Timestamp, com.google.protobuf.Timestamp.Builder, com.google.protobuf.TimestampOrBuilder>(
-                getScheduleTime(),
-                getParentForChildren(),
-                isClean());
-        scheduleTime_ = null;
-      }
-      return scheduleTimeBuilder_;
+        return getScheduleTime();
     }
 
-    private com.google.protobuf.Timestamp startTime_ = null;
-    private com.google.protobuf.SingleFieldBuilderV3<
-        com.google.protobuf.Timestamp, com.google.protobuf.Timestamp.Builder, com.google.protobuf.TimestampOrBuilder> startTimeBuilder_;
+    public static final int STARTTIME_FIELD_NUMBER = 14;
+    private com.google.protobuf.Timestamp startTime_;
+
     /**
      * <code>.google.protobuf.Timestamp startTime = 14;</code>
      */
     public boolean hasStartTime() {
-      return startTimeBuilder_ != null || startTime_ != null;
+        return startTime_ != null;
     }
+
     /**
      * <code>.google.protobuf.Timestamp startTime = 14;</code>
      */
     public com.google.protobuf.Timestamp getStartTime() {
-      if (startTimeBuilder_ == null) {
         return startTime_ == null ? com.google.protobuf.Timestamp.getDefaultInstance() : startTime_;
-      } else {
-        return startTimeBuilder_.getMessage();
-      }
     }
-    /**
-     * <code>.google.protobuf.Timestamp startTime = 14;</code>
-     */
-    public Builder setStartTime(com.google.protobuf.Timestamp value) {
-      if (startTimeBuilder_ == null) {
-        if (value == null) {
-          throw new NullPointerException();
-        }
-        startTime_ = value;
-        onChanged();
-      } else {
-        startTimeBuilder_.setMessage(value);
-      }
 
-      return this;
-    }
-    /**
-     * <code>.google.protobuf.Timestamp startTime = 14;</code>
-     */
-    public Builder setStartTime(
-        com.google.protobuf.Timestamp.Builder builderForValue) {
-      if (startTimeBuilder_ == null) {
-        startTime_ = builderForValue.build();
-        onChanged();
-      } else {
-        startTimeBuilder_.setMessage(builderForValue.build());
-      }
-
-      return this;
-    }
-    /**
-     * <code>.google.protobuf.Timestamp startTime = 14;</code>
-     */
-    public Builder mergeStartTime(com.google.protobuf.Timestamp value) {
-      if (startTimeBuilder_ == null) {
-        if (startTime_ != null) {
-          startTime_ =
-            com.google.protobuf.Timestamp.newBuilder(startTime_).mergeFrom(value).buildPartial();
-        } else {
-          startTime_ = value;
-        }
-        onChanged();
-      } else {
-        startTimeBuilder_.mergeFrom(value);
-      }
-
-      return this;
-    }
-    /**
-     * <code>.google.protobuf.Timestamp startTime = 14;</code>
-     */
-    public Builder clearStartTime() {
-      if (startTimeBuilder_ == null) {
-        startTime_ = null;
-        onChanged();
-      } else {
-        startTime_ = null;
-        startTimeBuilder_ = null;
-      }
-
-      return this;
-    }
-    /**
-     * <code>.google.protobuf.Timestamp startTime = 14;</code>
-     */
-    public com.google.protobuf.Timestamp.Builder getStartTimeBuilder() {
-      
-      onChanged();
-      return getStartTimeFieldBuilder().getBuilder();
-    }
     /**
      * <code>.google.protobuf.Timestamp startTime = 14;</code>
      */
     public com.google.protobuf.TimestampOrBuilder getStartTimeOrBuilder() {
-      if (startTimeBuilder_ != null) {
-        return startTimeBuilder_.getMessageOrBuilder();
-      } else {
-        return startTime_ == null ?
-            com.google.protobuf.Timestamp.getDefaultInstance() : startTime_;
-      }
-    }
-    /**
-     * <code>.google.protobuf.Timestamp startTime = 14;</code>
-     */
-    private com.google.protobuf.SingleFieldBuilderV3<
-        com.google.protobuf.Timestamp, com.google.protobuf.Timestamp.Builder, com.google.protobuf.TimestampOrBuilder> 
-        getStartTimeFieldBuilder() {
-      if (startTimeBuilder_ == null) {
-        startTimeBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<
-            com.google.protobuf.Timestamp, com.google.protobuf.Timestamp.Builder, com.google.protobuf.TimestampOrBuilder>(
-                getStartTime(),
-                getParentForChildren(),
-                isClean());
-        startTime_ = null;
-      }
-      return startTimeBuilder_;
+        return getStartTime();
     }
 
-    private com.google.protobuf.Timestamp endTime_ = null;
-    private com.google.protobuf.SingleFieldBuilderV3<
-        com.google.protobuf.Timestamp, com.google.protobuf.Timestamp.Builder, com.google.protobuf.TimestampOrBuilder> endTimeBuilder_;
+    public static final int ENDTIME_FIELD_NUMBER = 15;
+    private com.google.protobuf.Timestamp endTime_;
+
     /**
      * <code>.google.protobuf.Timestamp endTime = 15;</code>
      */
     public boolean hasEndTime() {
-      return endTimeBuilder_ != null || endTime_ != null;
+        return endTime_ != null;
     }
+
     /**
      * <code>.google.protobuf.Timestamp endTime = 15;</code>
      */
     public com.google.protobuf.Timestamp getEndTime() {
-      if (endTimeBuilder_ == null) {
         return endTime_ == null ? com.google.protobuf.Timestamp.getDefaultInstance() : endTime_;
-      } else {
-        return endTimeBuilder_.getMessage();
-      }
     }
-    /**
-     * <code>.google.protobuf.Timestamp endTime = 15;</code>
-     */
-    public Builder setEndTime(com.google.protobuf.Timestamp value) {
-      if (endTimeBuilder_ == null) {
-        if (value == null) {
-          throw new NullPointerException();
-        }
-        endTime_ = value;
-        onChanged();
-      } else {
-        endTimeBuilder_.setMessage(value);
-      }
 
-      return this;
-    }
-    /**
-     * <code>.google.protobuf.Timestamp endTime = 15;</code>
-     */
-    public Builder setEndTime(
-        com.google.protobuf.Timestamp.Builder builderForValue) {
-      if (endTimeBuilder_ == null) {
-        endTime_ = builderForValue.build();
-        onChanged();
-      } else {
-        endTimeBuilder_.setMessage(builderForValue.build());
-      }
-
-      return this;
-    }
-    /**
-     * <code>.google.protobuf.Timestamp endTime = 15;</code>
-     */
-    public Builder mergeEndTime(com.google.protobuf.Timestamp value) {
-      if (endTimeBuilder_ == null) {
-        if (endTime_ != null) {
-          endTime_ =
-            com.google.protobuf.Timestamp.newBuilder(endTime_).mergeFrom(value).buildPartial();
-        } else {
-          endTime_ = value;
-        }
-        onChanged();
-      } else {
-        endTimeBuilder_.mergeFrom(value);
-      }
-
-      return this;
-    }
-    /**
-     * <code>.google.protobuf.Timestamp endTime = 15;</code>
-     */
-    public Builder clearEndTime() {
-      if (endTimeBuilder_ == null) {
-        endTime_ = null;
-        onChanged();
-      } else {
-        endTime_ = null;
-        endTimeBuilder_ = null;
-      }
-
-      return this;
-    }
-    /**
-     * <code>.google.protobuf.Timestamp endTime = 15;</code>
-     */
-    public com.google.protobuf.Timestamp.Builder getEndTimeBuilder() {
-      
-      onChanged();
-      return getEndTimeFieldBuilder().getBuilder();
-    }
     /**
      * <code>.google.protobuf.Timestamp endTime = 15;</code>
      */
     public com.google.protobuf.TimestampOrBuilder getEndTimeOrBuilder() {
-      if (endTimeBuilder_ != null) {
-        return endTimeBuilder_.getMessageOrBuilder();
-      } else {
-        return endTime_ == null ?
-            com.google.protobuf.Timestamp.getDefaultInstance() : endTime_;
-      }
-    }
-    /**
-     * <code>.google.protobuf.Timestamp endTime = 15;</code>
-     */
-    private com.google.protobuf.SingleFieldBuilderV3<
-        com.google.protobuf.Timestamp, com.google.protobuf.Timestamp.Builder, com.google.protobuf.TimestampOrBuilder> 
-        getEndTimeFieldBuilder() {
-      if (endTimeBuilder_ == null) {
-        endTimeBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<
-            com.google.protobuf.Timestamp, com.google.protobuf.Timestamp.Builder, com.google.protobuf.TimestampOrBuilder>(
-                getEndTime(),
-                getParentForChildren(),
-                isClean());
-        endTime_ = null;
-      }
-      return endTimeBuilder_;
+        return getEndTime();
     }
 
-    private int elapseTime_ ;
+    public static final int ELAPSETIME_FIELD_NUMBER = 16;
+    private int elapseTime_;
+
     /**
      * <code>int32 elapseTime = 16;</code>
      */
     public int getElapseTime() {
-      return elapseTime_;
+        return elapseTime_;
     }
+
+    private byte memoizedIsInitialized = -1;
+
+    public final boolean isInitialized() {
+        byte isInitialized = memoizedIsInitialized;
+        if (isInitialized == 1)
+            return true;
+        if (isInitialized == 0)
+            return false;
+
+        memoizedIsInitialized = 1;
+        return true;
+    }
+
+    public void writeTo(com.google.protobuf.CodedOutputStream output) throws java.io.IOException {
+        if (id_ != 0) {
+            output.writeInt32(1, id_);
+        }
+        if (!getRequestIdBytes().isEmpty()) {
+            com.google.protobuf.GeneratedMessageV3.writeString(output, 2, requestId_);
+        }
+        if (job_ != null) {
+            output.writeMessage(3, getJob());
+        }
+        if (taskState_ != 0) {
+            output.writeInt32(4, taskState_);
+        }
+        if (!getLogUrlBytes().isEmpty()) {
+            com.google.protobuf.GeneratedMessageV3.writeString(output, 5, logUrl_);
+        }
+        if (!getLogPathBytes().isEmpty()) {
+            com.google.protobuf.GeneratedMessageV3.writeString(output, 6, logPath_);
+        }
+        if (!getWorkerBytes().isEmpty()) {
+            com.google.protobuf.GeneratedMessageV3.writeString(output, 7, worker_);
+        }
+        if (!getCreatorNameBytes().isEmpty()) {
+            com.google.protobuf.GeneratedMessageV3.writeString(output, 8, creatorName_);
+        }
+        if (!getCreatorEmailBytes().isEmpty()) {
+            com.google.protobuf.GeneratedMessageV3.writeString(output, 9, creatorEmail_);
+        }
+        if (retryTimes_ != 0) {
+            output.writeInt32(10, retryTimes_);
+        }
+        if (pid_ != 0) {
+            output.writeInt32(11, pid_);
+        }
+        if (!getApplicationidBytes().isEmpty()) {
+            com.google.protobuf.GeneratedMessageV3.writeString(output, 12, applicationid_);
+        }
+        if (scheduleTime_ != null) {
+            output.writeMessage(13, getScheduleTime());
+        }
+        if (startTime_ != null) {
+            output.writeMessage(14, getStartTime());
+        }
+        if (endTime_ != null) {
+            output.writeMessage(15, getEndTime());
+        }
+        if (elapseTime_ != 0) {
+            output.writeInt32(16, elapseTime_);
+        }
+    }
+
+    public int getSerializedSize() {
+        int size = memoizedSize;
+        if (size != -1)
+            return size;
+
+        size = 0;
+        if (id_ != 0) {
+            size += com.google.protobuf.CodedOutputStream.computeInt32Size(1, id_);
+        }
+        if (!getRequestIdBytes().isEmpty()) {
+            size += com.google.protobuf.GeneratedMessageV3.computeStringSize(2, requestId_);
+        }
+        if (job_ != null) {
+            size += com.google.protobuf.CodedOutputStream.computeMessageSize(3, getJob());
+        }
+        if (taskState_ != 0) {
+            size += com.google.protobuf.CodedOutputStream.computeInt32Size(4, taskState_);
+        }
+        if (!getLogUrlBytes().isEmpty()) {
+            size += com.google.protobuf.GeneratedMessageV3.computeStringSize(5, logUrl_);
+        }
+        if (!getLogPathBytes().isEmpty()) {
+            size += com.google.protobuf.GeneratedMessageV3.computeStringSize(6, logPath_);
+        }
+        if (!getWorkerBytes().isEmpty()) {
+            size += com.google.protobuf.GeneratedMessageV3.computeStringSize(7, worker_);
+        }
+        if (!getCreatorNameBytes().isEmpty()) {
+            size += com.google.protobuf.GeneratedMessageV3.computeStringSize(8, creatorName_);
+        }
+        if (!getCreatorEmailBytes().isEmpty()) {
+            size += com.google.protobuf.GeneratedMessageV3.computeStringSize(9, creatorEmail_);
+        }
+        if (retryTimes_ != 0) {
+            size += com.google.protobuf.CodedOutputStream.computeInt32Size(10, retryTimes_);
+        }
+        if (pid_ != 0) {
+            size += com.google.protobuf.CodedOutputStream.computeInt32Size(11, pid_);
+        }
+        if (!getApplicationidBytes().isEmpty()) {
+            size += com.google.protobuf.GeneratedMessageV3.computeStringSize(12, applicationid_);
+        }
+        if (scheduleTime_ != null) {
+            size += com.google.protobuf.CodedOutputStream.computeMessageSize(13, getScheduleTime());
+        }
+        if (startTime_ != null) {
+            size += com.google.protobuf.CodedOutputStream.computeMessageSize(14, getStartTime());
+        }
+        if (endTime_ != null) {
+            size += com.google.protobuf.CodedOutputStream.computeMessageSize(15, getEndTime());
+        }
+        if (elapseTime_ != 0) {
+            size += com.google.protobuf.CodedOutputStream.computeInt32Size(16, elapseTime_);
+        }
+        memoizedSize = size;
+        return size;
+    }
+
+    private static final long serialVersionUID = 0L;
+
+    @java.lang.Override
+    public boolean equals(final java.lang.Object obj) {
+        if (obj == this) {
+            return true;
+        }
+        if (!(obj instanceof com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc)) {
+            return super.equals(obj);
+        }
+        com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc other = (com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc) obj;
+
+        boolean result = true;
+        result = result && (getId() == other.getId());
+        result = result && getRequestId().equals(other.getRequestId());
+        result = result && (hasJob() == other.hasJob());
+        if (hasJob()) {
+            result = result && getJob().equals(other.getJob());
+        }
+        result = result && (getTaskState() == other.getTaskState());
+        result = result && getLogUrl().equals(other.getLogUrl());
+        result = result && getLogPath().equals(other.getLogPath());
+        result = result && getWorker().equals(other.getWorker());
+        result = result && getCreatorName().equals(other.getCreatorName());
+        result = result && getCreatorEmail().equals(other.getCreatorEmail());
+        result = result && (getRetryTimes() == other.getRetryTimes());
+        result = result && (getPid() == other.getPid());
+        result = result && getApplicationid().equals(other.getApplicationid());
+        result = result && (hasScheduleTime() == other.hasScheduleTime());
+        if (hasScheduleTime()) {
+            result = result && getScheduleTime().equals(other.getScheduleTime());
+        }
+        result = result && (hasStartTime() == other.hasStartTime());
+        if (hasStartTime()) {
+            result = result && getStartTime().equals(other.getStartTime());
+        }
+        result = result && (hasEndTime() == other.hasEndTime());
+        if (hasEndTime()) {
+            result = result && getEndTime().equals(other.getEndTime());
+        }
+        result = result && (getElapseTime() == other.getElapseTime());
+        return result;
+    }
+
+    @java.lang.Override
+    public int hashCode() {
+        if (memoizedHashCode != 0) {
+            return memoizedHashCode;
+        }
+        int hash = 41;
+        hash = (19 * hash) + getDescriptor().hashCode();
+        hash = (37 * hash) + ID_FIELD_NUMBER;
+        hash = (53 * hash) + getId();
+        hash = (37 * hash) + REQUESTID_FIELD_NUMBER;
+        hash = (53 * hash) + getRequestId().hashCode();
+        if (hasJob()) {
+            hash = (37 * hash) + JOB_FIELD_NUMBER;
+            hash = (53 * hash) + getJob().hashCode();
+        }
+        hash = (37 * hash) + TASKSTATE_FIELD_NUMBER;
+        hash = (53 * hash) + getTaskState();
+        hash = (37 * hash) + LOGURL_FIELD_NUMBER;
+        hash = (53 * hash) + getLogUrl().hashCode();
+        hash = (37 * hash) + LOGPATH_FIELD_NUMBER;
+        hash = (53 * hash) + getLogPath().hashCode();
+        hash = (37 * hash) + WORKER_FIELD_NUMBER;
+        hash = (53 * hash) + getWorker().hashCode();
+        hash = (37 * hash) + CREATORNAME_FIELD_NUMBER;
+        hash = (53 * hash) + getCreatorName().hashCode();
+        hash = (37 * hash) + CREATOREMAIL_FIELD_NUMBER;
+        hash = (53 * hash) + getCreatorEmail().hashCode();
+        hash = (37 * hash) + RETRYTIMES_FIELD_NUMBER;
+        hash = (53 * hash) + getRetryTimes();
+        hash = (37 * hash) + PID_FIELD_NUMBER;
+        hash = (53 * hash) + getPid();
+        hash = (37 * hash) + APPLICATIONID_FIELD_NUMBER;
+        hash = (53 * hash) + getApplicationid().hashCode();
+        if (hasScheduleTime()) {
+            hash = (37 * hash) + SCHEDULETIME_FIELD_NUMBER;
+            hash = (53 * hash) + getScheduleTime().hashCode();
+        }
+        if (hasStartTime()) {
+            hash = (37 * hash) + STARTTIME_FIELD_NUMBER;
+            hash = (53 * hash) + getStartTime().hashCode();
+        }
+        if (hasEndTime()) {
+            hash = (37 * hash) + ENDTIME_FIELD_NUMBER;
+            hash = (53 * hash) + getEndTime().hashCode();
+        }
+        hash = (37 * hash) + ELAPSETIME_FIELD_NUMBER;
+        hash = (53 * hash) + getElapseTime();
+        hash = (29 * hash) + unknownFields.hashCode();
+        memoizedHashCode = hash;
+        return hash;
+    }
+
+    public static com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc parseFrom(
+            com.google.protobuf.ByteString data) throws com.google.protobuf.InvalidProtocolBufferException {
+        return PARSER.parseFrom(data);
+    }
+
+    public static com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc parseFrom(
+            com.google.protobuf.ByteString data, com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+            throws com.google.protobuf.InvalidProtocolBufferException {
+        return PARSER.parseFrom(data, extensionRegistry);
+    }
+
+    public static com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc parseFrom(byte[] data)
+            throws com.google.protobuf.InvalidProtocolBufferException {
+        return PARSER.parseFrom(data);
+    }
+
+    public static com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc parseFrom(byte[] data,
+            com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+            throws com.google.protobuf.InvalidProtocolBufferException {
+        return PARSER.parseFrom(data, extensionRegistry);
+    }
+
+    public static com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc parseFrom(java.io.InputStream input)
+            throws java.io.IOException {
+        return com.google.protobuf.GeneratedMessageV3.parseWithIOException(PARSER, input);
+    }
+
+    public static com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc parseFrom(java.io.InputStream input,
+            com.google.protobuf.ExtensionRegistryLite extensionRegistry) throws java.io.IOException {
+        return com.google.protobuf.GeneratedMessageV3.parseWithIOException(PARSER, input, extensionRegistry);
+    }
+
+    public static com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc parseDelimitedFrom(
+            java.io.InputStream input) throws java.io.IOException {
+        return com.google.protobuf.GeneratedMessageV3.parseDelimitedWithIOException(PARSER, input);
+    }
+
+    public static com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc parseDelimitedFrom(
+            java.io.InputStream input, com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+            throws java.io.IOException {
+        return com.google.protobuf.GeneratedMessageV3.parseDelimitedWithIOException(PARSER, input, extensionRegistry);
+    }
+
+    public static com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc parseFrom(
+            com.google.protobuf.CodedInputStream input) throws java.io.IOException {
+        return com.google.protobuf.GeneratedMessageV3.parseWithIOException(PARSER, input);
+    }
+
+    public static com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc parseFrom(
+            com.google.protobuf.CodedInputStream input, com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+            throws java.io.IOException {
+        return com.google.protobuf.GeneratedMessageV3.parseWithIOException(PARSER, input, extensionRegistry);
+    }
+
+    public Builder newBuilderForType() {
+        return newBuilder();
+    }
+
+    public static Builder newBuilder() {
+        return DEFAULT_INSTANCE.toBuilder();
+    }
+
+    public static Builder newBuilder(com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc prototype) {
+        return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+
+    public Builder toBuilder() {
+        return this == DEFAULT_INSTANCE ? new Builder() : new Builder().mergeFrom(this);
+    }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+        Builder builder = new Builder(parent);
+        return builder;
+    }
+
     /**
-     * <code>int32 elapseTime = 16;</code>
+     * Protobuf type {@code JobInstanceRequestRpc}
      */
-    public Builder setElapseTime(int value) {
-      
-      elapseTime_ = value;
-      onChanged();
-      return this;
+    public static final class Builder extends com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
+            // @@protoc_insertion_point(builder_implements:JobInstanceRequestRpc)
+            com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpcOrBuilder {
+        public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
+            return com.ylpu.thales.scheduler.core.rpc.entity.JobGrpc.internal_static_JobInstanceRequestRpc_descriptor;
+        }
+
+        protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable internalGetFieldAccessorTable() {
+            return com.ylpu.thales.scheduler.core.rpc.entity.JobGrpc.internal_static_JobInstanceRequestRpc_fieldAccessorTable
+                    .ensureFieldAccessorsInitialized(
+                            com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc.class,
+                            com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc.Builder.class);
+        }
+
+        // Construct using
+        // com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc.newBuilder()
+        private Builder() {
+            maybeForceBuilderInitialization();
+        }
+
+        private Builder(com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+            super(parent);
+            maybeForceBuilderInitialization();
+        }
+
+        private void maybeForceBuilderInitialization() {
+            if (com.google.protobuf.GeneratedMessageV3.alwaysUseFieldBuilders) {
+            }
+        }
+
+        public Builder clear() {
+            super.clear();
+            id_ = 0;
+
+            requestId_ = "";
+
+            if (jobBuilder_ == null) {
+                job_ = null;
+            } else {
+                job_ = null;
+                jobBuilder_ = null;
+            }
+            taskState_ = 0;
+
+            logUrl_ = "";
+
+            logPath_ = "";
+
+            worker_ = "";
+
+            creatorName_ = "";
+
+            creatorEmail_ = "";
+
+            retryTimes_ = 0;
+
+            pid_ = 0;
+
+            applicationid_ = "";
+
+            if (scheduleTimeBuilder_ == null) {
+                scheduleTime_ = null;
+            } else {
+                scheduleTime_ = null;
+                scheduleTimeBuilder_ = null;
+            }
+            if (startTimeBuilder_ == null) {
+                startTime_ = null;
+            } else {
+                startTime_ = null;
+                startTimeBuilder_ = null;
+            }
+            if (endTimeBuilder_ == null) {
+                endTime_ = null;
+            } else {
+                endTime_ = null;
+                endTimeBuilder_ = null;
+            }
+            elapseTime_ = 0;
+
+            return this;
+        }
+
+        public com.google.protobuf.Descriptors.Descriptor getDescriptorForType() {
+            return com.ylpu.thales.scheduler.core.rpc.entity.JobGrpc.internal_static_JobInstanceRequestRpc_descriptor;
+        }
+
+        public com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc getDefaultInstanceForType() {
+            return com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc.getDefaultInstance();
+        }
+
+        public com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc build() {
+            com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc result = buildPartial();
+            if (!result.isInitialized()) {
+                throw newUninitializedMessageException(result);
+            }
+            return result;
+        }
+
+        public com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc buildPartial() {
+            com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc result = new com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc(
+                    this);
+            result.id_ = id_;
+            result.requestId_ = requestId_;
+            if (jobBuilder_ == null) {
+                result.job_ = job_;
+            } else {
+                result.job_ = jobBuilder_.build();
+            }
+            result.taskState_ = taskState_;
+            result.logUrl_ = logUrl_;
+            result.logPath_ = logPath_;
+            result.worker_ = worker_;
+            result.creatorName_ = creatorName_;
+            result.creatorEmail_ = creatorEmail_;
+            result.retryTimes_ = retryTimes_;
+            result.pid_ = pid_;
+            result.applicationid_ = applicationid_;
+            if (scheduleTimeBuilder_ == null) {
+                result.scheduleTime_ = scheduleTime_;
+            } else {
+                result.scheduleTime_ = scheduleTimeBuilder_.build();
+            }
+            if (startTimeBuilder_ == null) {
+                result.startTime_ = startTime_;
+            } else {
+                result.startTime_ = startTimeBuilder_.build();
+            }
+            if (endTimeBuilder_ == null) {
+                result.endTime_ = endTime_;
+            } else {
+                result.endTime_ = endTimeBuilder_.build();
+            }
+            result.elapseTime_ = elapseTime_;
+            onBuilt();
+            return result;
+        }
+
+        public Builder clone() {
+            return (Builder) super.clone();
+        }
+
+        public Builder setField(com.google.protobuf.Descriptors.FieldDescriptor field, Object value) {
+            return (Builder) super.setField(field, value);
+        }
+
+        public Builder clearField(com.google.protobuf.Descriptors.FieldDescriptor field) {
+            return (Builder) super.clearField(field);
+        }
+
+        public Builder clearOneof(com.google.protobuf.Descriptors.OneofDescriptor oneof) {
+            return (Builder) super.clearOneof(oneof);
+        }
+
+        public Builder setRepeatedField(com.google.protobuf.Descriptors.FieldDescriptor field, int index,
+                Object value) {
+            return (Builder) super.setRepeatedField(field, index, value);
+        }
+
+        public Builder addRepeatedField(com.google.protobuf.Descriptors.FieldDescriptor field, Object value) {
+            return (Builder) super.addRepeatedField(field, value);
+        }
+
+        public Builder mergeFrom(com.google.protobuf.Message other) {
+            if (other instanceof com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc) {
+                return mergeFrom((com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc) other);
+            } else {
+                super.mergeFrom(other);
+                return this;
+            }
+        }
+
+        public Builder mergeFrom(com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc other) {
+            if (other == com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc.getDefaultInstance())
+                return this;
+            if (other.getId() != 0) {
+                setId(other.getId());
+            }
+            if (!other.getRequestId().isEmpty()) {
+                requestId_ = other.requestId_;
+                onChanged();
+            }
+            if (other.hasJob()) {
+                mergeJob(other.getJob());
+            }
+            if (other.getTaskState() != 0) {
+                setTaskState(other.getTaskState());
+            }
+            if (!other.getLogUrl().isEmpty()) {
+                logUrl_ = other.logUrl_;
+                onChanged();
+            }
+            if (!other.getLogPath().isEmpty()) {
+                logPath_ = other.logPath_;
+                onChanged();
+            }
+            if (!other.getWorker().isEmpty()) {
+                worker_ = other.worker_;
+                onChanged();
+            }
+            if (!other.getCreatorName().isEmpty()) {
+                creatorName_ = other.creatorName_;
+                onChanged();
+            }
+            if (!other.getCreatorEmail().isEmpty()) {
+                creatorEmail_ = other.creatorEmail_;
+                onChanged();
+            }
+            if (other.getRetryTimes() != 0) {
+                setRetryTimes(other.getRetryTimes());
+            }
+            if (other.getPid() != 0) {
+                setPid(other.getPid());
+            }
+            if (!other.getApplicationid().isEmpty()) {
+                applicationid_ = other.applicationid_;
+                onChanged();
+            }
+            if (other.hasScheduleTime()) {
+                mergeScheduleTime(other.getScheduleTime());
+            }
+            if (other.hasStartTime()) {
+                mergeStartTime(other.getStartTime());
+            }
+            if (other.hasEndTime()) {
+                mergeEndTime(other.getEndTime());
+            }
+            if (other.getElapseTime() != 0) {
+                setElapseTime(other.getElapseTime());
+            }
+            onChanged();
+            return this;
+        }
+
+        public final boolean isInitialized() {
+            return true;
+        }
+
+        public Builder mergeFrom(com.google.protobuf.CodedInputStream input,
+                com.google.protobuf.ExtensionRegistryLite extensionRegistry) throws java.io.IOException {
+            com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc parsedMessage = null;
+            try {
+                parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+            } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+                parsedMessage = (com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc) e
+                        .getUnfinishedMessage();
+                throw e.unwrapIOException();
+            } finally {
+                if (parsedMessage != null) {
+                    mergeFrom(parsedMessage);
+                }
+            }
+            return this;
+        }
+
+        private int id_;
+
+        /**
+         * <code>int32 id = 1;</code>
+         */
+        public int getId() {
+            return id_;
+        }
+
+        /**
+         * <code>int32 id = 1;</code>
+         */
+        public Builder setId(int value) {
+
+            id_ = value;
+            onChanged();
+            return this;
+        }
+
+        /**
+         * <code>int32 id = 1;</code>
+         */
+        public Builder clearId() {
+
+            id_ = 0;
+            onChanged();
+            return this;
+        }
+
+        private java.lang.Object requestId_ = "";
+
+        /**
+         * <code>string requestId = 2;</code>
+         */
+        public java.lang.String getRequestId() {
+            java.lang.Object ref = requestId_;
+            if (!(ref instanceof java.lang.String)) {
+                com.google.protobuf.ByteString bs = (com.google.protobuf.ByteString) ref;
+                java.lang.String s = bs.toStringUtf8();
+                requestId_ = s;
+                return s;
+            } else {
+                return (java.lang.String) ref;
+            }
+        }
+
+        /**
+         * <code>string requestId = 2;</code>
+         */
+        public com.google.protobuf.ByteString getRequestIdBytes() {
+            java.lang.Object ref = requestId_;
+            if (ref instanceof String) {
+                com.google.protobuf.ByteString b = com.google.protobuf.ByteString.copyFromUtf8((java.lang.String) ref);
+                requestId_ = b;
+                return b;
+            } else {
+                return (com.google.protobuf.ByteString) ref;
+            }
+        }
+
+        /**
+         * <code>string requestId = 2;</code>
+         */
+        public Builder setRequestId(java.lang.String value) {
+            if (value == null) {
+                throw new NullPointerException();
+            }
+
+            requestId_ = value;
+            onChanged();
+            return this;
+        }
+
+        /**
+         * <code>string requestId = 2;</code>
+         */
+        public Builder clearRequestId() {
+
+            requestId_ = getDefaultInstance().getRequestId();
+            onChanged();
+            return this;
+        }
+
+        /**
+         * <code>string requestId = 2;</code>
+         */
+        public Builder setRequestIdBytes(com.google.protobuf.ByteString value) {
+            if (value == null) {
+                throw new NullPointerException();
+            }
+            checkByteStringIsUtf8(value);
+
+            requestId_ = value;
+            onChanged();
+            return this;
+        }
+
+        private com.ylpu.thales.scheduler.core.rpc.entity.JobRequestRpc job_ = null;
+        private com.google.protobuf.SingleFieldBuilderV3<com.ylpu.thales.scheduler.core.rpc.entity.JobRequestRpc, com.ylpu.thales.scheduler.core.rpc.entity.JobRequestRpc.Builder, com.ylpu.thales.scheduler.core.rpc.entity.JobRequestRpcOrBuilder> jobBuilder_;
+
+        /**
+         * <code>.JobRequestRpc job = 3;</code>
+         */
+        public boolean hasJob() {
+            return jobBuilder_ != null || job_ != null;
+        }
+
+        /**
+         * <code>.JobRequestRpc job = 3;</code>
+         */
+        public com.ylpu.thales.scheduler.core.rpc.entity.JobRequestRpc getJob() {
+            if (jobBuilder_ == null) {
+                return job_ == null ? com.ylpu.thales.scheduler.core.rpc.entity.JobRequestRpc.getDefaultInstance()
+                        : job_;
+            } else {
+                return jobBuilder_.getMessage();
+            }
+        }
+
+        /**
+         * <code>.JobRequestRpc job = 3;</code>
+         */
+        public Builder setJob(com.ylpu.thales.scheduler.core.rpc.entity.JobRequestRpc value) {
+            if (jobBuilder_ == null) {
+                if (value == null) {
+                    throw new NullPointerException();
+                }
+                job_ = value;
+                onChanged();
+            } else {
+                jobBuilder_.setMessage(value);
+            }
+
+            return this;
+        }
+
+        /**
+         * <code>.JobRequestRpc job = 3;</code>
+         */
+        public Builder setJob(com.ylpu.thales.scheduler.core.rpc.entity.JobRequestRpc.Builder builderForValue) {
+            if (jobBuilder_ == null) {
+                job_ = builderForValue.build();
+                onChanged();
+            } else {
+                jobBuilder_.setMessage(builderForValue.build());
+            }
+
+            return this;
+        }
+
+        /**
+         * <code>.JobRequestRpc job = 3;</code>
+         */
+        public Builder mergeJob(com.ylpu.thales.scheduler.core.rpc.entity.JobRequestRpc value) {
+            if (jobBuilder_ == null) {
+                if (job_ != null) {
+                    job_ = com.ylpu.thales.scheduler.core.rpc.entity.JobRequestRpc.newBuilder(job_).mergeFrom(value)
+                            .buildPartial();
+                } else {
+                    job_ = value;
+                }
+                onChanged();
+            } else {
+                jobBuilder_.mergeFrom(value);
+            }
+
+            return this;
+        }
+
+        /**
+         * <code>.JobRequestRpc job = 3;</code>
+         */
+        public Builder clearJob() {
+            if (jobBuilder_ == null) {
+                job_ = null;
+                onChanged();
+            } else {
+                job_ = null;
+                jobBuilder_ = null;
+            }
+
+            return this;
+        }
+
+        /**
+         * <code>.JobRequestRpc job = 3;</code>
+         */
+        public com.ylpu.thales.scheduler.core.rpc.entity.JobRequestRpc.Builder getJobBuilder() {
+
+            onChanged();
+            return getJobFieldBuilder().getBuilder();
+        }
+
+        /**
+         * <code>.JobRequestRpc job = 3;</code>
+         */
+        public com.ylpu.thales.scheduler.core.rpc.entity.JobRequestRpcOrBuilder getJobOrBuilder() {
+            if (jobBuilder_ != null) {
+                return jobBuilder_.getMessageOrBuilder();
+            } else {
+                return job_ == null ? com.ylpu.thales.scheduler.core.rpc.entity.JobRequestRpc.getDefaultInstance()
+                        : job_;
+            }
+        }
+
+        /**
+         * <code>.JobRequestRpc job = 3;</code>
+         */
+        private com.google.protobuf.SingleFieldBuilderV3<com.ylpu.thales.scheduler.core.rpc.entity.JobRequestRpc, com.ylpu.thales.scheduler.core.rpc.entity.JobRequestRpc.Builder, com.ylpu.thales.scheduler.core.rpc.entity.JobRequestRpcOrBuilder> getJobFieldBuilder() {
+            if (jobBuilder_ == null) {
+                jobBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<com.ylpu.thales.scheduler.core.rpc.entity.JobRequestRpc, com.ylpu.thales.scheduler.core.rpc.entity.JobRequestRpc.Builder, com.ylpu.thales.scheduler.core.rpc.entity.JobRequestRpcOrBuilder>(
+                        getJob(), getParentForChildren(), isClean());
+                job_ = null;
+            }
+            return jobBuilder_;
+        }
+
+        private int taskState_;
+
+        /**
+         * <code>int32 taskState = 4;</code>
+         */
+        public int getTaskState() {
+            return taskState_;
+        }
+
+        /**
+         * <code>int32 taskState = 4;</code>
+         */
+        public Builder setTaskState(int value) {
+
+            taskState_ = value;
+            onChanged();
+            return this;
+        }
+
+        /**
+         * <code>int32 taskState = 4;</code>
+         */
+        public Builder clearTaskState() {
+
+            taskState_ = 0;
+            onChanged();
+            return this;
+        }
+
+        private java.lang.Object logUrl_ = "";
+
+        /**
+         * <code>string logUrl = 5;</code>
+         */
+        public java.lang.String getLogUrl() {
+            java.lang.Object ref = logUrl_;
+            if (!(ref instanceof java.lang.String)) {
+                com.google.protobuf.ByteString bs = (com.google.protobuf.ByteString) ref;
+                java.lang.String s = bs.toStringUtf8();
+                logUrl_ = s;
+                return s;
+            } else {
+                return (java.lang.String) ref;
+            }
+        }
+
+        /**
+         * <code>string logUrl = 5;</code>
+         */
+        public com.google.protobuf.ByteString getLogUrlBytes() {
+            java.lang.Object ref = logUrl_;
+            if (ref instanceof String) {
+                com.google.protobuf.ByteString b = com.google.protobuf.ByteString.copyFromUtf8((java.lang.String) ref);
+                logUrl_ = b;
+                return b;
+            } else {
+                return (com.google.protobuf.ByteString) ref;
+            }
+        }
+
+        /**
+         * <code>string logUrl = 5;</code>
+         */
+        public Builder setLogUrl(java.lang.String value) {
+            if (value == null) {
+                throw new NullPointerException();
+            }
+
+            logUrl_ = value;
+            onChanged();
+            return this;
+        }
+
+        /**
+         * <code>string logUrl = 5;</code>
+         */
+        public Builder clearLogUrl() {
+
+            logUrl_ = getDefaultInstance().getLogUrl();
+            onChanged();
+            return this;
+        }
+
+        /**
+         * <code>string logUrl = 5;</code>
+         */
+        public Builder setLogUrlBytes(com.google.protobuf.ByteString value) {
+            if (value == null) {
+                throw new NullPointerException();
+            }
+            checkByteStringIsUtf8(value);
+
+            logUrl_ = value;
+            onChanged();
+            return this;
+        }
+
+        private java.lang.Object logPath_ = "";
+
+        /**
+         * <code>string logPath = 6;</code>
+         */
+        public java.lang.String getLogPath() {
+            java.lang.Object ref = logPath_;
+            if (!(ref instanceof java.lang.String)) {
+                com.google.protobuf.ByteString bs = (com.google.protobuf.ByteString) ref;
+                java.lang.String s = bs.toStringUtf8();
+                logPath_ = s;
+                return s;
+            } else {
+                return (java.lang.String) ref;
+            }
+        }
+
+        /**
+         * <code>string logPath = 6;</code>
+         */
+        public com.google.protobuf.ByteString getLogPathBytes() {
+            java.lang.Object ref = logPath_;
+            if (ref instanceof String) {
+                com.google.protobuf.ByteString b = com.google.protobuf.ByteString.copyFromUtf8((java.lang.String) ref);
+                logPath_ = b;
+                return b;
+            } else {
+                return (com.google.protobuf.ByteString) ref;
+            }
+        }
+
+        /**
+         * <code>string logPath = 6;</code>
+         */
+        public Builder setLogPath(java.lang.String value) {
+            if (value == null) {
+                throw new NullPointerException();
+            }
+
+            logPath_ = value;
+            onChanged();
+            return this;
+        }
+
+        /**
+         * <code>string logPath = 6;</code>
+         */
+        public Builder clearLogPath() {
+
+            logPath_ = getDefaultInstance().getLogPath();
+            onChanged();
+            return this;
+        }
+
+        /**
+         * <code>string logPath = 6;</code>
+         */
+        public Builder setLogPathBytes(com.google.protobuf.ByteString value) {
+            if (value == null) {
+                throw new NullPointerException();
+            }
+            checkByteStringIsUtf8(value);
+
+            logPath_ = value;
+            onChanged();
+            return this;
+        }
+
+        private java.lang.Object worker_ = "";
+
+        /**
+         * <code>string worker = 7;</code>
+         */
+        public java.lang.String getWorker() {
+            java.lang.Object ref = worker_;
+            if (!(ref instanceof java.lang.String)) {
+                com.google.protobuf.ByteString bs = (com.google.protobuf.ByteString) ref;
+                java.lang.String s = bs.toStringUtf8();
+                worker_ = s;
+                return s;
+            } else {
+                return (java.lang.String) ref;
+            }
+        }
+
+        /**
+         * <code>string worker = 7;</code>
+         */
+        public com.google.protobuf.ByteString getWorkerBytes() {
+            java.lang.Object ref = worker_;
+            if (ref instanceof String) {
+                com.google.protobuf.ByteString b = com.google.protobuf.ByteString.copyFromUtf8((java.lang.String) ref);
+                worker_ = b;
+                return b;
+            } else {
+                return (com.google.protobuf.ByteString) ref;
+            }
+        }
+
+        /**
+         * <code>string worker = 7;</code>
+         */
+        public Builder setWorker(java.lang.String value) {
+            if (value == null) {
+                throw new NullPointerException();
+            }
+
+            worker_ = value;
+            onChanged();
+            return this;
+        }
+
+        /**
+         * <code>string worker = 7;</code>
+         */
+        public Builder clearWorker() {
+
+            worker_ = getDefaultInstance().getWorker();
+            onChanged();
+            return this;
+        }
+
+        /**
+         * <code>string worker = 7;</code>
+         */
+        public Builder setWorkerBytes(com.google.protobuf.ByteString value) {
+            if (value == null) {
+                throw new NullPointerException();
+            }
+            checkByteStringIsUtf8(value);
+
+            worker_ = value;
+            onChanged();
+            return this;
+        }
+
+        private java.lang.Object creatorName_ = "";
+
+        /**
+         * <code>string creatorName = 8;</code>
+         */
+        public java.lang.String getCreatorName() {
+            java.lang.Object ref = creatorName_;
+            if (!(ref instanceof java.lang.String)) {
+                com.google.protobuf.ByteString bs = (com.google.protobuf.ByteString) ref;
+                java.lang.String s = bs.toStringUtf8();
+                creatorName_ = s;
+                return s;
+            } else {
+                return (java.lang.String) ref;
+            }
+        }
+
+        /**
+         * <code>string creatorName = 8;</code>
+         */
+        public com.google.protobuf.ByteString getCreatorNameBytes() {
+            java.lang.Object ref = creatorName_;
+            if (ref instanceof String) {
+                com.google.protobuf.ByteString b = com.google.protobuf.ByteString.copyFromUtf8((java.lang.String) ref);
+                creatorName_ = b;
+                return b;
+            } else {
+                return (com.google.protobuf.ByteString) ref;
+            }
+        }
+
+        /**
+         * <code>string creatorName = 8;</code>
+         */
+        public Builder setCreatorName(java.lang.String value) {
+            if (value == null) {
+                throw new NullPointerException();
+            }
+
+            creatorName_ = value;
+            onChanged();
+            return this;
+        }
+
+        /**
+         * <code>string creatorName = 8;</code>
+         */
+        public Builder clearCreatorName() {
+
+            creatorName_ = getDefaultInstance().getCreatorName();
+            onChanged();
+            return this;
+        }
+
+        /**
+         * <code>string creatorName = 8;</code>
+         */
+        public Builder setCreatorNameBytes(com.google.protobuf.ByteString value) {
+            if (value == null) {
+                throw new NullPointerException();
+            }
+            checkByteStringIsUtf8(value);
+
+            creatorName_ = value;
+            onChanged();
+            return this;
+        }
+
+        private java.lang.Object creatorEmail_ = "";
+
+        /**
+         * <code>string creatorEmail = 9;</code>
+         */
+        public java.lang.String getCreatorEmail() {
+            java.lang.Object ref = creatorEmail_;
+            if (!(ref instanceof java.lang.String)) {
+                com.google.protobuf.ByteString bs = (com.google.protobuf.ByteString) ref;
+                java.lang.String s = bs.toStringUtf8();
+                creatorEmail_ = s;
+                return s;
+            } else {
+                return (java.lang.String) ref;
+            }
+        }
+
+        /**
+         * <code>string creatorEmail = 9;</code>
+         */
+        public com.google.protobuf.ByteString getCreatorEmailBytes() {
+            java.lang.Object ref = creatorEmail_;
+            if (ref instanceof String) {
+                com.google.protobuf.ByteString b = com.google.protobuf.ByteString.copyFromUtf8((java.lang.String) ref);
+                creatorEmail_ = b;
+                return b;
+            } else {
+                return (com.google.protobuf.ByteString) ref;
+            }
+        }
+
+        /**
+         * <code>string creatorEmail = 9;</code>
+         */
+        public Builder setCreatorEmail(java.lang.String value) {
+            if (value == null) {
+                throw new NullPointerException();
+            }
+
+            creatorEmail_ = value;
+            onChanged();
+            return this;
+        }
+
+        /**
+         * <code>string creatorEmail = 9;</code>
+         */
+        public Builder clearCreatorEmail() {
+
+            creatorEmail_ = getDefaultInstance().getCreatorEmail();
+            onChanged();
+            return this;
+        }
+
+        /**
+         * <code>string creatorEmail = 9;</code>
+         */
+        public Builder setCreatorEmailBytes(com.google.protobuf.ByteString value) {
+            if (value == null) {
+                throw new NullPointerException();
+            }
+            checkByteStringIsUtf8(value);
+
+            creatorEmail_ = value;
+            onChanged();
+            return this;
+        }
+
+        private int retryTimes_;
+
+        /**
+         * <code>int32 retryTimes = 10;</code>
+         */
+        public int getRetryTimes() {
+            return retryTimes_;
+        }
+
+        /**
+         * <code>int32 retryTimes = 10;</code>
+         */
+        public Builder setRetryTimes(int value) {
+
+            retryTimes_ = value;
+            onChanged();
+            return this;
+        }
+
+        /**
+         * <code>int32 retryTimes = 10;</code>
+         */
+        public Builder clearRetryTimes() {
+
+            retryTimes_ = 0;
+            onChanged();
+            return this;
+        }
+
+        private int pid_;
+
+        /**
+         * <code>int32 pid = 11;</code>
+         */
+        public int getPid() {
+            return pid_;
+        }
+
+        /**
+         * <code>int32 pid = 11;</code>
+         */
+        public Builder setPid(int value) {
+
+            pid_ = value;
+            onChanged();
+            return this;
+        }
+
+        /**
+         * <code>int32 pid = 11;</code>
+         */
+        public Builder clearPid() {
+
+            pid_ = 0;
+            onChanged();
+            return this;
+        }
+
+        private java.lang.Object applicationid_ = "";
+
+        /**
+         * <code>string applicationid = 12;</code>
+         */
+        public java.lang.String getApplicationid() {
+            java.lang.Object ref = applicationid_;
+            if (!(ref instanceof java.lang.String)) {
+                com.google.protobuf.ByteString bs = (com.google.protobuf.ByteString) ref;
+                java.lang.String s = bs.toStringUtf8();
+                applicationid_ = s;
+                return s;
+            } else {
+                return (java.lang.String) ref;
+            }
+        }
+
+        /**
+         * <code>string applicationid = 12;</code>
+         */
+        public com.google.protobuf.ByteString getApplicationidBytes() {
+            java.lang.Object ref = applicationid_;
+            if (ref instanceof String) {
+                com.google.protobuf.ByteString b = com.google.protobuf.ByteString.copyFromUtf8((java.lang.String) ref);
+                applicationid_ = b;
+                return b;
+            } else {
+                return (com.google.protobuf.ByteString) ref;
+            }
+        }
+
+        /**
+         * <code>string applicationid = 12;</code>
+         */
+        public Builder setApplicationid(java.lang.String value) {
+            if (value == null) {
+                throw new NullPointerException();
+            }
+
+            applicationid_ = value;
+            onChanged();
+            return this;
+        }
+
+        /**
+         * <code>string applicationid = 12;</code>
+         */
+        public Builder clearApplicationid() {
+
+            applicationid_ = getDefaultInstance().getApplicationid();
+            onChanged();
+            return this;
+        }
+
+        /**
+         * <code>string applicationid = 12;</code>
+         */
+        public Builder setApplicationidBytes(com.google.protobuf.ByteString value) {
+            if (value == null) {
+                throw new NullPointerException();
+            }
+            checkByteStringIsUtf8(value);
+
+            applicationid_ = value;
+            onChanged();
+            return this;
+        }
+
+        private com.google.protobuf.Timestamp scheduleTime_ = null;
+        private com.google.protobuf.SingleFieldBuilderV3<com.google.protobuf.Timestamp, com.google.protobuf.Timestamp.Builder, com.google.protobuf.TimestampOrBuilder> scheduleTimeBuilder_;
+
+        /**
+         * <code>.google.protobuf.Timestamp scheduleTime = 13;</code>
+         */
+        public boolean hasScheduleTime() {
+            return scheduleTimeBuilder_ != null || scheduleTime_ != null;
+        }
+
+        /**
+         * <code>.google.protobuf.Timestamp scheduleTime = 13;</code>
+         */
+        public com.google.protobuf.Timestamp getScheduleTime() {
+            if (scheduleTimeBuilder_ == null) {
+                return scheduleTime_ == null ? com.google.protobuf.Timestamp.getDefaultInstance() : scheduleTime_;
+            } else {
+                return scheduleTimeBuilder_.getMessage();
+            }
+        }
+
+        /**
+         * <code>.google.protobuf.Timestamp scheduleTime = 13;</code>
+         */
+        public Builder setScheduleTime(com.google.protobuf.Timestamp value) {
+            if (scheduleTimeBuilder_ == null) {
+                if (value == null) {
+                    throw new NullPointerException();
+                }
+                scheduleTime_ = value;
+                onChanged();
+            } else {
+                scheduleTimeBuilder_.setMessage(value);
+            }
+
+            return this;
+        }
+
+        /**
+         * <code>.google.protobuf.Timestamp scheduleTime = 13;</code>
+         */
+        public Builder setScheduleTime(com.google.protobuf.Timestamp.Builder builderForValue) {
+            if (scheduleTimeBuilder_ == null) {
+                scheduleTime_ = builderForValue.build();
+                onChanged();
+            } else {
+                scheduleTimeBuilder_.setMessage(builderForValue.build());
+            }
+
+            return this;
+        }
+
+        /**
+         * <code>.google.protobuf.Timestamp scheduleTime = 13;</code>
+         */
+        public Builder mergeScheduleTime(com.google.protobuf.Timestamp value) {
+            if (scheduleTimeBuilder_ == null) {
+                if (scheduleTime_ != null) {
+                    scheduleTime_ = com.google.protobuf.Timestamp.newBuilder(scheduleTime_).mergeFrom(value)
+                            .buildPartial();
+                } else {
+                    scheduleTime_ = value;
+                }
+                onChanged();
+            } else {
+                scheduleTimeBuilder_.mergeFrom(value);
+            }
+
+            return this;
+        }
+
+        /**
+         * <code>.google.protobuf.Timestamp scheduleTime = 13;</code>
+         */
+        public Builder clearScheduleTime() {
+            if (scheduleTimeBuilder_ == null) {
+                scheduleTime_ = null;
+                onChanged();
+            } else {
+                scheduleTime_ = null;
+                scheduleTimeBuilder_ = null;
+            }
+
+            return this;
+        }
+
+        /**
+         * <code>.google.protobuf.Timestamp scheduleTime = 13;</code>
+         */
+        public com.google.protobuf.Timestamp.Builder getScheduleTimeBuilder() {
+
+            onChanged();
+            return getScheduleTimeFieldBuilder().getBuilder();
+        }
+
+        /**
+         * <code>.google.protobuf.Timestamp scheduleTime = 13;</code>
+         */
+        public com.google.protobuf.TimestampOrBuilder getScheduleTimeOrBuilder() {
+            if (scheduleTimeBuilder_ != null) {
+                return scheduleTimeBuilder_.getMessageOrBuilder();
+            } else {
+                return scheduleTime_ == null ? com.google.protobuf.Timestamp.getDefaultInstance() : scheduleTime_;
+            }
+        }
+
+        /**
+         * <code>.google.protobuf.Timestamp scheduleTime = 13;</code>
+         */
+        private com.google.protobuf.SingleFieldBuilderV3<com.google.protobuf.Timestamp, com.google.protobuf.Timestamp.Builder, com.google.protobuf.TimestampOrBuilder> getScheduleTimeFieldBuilder() {
+            if (scheduleTimeBuilder_ == null) {
+                scheduleTimeBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<com.google.protobuf.Timestamp, com.google.protobuf.Timestamp.Builder, com.google.protobuf.TimestampOrBuilder>(
+                        getScheduleTime(), getParentForChildren(), isClean());
+                scheduleTime_ = null;
+            }
+            return scheduleTimeBuilder_;
+        }
+
+        private com.google.protobuf.Timestamp startTime_ = null;
+        private com.google.protobuf.SingleFieldBuilderV3<com.google.protobuf.Timestamp, com.google.protobuf.Timestamp.Builder, com.google.protobuf.TimestampOrBuilder> startTimeBuilder_;
+
+        /**
+         * <code>.google.protobuf.Timestamp startTime = 14;</code>
+         */
+        public boolean hasStartTime() {
+            return startTimeBuilder_ != null || startTime_ != null;
+        }
+
+        /**
+         * <code>.google.protobuf.Timestamp startTime = 14;</code>
+         */
+        public com.google.protobuf.Timestamp getStartTime() {
+            if (startTimeBuilder_ == null) {
+                return startTime_ == null ? com.google.protobuf.Timestamp.getDefaultInstance() : startTime_;
+            } else {
+                return startTimeBuilder_.getMessage();
+            }
+        }
+
+        /**
+         * <code>.google.protobuf.Timestamp startTime = 14;</code>
+         */
+        public Builder setStartTime(com.google.protobuf.Timestamp value) {
+            if (startTimeBuilder_ == null) {
+                if (value == null) {
+                    throw new NullPointerException();
+                }
+                startTime_ = value;
+                onChanged();
+            } else {
+                startTimeBuilder_.setMessage(value);
+            }
+
+            return this;
+        }
+
+        /**
+         * <code>.google.protobuf.Timestamp startTime = 14;</code>
+         */
+        public Builder setStartTime(com.google.protobuf.Timestamp.Builder builderForValue) {
+            if (startTimeBuilder_ == null) {
+                startTime_ = builderForValue.build();
+                onChanged();
+            } else {
+                startTimeBuilder_.setMessage(builderForValue.build());
+            }
+
+            return this;
+        }
+
+        /**
+         * <code>.google.protobuf.Timestamp startTime = 14;</code>
+         */
+        public Builder mergeStartTime(com.google.protobuf.Timestamp value) {
+            if (startTimeBuilder_ == null) {
+                if (startTime_ != null) {
+                    startTime_ = com.google.protobuf.Timestamp.newBuilder(startTime_).mergeFrom(value).buildPartial();
+                } else {
+                    startTime_ = value;
+                }
+                onChanged();
+            } else {
+                startTimeBuilder_.mergeFrom(value);
+            }
+
+            return this;
+        }
+
+        /**
+         * <code>.google.protobuf.Timestamp startTime = 14;</code>
+         */
+        public Builder clearStartTime() {
+            if (startTimeBuilder_ == null) {
+                startTime_ = null;
+                onChanged();
+            } else {
+                startTime_ = null;
+                startTimeBuilder_ = null;
+            }
+
+            return this;
+        }
+
+        /**
+         * <code>.google.protobuf.Timestamp startTime = 14;</code>
+         */
+        public com.google.protobuf.Timestamp.Builder getStartTimeBuilder() {
+
+            onChanged();
+            return getStartTimeFieldBuilder().getBuilder();
+        }
+
+        /**
+         * <code>.google.protobuf.Timestamp startTime = 14;</code>
+         */
+        public com.google.protobuf.TimestampOrBuilder getStartTimeOrBuilder() {
+            if (startTimeBuilder_ != null) {
+                return startTimeBuilder_.getMessageOrBuilder();
+            } else {
+                return startTime_ == null ? com.google.protobuf.Timestamp.getDefaultInstance() : startTime_;
+            }
+        }
+
+        /**
+         * <code>.google.protobuf.Timestamp startTime = 14;</code>
+         */
+        private com.google.protobuf.SingleFieldBuilderV3<com.google.protobuf.Timestamp, com.google.protobuf.Timestamp.Builder, com.google.protobuf.TimestampOrBuilder> getStartTimeFieldBuilder() {
+            if (startTimeBuilder_ == null) {
+                startTimeBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<com.google.protobuf.Timestamp, com.google.protobuf.Timestamp.Builder, com.google.protobuf.TimestampOrBuilder>(
+                        getStartTime(), getParentForChildren(), isClean());
+                startTime_ = null;
+            }
+            return startTimeBuilder_;
+        }
+
+        private com.google.protobuf.Timestamp endTime_ = null;
+        private com.google.protobuf.SingleFieldBuilderV3<com.google.protobuf.Timestamp, com.google.protobuf.Timestamp.Builder, com.google.protobuf.TimestampOrBuilder> endTimeBuilder_;
+
+        /**
+         * <code>.google.protobuf.Timestamp endTime = 15;</code>
+         */
+        public boolean hasEndTime() {
+            return endTimeBuilder_ != null || endTime_ != null;
+        }
+
+        /**
+         * <code>.google.protobuf.Timestamp endTime = 15;</code>
+         */
+        public com.google.protobuf.Timestamp getEndTime() {
+            if (endTimeBuilder_ == null) {
+                return endTime_ == null ? com.google.protobuf.Timestamp.getDefaultInstance() : endTime_;
+            } else {
+                return endTimeBuilder_.getMessage();
+            }
+        }
+
+        /**
+         * <code>.google.protobuf.Timestamp endTime = 15;</code>
+         */
+        public Builder setEndTime(com.google.protobuf.Timestamp value) {
+            if (endTimeBuilder_ == null) {
+                if (value == null) {
+                    throw new NullPointerException();
+                }
+                endTime_ = value;
+                onChanged();
+            } else {
+                endTimeBuilder_.setMessage(value);
+            }
+
+            return this;
+        }
+
+        /**
+         * <code>.google.protobuf.Timestamp endTime = 15;</code>
+         */
+        public Builder setEndTime(com.google.protobuf.Timestamp.Builder builderForValue) {
+            if (endTimeBuilder_ == null) {
+                endTime_ = builderForValue.build();
+                onChanged();
+            } else {
+                endTimeBuilder_.setMessage(builderForValue.build());
+            }
+
+            return this;
+        }
+
+        /**
+         * <code>.google.protobuf.Timestamp endTime = 15;</code>
+         */
+        public Builder mergeEndTime(com.google.protobuf.Timestamp value) {
+            if (endTimeBuilder_ == null) {
+                if (endTime_ != null) {
+                    endTime_ = com.google.protobuf.Timestamp.newBuilder(endTime_).mergeFrom(value).buildPartial();
+                } else {
+                    endTime_ = value;
+                }
+                onChanged();
+            } else {
+                endTimeBuilder_.mergeFrom(value);
+            }
+
+            return this;
+        }
+
+        /**
+         * <code>.google.protobuf.Timestamp endTime = 15;</code>
+         */
+        public Builder clearEndTime() {
+            if (endTimeBuilder_ == null) {
+                endTime_ = null;
+                onChanged();
+            } else {
+                endTime_ = null;
+                endTimeBuilder_ = null;
+            }
+
+            return this;
+        }
+
+        /**
+         * <code>.google.protobuf.Timestamp endTime = 15;</code>
+         */
+        public com.google.protobuf.Timestamp.Builder getEndTimeBuilder() {
+
+            onChanged();
+            return getEndTimeFieldBuilder().getBuilder();
+        }
+
+        /**
+         * <code>.google.protobuf.Timestamp endTime = 15;</code>
+         */
+        public com.google.protobuf.TimestampOrBuilder getEndTimeOrBuilder() {
+            if (endTimeBuilder_ != null) {
+                return endTimeBuilder_.getMessageOrBuilder();
+            } else {
+                return endTime_ == null ? com.google.protobuf.Timestamp.getDefaultInstance() : endTime_;
+            }
+        }
+
+        /**
+         * <code>.google.protobuf.Timestamp endTime = 15;</code>
+         */
+        private com.google.protobuf.SingleFieldBuilderV3<com.google.protobuf.Timestamp, com.google.protobuf.Timestamp.Builder, com.google.protobuf.TimestampOrBuilder> getEndTimeFieldBuilder() {
+            if (endTimeBuilder_ == null) {
+                endTimeBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<com.google.protobuf.Timestamp, com.google.protobuf.Timestamp.Builder, com.google.protobuf.TimestampOrBuilder>(
+                        getEndTime(), getParentForChildren(), isClean());
+                endTime_ = null;
+            }
+            return endTimeBuilder_;
+        }
+
+        private int elapseTime_;
+
+        /**
+         * <code>int32 elapseTime = 16;</code>
+         */
+        public int getElapseTime() {
+            return elapseTime_;
+        }
+
+        /**
+         * <code>int32 elapseTime = 16;</code>
+         */
+        public Builder setElapseTime(int value) {
+
+            elapseTime_ = value;
+            onChanged();
+            return this;
+        }
+
+        /**
+         * <code>int32 elapseTime = 16;</code>
+         */
+        public Builder clearElapseTime() {
+
+            elapseTime_ = 0;
+            onChanged();
+            return this;
+        }
+
+        public final Builder setUnknownFields(final com.google.protobuf.UnknownFieldSet unknownFields) {
+            return this;
+        }
+
+        public final Builder mergeUnknownFields(final com.google.protobuf.UnknownFieldSet unknownFields) {
+            return this;
+        }
+
+        // @@protoc_insertion_point(builder_scope:JobInstanceRequestRpc)
     }
-    /**
-     * <code>int32 elapseTime = 16;</code>
-     */
-    public Builder clearElapseTime() {
-      
-      elapseTime_ = 0;
-      onChanged();
-      return this;
-    }
-    public final Builder setUnknownFields(
-        final com.google.protobuf.UnknownFieldSet unknownFields) {
-      return this;
+
+    // @@protoc_insertion_point(class_scope:JobInstanceRequestRpc)
+    private static final com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc DEFAULT_INSTANCE;
+    static {
+        DEFAULT_INSTANCE = new com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc();
     }
 
-    public final Builder mergeUnknownFields(
-        final com.google.protobuf.UnknownFieldSet unknownFields) {
-      return this;
+    public static com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc getDefaultInstance() {
+        return DEFAULT_INSTANCE;
     }
 
+    private static final com.google.protobuf.Parser<JobInstanceRequestRpc> PARSER = new com.google.protobuf.AbstractParser<JobInstanceRequestRpc>() {
+        public JobInstanceRequestRpc parsePartialFrom(com.google.protobuf.CodedInputStream input,
+                com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+                throws com.google.protobuf.InvalidProtocolBufferException {
+            return new JobInstanceRequestRpc(input, extensionRegistry);
+        }
+    };
 
-    // @@protoc_insertion_point(builder_scope:JobInstanceRequestRpc)
-  }
-
-  // @@protoc_insertion_point(class_scope:JobInstanceRequestRpc)
-  private static final com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc DEFAULT_INSTANCE;
-  static {
-    DEFAULT_INSTANCE = new com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc();
-  }
-
-  public static com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc getDefaultInstance() {
-    return DEFAULT_INSTANCE;
-  }
-
-  private static final com.google.protobuf.Parser<JobInstanceRequestRpc>
-      PARSER = new com.google.protobuf.AbstractParser<JobInstanceRequestRpc>() {
-    public JobInstanceRequestRpc parsePartialFrom(
-        com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-        return new JobInstanceRequestRpc(input, extensionRegistry);
+    public static com.google.protobuf.Parser<JobInstanceRequestRpc> parser() {
+        return PARSER;
     }
-  };
 
-  public static com.google.protobuf.Parser<JobInstanceRequestRpc> parser() {
-    return PARSER;
-  }
+    @java.lang.Override
+    public com.google.protobuf.Parser<JobInstanceRequestRpc> getParserForType() {
+        return PARSER;
+    }
 
-  @java.lang.Override
-  public com.google.protobuf.Parser<JobInstanceRequestRpc> getParserForType() {
-    return PARSER;
-  }
-
-  public com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc getDefaultInstanceForType() {
-    return DEFAULT_INSTANCE;
-  }
+    public com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc getDefaultInstanceForType() {
+        return DEFAULT_INSTANCE;
+    }
 
 }
-

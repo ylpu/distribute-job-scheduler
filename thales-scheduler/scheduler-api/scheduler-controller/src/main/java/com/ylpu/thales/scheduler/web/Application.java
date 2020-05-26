@@ -7,11 +7,11 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@ComponentScan(basePackages="com.ylpu.thales.scheduler")
+@ComponentScan(basePackages = "com.ylpu.thales.scheduler")
 @EnableAutoConfiguration
 @SpringBootApplication
 public class Application {
-    public static void main(String[] args){
+    public static void main(String[] args) {
         SpringApplication.run(Application.class, args);
     }
 }

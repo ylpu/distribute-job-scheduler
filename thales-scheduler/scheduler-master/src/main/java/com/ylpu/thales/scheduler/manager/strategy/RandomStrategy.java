@@ -11,19 +11,19 @@ import com.ylpu.thales.scheduler.response.WorkerResponse;
  * 从group中随机选一台机器去提交任务
  *
  */
-public class RandomStrategy implements WorkerSelectStrategy{
+public class RandomStrategy implements WorkerSelectStrategy {
     @Override
-    public WorkerResponse getIdleWorker(MasterManager rm,String groupName,String... lastFailedHosts) {
+    public WorkerResponse getIdleWorker(MasterManager rm, String groupName, String... lastFailedHosts) {
         List<String> servers = rm.getGroups().get(GlobalConstants.WORKER_GROUP + "/" + groupName);
         WorkerResponse idleServer = null;
-        if(servers != null && servers.size() > 0){
+        if (servers != null && servers.size() > 0) {
             String[] keys = rm.getResourceMap().keySet().toArray(new String[0]);
             Random random = new Random();
             String randomServer = keys[random.nextInt(keys.length)];
             idleServer = rm.getResourceMap().get(randomServer);
         }
-        if(idleServer != null) {
-           return idleServer;
+        if (idleServer != null) {
+            return idleServer;
         }
         throw new RuntimeException("找不到可用的worker执行任务 ");
     }

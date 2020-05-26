@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 public class SchedulerJobRelation extends BaseEntity implements Serializable {
-    
+
     /**
      * 
      */

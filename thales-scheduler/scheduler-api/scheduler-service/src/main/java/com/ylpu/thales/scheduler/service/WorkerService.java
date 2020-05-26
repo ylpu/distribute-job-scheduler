@@ -8,22 +8,22 @@ import com.ylpu.thales.scheduler.request.WorkerGroupRequest;
 import com.ylpu.thales.scheduler.request.WorkerRequest;
 import com.ylpu.thales.scheduler.response.WorkerResponse;
 
-public interface WorkerService extends BaseService<SchedulerWorker,Integer>{
+public interface WorkerService extends BaseService<SchedulerWorker, Integer> {
 
     public void addWorker(WorkerRequest request);
-        
+
     public void insertOrUpdateWorker(WorkerRequest request);
-    
+
     public void updateWorkersStatusByGroup(WorkerGroupRequest param);
-    
+
     public void updateWorkersStatus(WorkerGroupRequest param);
 
     public List<WorkerResponse> getWorkersInfoByGroup(WorkerGroupRequest param);
-    
+
     public void updateWorkerByHost(WorkerRequest request);
-    
-    public PageInfo<WorkerResponse> findAll(String workerGroup, String worker, int pageNo,int pageSize);
-    
+
+    public PageInfo<WorkerResponse> findAll(String workerGroup, String worker, int pageNo, int pageSize);
+
     public List<String> getWorkerGroups(Integer workerStatus);
-    
+
 }

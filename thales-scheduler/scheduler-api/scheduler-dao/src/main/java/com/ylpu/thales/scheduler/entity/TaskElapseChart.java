@@ -6,8 +6,8 @@ import lombok.Data;
 
 @Data
 public class TaskElapseChart {
-	
-	private Date scheduleTime;
-	private Integer elapseTime;
+
+    private Date scheduleTime;
+    private Integer elapseTime;
 
 }

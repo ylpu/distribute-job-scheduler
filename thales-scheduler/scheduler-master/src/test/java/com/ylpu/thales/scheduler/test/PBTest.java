@@ -10,8 +10,8 @@ import com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc;
 import com.ylpu.thales.scheduler.request.JobInstanceRequest;
 
 public class PBTest {
-	
-	public static byte[] objectToByteArray(Object obj) {
+
+    public static byte[] objectToByteArray(Object obj) {
         byte[] bytes = null;
         ByteArrayOutputStream byteArrayOutputStream = null;
         ObjectOutputStream objectOutputStream = null;
@@ -43,6 +43,7 @@ public class PBTest {
 
     /**
      * Byte数组转对象
+     * 
      * @param bytes
      * @return
      */
@@ -72,13 +73,12 @@ public class PBTest {
         return obj;
     }
 
-	public static void main(String[] args) {
-		JobInstanceRequest request = new JobInstanceRequest();
-		request.setLogPath("/var/log/app.log");
-		JobInstanceResponseRpc response = JobInstanceResponseRpc.newBuilder()
-        .setData(ByteString.copyFrom(objectToByteArray(request)))
-        .build();
-		JobInstanceRequest request1 = (JobInstanceRequest) byteArrayToObject(response.getData().toByteArray());
-		System.out.println(request1.getLogPath());
-	}
+    public static void main(String[] args) {
+        JobInstanceRequest request = new JobInstanceRequest();
+        request.setLogPath("/var/log/app.log");
+        JobInstanceResponseRpc response = JobInstanceResponseRpc.newBuilder()
+                .setData(ByteString.copyFrom(objectToByteArray(request))).build();
+        JobInstanceRequest request1 = (JobInstanceRequest) byteArrayToObject(response.getData().toByteArray());
+        System.out.println(request1.getLogPath());
+    }
 }

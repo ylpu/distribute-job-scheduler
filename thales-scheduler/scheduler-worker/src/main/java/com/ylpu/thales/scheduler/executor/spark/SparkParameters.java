@@ -1,137 +1,136 @@
 package com.ylpu.thales.scheduler.executor.spark;
 
-public class SparkParameters{
+public class SparkParameters {
 
-	  /**
-	   * deploy mode
-	   */
-	  private String deployMode;
-	  
-	  /**
-	   * master url
-	   */
-	  
-	  private String masterUrl;
+    /**
+     * deploy mode
+     */
+    private String deployMode;
 
-	  /**
-	   * arguments
-	   */
-	  private String mainArgs;
+    /**
+     * master url
+     */
 
-	  /**
-	   * driver-cores Number of cores used by the driver, only in cluster mode
-	   */
-	  private int driverCores;
+    private String masterUrl;
 
-	  /**
-	   * driver-memory Memory for driver
-	   */
+    /**
+     * arguments
+     */
+    private String mainArgs;
 
-	  private String driverMemory;
+    /**
+     * driver-cores Number of cores used by the driver, only in cluster mode
+     */
+    private int driverCores;
 
-	  /**
-	   * num-executors Number of executors to launch
-	   */
-	  private int numExecutors;
-	  
-	  /**
-	   * total-executor-cores Number of cores per executor
-	   */
-	  private int totalExecutorCores;
+    /**
+     * driver-memory Memory for driver
+     */
 
-	  /**
-	   * executor-cores Number of cores per executor
-	   */
-	  private int executorCores;
+    private String driverMemory;
 
-	  /**
-	   * Memory per executor
-	   */
-	  private String executorMemory;
+    /**
+     * num-executors Number of executors to launch
+     */
+    private int numExecutors;
 
-	  /**
-	   * The YARN queue to submit to
-	   */
-	  private String queue;
+    /**
+     * total-executor-cores Number of cores per executor
+     */
+    private int totalExecutorCores;
 
-	  public String getDeployMode() {
-	    return deployMode;
-	  }
+    /**
+     * executor-cores Number of cores per executor
+     */
+    private int executorCores;
 
-	  public void setDeployMode(String deployMode) {
-	    this.deployMode = deployMode;
-	  }
+    /**
+     * Memory per executor
+     */
+    private String executorMemory;
 
-	  public String getMainArgs() {
-	    return mainArgs;
-	  }
+    /**
+     * The YARN queue to submit to
+     */
+    private String queue;
 
-	  public void setMainArgs(String mainArgs) {
-	    this.mainArgs = mainArgs;
-	  }
+    public String getDeployMode() {
+        return deployMode;
+    }
 
-	  public int getDriverCores() {
-	    return driverCores;
-	  }
+    public void setDeployMode(String deployMode) {
+        this.deployMode = deployMode;
+    }
 
-	  public void setDriverCores(int driverCores) {
-	    this.driverCores = driverCores;
-	  }
+    public String getMainArgs() {
+        return mainArgs;
+    }
 
-	  public String getDriverMemory() {
-	    return driverMemory;
-	  }
+    public void setMainArgs(String mainArgs) {
+        this.mainArgs = mainArgs;
+    }
 
-	  public void setDriverMemory(String driverMemory) {
-	    this.driverMemory = driverMemory;
-	  }
+    public int getDriverCores() {
+        return driverCores;
+    }
 
-	  public int getNumExecutors() {
-	    return numExecutors;
-	  }
+    public void setDriverCores(int driverCores) {
+        this.driverCores = driverCores;
+    }
 
-	  public void setNumExecutors(int numExecutors) {
-	    this.numExecutors = numExecutors;
-	  }
+    public String getDriverMemory() {
+        return driverMemory;
+    }
 
-	  public int getExecutorCores() {
-	    return executorCores;
-	  }
+    public void setDriverMemory(String driverMemory) {
+        this.driverMemory = driverMemory;
+    }
 
-	  public void setExecutorCores(int executorCores) {
-	    this.executorCores = executorCores;
-	  }
+    public int getNumExecutors() {
+        return numExecutors;
+    }
 
-	  public String getExecutorMemory() {
-	    return executorMemory;
-	  }
+    public void setNumExecutors(int numExecutors) {
+        this.numExecutors = numExecutors;
+    }
 
-	  public void setExecutorMemory(String executorMemory) {
-	    this.executorMemory = executorMemory;
-	  }
+    public int getExecutorCores() {
+        return executorCores;
+    }
 
-	  public String getQueue() {
-	    return queue;
-	  }
+    public void setExecutorCores(int executorCores) {
+        this.executorCores = executorCores;
+    }
 
-	  public void setQueue(String queue) {
-	    this.queue = queue;
-	  }
+    public String getExecutorMemory() {
+        return executorMemory;
+    }
 
-	  public int getTotalExecutorCores() {
-		return totalExecutorCores;
-	  }
+    public void setExecutorMemory(String executorMemory) {
+        this.executorMemory = executorMemory;
+    }
 
-	  public void setTotalExecutorCores(int totalExecutorCores) {
-		this.totalExecutorCores = totalExecutorCores;
-	  }
+    public String getQueue() {
+        return queue;
+    }
 
-	  public String getMasterUrl() {
-		return masterUrl;
-	  }
+    public void setQueue(String queue) {
+        this.queue = queue;
+    }
 
-	  public void setMasterUrl(String masterUrl) {
-		this.masterUrl = masterUrl;
-	  }
+    public int getTotalExecutorCores() {
+        return totalExecutorCores;
+    }
+
+    public void setTotalExecutorCores(int totalExecutorCores) {
+        this.totalExecutorCores = totalExecutorCores;
+    }
+
+    public String getMasterUrl() {
+        return masterUrl;
+    }
+
+    public void setMasterUrl(String masterUrl) {
+        this.masterUrl = masterUrl;
+    }
 }
-

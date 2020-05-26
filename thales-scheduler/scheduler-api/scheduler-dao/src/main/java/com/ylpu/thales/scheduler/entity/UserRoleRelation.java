@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 public class UserRoleRelation extends BaseEntity implements Serializable {
-    
+
     /**
      * 
      */

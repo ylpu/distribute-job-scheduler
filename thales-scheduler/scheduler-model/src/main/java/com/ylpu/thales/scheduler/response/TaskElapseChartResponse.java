@@ -4,8 +4,8 @@ import lombok.Data;
 
 @Data
 public class TaskElapseChartResponse {
-	
-	private String scheduleTime;
-	private Integer elapseTime;
+
+    private String scheduleTime;
+    private Integer elapseTime;
 
 }

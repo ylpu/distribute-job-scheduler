@@ -6,7 +6,7 @@ import lombok.Data;
 
 @Data
 public class JobInstanceRequest implements Serializable {
-    
+
     private Integer id;
 
     private Integer jobId;
@@ -16,7 +16,7 @@ public class JobInstanceRequest implements Serializable {
     private String logUrl;
 
     private String logPath;
-    
+
     private String worker;
 
     private String creatorName;
@@ -28,17 +28,17 @@ public class JobInstanceRequest implements Serializable {
     private Integer pid;
 
     private String applicationid;
-    
+
     private Date scheduleTime;
-    
+
     private Date startTime;
-    
+
     private Date endTime;
-    
+
     private Date createTime;
 
     private Integer elapseTime;
 
     private static final long serialVersionUID = 1L;
-    
+
 }

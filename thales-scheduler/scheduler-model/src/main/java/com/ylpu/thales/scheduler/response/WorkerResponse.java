@@ -6,7 +6,7 @@ import lombok.Data;
 
 @Data
 public class WorkerResponse implements Serializable {
-    
+
     private Integer id;
 
     private Integer workerType;
@@ -20,7 +20,7 @@ public class WorkerResponse implements Serializable {
     private String zkdirectory;
 
     private double cpuUsage;
-    
+
     private double memoryUsage;
 
     private String lastHeartbeatTime;
@@ -28,4 +28,4 @@ public class WorkerResponse implements Serializable {
     private WorkerStatus workerStatus;
 
     private static final long serialVersionUID = 1L;
-  }
+}

@@ -32,42 +32,49 @@ import com.ylpu.thales.scheduler.response.JobInstanceStateResponse;
 import com.ylpu.thales.scheduler.response.SchedulerResponse;
 
 public class JobInstanceControllerTest {
-    
+
     private static final String API_URI = "http://localhost:8085/api/";
-    
-//    @Test
+
+    // @Test
     public void getRunningJobCount() {
-        ParameterizedTypeReference<SchedulerResponse<List<Map<String,Object>>>> typeRef = new ParameterizedTypeReference<SchedulerResponse<List<Map<String,Object>>>>() {};
-        SchedulerResponse<List<Map<String,Object>>> schedulerResponse = RestClient.getForObject(API_URI + "jobInstance/getRunningJobCount",typeRef,null);
+        ParameterizedTypeReference<SchedulerResponse<List<Map<String, Object>>>> typeRef = new ParameterizedTypeReference<SchedulerResponse<List<Map<String, Object>>>>() {
+        };
+        SchedulerResponse<List<Map<String, Object>>> schedulerResponse = RestClient
+                .getForObject(API_URI + "jobInstance/getRunningJobCount", typeRef, null);
         System.out.println(schedulerResponse.getData().size());
     }
-    
-//    @Test
+
+    // @Test
     public void getAllJobStatus() {
-        ParameterizedTypeReference<SchedulerResponse<List<JobInstanceStateResponse>>> typeRef = new ParameterizedTypeReference<SchedulerResponse<List<JobInstanceStateResponse>>>() {};
-        SchedulerResponse<List<JobInstanceStateResponse>> schedulerResponse = RestClient.getForObject(API_URI + "jobInstance/getAllJobStatus",typeRef,null);
+        ParameterizedTypeReference<SchedulerResponse<List<JobInstanceStateResponse>>> typeRef = new ParameterizedTypeReference<SchedulerResponse<List<JobInstanceStateResponse>>>() {
+        };
+        SchedulerResponse<List<JobInstanceStateResponse>> schedulerResponse = RestClient
+                .getForObject(API_URI + "jobInstance/getAllJobStatus", typeRef, null);
         System.out.println(schedulerResponse.getData().size());
     }
-    
+
     @Test
     public void addJobInstance() {
-    	    String scheduleTime = "2020-1-1 20:00:00";
-    	    for(int i =0 ;i < 400000; i++) {
-    	        JobInstanceRequest jr = new JobInstanceRequest();
-    	        jr.setJobId(58);
-    	        jr.setLogUrl("");
-    	        Date scheduleDateTime = DateUtils.addDays(com.ylpu.thales.scheduler.common.utils.DateUtils.getDateFromString(scheduleTime,com.ylpu.thales.scheduler.common.utils.DateUtils.DATE_TIME_FORMAT), i);
-    	        jr.setScheduleTime(scheduleDateTime);
-    	        jr.setStartTime(new Date());
-    	        jr.setEndTime(new Date());
-    	        jr.setTaskState(TaskState.SUCCESS.getCode());
-    	        ResponseEntity<SchedulerResponse> response = RestClient.post(API_URI + "jobInstance/addJobInstance",jr,SchedulerResponse.class);
-//    	        SchedulerResponse schedulerResponse = response.getBody();
-//    	        System.out.println(schedulerResponse.getData());
-    	    }
+        String scheduleTime = "2020-1-1 20:00:00";
+        for (int i = 0; i < 400000; i++) {
+            JobInstanceRequest jr = new JobInstanceRequest();
+            jr.setJobId(58);
+            jr.setLogUrl("");
+            Date scheduleDateTime = DateUtils.addDays(com.ylpu.thales.scheduler.common.utils.DateUtils
+                    .getDateFromString(scheduleTime, com.ylpu.thales.scheduler.common.utils.DateUtils.DATE_TIME_FORMAT),
+                    i);
+            jr.setScheduleTime(scheduleDateTime);
+            jr.setStartTime(new Date());
+            jr.setEndTime(new Date());
+            jr.setTaskState(TaskState.SUCCESS.getCode());
+            ResponseEntity<SchedulerResponse> response = RestClient.post(API_URI + "jobInstance/addJobInstance", jr,
+                    SchedulerResponse.class);
+            // SchedulerResponse schedulerResponse = response.getBody();
+            // System.out.println(schedulerResponse.getData());
+        }
     }
-    
-//    @Test
+
+    // @Test
     public void updateJobInstance() {
         JobInstanceRequest jr = new JobInstanceRequest();
         jr.setId(114);
@@ -83,64 +90,70 @@ public class JobInstanceControllerTest {
         jr.setPid(null);
         jr.setElapseTime(53);
         jr.setEndTime(new Date());
-        ResponseEntity<SchedulerResponse> response = RestClient.post(API_URI + "jobInstance/updateJobInstance",jr,SchedulerResponse.class);
+        ResponseEntity<SchedulerResponse> response = RestClient.post(API_URI + "jobInstance/updateJobInstance", jr,
+                SchedulerResponse.class);
         SchedulerResponse<Void> schedulerResponse = response.getBody();
         System.out.println(schedulerResponse.getErrorCode());
     }
-    
-//    @Test
+
+    // @Test
     public void markAsFailed() {
-        ResponseEntity<SchedulerResponse> response = RestClient.post(API_URI + "jobInstance/markAsFailed",SchedulerResponse.class);
+        ResponseEntity<SchedulerResponse> response = RestClient.post(API_URI + "jobInstance/markAsFailed",
+                SchedulerResponse.class);
         SchedulerResponse<Void> schedulerResponse = response.getBody();
         System.out.println(schedulerResponse.getErrorCode());
     }
-    
-//    @Test
+
+    // @Test
     public void testGetJobInstance() {
-        Map<String,Object> map = new HashMap<String,Object>();
+        Map<String, Object> map = new HashMap<String, Object>();
         map.put("id", 110);
-        ParameterizedTypeReference<SchedulerResponse<JobInstanceResponse>> typeRef = new ParameterizedTypeReference<SchedulerResponse<JobInstanceResponse>>() {};
-        SchedulerResponse<JobInstanceResponse> response = RestClient.getForObject(API_URI + "jobInstance/getJobInstanceById",typeRef, map);
+        ParameterizedTypeReference<SchedulerResponse<JobInstanceResponse>> typeRef = new ParameterizedTypeReference<SchedulerResponse<JobInstanceResponse>>() {
+        };
+        SchedulerResponse<JobInstanceResponse> response = RestClient
+                .getForObject(API_URI + "jobInstance/getJobInstanceById", typeRef, map);
         System.out.println(response.getData().getId());
     }
-    
-//    @Test
+
+    // @Test
     public void viewLog() {
-        ParameterizedTypeReference<String> typeRef = new ParameterizedTypeReference<String>() {};
-        String str = RestClient.getForObject("http://localhost:10001/api/log/viewLog/225",typeRef,null);
+        ParameterizedTypeReference<String> typeRef = new ParameterizedTypeReference<String>() {
+        };
+        String str = RestClient.getForObject("http://localhost:10001/api/log/viewLog/225", typeRef, null);
         System.out.println(str);
     }
-    
-//    @Test
+
+    // @Test
     public void rerun() {
         ScheduleRequest request = new ScheduleRequest();
         request.setId(243);
-        ResponseEntity<SchedulerResponse> response = RestClient.post(API_URI + "jobInstance/rerun",request);
+        ResponseEntity<SchedulerResponse> response = RestClient.post(API_URI + "jobInstance/rerun", request);
         System.out.println(response.getStatusCodeValue());
     }
-    
-//    @Test
+
+    // @Test
     public void rerunAll() {
         ScheduleRequest request = new ScheduleRequest();
         request.setId(243);
-        ResponseEntity<SchedulerResponse> response = RestClient.post(API_URI + "jobInstance/rerunAll",request);
+        ResponseEntity<SchedulerResponse> response = RestClient.post(API_URI + "jobInstance/rerunAll", request);
         System.out.println(response.getStatusCodeValue());
     }
-    
-//    @Test
+
+    // @Test
     public void kill() {
         ScheduleRequest request = new ScheduleRequest();
         request.setId(234);
-        ResponseEntity<SchedulerResponse> response = RestClient.post(API_URI + "jobInstance/killJob",request);
+        ResponseEntity<SchedulerResponse> response = RestClient.post(API_URI + "jobInstance/killJob", request);
         System.out.println(response.getStatusCodeValue());
     }
-    
-//    @Test
-    public void viewLog(String logUrl){
-        HttpServletResponse response = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getResponse();
+
+    // @Test
+    public void viewLog(String logUrl) {
+        HttpServletResponse response = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes())
+                .getResponse();
         ServletOutputStream outputStream = null;
         InputStream decryptInputStream = null;
-        try{
+        try {
             decryptInputStream = getInputStream(logUrl);
             outputStream = response.getOutputStream();
             // 在http响应中输出流
@@ -151,26 +164,26 @@ public class JobInstanceControllerTest {
                 outputStream.flush();
             }
             outputStream.flush();
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
-        }finally {
-        	   if(outputStream != null) {
-        		   try {
-					outputStream.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-        	   }
-        	   if(decryptInputStream != null) {
-        		   try {
-					decryptInputStream.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-        	   }
+        } finally {
+            if (outputStream != null) {
+                try {
+                    outputStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (decryptInputStream != null) {
+                try {
+                    decryptInputStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
-    
+
     public static InputStream getInputStream(String logUrl) {
         InputStream inputStream = null;
         HttpURLConnection httpURLConnection = null;
@@ -182,7 +195,7 @@ public class JobInstanceControllerTest {
             httpURLConnection.setRequestMethod("GET");
             httpURLConnection.setRequestProperty("Content-Type", "application/json; charset=utf-8");
             inputStream = httpURLConnection.getInputStream();
-            
+
         } catch (Exception e) {
             // TODO Auto-generated catch block
             e.printStackTrace();

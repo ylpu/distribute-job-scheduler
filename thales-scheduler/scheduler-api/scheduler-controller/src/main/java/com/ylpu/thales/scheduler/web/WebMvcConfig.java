@@ -8,20 +8,21 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 
 @Configuration
 public class WebMvcConfig extends WebMvcConfigurerAdapter {
-	
+
     @Bean
     public LoginInterceptor securityInterceptor() {
         return new LoginInterceptor();
     }
-    
+
     @Override
     public void addViewControllers(ViewControllerRegistry registry) {
         registry.addViewController("/login").setViewName("/login");
     }
+
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(securityInterceptor()).
-        addPathPatterns("/**/paging","/**/getTaskSummary").excludePathPatterns("/**/login","/**/logout");
+        registry.addInterceptor(securityInterceptor()).addPathPatterns("/**/paging", "/**/getTaskSummary")
+                .excludePathPatterns("/**/login", "/**/logout");
         super.addInterceptors(registry);
     }
 }

@@ -24,126 +24,128 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-public abstract class AbstractCommonExecutor{
-	
-	private static Log LOG = LogFactory.getLog(AbstractCommonExecutor.class);
-    
+public abstract class AbstractCommonExecutor {
+
+    private static Log LOG = LogFactory.getLog(AbstractCommonExecutor.class);
+
     public static final int LOG_SERVER_PORT = 9099;
-    
+
     public static final String DEFAULT_LOG_DIR = "/tmp/log/worker";
-        
+
     private JobInstanceRequest request;
-    
+
     private JobInstanceRequestRpc requestRpc;
-    
+
     public AbstractCommonExecutor() {
-    	
+
     }
-    
-    public AbstractCommonExecutor (JobInstanceRequestRpc requestRpc,JobInstanceRequest request){
+
+    public AbstractCommonExecutor(JobInstanceRequestRpc requestRpc, JobInstanceRequest request) {
         this.requestRpc = requestRpc;
         this.request = request;
     }
-    
+
     public abstract void preExecute() throws Exception;
-        
-    public void execute() throws Exception{
-        
+
+    public void execute() throws Exception {
+
         Properties prop = Configuration.getConfig();
         int logServerPort = Configuration.getInt(prop, "thales.log.server.port", LOG_SERVER_PORT);
-        
+
         String logDir = Configuration.getString(prop, "thales.worker.log.path", DEFAULT_LOG_DIR);
-        String logPath = logDir + File.separator + requestRpc.getJob().getId() + "-" + request.getId() + "-" + 
-                DateUtils.getDateAsString(request.getStartTime(),DateUtils.TIME_FORMAT);
+        String logPath = logDir + File.separator + requestRpc.getJob().getId() + "-" + request.getId() + "-"
+                + DateUtils.getDateAsString(request.getStartTime(), DateUtils.TIME_FORMAT);
         String logOutPath = logPath + ".out";
         try {
             String[] command = buildCommand(requestRpc.getJob().getJobConfiguration());
             Process process = Runtime.getRuntime().exec(command);
-            FileUtils.writeOuput(process.getInputStream(),logOutPath);
-            FileUtils.writeOuput(process.getErrorStream(),logOutPath);
+            FileUtils.writeOuput(process.getInputStream(), logOutPath);
+            FileUtils.writeOuput(process.getErrorStream(), logOutPath);
             Long pid = TaskProcessUtils.getLinuxPid(process);
-            
+
             request.setLogPath(logOutPath);
-            request.setLogUrl("http://" + MetricsUtils.getHostIpAddress() + ":" + logServerPort
-                    + "/api/log/viewLog/" + requestRpc.getId());
+            request.setLogUrl("http://" + MetricsUtils.getHostIpAddress() + ":" + logServerPort + "/api/log/viewLog/"
+                    + requestRpc.getId());
             request.setPid(pid.intValue());
             request.setTaskState(TaskState.RUNNING.getCode());
-            
-            //修改任务状态
-            JobStatusRequestRpc jobStatusRequestRpc = buildJobStatus(requestRpc.getRequestId(),
-            		TaskState.RUNNING,request);
+
+            // 修改任务状态
+            JobStatusRequestRpc jobStatusRequestRpc = buildJobStatus(requestRpc.getRequestId(), TaskState.RUNNING,
+                    request);
             int returnCode = updateJobStatus(jobStatusRequestRpc);
-            
-            if(returnCode != 200) {
+
+            if (returnCode != 200) {
                 process.destroy();
                 throw new RuntimeException("failed to update task " + requestRpc.getId());
-            }        
+            }
             int c = process.waitFor();
-            if(c != 0){
+            if (c != 0) {
                 throw new RuntimeException("failed to execute task " + requestRpc.getId());
             }
-        }catch(Exception e) {
-//          非执行异常
+        } catch (Exception e) {
+            // 非执行异常
             request.setLogPath(logOutPath);
-            request.setLogUrl("http://" + MetricsUtils.getHostIpAddress() + ":" + logServerPort
-                    + "/api/log/viewLog/" + requestRpc.getId());
-    		   JobManager.updateJobInstanceSelective(request);
-        	   FileUtils.writeFile("failed to execute task " + request.getId() + " with exception " + e.getMessage(), logOutPath);
-        	   throw e;
+            request.setLogUrl("http://" + MetricsUtils.getHostIpAddress() + ":" + logServerPort + "/api/log/viewLog/"
+                    + requestRpc.getId());
+            JobManager.updateJobInstanceSelective(request);
+            FileUtils.writeFile("failed to execute task " + request.getId() + " with exception " + e.getMessage(),
+                    logOutPath);
+            throw e;
         }
     }
-    
+
     public abstract void postExecute() throws Exception;
-    
-    public JobStatusRequestRpc buildJobStatus(String requestId,TaskState taskState,JobInstanceRequest request) {
+
+    public JobStatusRequestRpc buildJobStatus(String requestId, TaskState taskState, JobInstanceRequest request) {
         JobStatusRequestRpc.Builder builder = JobStatusRequestRpc.newBuilder();
         builder.setRequestId(requestId);
         builder.setTaskState(taskState.getCode());
         builder.setData(ByteString.copyFrom(ByteUtils.objectToByteArray(request)));
         return builder.build();
     }
-    
+
     public int updateJobStatus(JobStatusRequestRpc request) {
         WorkerGrpcClient client = null;
         int returnCode = 200;
         try {
             String master = CuratorHelper.getActiveMaster();
-            if(StringUtils.isNoneBlank(master)) {
-               String[] hostAndPort =  master.split(":");
-               client = new WorkerGrpcClient(hostAndPort[0],NumberUtils.toInt(hostAndPort[1]));
-               returnCode = client.updateJobStatus(request);
-            }  
-         }catch(Exception e) {
-        	     returnCode = 500;
-             LOG.error(e); 
-         }finally {
-             if(client != null) {
-                 try {
-                     client.shutdown();
-                 } catch (InterruptedException e) {
-                	 returnCode = 500;
-                     LOG.error(e);
-                 }
-             }
-         }
+            if (StringUtils.isNoneBlank(master)) {
+                String[] hostAndPort = master.split(":");
+                client = new WorkerGrpcClient(hostAndPort[0], NumberUtils.toInt(hostAndPort[1]));
+                returnCode = client.updateJobStatus(request);
+            }
+        } catch (Exception e) {
+            returnCode = 500;
+            LOG.error(e);
+        } finally {
+            if (client != null) {
+                try {
+                    client.shutdown();
+                } catch (InterruptedException e) {
+                    returnCode = 500;
+                    LOG.error(e);
+                }
+            }
+        }
         return returnCode;
     }
-    
+
     public abstract void kill() throws Exception;
-    
+
     public abstract String[] buildCommand(String configFile) throws Exception;
-    
-    public String replaceParameters(Map<String,Object> parameters,String fileContent) {
-        if(parameters != null) {
-     	   for(Entry<String,Object> entry : parameters.entrySet()) {
-    		       Class<?> cls = entry.getValue().getClass();
-    		       if(cls == Integer.class || cls == Double.class || cls == Long.class || cls == Float.class) {
-    		    	      fileContent = fileContent.replace("${" +entry.getKey() + "}", String.valueOf(entry.getValue()));
-    		       }else {
-    		    	      fileContent = fileContent.replace("${" +entry.getKey() + "}", "'" + String.valueOf(entry.getValue()) + "'");
-    		       }
-    	       }
-     	   return fileContent;
+
+    public String replaceParameters(Map<String, Object> parameters, String fileContent) {
+        if (parameters != null) {
+            for (Entry<String, Object> entry : parameters.entrySet()) {
+                Class<?> cls = entry.getValue().getClass();
+                if (cls == Integer.class || cls == Double.class || cls == Long.class || cls == Float.class) {
+                    fileContent = fileContent.replace("${" + entry.getKey() + "}", String.valueOf(entry.getValue()));
+                } else {
+                    fileContent = fileContent.replace("${" + entry.getKey() + "}",
+                            "'" + String.valueOf(entry.getValue()) + "'");
+                }
+            }
+            return fileContent;
         }
         return "";
     }

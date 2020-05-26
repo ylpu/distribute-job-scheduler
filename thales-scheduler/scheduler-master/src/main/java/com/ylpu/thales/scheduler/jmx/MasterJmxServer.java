@@ -20,20 +20,20 @@ public class MasterJmxServer {
     }
 
     public void start() throws Exception {
-        
+
         Runtime.getRuntime().addShutdownHook(new ShutdownHookThread());
-        
+
         MBeanServer server = MBeanServerFactory.createMBeanServer();
-        ObjectName jobResource = new ObjectName("com.ylpu.thales.scheduler:name=MasterManager");         
+        ObjectName jobResource = new ObjectName("com.ylpu.thales.scheduler:name=MasterManager");
         server.registerMBean(new MasterMetric(), jobResource);
-        ObjectName adapterName = new ObjectName("ResourceAgent:name=htmladapter,port=9095");         
-        adapter = new HtmlAdaptorServer();         
+        ObjectName adapterName = new ObjectName("ResourceAgent:name=htmladapter,port=9095");
+        adapter = new HtmlAdaptorServer();
         server.registerMBean(adapter, adapterName);
-        adapter.setPort(jmxPort); 
-        adapter.start();         
+        adapter.setPort(jmxPort);
+        adapter.start();
     }
-    
-    private class ShutdownHookThread extends Thread{
+
+    private class ShutdownHookThread extends Thread {
         @Override
         public void run() {
             LOG.error("*** shutting down jmx server since JVM is shutting down");
@@ -43,7 +43,7 @@ public class MasterJmxServer {
     }
 
     public void stop() {
-        if(adapter != null) {
+        if (adapter != null) {
             adapter.stop();
         }
     }

@@ -26,7 +26,7 @@ import com.ylpu.thales.scheduler.service.WorkerService;
 
 @Service
 @Transactional
-public class WorkerServiceImpl extends BaseServiceImpl<SchedulerWorker,Integer> implements WorkerService {
+public class WorkerServiceImpl extends BaseServiceImpl<SchedulerWorker, Integer> implements WorkerService {
 
     @Autowired
     private SchedulerWorkerMapper schedulerWorkerMapper;
@@ -39,41 +39,41 @@ public class WorkerServiceImpl extends BaseServiceImpl<SchedulerWorker,Integer> 
     @Override
     public void addWorker(WorkerRequest request) {
         SchedulerWorker worker = new SchedulerWorker();
-        if(request != null) {
+        if (request != null) {
             BeanUtils.copyProperties(request, worker);
-            insertSelective(worker);   
+            insertSelective(worker);
         }
     }
-    
+
     @Override
     public void updateWorkerByHost(WorkerRequest request) {
         SchedulerWorker worker = new SchedulerWorker();
-        if(request != null) {
+        if (request != null) {
             BeanUtils.copyProperties(request, worker);
             worker.setUpdateTime(new Date());
-            schedulerWorkerMapper.updateWorkerByHost(worker);  
+            schedulerWorkerMapper.updateWorkerByHost(worker);
         }
     }
 
     @Override
     public void updateWorkersStatusByGroup(WorkerGroupRequest param) {
-        Map<String,Object> map = new HashMap<String,Object>();
+        Map<String, Object> map = new HashMap<String, Object>();
         map.put("groupName", param.getGroupName());
         map.put("workers", param.getWorkers());
-        map.put("status",param.getStatus().getCode());
+        map.put("status", param.getStatus().getCode());
         schedulerWorkerMapper.updateWorkersStatusByGroup(map);
     }
 
     @Override
     public List<WorkerResponse> getWorkersInfoByGroup(WorkerGroupRequest param) {
         List<WorkerResponse> list = new ArrayList<WorkerResponse>();
-        Map<String,Object> map = new HashMap<String,Object>();
+        Map<String, Object> map = new HashMap<String, Object>();
         map.put("groupName", param.getGroupName());
         map.put("workers", param.getWorkers());
         List<SchedulerWorker> workers = schedulerWorkerMapper.getWorkersInfoByGroup(map);
         WorkerResponse response = null;
-        if(workers != null && workers.size() > 0) {
-            for(SchedulerWorker worker : workers) {
+        if (workers != null && workers.size() > 0) {
+            for (SchedulerWorker worker : workers) {
                 response = new WorkerResponse();
                 BeanUtils.copyProperties(worker, response);
                 list.add(response);
@@ -88,43 +88,44 @@ public class WorkerServiceImpl extends BaseServiceImpl<SchedulerWorker,Integer> 
         param.setGroupName(request.getWorkerGroup());
         param.setWorkers(Arrays.asList(request.getHost()));
         List<WorkerResponse> list = getWorkersInfoByGroup(param);
-        if(list == null || list.size() == 0) {
+        if (list == null || list.size() == 0) {
             addWorker(request);
-        }else {
+        } else {
             updateWorkerByHost(request);
         }
     }
 
-	@Override
-	public PageInfo<WorkerResponse> findAll(String workerGroup,String worker,int pageNo,int pageSize) {
-		PageHelper.startPage(pageNo,pageSize);
+    @Override
+    public PageInfo<WorkerResponse> findAll(String workerGroup, String worker, int pageNo, int pageSize) {
+        PageHelper.startPage(pageNo, pageSize);
 
-		List<SchedulerWorker> workerList = schedulerWorkerMapper.findAll(workerGroup, worker);
-		WorkerResponse workerResponse = null;
-		Page<WorkerResponse> page = new Page<WorkerResponse>();
-		if(workerList != null && workerList.size() > 0) {
-			for(SchedulerWorker schedulerWorker : workerList) {
-				workerResponse = new WorkerResponse();
-				BeanUtils.copyProperties(schedulerWorker, workerResponse);
-				workerResponse.setWorkerStatus(WorkerStatus.getWorkerStatus(schedulerWorker.getWorkerStatus()));
-				workerResponse.setLastHeartbeatTime(DateUtils.getDateAsString(schedulerWorker.getLastHeartbeatTime(),DateUtils.DATE_TIME_FORMAT));
-				page.add(workerResponse);
-			}
-		}
-		page.setTotal(schedulerWorkerMapper.getAllWorkers(workerGroup,worker));
-		PageInfo<WorkerResponse> pageInfo = new PageInfo<WorkerResponse>(page);
+        List<SchedulerWorker> workerList = schedulerWorkerMapper.findAll(workerGroup, worker);
+        WorkerResponse workerResponse = null;
+        Page<WorkerResponse> page = new Page<WorkerResponse>();
+        if (workerList != null && workerList.size() > 0) {
+            for (SchedulerWorker schedulerWorker : workerList) {
+                workerResponse = new WorkerResponse();
+                BeanUtils.copyProperties(schedulerWorker, workerResponse);
+                workerResponse.setWorkerStatus(WorkerStatus.getWorkerStatus(schedulerWorker.getWorkerStatus()));
+                workerResponse.setLastHeartbeatTime(
+                        DateUtils.getDateAsString(schedulerWorker.getLastHeartbeatTime(), DateUtils.DATE_TIME_FORMAT));
+                page.add(workerResponse);
+            }
+        }
+        page.setTotal(schedulerWorkerMapper.getAllWorkers(workerGroup, worker));
+        PageInfo<WorkerResponse> pageInfo = new PageInfo<WorkerResponse>(page);
         return pageInfo;
-	}
+    }
 
-	@Override
-	public List<String> getWorkerGroups(Integer workerStatus) {
-		return schedulerWorkerMapper.getWorkerGroups(workerStatus);
-	}
+    @Override
+    public List<String> getWorkerGroups(Integer workerStatus) {
+        return schedulerWorkerMapper.getWorkerGroups(workerStatus);
+    }
 
     @Override
     public void updateWorkersStatus(WorkerGroupRequest param) {
-        Map<String,Object> map = new HashMap<String,Object>();
-        map.put("status",param.getStatus().getCode());
+        Map<String, Object> map = new HashMap<String, Object>();
+        map.put("status", param.getStatus().getCode());
         schedulerWorkerMapper.updateWorkersStatus(map);
     }
 }

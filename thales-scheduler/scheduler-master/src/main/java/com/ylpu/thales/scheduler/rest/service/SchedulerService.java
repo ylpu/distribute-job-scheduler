@@ -29,86 +29,84 @@ import java.util.Calendar;
 import java.util.Date;
 
 public class SchedulerService {
-    
+
     private static Log LOG = LogFactory.getLog(SchedulerService.class);
-    
+
     /**
      * 杀任务
+     * 
      * @param response
      * @throws Exception
      */
-    public void killJob(ScheduleRequest request) throws Exception{
+    public void killJob(ScheduleRequest request) throws Exception {
         try {
             JobInstanceResponse response = JobManager.getJobInstanceById(request.getId());
-            if(response.getTaskState() != TaskState.RUNNING) {
+            if (response.getTaskState() != TaskState.RUNNING) {
                 throw new RuntimeException("can not kill job " + request.getId() + " because job is not running ");
             }
             String worker = response.getWorker();
-            if(StringUtils.isNotBlank(worker)) {
+            if (StringUtils.isNotBlank(worker)) {
                 JobInstanceRequestRpc rpcJobInstanceRequest = setRequest(response);
                 String[] hostAndPort = worker.split(":");
                 AbstractJobGrpcClient client = null;
                 try {
-                    client = new JobGrpcBlockingClient(hostAndPort[0],NumberUtils.toInt(hostAndPort[1]));
-                    client.kill(rpcJobInstanceRequest); 
-                }finally {
-                    if(client != null) {
+                    client = new JobGrpcBlockingClient(hostAndPort[0], NumberUtils.toInt(hostAndPort[1]));
+                    client.kill(rpcJobInstanceRequest);
+                } finally {
+                    if (client != null) {
                         client.shutdown();
                     }
                 }
             }
-        }catch(Exception e) {
+        } catch (Exception e) {
             LOG.error(e);
             throw e;
         }
     }
-    
-    public void markStatus(ScheduleRequest scheduleRequest,TaskState taskState) throws Exception{
-       JobInstanceResponse jobInstanceResponse = JobManager.getJobInstanceById(scheduleRequest.getId());
-    	   if(jobInstanceResponse.getTaskState() == TaskState.RUNNING) {
-    		   killJob(scheduleRequest);
-    	   }
-    	   if(jobInstanceResponse.getTaskState() != taskState) {
-        	   try {
-        		    JobStatusRequest jr = new JobStatusRequest();
-        		    jr.setIds(Arrays.asList(scheduleRequest.getId()));
-        		    jr.setStatus(taskState);
+
+    public void markStatus(ScheduleRequest scheduleRequest, TaskState taskState) throws Exception {
+        JobInstanceResponse jobInstanceResponse = JobManager.getJobInstanceById(scheduleRequest.getId());
+        if (jobInstanceResponse.getTaskState() == TaskState.RUNNING) {
+            killJob(scheduleRequest);
+        }
+        if (jobInstanceResponse.getTaskState() != taskState) {
+            try {
+                JobStatusRequest jr = new JobStatusRequest();
+                jr.setIds(Arrays.asList(scheduleRequest.getId()));
+                jr.setStatus(taskState);
                 JobManager.updateJobStatus(jr);
-                JobStatusCheck.addResponse(JobSubmission.buildJobStatus(
-                           jobInstanceResponse.getJobConf(),
-                           DateUtils.getDateFromString(jobInstanceResponse.getScheduleTime(),DateUtils.DATE_TIME_FORMAT),
-                           taskState));
-       		} catch (Exception e) {
-       			LOG.error(e);
-       			throw e;
-       		}
-    	   }
+                JobStatusCheck.addResponse(JobSubmission.buildJobStatus(jobInstanceResponse.getJobConf(),
+                        DateUtils.getDateFromString(jobInstanceResponse.getScheduleTime(), DateUtils.DATE_TIME_FORMAT),
+                        taskState));
+            } catch (Exception e) {
+                LOG.error(e);
+                throw e;
+            }
+        }
     }
-    
-    private JobInstanceRequestRpc setRequest(JobInstanceResponse response ) {
+
+    private JobInstanceRequestRpc setRequest(JobInstanceResponse response) {
         JobInstanceRequestRpc newRpcJobInstanceRequest = JobInstanceRequestRpc.newBuilder()
-                .setApplicationid(response.getApplicationid())
-                .setPid(response.getPid())
-                .setId(response.getId())
-                .setRequestId(response.getJobConf().getId() + "-" + 
-                		DateUtils.getDateAsString(DateUtils.getDateFromString(response.getScheduleTime(),DateUtils.DATE_TIME_FORMAT),
-                				DateUtils.TIME_FORMAT))
-                .setJob(JobSubmission.setJobRequest(response.getJobConf()))
-                .setCreatorEmail(response.getCreatorEmail())
+                .setApplicationid(response.getApplicationid()).setPid(response.getPid()).setId(response.getId())
+                .setRequestId(
+                        response.getJobConf().getId() + "-"
+                                + DateUtils.getDateAsString(DateUtils.getDateFromString(response.getScheduleTime(),
+                                        DateUtils.DATE_TIME_FORMAT), DateUtils.TIME_FORMAT))
+                .setJob(JobSubmission.setJobRequest(response.getJobConf())).setCreatorEmail(response.getCreatorEmail())
                 .setCreatorName(response.getCreatorName())
-                .setScheduleTime(DateUtils.getProtobufTime(DateUtils.getDateFromString(response.getScheduleTime(),DateUtils.DATE_TIME_FORMAT)))
-                .setStartTime(DateUtils.getProtobufTime(DateUtils.getDateFromString(response.getStartTime(),DateUtils.DATE_TIME_FORMAT)))
-                .setLogPath(response.getLogPath())
-                .setLogUrl(response.getLogUrl())
-                .setRetryTimes(response.getRetryTimes())
-                .setTaskState(response.getTaskState().getCode())
-                .setWorker(response.getWorker())
-                .build();
+                .setScheduleTime(DateUtils.getProtobufTime(
+                        DateUtils.getDateFromString(response.getScheduleTime(), DateUtils.DATE_TIME_FORMAT)))
+                .setStartTime(DateUtils.getProtobufTime(
+                        DateUtils.getDateFromString(response.getStartTime(), DateUtils.DATE_TIME_FORMAT)))
+                .setLogPath(response.getLogPath()).setLogUrl(response.getLogUrl())
+                .setRetryTimes(response.getRetryTimes()).setTaskState(response.getTaskState().getCode())
+                .setWorker(response.getWorker()).build();
         return newRpcJobInstanceRequest;
     }
-    
+
     /**
      * 任务调度
+     * 
      * @param response
      * @throws Exception
      */
@@ -116,15 +114,17 @@ public class SchedulerService {
         try {
             JobScheduleInfo scheduleInfo = new JobScheduleInfo();
             JobResponse response = JobManager.getJobById(request.getId());
-            setScheduleInfo(response,scheduleInfo);
+            setScheduleInfo(response, scheduleInfo);
             JobScheduler.addJob(scheduleInfo, SchedulerJob.class);
-        }catch(Exception e) {
+        } catch (Exception e) {
             LOG.error(e);
             throw e;
         }
     }
+
     /**
      * 任务时间修改后重新调度
+     * 
      * @param response
      * @throws Exception
      */
@@ -132,15 +132,17 @@ public class SchedulerService {
         try {
             JobScheduleInfo scheduleInfo = new JobScheduleInfo();
             JobResponse response = JobManager.getJobById(request.getId());
-            setScheduleInfo(response,scheduleInfo);
+            setScheduleInfo(response, scheduleInfo);
             JobScheduler.modifyJobTime(scheduleInfo);
-        }catch(Exception e) {
+        } catch (Exception e) {
             LOG.error(e);
             throw e;
         }
     }
+
     /**
      * 任务下线
+     * 
      * @param response
      * @throws Exception
      */
@@ -148,70 +150,72 @@ public class SchedulerService {
         try {
             JobResponse response = JobManager.getJobById(request.getId());
             JobScheduleInfo scheduleInfo = new JobScheduleInfo();
-            setScheduleInfo(response,scheduleInfo);
+            setScheduleInfo(response, scheduleInfo);
             JobScheduler.removeJob(scheduleInfo);
-        }catch(Exception e) {
+        } catch (Exception e) {
             LOG.error(e);
             throw e;
         }
 
     }
-    
+
     /**
      * 重跑当前任务
+     * 
      * @param response
      * @throws Exception
      */
     public void rerun(Integer id) throws Exception {
-    	    JobInstanceRequestRpc rpcRequest = null;
+        JobInstanceRequestRpc rpcRequest = null;
         JobInstanceResponse jobInstanceResponse = JobManager.getJobInstanceById(id);
-        if(jobInstanceResponse.getJobConf() == null) {
-        	   LOG.warn("job does not exist or has already down " + id);
-        	   return;
-        }else if(jobInstanceResponse.getTaskState() == TaskState.SUBMIT || jobInstanceResponse.getTaskState() == TaskState.PENDING || 
-        		jobInstanceResponse.getTaskState() == TaskState.WAITING
-        		|| jobInstanceResponse.getTaskState() == TaskState.RUNNING){
-        	   LOG.warn("one job has already running "+ id);
-        	   return;
-        }else {
+        if (jobInstanceResponse.getJobConf() == null) {
+            LOG.warn("job does not exist or has already down " + id);
+            return;
+        } else if (jobInstanceResponse.getTaskState() == TaskState.SUBMIT
+                || jobInstanceResponse.getTaskState() == TaskState.PENDING
+                || jobInstanceResponse.getTaskState() == TaskState.WAITING
+                || jobInstanceResponse.getTaskState() == TaskState.RUNNING) {
+            LOG.warn("one job has already running " + id);
+            return;
+        } else {
             JobInstanceRequest request = new JobInstanceRequest();
-          	try {
-                //初始化任务
-                JobSubmission.initJobInstance(request,jobInstanceResponse.getJobConf());
+            try {
+                // 初始化任务
+                JobSubmission.initJobInstance(request, jobInstanceResponse.getJobConf());
                 request.setId(jobInstanceResponse.getId());
                 request.setRetryTimes(jobInstanceResponse.getRetryTimes() + 1);
-                request.setScheduleTime(DateUtils.getDateFromString(jobInstanceResponse.getScheduleTime(),DateUtils.DATE_TIME_FORMAT));
+                request.setScheduleTime(
+                        DateUtils.getDateFromString(jobInstanceResponse.getScheduleTime(), DateUtils.DATE_TIME_FORMAT));
                 request.setStartTime(new Date());
                 request.setCreateTime(new Date());
                 JobManager.updateJobInstanceByKey(request);
-                JobStatusCheck.addResponse(JobSubmission.buildJobStatus(
-                        jobInstanceResponse.getJobConf(),
-                        DateUtils.getDateFromString(jobInstanceResponse.getScheduleTime(),DateUtils.DATE_TIME_FORMAT),
+                JobStatusCheck.addResponse(JobSubmission.buildJobStatus(jobInstanceResponse.getJobConf(),
+                        DateUtils.getDateFromString(jobInstanceResponse.getScheduleTime(), DateUtils.DATE_TIME_FORMAT),
                         TaskState.SUBMIT));
-                
-                rpcRequest = JobSubmission.initJobInstanceRequestRpc(request,
-                       jobInstanceResponse.getJobConf());
+
+                rpcRequest = JobSubmission.initJobInstanceRequestRpc(request, jobInstanceResponse.getJobConf());
                 JobSubmission.updateJobStatus(rpcRequest);
-          	}catch(Exception e) {
-                LOG.error("fail to update job "  + rpcRequest.getId() +  " status with exception " + e.getMessage());
+            } catch (Exception e) {
+                LOG.error("fail to update job " + rpcRequest.getId() + " status with exception " + e.getMessage());
                 request.setTaskState(TaskState.FAIL.getCode());
                 request.setEndTime(new Date());
-                request.setElapseTime(DateUtils.getElapseTime(request.getStartTime(),request.getEndTime()));
+                request.setElapseTime(DateUtils.getElapseTime(request.getStartTime(), request.getEndTime()));
                 try {
-    				    JobManager.updateJobInstanceSelective(request);
-    			    } catch (Exception e1) {
-    				    LOG.error(e1);
-    				    throw new RuntimeException(e1);
-    			    }
-                JobInstanceResponseRpc responseRpc = JobSubmission.buildResponse(rpcRequest,TaskState.FAIL,500,
+                    JobManager.updateJobInstanceSelective(request);
+                } catch (Exception e1) {
+                    LOG.error(e1);
+                    throw new RuntimeException(e1);
+                }
+                JobInstanceResponseRpc responseRpc = JobSubmission.buildResponse(rpcRequest, TaskState.FAIL, 500,
                         "fail to update job " + rpcRequest.getId() + " to fail status");
                 JobStatusCheck.addResponse(responseRpc);
-          	}
+            }
         }
     }
-    
+
     /**
      * 重跑当前任务以及下游所有任务
+     * 
      * @param scheduleRequest
      * @throws Exception
      */
@@ -219,58 +223,61 @@ public class SchedulerService {
         try {
             rerun(id);
             JobInstanceResponse jobInstanceResponse = JobManager.getJobInstanceById(id);
-            if(jobInstanceResponse != null) {
+            if (jobInstanceResponse != null) {
                 JobTree jobTree = JobManager.queryTreeById(jobInstanceResponse.getJobConf().getId());
-                if(jobTree != null && jobTree.getChildren() != null && jobTree.getChildren().size() > 0) {
-                    for(JobTree child : jobTree.getChildren()) {
-                        rerunChild(DateUtils.getDateFromString(jobInstanceResponse.getScheduleTime(),DateUtils.DATE_TIME_FORMAT),child);
+                if (jobTree != null && jobTree.getChildren() != null && jobTree.getChildren().size() > 0) {
+                    for (JobTree child : jobTree.getChildren()) {
+                        rerunChild(DateUtils.getDateFromString(jobInstanceResponse.getScheduleTime(),
+                                DateUtils.DATE_TIME_FORMAT), child);
                     }
                 }
             }
-        }catch(Exception e) {
+        } catch (Exception e) {
             LOG.error(e);
             throw e;
         }
     }
-    
+
     /**
      * 重跑子任务
+     * 
      * @param startScheduleTime
      * @param jobTree
      * @throws Exception
      */
-    private void rerunChild(Date startScheduleTime,JobTree jobTree) throws Exception {
+    private void rerunChild(Date startScheduleTime, JobTree jobTree) throws Exception {
         try {
-            String scheduleTime  = caculateJobScheduleTime(startScheduleTime,jobTree.getScheduleCron());
-            JobInstanceResponse response = JobManager.getInstanceIdByTime(jobTree.getJobId(),scheduleTime);
-            if(response != null && response.getId() != null) {
+            String scheduleTime = caculateJobScheduleTime(startScheduleTime, jobTree.getScheduleCron());
+            JobInstanceResponse response = JobManager.getInstanceIdByTime(jobTree.getJobId(), scheduleTime);
+            if (response != null && response.getId() != null) {
                 rerun(response.getId());
             }
-            if(jobTree.getChildren() != null) {
-                for(JobTree child : jobTree.getChildren()) {
-                    rerunChild(startScheduleTime,child);
+            if (jobTree.getChildren() != null) {
+                for (JobTree child : jobTree.getChildren()) {
+                    rerunChild(startScheduleTime, child);
                 }
             }
-        }catch(Exception e) {
+        } catch (Exception e) {
             LOG.error(e);
             throw e;
         }
     }
-    
+
     /**
      * 计算子任务的schedule time
+     * 
      * @param startScheduleTime
      * @param currentScheduleCron
      * @return
      */
-    private String caculateJobScheduleTime(Date startScheduleTime,String currentScheduleCron) {
+    private String caculateJobScheduleTime(Date startScheduleTime, String currentScheduleCron) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(new Date());
         calendar.add(Calendar.YEAR, 1);
-        return CronUtils.getNextTriggerTime(currentScheduleCron,startScheduleTime,calendar.getTime());
+        return CronUtils.getNextTriggerTime(currentScheduleCron, startScheduleTime, calendar.getTime());
     }
-    
-    private void setScheduleInfo(JobResponse response,JobScheduleInfo scheduleInfo) {
+
+    private void setScheduleInfo(JobResponse response, JobScheduleInfo scheduleInfo) {
         scheduleInfo.setCron(response.getScheduleCron());
         scheduleInfo.setJobName(response.getJobName());
         scheduleInfo.setJobGroupName(GlobalConstants.DEFAULT_SCHEDULER_JOB_GROUP);

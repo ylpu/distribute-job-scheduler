@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 public class JobInstanceState {
-    
+
     private int id;
     private int jobId;
     private Date scheduleTime;

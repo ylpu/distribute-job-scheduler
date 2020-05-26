@@ -15,48 +15,44 @@ import com.ylpu.thales.scheduler.response.JobInstanceResponse;
 import com.ylpu.thales.scheduler.rest.service.SchedulerService;
 
 public abstract class AbstractJobGrpcClient {
-	
+
     private static Log LOG = LogFactory.getLog(AbstractJobGrpcClient.class);
-    
+
     public abstract void submitJob(JobInstanceRequestRpc requestRpc) throws Exception;
-    
+
     public abstract void shutdown();
-    
+
     public abstract void kill(JobInstanceRequestRpc requestRpc) throws Exception;
-    
-    public void setJobInstanceRequest(JobInstanceRequestRpc requestRpc,JobInstanceRequest request) {
+
+    public void setJobInstanceRequest(JobInstanceRequestRpc requestRpc, JobInstanceRequest request) {
         request.setId(requestRpc.getId());
         request.setStartTime(DateUtils.getDatetime(requestRpc.getStartTime()));
         request.setScheduleTime(DateUtils.getDatetime(requestRpc.getScheduleTime()));
     }
-    
-    public void updateTaskStatus(JobInstanceRequest request,int code) throws Exception {
+
+    public void updateTaskStatus(JobInstanceRequest request, int code) throws Exception {
         request.setTaskState(code);
         request.setEndTime(new Date());
-        request.setElapseTime(DateUtils.getElapseTime(request.getStartTime(),request.getEndTime()));
+        request.setElapseTime(DateUtils.getElapseTime(request.getStartTime(), request.getEndTime()));
         JobManager.updateJobInstanceSelective(request);
     }
-    
-    public JobInstanceResponseRpc buildResponse(JobInstanceRequestRpc requestRpc,
-            TaskState taskState,int errorCode,String errorMsg) {
-        return JobInstanceResponseRpc.newBuilder()
-        .setResponseId(requestRpc.getRequestId())
-        .setErrorCode(errorCode)
-        .setTaskState(taskState.getCode())
-        .setErrorMsg(errorMsg)
-        .build();
+
+    public JobInstanceResponseRpc buildResponse(JobInstanceRequestRpc requestRpc, TaskState taskState, int errorCode,
+            String errorMsg) {
+        return JobInstanceResponseRpc.newBuilder().setResponseId(requestRpc.getRequestId()).setErrorCode(errorCode)
+                .setTaskState(taskState.getCode()).setErrorMsg(errorMsg).build();
     }
-    
+
     public void rerunIfNeeded(JobInstanceRequestRpc requestRpc) {
-       Properties prop = Configuration.getConfig();
-       int retryInterval = Configuration.getInt(prop,"thales.scheduler.job.retry.interval",1);
-       try {
+        Properties prop = Configuration.getConfig();
+        int retryInterval = Configuration.getInt(prop, "thales.scheduler.job.retry.interval", 1);
+        try {
             JobInstanceResponse jobInstance = JobManager.getJobInstanceById(requestRpc.getId());
-            if(jobInstance.getRetryTimes() < jobInstance.getJobConf().getMaxRetrytimes()) {
-               Thread.sleep(retryInterval * 1000 * 60);
-               new SchedulerService().rerun(requestRpc.getId());
-            } 
-        }catch (Exception e) {
+            if (jobInstance.getRetryTimes() < jobInstance.getJobConf().getMaxRetrytimes()) {
+                Thread.sleep(retryInterval * 1000 * 60);
+                new SchedulerService().rerun(requestRpc.getId());
+            }
+        } catch (Exception e) {
             LOG.error(e);
             try {
                 Thread.sleep(retryInterval * 1000 * 60);

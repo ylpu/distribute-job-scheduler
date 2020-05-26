@@ -20,8 +20,7 @@ public class DataBaseConfiguration implements EnvironmentAware {
 
     private RelaxedPropertyResolver propertyResolver;
 
-    private static Logger log = LoggerFactory
-            .getLogger(DataBaseConfiguration.class);
+    private static Logger log = LoggerFactory.getLogger(DataBaseConfiguration.class);
 
     private Environment env;
 
@@ -33,39 +32,28 @@ public class DataBaseConfiguration implements EnvironmentAware {
     @Bean(destroyMethod = "shutdown")
     public DataSource dataSource() {
         log.debug("Configruing DataSource");
-        if (propertyResolver.getProperty("url") == null
-                && propertyResolver.getProperty("databaseName") == null) {
+        if (propertyResolver.getProperty("url") == null && propertyResolver.getProperty("databaseName") == null) {
             log.error("Your database conncetion pool configuration is incorrct ! The application "
                     + "cannot start . Please check your jdbc");
             Arrays.toString(env.getActiveProfiles());
-            throw new ApplicationContextException(
-                    "DataBase connection pool is not configured correctly");
+            throw new ApplicationContextException("DataBase connection pool is not configured correctly");
         }
         HikariConfig config = new HikariConfig();
-        config.setDataSourceClassName(propertyResolver
-                .getProperty("dataSourceClassName"));
-        if (propertyResolver.getProperty("url") == null
-                || "".equals(propertyResolver.getProperty("url"))) {
-            config.addDataSourceProperty("databaseName",
-                    propertyResolver.getProperty("databaseName"));
-            config.addDataSourceProperty("serverName",
-                    propertyResolver.getProperty("serverName"));
+        config.setDataSourceClassName(propertyResolver.getProperty("dataSourceClassName"));
+        if (propertyResolver.getProperty("url") == null || "".equals(propertyResolver.getProperty("url"))) {
+            config.addDataSourceProperty("databaseName", propertyResolver.getProperty("databaseName"));
+            config.addDataSourceProperty("serverName", propertyResolver.getProperty("serverName"));
         } else {
-            config.addDataSourceProperty("url",
-                    propertyResolver.getProperty("url"));
+            config.addDataSourceProperty("url", propertyResolver.getProperty("url"));
         }
         config.setUsername(propertyResolver.getProperty("username"));
         config.setPassword(propertyResolver.getProperty("password"));
-        if ("com.mysql.jdbc.jdbc2.optional.MysqlDataSource"
-                .equals(propertyResolver.getProperty("dataSourceName"))) {
-            config.addDataSourceProperty("cachePrepStmts",
-                    propertyResolver.getProperty("cachePrepStmts"));
-            config.addDataSourceProperty("prepStmtCacheSize",
-                    propertyResolver.getProperty("prepStmtsCacheSize"));
+        if ("com.mysql.jdbc.jdbc2.optional.MysqlDataSource".equals(propertyResolver.getProperty("dataSourceName"))) {
+            config.addDataSourceProperty("cachePrepStmts", propertyResolver.getProperty("cachePrepStmts"));
+            config.addDataSourceProperty("prepStmtCacheSize", propertyResolver.getProperty("prepStmtsCacheSize"));
             config.addDataSourceProperty("prepStmtCacheSqlLimit",
                     propertyResolver.getProperty("prepStmtCacheSqlLimit"));
-            config.addDataSourceProperty("userServerPrepStmts",
-                    propertyResolver.getProperty("userServerPrepStmts"));
+            config.addDataSourceProperty("userServerPrepStmts", propertyResolver.getProperty("userServerPrepStmts"));
         }
         return new HikariDataSource(config);
     }

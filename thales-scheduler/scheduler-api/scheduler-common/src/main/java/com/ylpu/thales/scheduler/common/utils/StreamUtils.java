@@ -8,7 +8,7 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 
 public class StreamUtils {
-	
+
     public static InputStream getInputStream(String logUrl) throws Exception {
         InputStream inputStream = null;
         HttpURLConnection httpURLConnection = null;
@@ -21,10 +21,11 @@ public class StreamUtils {
         inputStream = httpURLConnection.getInputStream();
         return inputStream;
     }
-    
-    public static void writeOutput(InputStream inputStream,ServletOutputStream outputStream,HttpServletResponse response,String logUrl) throws Exception{
+
+    public static void writeOutput(InputStream inputStream, ServletOutputStream outputStream,
+            HttpServletResponse response, String logUrl) throws Exception {
         inputStream = getInputStream(logUrl);
-        if(inputStream != null) {
+        if (inputStream != null) {
             outputStream = response.getOutputStream();
             // 在http响应中输出流
             byte[] cache = new byte[1024];

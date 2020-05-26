@@ -5,25 +5,25 @@ import java.io.Serializable;
 import com.ylpu.thales.scheduler.enums.AlertType;
 import com.ylpu.thales.scheduler.enums.EventType;
 
-public class Event implements Serializable{
-    
+public class Event implements Serializable {
+
     /**
      * 
      */
     private static final long serialVersionUID = 1L;
 
     private int taskId;
-    
+
     private AlertType alertType;
-    
+
     private EventType eventType;
-    
+
     private String alertUsers;
-    
+
     private String logUrl;
-    
+
     private String hostName;
-        
+
     public int getTaskId() {
         return taskId;
     }
@@ -37,14 +37,14 @@ public class Event implements Serializable{
     }
 
     public EventType getEventType() {
-		return eventType;
-	}
+        return eventType;
+    }
 
-	public void setEventType(EventType eventType) {
-		this.eventType = eventType;
-	}
+    public void setEventType(EventType eventType) {
+        this.eventType = eventType;
+    }
 
-	public void setAlertType(AlertType alertType) {
+    public void setAlertType(AlertType alertType) {
         this.alertType = alertType;
     }
 

@@ -16,20 +16,20 @@ import com.ylpu.thales.scheduler.service.exception.ThalesRuntimeException;
 @ControllerAdvice
 @RestController
 public class SchedulerControllerAdvice {
-	
-	private static final Log log = LogFactory.getLog(SchedulerControllerAdvice.class);
-	
+
+    private static final Log log = LogFactory.getLog(SchedulerControllerAdvice.class);
+
     @ResponseBody
     @ExceptionHandler(value = Exception.class)
-    public SchedulerResponse<?> errorHandler(Exception e) {        
+    public SchedulerResponse<?> errorHandler(Exception e) {
         log.error(e);
-        if(e instanceof ThalesRuntimeException) {
-        	ThalesRuntimeException exception = (ThalesRuntimeException) e;
-            return new SchedulerResponse<>(501,exception.getMessage());
+        if (e instanceof ThalesRuntimeException) {
+            ThalesRuntimeException exception = (ThalesRuntimeException) e;
+            return new SchedulerResponse<>(501, exception.getMessage());
         }
-        return new SchedulerResponse<>(500,"系统内部错误");
+        return new SchedulerResponse<>(500, "系统内部错误");
     }
-    
+
     @ExceptionHandler(value = MethodArgumentNotValidException.class)
     public <T> SchedulerResponse<T> notValidExceptionHandler(MethodArgumentNotValidException e) throws Exception {
         SchedulerResponse<T> response = new SchedulerResponse<T>(999);
@@ -42,4 +42,4 @@ public class SchedulerControllerAdvice {
         }
         return response;
     }
- }
+}

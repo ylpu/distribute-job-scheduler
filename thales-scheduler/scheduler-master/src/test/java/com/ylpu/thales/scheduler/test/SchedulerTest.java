@@ -7,10 +7,10 @@ import com.ylpu.thales.scheduler.manager.JobScheduler;
 import com.ylpu.thales.scheduler.response.JobResponse;
 
 public class SchedulerTest {
-    
+
     @Test
     public void jobSchedulerTest() throws Exception {
-        
+
         JobResponse jr = new JobResponse();
         jr.setId(1);
         jr.setWorkerGroupname("hive");
@@ -22,16 +22,15 @@ public class SchedulerTest {
         ji.setCron("*/5 * * * * ?");
         ji.setData(jr);
         JobScheduler.addJob(ji, SchedulerJobTest.class);
-//        Thread.sleep(10000);
-//        System.out.println("start to unschedule job");
-//        JobScheduler.removeJob(ji);
-//        
-//        Thread.sleep(10000);
-//        System.out.println("start to resume job");
-//        JobScheduler.addJob(ji, SchedulerJobTest.class);
-        
-        
-        while(true) {
+        // Thread.sleep(10000);
+        // System.out.println("start to unschedule job");
+        // JobScheduler.removeJob(ji);
+        //
+        // Thread.sleep(10000);
+        // System.out.println("start to resume job");
+        // JobScheduler.addJob(ji, SchedulerJobTest.class);
+
+        while (true) {
         }
     }
-}   
+}

@@ -6,23 +6,23 @@ import lombok.Data;
 
 @Data
 public class SchedulerJobInstance extends BaseEntity implements Serializable {
-    
+
     private Integer id;
 
     private Integer jobId;
-    
+
     private String jobName;
-    
+
     private Integer jobType;
-    
+
     private Integer jobReleasestate;
-    
+
     private Integer taskState;
 
     private String logUrl;
 
     private String logPath;
-    
+
     private String worker;
 
     private String creatorName;
@@ -36,13 +36,13 @@ public class SchedulerJobInstance extends BaseEntity implements Serializable {
     private String applicationid;
 
     private Integer elapseTime;
-    
+
     private Date scheduleTime;
-    
+
     private Date startTime;
-    
+
     private Date endTime;
 
     private static final long serialVersionUID = 1L;
-    
+
 }

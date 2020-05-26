@@ -24,7 +24,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @Configuration
 @ConditionalOnClass({ EnableTransactionManagement.class, EntityManager.class })
 @AutoConfigureAfter({ DataBaseConfiguration.class })
-@MapperScan(basePackages={"com.ylpu.thales.scheduler.dao"})
+@MapperScan(basePackages = { "com.ylpu.thales.scheduler.dao" })
 public class MybatisConfiguration implements EnvironmentAware {
 
     private static Log logger = LogFactory.getLog(MybatisConfiguration.class);
@@ -35,8 +35,7 @@ public class MybatisConfiguration implements EnvironmentAware {
     private DataSource dataSource;
 
     public void setEnvironment(Environment environment) {
-        this.propertyResolver = new RelaxedPropertyResolver(environment,
-                "mybatis.");
+        this.propertyResolver = new RelaxedPropertyResolver(environment, "mybatis.");
     }
 
     @Bean
@@ -45,16 +44,11 @@ public class MybatisConfiguration implements EnvironmentAware {
         try {
             SqlSessionFactoryBean sessionFactory = new SqlSessionFactoryBean();
             sessionFactory.setDataSource(dataSource);
-            sessionFactory.setTypeAliasesPackage(propertyResolver
-                    .getProperty("typeAliasesPackage"));
-            sessionFactory
-                    .setMapperLocations(new PathMatchingResourcePatternResolver()
-                            .getResources(propertyResolver
-                                    .getProperty("mapperLocations")));
-            sessionFactory
-                    .setConfigLocation(new DefaultResourceLoader()
-                            .getResource(propertyResolver
-                                    .getProperty("configLocation")));
+            sessionFactory.setTypeAliasesPackage(propertyResolver.getProperty("typeAliasesPackage"));
+            sessionFactory.setMapperLocations(new PathMatchingResourcePatternResolver()
+                    .getResources(propertyResolver.getProperty("mapperLocations")));
+            sessionFactory.setConfigLocation(
+                    new DefaultResourceLoader().getResource(propertyResolver.getProperty("configLocation")));
 
             return sessionFactory.getObject();
         } catch (Exception e) {

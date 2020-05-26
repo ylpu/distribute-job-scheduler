@@ -13,21 +13,21 @@ import com.ylpu.thales.scheduler.response.JobInstanceResponse;
 
 @Path("log")
 public class LogHandler {
-	
+
     @GET
     @Path("viewLog/{taskId}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces("application/octet-stream")
-//    @Produces("application/json;charset=gbk")
+    // @Produces("application/json;charset=gbk")
     public Response viewLog(@PathParam("taskId") int taskId) throws Exception {
         JobInstanceResponse jobInstanceResponse = JobManager.getJobInstanceById(taskId);
         String logPath = jobInstanceResponse.getLogPath();
-        if(StringUtils.isNotBlank(logPath)) {
-//        	  String log = ScriptUtils.execToList("cat",jobInstanceResponse.getLogPath(), new String[] {});
-//            return log; 
+        if (StringUtils.isNotBlank(logPath)) {
+            // String log = ScriptUtils.execToList("cat",jobInstanceResponse.getLogPath(),
+            // new String[] {});
+            // return log;
             return Response.ok(new LogStreamingOutput(logPath)).build();
         }
         return null;
     }
 }
-

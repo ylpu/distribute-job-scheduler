@@ -7,7 +7,7 @@ import lombok.Data;
 
 @Data
 public class SchedulerWorker extends BaseEntity implements Serializable {
-    
+
     private Integer id;
 
     private Integer workerType;
@@ -21,7 +21,7 @@ public class SchedulerWorker extends BaseEntity implements Serializable {
     private String zkdirectory;
 
     private double cpuUsage;
-    
+
     private double memoryUsage;
 
     private Date lastHeartbeatTime;
@@ -29,4 +29,4 @@ public class SchedulerWorker extends BaseEntity implements Serializable {
     private Integer workerStatus;
 
     private static final long serialVersionUID = 1L;
-  }
+}

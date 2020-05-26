@@ -15,20 +15,21 @@ import com.sun.jersey.spi.container.servlet.ServletContainer;
 import com.ylpu.thales.scheduler.core.config.Configuration;
 
 public class LogServer {
-    
+
     private static Log LOG = LogFactory.getLog(LogServer.class);
-    
+
     private static final int LOG_SERVER_PORT = 9098;
-        
+
     private Server server = null;
-    
+
     public LogServer(Properties prop) {
         int logServerPort = Configuration.getInt(prop, "thales.log.server.port", LOG_SERVER_PORT);
         server = new Server(logServerPort);
     }
-    
+
     /**
      * 启动jetty服务器供客户端获取job的log信息
+     * 
      * @param port
      * @throws Exception
      */
@@ -36,36 +37,37 @@ public class LogServer {
         XmlConfiguration config = new XmlConfiguration(
                 Thread.currentThread().getContextClassLoader().getResourceAsStream("jetty.xml"));
         config.configure(server);
-        
-        //static files handler        
+
+        // static files handler
         ResourceHandler resource_handler = new ResourceHandler();
         resource_handler.setDirectoriesListed(true);
         resource_handler.setResourceBase("./content");
-        
+
         ContextHandler staticContext = new ContextHandler();
         staticContext.setHandler(resource_handler);
 
-        //task handler
+        // task handler
         ServletHolder servletHolder = new ServletHolder(ServletContainer.class);
-        servletHolder.setInitParameter("com.sun.jersey.config.property.resourceConfigClass", "com.sun.jersey.api.core.PackagesResourceConfig");
+        servletHolder.setInitParameter("com.sun.jersey.config.property.resourceConfigClass",
+                "com.sun.jersey.api.core.PackagesResourceConfig");
         servletHolder.setInitParameter("com.sun.jersey.config.property.packages", "com.ylpu.thales.scheduler.log");
         servletHolder.setAsyncSupported(true);
         ServletContextHandler taskContext = new ServletContextHandler(ServletContextHandler.SESSIONS);
         taskContext.addServlet(servletHolder, "/api/*");
-        
+
         HandlerList handlers = new HandlerList();
         handlers.addHandler(staticContext);
-        handlers.addHandler(taskContext); 
-        
+        handlers.addHandler(taskContext);
+
         server.setHandler(handlers);
-        try{
+        try {
             server.start();
-        }catch(Exception e){
+        } catch (Exception e) {
             LOG.error(e);
             throw e;
         }
-    }  
-    
+    }
+
     public void stop() {
         try {
             server.stop();

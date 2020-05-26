@@ -5,8 +5,8 @@ import java.util.List;
 import lombok.Data;
 
 @Data
-public class JobTree implements Serializable{
-    
+public class JobTree implements Serializable {
+
     /**
      * 
      */

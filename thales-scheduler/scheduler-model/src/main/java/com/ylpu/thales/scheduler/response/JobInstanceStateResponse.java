@@ -5,8 +5,8 @@ import java.util.Date;
 import lombok.Data;
 
 @Data
-public class JobInstanceStateResponse implements Serializable{
-    
+public class JobInstanceStateResponse implements Serializable {
+
     /**
      * 
      */

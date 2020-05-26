@@ -4,8 +4,8 @@ import lombok.Data;
 
 @Data
 public class TaskSummaryResponse {
-	
-	private String taskState;
-	private Integer taskCount;
+
+    private String taskState;
+    private Integer taskCount;
 
 }

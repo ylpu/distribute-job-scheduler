@@ -36,195 +36,199 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import org.apache.curator.framework.recipes.cache.*;
 
-public class MasterManager{
-    
-    private static Log LOG = LogFactory.getLog(MasterManager.class);   
-    
-    private static MasterManager resourceManager = new MasterManager(); 
-     
+public class MasterManager {
+
+    private static Log LOG = LogFactory.getLog(MasterManager.class);
+
+    private static MasterManager resourceManager = new MasterManager();
+
     public static final int DEFAULT_MASTER_SERVER_PORT = 9091;
     public static final int DEFAULT_JMX_PORT = 9095;
-    
-    //key is worker group path,value is server list
-    private Map<String,List<String>> groups = new ConcurrentHashMap<String,List<String>>(); 
-    
-    //key is hostname,value is host info
-    private Map<String,WorkerResponse> resourceMap = new HashMap<String,WorkerResponse>();   
-    
-    //key is hostname,value is tasknumbers
-    private Map<String,Integer> taskMap = new HashMap<String,Integer>();
-    
+
+    // key is worker group path,value is server list
+    private Map<String, List<String>> groups = new ConcurrentHashMap<String, List<String>>();
+
+    // key is hostname,value is host info
+    private Map<String, WorkerResponse> resourceMap = new HashMap<String, WorkerResponse>();
+
+    // key is hostname,value is tasknumbers
+    private Map<String, Integer> taskMap = new HashMap<String, Integer>();
+
     private String activeMaster;
-    
+
     private MasterRestServer jettyServer = null;
-    
+
     private MasterRpcServer server = null;
-    
+
     private MasterJmxServer agent = null;
-                
-    private MasterManager() {      
+
+    private MasterManager() {
     }
-    
+
     public static MasterManager getInstance() {
         return resourceManager;
     }
-    
+
     /**
      * 竞选节点为active resource manager
      */
-    public void init() throws Exception{
+    public void init() throws Exception {
         Properties prop = new Properties();
         prop.put("thales.zookeeper.quorum", GlobalConstants.DEFAULT_ZKQUORUM);
         prop.put("thales.zookeeper.sessionTimeout", GlobalConstants.ZOOKEEPER_SESSION_TIMEOUT);
         prop.put("thales.zookeeper.connectionTimeout", GlobalConstants.ZOOKEEPER_CONNECTION_TIMEOUT);
         init(prop);
     }
-    
+
     /**
      * 竞选节点为active master
-     */    
-    public void init(Properties prop) throws Exception{
+     */
+    public void init(Properties prop) throws Exception {
         String quorum = prop.getProperty("thales.zookeeper.quorum");
-        int sessionTimeout = Configuration.getInt(prop, "thales.zookeeper.sessionTimeout", GlobalConstants.ZOOKEEPER_SESSION_TIMEOUT);
-        int connectionTimeout = Configuration.getInt(prop, "thales.zookeeper.connectionTimeout", GlobalConstants.ZOOKEEPER_CONNECTION_TIMEOUT);
+        int sessionTimeout = Configuration.getInt(prop, "thales.zookeeper.sessionTimeout",
+                GlobalConstants.ZOOKEEPER_SESSION_TIMEOUT);
+        int connectionTimeout = Configuration.getInt(prop, "thales.zookeeper.connectionTimeout",
+                GlobalConstants.ZOOKEEPER_CONNECTION_TIMEOUT);
         CuratorFramework client = CuratorHelper.getCuratorClient(quorum, sessionTimeout, connectionTimeout);
-        CuratorHelper.createNodeIfNotExist(client,  GlobalConstants.ROOT_GROUP, CreateMode.PERSISTENT, null);
-        CuratorHelper.createNodeIfNotExist(client,  GlobalConstants.MASTER_GROUP, CreateMode.PERSISTENT, null);
-        CuratorHelper.createNodeIfNotExist(client,  GlobalConstants.WORKER_GROUP, CreateMode.PERSISTENT, null);
-       
-        new MyLeaderSelectorListenerAdapter(client,GlobalConstants.MASTER_LOCK,prop).start();
+        CuratorHelper.createNodeIfNotExist(client, GlobalConstants.ROOT_GROUP, CreateMode.PERSISTENT, null);
+        CuratorHelper.createNodeIfNotExist(client, GlobalConstants.MASTER_GROUP, CreateMode.PERSISTENT, null);
+        CuratorHelper.createNodeIfNotExist(client, GlobalConstants.WORKER_GROUP, CreateMode.PERSISTENT, null);
+
+        new MyLeaderSelectorListenerAdapter(client, GlobalConstants.MASTER_LOCK, prop).start();
     }
-    
-    private class MyLeaderSelectorListenerAdapter extends LeaderSelectorListenerAdapter{
-    	
+
+    private class MyLeaderSelectorListenerAdapter extends LeaderSelectorListenerAdapter {
+
         private final LeaderSelector leaderSelector;
-        
+
         private Properties prop = null;
-        
-        public MyLeaderSelectorListenerAdapter(CuratorFramework client, String path,Properties prop){
-        	
+
+        public MyLeaderSelectorListenerAdapter(CuratorFramework client, String path, Properties prop) {
+
             this.prop = prop;
 
             leaderSelector = new LeaderSelector(client, path, this);
 
         }
-        
+
         public void start() {
-        	
-            //保证在此实例释放领导权之后还可能获得领导权。
+
+            // 保证在此实例释放领导权之后还可能获得领导权。
             leaderSelector.autoRequeue();
-        	
+
             leaderSelector.start();
         }
 
-    	    public void takeLeadership(CuratorFramework client) throws Exception{
-    		    //另外一个master有可能出现假死的情况，首先删除节点，其次强制杀掉进程
-    		    List<String> masterList = CuratorHelper.getChildren(client, GlobalConstants.MASTER_GROUP);
-    		    if(masterList != null && masterList.size() > 0) {
-    			    for(String master : masterList) {
-    				    CuratorHelper.delete(client, GlobalConstants.MASTER_GROUP + "/" + master);
-    				    String masterIp = master.split(":")[0];
-    			        String username = Configuration.getString(prop, "thales.master.username","default");
-    			        String password = Configuration.getString(prop, "thales.master.password","default");
-    				    String command = "ps -ef | grep MasterServer | grep -v grep | awk '{print $2}' | xargs kill -9";
-    				    int returnCode = SSHUtils.executeCommand(masterIp, username, password, command);
-    				    if(returnCode != 0) {
-        				   LOG.error("failed to kill standy by master " + masterIp);
-    				    }
-    			    }
-    		    }
-            int masterServerPort = Configuration.getInt(prop,"thales.master.server.port",DEFAULT_MASTER_SERVER_PORT);
-    		    activeMaster = MetricsUtils.getHostIpAddress() + ":" + masterServerPort;
-    		    String masterPath = GlobalConstants.MASTER_GROUP + "/" + activeMaster;
-    		    LOG.info("active master is " + activeMaster);
-    		    CuratorHelper.createNodeIfNotExist(client, masterPath, CreateMode.PERSISTENT, null);
-    		    init(GlobalConstants.WORKER_GROUP, prop);
-         }
+        public void takeLeadership(CuratorFramework client) throws Exception {
+            // 另外一个master有可能出现假死的情况，首先删除节点，其次强制杀掉进程
+            List<String> masterList = CuratorHelper.getChildren(client, GlobalConstants.MASTER_GROUP);
+            if (masterList != null && masterList.size() > 0) {
+                for (String master : masterList) {
+                    CuratorHelper.delete(client, GlobalConstants.MASTER_GROUP + "/" + master);
+                    String masterIp = master.split(":")[0];
+                    String username = Configuration.getString(prop, "thales.master.username", "default");
+                    String password = Configuration.getString(prop, "thales.master.password", "default");
+                    String command = "ps -ef | grep MasterServer | grep -v grep | awk '{print $2}' | xargs kill -9";
+                    int returnCode = SSHUtils.executeCommand(masterIp, username, password, command);
+                    if (returnCode != 0) {
+                        LOG.error("failed to kill standy by master " + masterIp);
+                    }
+                }
+            }
+            int masterServerPort = Configuration.getInt(prop, "thales.master.server.port", DEFAULT_MASTER_SERVER_PORT);
+            activeMaster = MetricsUtils.getHostIpAddress() + ":" + masterServerPort;
+            String masterPath = GlobalConstants.MASTER_GROUP + "/" + activeMaster;
+            LOG.info("active master is " + activeMaster);
+            CuratorHelper.createNodeIfNotExist(client, masterPath, CreateMode.PERSISTENT, null);
+            init(GlobalConstants.WORKER_GROUP, prop);
+        }
     }
-    
-    public void init(String workerGroup,Properties prop) throws Exception{
+
+    public void init(String workerGroup, Properties prop) throws Exception {
         String quorum = prop.getProperty("thales.zookeeper.quorum");
-        int sessionTimeout = Configuration.getInt(prop, "thales.zookeeper.sessionTimeout", GlobalConstants.ZOOKEEPER_SESSION_TIMEOUT);
-        int connectionTimeout = Configuration.getInt(prop, "thales.zookeeper.connectionTimeout", GlobalConstants.ZOOKEEPER_CONNECTION_TIMEOUT);
-        int masterServerPort = Configuration.getInt(prop,"thales.master.server.port",DEFAULT_MASTER_SERVER_PORT);
+        int sessionTimeout = Configuration.getInt(prop, "thales.zookeeper.sessionTimeout",
+                GlobalConstants.ZOOKEEPER_SESSION_TIMEOUT);
+        int connectionTimeout = Configuration.getInt(prop, "thales.zookeeper.connectionTimeout",
+                GlobalConstants.ZOOKEEPER_CONNECTION_TIMEOUT);
+        int masterServerPort = Configuration.getInt(prop, "thales.master.server.port", DEFAULT_MASTER_SERVER_PORT);
         CuratorFramework client = CuratorHelper.getCuratorClient(quorum, sessionTimeout, connectionTimeout);
         List<String> list = CuratorHelper.getChildren(client, GlobalConstants.WORKER_GROUP);
-        if(list != null && list.size() > 0) {
-            for(String groupName : list) {
+        if (list != null && list.size() > 0) {
+            for (String groupName : list) {
                 String groupPath = workerGroup + "/" + groupName;
                 initGroup(groupPath);
-                addNodeChangeListener(client,groupPath);  
+                addNodeChangeListener(client, groupPath);
             }
         }
         WorkerGroupRequest param = new WorkerGroupRequest();
         param.setStatus(WorkerStatus.REMOVED);
         WorkerManager.updateWorkersStatus(param);
-//      标识以前的任务状态为失败
+        // 标识以前的任务状态为失败
         JobManager.markStatus();
-//      加载任务实例状态，比较耗时
+        // 加载任务实例状态，比较耗时
         restoreTaskState();
-//      调度所有任务
+        // 调度所有任务
         JobScheduler.startJobs();
-//      启动master服务
+        // 启动master服务
         jettyServer = new MasterRestServer(prop);
         jettyServer.startJettyServer();
-//      启动任务状态检查线程
+        // 启动任务状态检查线程
         JobStatusCheck.start();
-//      初始化每台机器运行的任务个数,供监控使用
+        // 初始化每台机器运行的任务个数,供监控使用
         initTaskCount();
-//      启动jmx服务
+        // 启动jmx服务
         agent = new MasterJmxServer(Configuration.getInt(prop, "thales.master.jmx.port", DEFAULT_JMX_PORT));
         agent.start();
-//      启动master rpc服务
+        // 启动master rpc服务
         server = new MasterRpcServer(masterServerPort);
         server.start();
         server.blockUntilShutdown();
     }
-    
+
     private void initGroup(String groupPath) throws Exception {
         List<String> workers = groups.get(groupPath);
-        if(workers == null) {
+        if (workers == null) {
             workers = new ArrayList<String>();
             groups.put(groupPath, workers);
         }
     }
-    
+
     private void initTaskCount() throws Exception {
-        synchronized(taskMap) {
+        synchronized (taskMap) {
             List<Map<String, Object>> list = WorkerManager.getTaskCountByWorker();
-            for(Map<String, Object> map : list) {
+            for (Map<String, Object> map : list) {
                 Object worker = map.get("worker");
-                if(worker != null) {
-                    taskMap.put(map.get("worker").toString().split(":")[0], NumberUtils.toInt(String.valueOf(map.get("cnt"))));
+                if (worker != null) {
+                    taskMap.put(map.get("worker").toString().split(":")[0],
+                            NumberUtils.toInt(String.valueOf(map.get("cnt"))));
                 }
             }
         }
     }
-    
+
     /**
-     *目前任务状态都保存在mysql中，master在启动的时候需要从mysql中恢复任务状态
-     * @throws Exception 
+     * 目前任务状态都保存在mysql中，master在启动的时候需要从mysql中恢复任务状态
+     * 
+     * @throws Exception
      */
     private void restoreTaskState() throws Exception {
         JobInstanceResponseRpc responseRpc = null;
         List<JobInstanceStateResponse> list = JobManager.getAllJobStatus();
-        if(list != null && list.size() > 0) {
-            for(JobInstanceStateResponse response : list) {
-                String responseId = response.getJobId() + "-" + DateUtils.getDateAsString(response.getScheduleTime(),DateUtils.TIME_FORMAT);
-                 responseRpc = JobInstanceResponseRpc.newBuilder()
-                        .setId(response.getId())
-                        .setResponseId(responseId)
-                        .setTaskState(response.getTaskState())
-                        .build();
-                 JobStatusCheck.addResponse(responseRpc);
+        if (list != null && list.size() > 0) {
+            for (JobInstanceStateResponse response : list) {
+                String responseId = response.getJobId() + "-"
+                        + DateUtils.getDateAsString(response.getScheduleTime(), DateUtils.TIME_FORMAT);
+                responseRpc = JobInstanceResponseRpc.newBuilder().setId(response.getId()).setResponseId(responseId)
+                        .setTaskState(response.getTaskState()).build();
+                JobStatusCheck.addResponse(responseRpc);
             }
         }
     }
-    
-    private synchronized void releaseResource(String groupPath,List<String> disconnectedChildren) throws Exception {
-        if(disconnectedChildren != null && disconnectedChildren.size() > 0) {
-            for(String child : disconnectedChildren) {
-                resourceMap.remove(child);                
+
+    private synchronized void releaseResource(String groupPath, List<String> disconnectedChildren) throws Exception {
+        if (disconnectedChildren != null && disconnectedChildren.size() > 0) {
+            for (String child : disconnectedChildren) {
+                resourceMap.remove(child);
             }
         }
         String workerGroup = groupPath.substring(groupPath.lastIndexOf("/") + 1);
@@ -237,125 +241,133 @@ public class MasterManager{
 
     /**
      * 根据心跳更新资源信息
+     * 
      * @param serverName
      * @param resourceParams
      */
     public void updateResource(WorkerRequest request) {
-        synchronized(resourceMap){
+        synchronized (resourceMap) {
             WorkerResponse workerInfo = resourceMap.get(request.getHost());
-            if(workerInfo == null) {
+            if (workerInfo == null) {
                 workerInfo = new WorkerResponse();
-                resourceMap.put(request.getHost(),workerInfo);
+                resourceMap.put(request.getHost(), workerInfo);
             }
             workerInfo.setHost(request.getHost());
             workerInfo.setCpuUsage(request.getCpuUsage());
             workerInfo.setMemoryUsage(request.getMemoryUsage());
             workerInfo.setWorkerStatus(WorkerStatus.getWorkerStatus(request.getWorkerStatus()));
             workerInfo.setWorkerGroup(request.getWorkerGroup());
-            workerInfo.setLastHeartbeatTime(DateUtils.getDateAsString(request.getLastHeartbeatTime(),DateUtils.DATE_TIME_FORMAT));
+            workerInfo.setLastHeartbeatTime(
+                    DateUtils.getDateAsString(request.getLastHeartbeatTime(), DateUtils.DATE_TIME_FORMAT));
             workerInfo.setPort(request.getPort());
             workerInfo.setZkdirectory(request.getZkdirectory());
             workerInfo.setWorkerType(request.getWorkerType());
         }
     }
-    
+
     public void insertOrUpdateGroup(String groupName) throws Exception {
-    	    String groupPath = GlobalConstants.WORKER_GROUP + "/" + groupName;
-    	    if(groups.get(groupPath) == null) {
-    	        Properties prop = Configuration.getConfig();
-    	        String quorum = prop.getProperty("thales.zookeeper.quorum");
-    	        int sessionTimeout = Configuration.getInt(prop, "thales.zookeeper.sessionTimeout", GlobalConstants.ZOOKEEPER_SESSION_TIMEOUT);
-    	        int connectionTimeout = Configuration.getInt(prop, "thales.zookeeper.connectionTimeout", GlobalConstants.ZOOKEEPER_CONNECTION_TIMEOUT);
-    	        CuratorFramework client = CuratorHelper.getCuratorClient(quorum, sessionTimeout, connectionTimeout);
-    	        
-    	        CuratorHelper.createNodeIfNotExist(client,  groupPath, CreateMode.PERSISTENT, null);  
-    	        groups.put(groupPath, new ArrayList<String>());
-            addNodeChangeListener(client,groupPath);
-    	    }
+        String groupPath = GlobalConstants.WORKER_GROUP + "/" + groupName;
+        if (groups.get(groupPath) == null) {
+            Properties prop = Configuration.getConfig();
+            String quorum = prop.getProperty("thales.zookeeper.quorum");
+            int sessionTimeout = Configuration.getInt(prop, "thales.zookeeper.sessionTimeout",
+                    GlobalConstants.ZOOKEEPER_SESSION_TIMEOUT);
+            int connectionTimeout = Configuration.getInt(prop, "thales.zookeeper.connectionTimeout",
+                    GlobalConstants.ZOOKEEPER_CONNECTION_TIMEOUT);
+            CuratorFramework client = CuratorHelper.getCuratorClient(quorum, sessionTimeout, connectionTimeout);
+
+            CuratorHelper.createNodeIfNotExist(client, groupPath, CreateMode.PERSISTENT, null);
+            groups.put(groupPath, new ArrayList<String>());
+            addNodeChangeListener(client, groupPath);
+        }
     }
-    
+
     @SuppressWarnings({ "resource", "deprecation" })
-	private void addNodeChangeListener(CuratorFramework client,final String groupPath) {
-        PathChildrenCache pcCache = new PathChildrenCache(client,groupPath,true);
-		try {
-			pcCache.start(PathChildrenCache.StartMode.POST_INITIALIZED_EVENT);
-			pcCache.getListenable().addListener(new PathChildrenCacheListener() {
-				public void childEvent(CuratorFramework curatorFramework, PathChildrenCacheEvent pathChildrenCacheEvent)
-						throws Exception {
-					switch (pathChildrenCacheEvent.getType()){
-					case CHILD_ADDED:
-						String addedPath = pathChildrenCacheEvent.getData().getPath();
-						LOG.info("added node" + addedPath);
-						String addedIp = addedPath.substring(addedPath.lastIndexOf("/") + 1);
-						groups.get(groupPath).add(addedIp);
-						break;
-					case CHILD_REMOVED:
-						String removedPath = pathChildrenCacheEvent.getData().getPath();
-						LOG.info("removed node" + removedPath);
-						String removedIp = removedPath.substring(removedPath.lastIndexOf("/") + 1);
-						groups.get(groupPath).remove(removedIp);
-						releaseResource(groupPath,Arrays.asList(removedIp));
-						break;
-					case CHILD_UPDATED:
-						String udpatedPath = pathChildrenCacheEvent.getData().getPath();
-						byte[] bytes = CuratorHelper.getData(curatorFramework, udpatedPath);
-						WorkerRequest request = (WorkerRequest) ByteUtils.byteArrayToObject(bytes);
-						WorkerManager.insertOrUpdateWorker(request);
-						updateResource(request);
-					default:
-						break;
-					}
-				}
-			});
-		} catch (Exception e) {
-			LOG.error(e);
-		}
-    } 
-    
+    private void addNodeChangeListener(CuratorFramework client, final String groupPath) {
+        PathChildrenCache pcCache = new PathChildrenCache(client, groupPath, true);
+        try {
+            pcCache.start(PathChildrenCache.StartMode.POST_INITIALIZED_EVENT);
+            pcCache.getListenable().addListener(new PathChildrenCacheListener() {
+                public void childEvent(CuratorFramework curatorFramework, PathChildrenCacheEvent pathChildrenCacheEvent)
+                        throws Exception {
+                    switch (pathChildrenCacheEvent.getType()) {
+                    case CHILD_ADDED:
+                        String addedPath = pathChildrenCacheEvent.getData().getPath();
+                        LOG.info("added node" + addedPath);
+                        String addedIp = addedPath.substring(addedPath.lastIndexOf("/") + 1);
+                        groups.get(groupPath).add(addedIp);
+                        break;
+                    case CHILD_REMOVED:
+                        String removedPath = pathChildrenCacheEvent.getData().getPath();
+                        LOG.info("removed node" + removedPath);
+                        String removedIp = removedPath.substring(removedPath.lastIndexOf("/") + 1);
+                        groups.get(groupPath).remove(removedIp);
+                        releaseResource(groupPath, Arrays.asList(removedIp));
+                        break;
+                    case CHILD_UPDATED:
+                        String udpatedPath = pathChildrenCacheEvent.getData().getPath();
+                        byte[] bytes = CuratorHelper.getData(curatorFramework, udpatedPath);
+                        WorkerRequest request = (WorkerRequest) ByteUtils.byteArrayToObject(bytes);
+                        WorkerManager.insertOrUpdateWorker(request);
+                        updateResource(request);
+                    default:
+                        break;
+                    }
+                }
+            });
+        } catch (Exception e) {
+            LOG.error(e);
+        }
+    }
+
     /**
      * 开始处理任务
+     * 
      * @param serverName
      * @param taskMap
      */
     public void increaseTask(String serverName) {
-        synchronized(taskMap){
-            if(taskMap.get(serverName) != null) {
+        synchronized (taskMap) {
+            if (taskMap.get(serverName) != null) {
                 taskMap.put(serverName, taskMap.get(serverName) + 1);
-            }else {
+            } else {
                 taskMap.put(serverName, 1);
             }
         }
     }
-    
+
     /**
      * 处理完任务
+     * 
      * @param serverName
      * @param taskMap
      */
     public void decreaseTask(String serverName) {
-        synchronized(taskMap){
-            if(taskMap.get(serverName) != null) {
+        synchronized (taskMap) {
+            if (taskMap.get(serverName) != null) {
                 taskMap.put(serverName, taskMap.get(serverName) - 1);
             }
         }
     }
+
     /**
-     * 根据策略获取worker group中的空闲机器 
+     * 根据策略获取worker group中的空闲机器
+     * 
      * @param input
      * @param lastFailedHosts
      * @return
      */
-    public synchronized WorkerResponse getIdleWorker(String groupName,String... lastFailedWorkers) {
+    public synchronized WorkerResponse getIdleWorker(String groupName, String... lastFailedWorkers) {
         String workerStrategy = Configuration.getString(Configuration.getConfig(GlobalConstants.CONFIG_FILE),
-                "thales.scheduler.worker.strategy",GlobalConstants.DEFAULT_WORKER_STRATEGY);
-        WorkerSelectStrategy workerSelectStrategy = ResourceStrategy.getStrategy(
-                JobStrategy.getJobStrategyByName(workerStrategy));
-        return new ResourceStrategyContext(workerSelectStrategy).select(this,groupName,lastFailedWorkers);
+                "thales.scheduler.worker.strategy", GlobalConstants.DEFAULT_WORKER_STRATEGY);
+        WorkerSelectStrategy workerSelectStrategy = ResourceStrategy
+                .getStrategy(JobStrategy.getJobStrategyByName(workerStrategy));
+        return new ResourceStrategyContext(workerSelectStrategy).select(this, groupName, lastFailedWorkers);
 
     }
-    
+
     public void addGroup(String groupName) {
-    	   groups.put(groupName, new ArrayList<String>());
+        groups.put(groupName, new ArrayList<String>());
     }
 
     public Map<String, List<String>> getGroups() {
@@ -367,7 +379,7 @@ public class MasterManager{
     }
 
     public Map<String, WorkerResponse> getResourceMap() {
-		return resourceMap;
+        return resourceMap;
     }
 
     public void setResourceMap(Map<String, WorkerResponse> resourceMap) {
@@ -381,7 +393,7 @@ public class MasterManager{
     public void setTaskMap(Map<String, Integer> taskMap) {
         this.taskMap = taskMap;
     }
-    
+
     public String getActiveMaster() {
         return this.activeMaster;
     }

@@ -4,16 +4,16 @@
 package com.ylpu.thales.scheduler.core.rpc.entity;
 
 public interface WorkerParameterOrBuilder extends
-    // @@protoc_insertion_point(interface_extends:WorkerParameter)
-    com.google.protobuf.MessageOrBuilder {
+        // @@protoc_insertion_point(interface_extends:WorkerParameter)
+        com.google.protobuf.MessageOrBuilder {
 
-  /**
-   * <code>string hostname = 1;</code>
-   */
-  java.lang.String getHostname();
-  /**
-   * <code>string hostname = 1;</code>
-   */
-  com.google.protobuf.ByteString
-      getHostnameBytes();
+    /**
+     * <code>string hostname = 1;</code>
+     */
+    java.lang.String getHostname();
+
+    /**
+     * <code>string hostname = 1;</code>
+     */
+    com.google.protobuf.ByteString getHostnameBytes();
 }

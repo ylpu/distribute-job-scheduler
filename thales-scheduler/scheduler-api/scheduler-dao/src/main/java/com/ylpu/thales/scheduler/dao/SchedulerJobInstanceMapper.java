@@ -10,25 +10,26 @@ import com.ylpu.thales.scheduler.entity.SchedulerJobInstance;
 import com.ylpu.thales.scheduler.entity.TaskElapseChart;
 import com.ylpu.thales.scheduler.entity.TaskSummary;
 
-public interface SchedulerJobInstanceMapper extends BaseDao<SchedulerJobInstance, Integer>{
-    
-    public List<Map<String,Object>> getRunningJobCount();
-    
+public interface SchedulerJobInstanceMapper extends BaseDao<SchedulerJobInstance, Integer> {
+
+    public List<Map<String, Object>> getRunningJobCount();
+
     public List<JobInstanceState> getAllJobStatus();
-    
-    public SchedulerJobInstance getInstanceIdByTime(@Param("jobId")Integer jobId,@Param("scheduleTime")String scheduleTime);
-        
-    public void markStatus(@Param("date")Date date);
-    
-    public void updateJobStatus(@Param("ids")List<Integer> ids, @Param("status")Integer status,@Param("date")Date date);
-    
-    List<SchedulerJobInstance> findAll(@Param("taskState") Integer taskState,
-            @Param("jobName") String jobName);
-    
-    public Integer getInstantCount(@Param("taskState")Integer taskState,@Param("jobName")String jobName);
-    
+
+    public SchedulerJobInstance getInstanceIdByTime(@Param("jobId") Integer jobId,
+            @Param("scheduleTime") String scheduleTime);
+
+    public void markStatus(@Param("date") Date date);
+
+    public void updateJobStatus(@Param("ids") List<Integer> ids, @Param("status") Integer status,
+            @Param("date") Date date);
+
+    List<SchedulerJobInstance> findAll(@Param("taskState") Integer taskState, @Param("jobName") String jobName);
+
+    public Integer getInstantCount(@Param("taskState") Integer taskState, @Param("jobName") String jobName);
+
     public List<TaskSummary> getTaskSummary();
-    
+
     public List<TaskElapseChart> getTaskLineByJobId(Integer id);
 
 }

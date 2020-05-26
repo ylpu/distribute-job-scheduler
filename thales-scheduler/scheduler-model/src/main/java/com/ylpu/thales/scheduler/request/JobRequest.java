@@ -9,9 +9,9 @@ import lombok.Data;
 
 @Data
 public class JobRequest implements Serializable {
-    
+
     private Integer id;
-    
+
     @Length(max = 50, message = "The length of job name can not exceed 50")
     @NotEmpty(message = "job name can not be null")
     private String jobName;
@@ -27,7 +27,7 @@ public class JobRequest implements Serializable {
     private String alertUsers;
 
     private String alertTypes;
-    
+
     @NotEmpty(message = "cron expression can not be null")
     private String scheduleCron;
 
@@ -40,7 +40,7 @@ public class JobRequest implements Serializable {
     private Integer retryInterval;
 
     private Integer executionTimeout;
-    
+
     @NotEmpty(message = "group name can not be null")
     private String workerGroupname;
 
@@ -49,7 +49,7 @@ public class JobRequest implements Serializable {
     private String description;
 
     private String jobConfiguration;
-    
+
     private List<Integer> dependIds;
 
     private static final long serialVersionUID = 1L;

@@ -14,9 +14,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
 public class RestClient {
-    
+
     /**
      * http://localhost:8080/list/1/2
+     * 
      * @param url
      * @param t
      * @return
@@ -30,34 +31,35 @@ public class RestClient {
     /**
      * 
      * @param url--http://localhost:8080/list?id=1&name=test
-     * @param typeRef -- 范型返回
+     * @param typeRef
+     *            -- 范型返回
      * @param map
      * @return
      */
-    public static <T> T getForObject(String url, ParameterizedTypeReference<T> typeRef,Map<String,Object> map) {
+    public static <T> T getForObject(String url, ParameterizedTypeReference<T> typeRef, Map<String, Object> map) {
         RestTemplate restTemplate = new RestTemplate();
         StringBuilder variables = new StringBuilder();
         ResponseEntity<T> entity = null;
-        if(map != null && map.size() > 0) {
-            List<Entry<String,Object>> list = new ArrayList<Entry<String,Object>>(map.entrySet());
-            
-            for(Iterator<Entry<String, Object>> it = list.iterator();it.hasNext();) {
+        if (map != null && map.size() > 0) {
+            List<Entry<String, Object>> list = new ArrayList<Entry<String, Object>>(map.entrySet());
+
+            for (Iterator<Entry<String, Object>> it = list.iterator(); it.hasNext();) {
                 Entry<String, Object> entry = it.next();
                 variables.append(entry.getKey());
                 variables.append("=");
                 variables.append(entry.getValue());
-                if(it.hasNext()) {
+                if (it.hasNext()) {
                     variables.append("&");
                 }
             }
-            entity = restTemplate.exchange(url + "?" + variables.toString(),HttpMethod.GET,null, typeRef);
-        }else {
-            entity = restTemplate.exchange(url,HttpMethod.GET,null, typeRef);
+            entity = restTemplate.exchange(url + "?" + variables.toString(), HttpMethod.GET, null, typeRef);
+        } else {
+            entity = restTemplate.exchange(url, HttpMethod.GET, null, typeRef);
         }
         return entity.getBody();
     }
-    
-    public static <T> ResponseEntity<T> post(String url,Object request,Class<T> type) {
+
+    public static <T> ResponseEntity<T> post(String url, Object request, Class<T> type) {
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders requestHeaders = new HttpHeaders();
         requestHeaders.setContentType(MediaType.APPLICATION_JSON);
@@ -65,8 +67,8 @@ public class RestClient {
         ResponseEntity<T> response = restTemplate.postForEntity(url, requestEntity, type);
         return response;
     }
-    
-    public static <T> ResponseEntity<T> post(String url,Object request) {
-        return post(url,request,null);
+
+    public static <T> ResponseEntity<T> post(String url, Object request) {
+        return post(url, request, null);
     }
 }

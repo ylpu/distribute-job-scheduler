@@ -4,6 +4,6 @@ import lombok.Data;
 
 @Data
 public class JobDependency {
-	private Integer id;
-	private String jobName;
+    private Integer id;
+    private String jobName;
 }

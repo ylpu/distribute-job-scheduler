@@ -6,9 +6,9 @@ import lombok.Data;
 
 @Data
 public class JobResponse implements Serializable {
-    
+
     private Integer id;
-    
+
     private String jobName;
 
     private String jobType;
@@ -42,9 +42,9 @@ public class JobResponse implements Serializable {
     private String description;
 
     private String jobConfiguration;
-    
+
     private List<JobResponse> dependencies;
-    
+
     private List<Integer> dependIds;
 
     private static final long serialVersionUID = 1L;

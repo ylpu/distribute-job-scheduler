@@ -8,14 +8,14 @@ import com.ylpu.thales.scheduler.entity.SchedulerRole;
 import com.ylpu.thales.scheduler.request.RoleRequest;
 import com.ylpu.thales.scheduler.response.RoleResponse;
 
-public interface RoleService extends BaseService<SchedulerRole,Integer>{
-	
-    public PageInfo<RoleResponse> findAll(String roleName,int pageNo,int pageSize);
-    
+public interface RoleService extends BaseService<SchedulerRole, Integer> {
+
+    public PageInfo<RoleResponse> findAll(String roleName, int pageNo, int pageSize);
+
     public void insertOrUpdate(RoleRequest request);
-    
+
     public void deleteRole(Integer id);
-    
+
     public List<RoleResponse> findAllRole();
 
 }

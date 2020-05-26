@@ -4,7 +4,7 @@ import com.ylpu.thales.scheduler.manager.MasterManager;
 import com.ylpu.thales.scheduler.response.WorkerResponse;
 
 public interface WorkerSelectStrategy {
-    
-    public WorkerResponse getIdleWorker(MasterManager rm,String groupName,String... lastFailedHosts);
+
+    public WorkerResponse getIdleWorker(MasterManager rm, String groupName, String... lastFailedHosts);
 
 }

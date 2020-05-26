@@ -16,32 +16,32 @@ import org.eclipse.jetty.xml.XmlConfiguration;
 import java.util.Properties;
 
 public class MasterRestServer {
-    
+
     private static Log LOG = LogFactory.getLog(MasterRestServer.class);
-    
+
     private static int JETTY_SERVER_PORT = 9090;
-    
+
     private Properties prop;
-    
+
     Server server = null;
-    
+
     public MasterRestServer(Properties prop) {
         this.prop = prop;
     }
-    
+
     public void startJettyServer() throws Exception {
-        
+
         Runtime.getRuntime().addShutdownHook(new ShutdownHookThread());
-        
-        int jettyServerPort = Configuration.getInt(prop,"thales.master.service.port",JETTY_SERVER_PORT);
+
+        int jettyServerPort = Configuration.getInt(prop, "thales.master.service.port", JETTY_SERVER_PORT);
 
         server = new Server(jettyServerPort);
-        
+
         XmlConfiguration config = new XmlConfiguration(
                 Thread.currentThread().getContextClassLoader().getResourceAsStream("jetty.xml"));
         config.configure(server);
-        
-        //static files handler        
+
+        // static files handler
         ResourceHandler resource_handler = new ResourceHandler();
         resource_handler.setDirectoriesListed(true);
         resource_handler.setResourceBase("./");
@@ -49,7 +49,7 @@ public class MasterRestServer {
         ContextHandler staticContext = new ContextHandler();
         staticContext.setHandler(resource_handler);
 
-        //task handler
+        // task handler
         ServletHolder servletHolder = new ServletHolder(ServletContainer.class);
         servletHolder.setInitParameter("com.sun.jersey.config.property.resourceConfigClass",
                 "com.sun.jersey.api.core.PackagesResourceConfig");
@@ -58,33 +58,33 @@ public class MasterRestServer {
         servletHolder.setAsyncSupported(true);
         ServletContextHandler taskContext = new ServletContextHandler(ServletContextHandler.SESSIONS);
         taskContext.addServlet(servletHolder, "/api/*");
-        
+
         HandlerList handlers = new HandlerList();
         handlers.addHandler(staticContext);
-        handlers.addHandler(taskContext); 
-        
+        handlers.addHandler(taskContext);
+
         server.setHandler(handlers);
-        try{
+        try {
             server.start();
-        }catch(Exception e){
+        } catch (Exception e) {
             LOG.error(e);
             throw e;
         }
-    }  
-    
-    private class ShutdownHookThread extends Thread{
+    }
+
+    private class ShutdownHookThread extends Thread {
         @Override
         public void run() {
             System.err.println("*** shutting down jetty server since JVM is shutting down");
             MasterRestServer.this.stop();
-            System.err.println("*** server shut down");            
+            System.err.println("*** server shut down");
         }
     }
-    
+
     public void stop() {
         try {
-            if(server != null) {
-                server.stop();   
+            if (server != null) {
+                server.stop();
             }
         } catch (Exception e) {
             LOG.error(e);

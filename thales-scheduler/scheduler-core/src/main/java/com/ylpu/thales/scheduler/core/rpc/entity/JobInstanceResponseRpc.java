@@ -6,851 +6,844 @@ package com.ylpu.thales.scheduler.core.rpc.entity;
 /**
  * Protobuf type {@code JobInstanceResponseRpc}
  */
-public  final class JobInstanceResponseRpc extends
-    com.google.protobuf.GeneratedMessageV3 implements
-    // @@protoc_insertion_point(message_implements:JobInstanceResponseRpc)
-    JobInstanceResponseRpcOrBuilder {
-  // Use JobInstanceResponseRpc.newBuilder() to construct.
-  private JobInstanceResponseRpc(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
-    super(builder);
-  }
-  private JobInstanceResponseRpc() {
-    id_ = 0;
-    responseId_ = "";
-    taskState_ = 0;
-    errorCode_ = 0;
-    errorMsg_ = "";
-    data_ = com.google.protobuf.ByteString.EMPTY;
-  }
+public final class JobInstanceResponseRpc extends com.google.protobuf.GeneratedMessageV3 implements
+        // @@protoc_insertion_point(message_implements:JobInstanceResponseRpc)
+        JobInstanceResponseRpcOrBuilder {
+    // Use JobInstanceResponseRpc.newBuilder() to construct.
+    private JobInstanceResponseRpc(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
+        super(builder);
+    }
 
-  @java.lang.Override
-  public final com.google.protobuf.UnknownFieldSet
-  getUnknownFields() {
-    return com.google.protobuf.UnknownFieldSet.getDefaultInstance();
-  }
-  private JobInstanceResponseRpc(
-      com.google.protobuf.CodedInputStream input,
-      com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-      throws com.google.protobuf.InvalidProtocolBufferException {
-    this();
-    int mutable_bitField0_ = 0;
-    try {
-      boolean done = false;
-      while (!done) {
-        int tag = input.readTag();
-        switch (tag) {
-          case 0:
-            done = true;
-            break;
-          default: {
-            if (!input.skipField(tag)) {
-              done = true;
+    private JobInstanceResponseRpc() {
+        id_ = 0;
+        responseId_ = "";
+        taskState_ = 0;
+        errorCode_ = 0;
+        errorMsg_ = "";
+        data_ = com.google.protobuf.ByteString.EMPTY;
+    }
+
+    @java.lang.Override
+    public final com.google.protobuf.UnknownFieldSet getUnknownFields() {
+        return com.google.protobuf.UnknownFieldSet.getDefaultInstance();
+    }
+
+    private JobInstanceResponseRpc(com.google.protobuf.CodedInputStream input,
+            com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+            throws com.google.protobuf.InvalidProtocolBufferException {
+        this();
+        int mutable_bitField0_ = 0;
+        try {
+            boolean done = false;
+            while (!done) {
+                int tag = input.readTag();
+                switch (tag) {
+                case 0:
+                    done = true;
+                    break;
+                default: {
+                    if (!input.skipField(tag)) {
+                        done = true;
+                    }
+                    break;
+                }
+                case 8: {
+
+                    id_ = input.readInt32();
+                    break;
+                }
+                case 18: {
+                    java.lang.String s = input.readStringRequireUtf8();
+
+                    responseId_ = s;
+                    break;
+                }
+                case 24: {
+
+                    taskState_ = input.readInt32();
+                    break;
+                }
+                case 32: {
+
+                    errorCode_ = input.readInt32();
+                    break;
+                }
+                case 42: {
+                    java.lang.String s = input.readStringRequireUtf8();
+
+                    errorMsg_ = s;
+                    break;
+                }
+                case 50: {
+
+                    data_ = input.readBytes();
+                    break;
+                }
+                }
             }
-            break;
-          }
-          case 8: {
-
-            id_ = input.readInt32();
-            break;
-          }
-          case 18: {
-            java.lang.String s = input.readStringRequireUtf8();
-
-            responseId_ = s;
-            break;
-          }
-          case 24: {
-
-            taskState_ = input.readInt32();
-            break;
-          }
-          case 32: {
-
-            errorCode_ = input.readInt32();
-            break;
-          }
-          case 42: {
-            java.lang.String s = input.readStringRequireUtf8();
-
-            errorMsg_ = s;
-            break;
-          }
-          case 50: {
-
-            data_ = input.readBytes();
-            break;
-          }
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+            throw e.setUnfinishedMessage(this);
+        } catch (java.io.IOException e) {
+            throw new com.google.protobuf.InvalidProtocolBufferException(e).setUnfinishedMessage(this);
+        } finally {
+            makeExtensionsImmutable();
         }
-      }
-    } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-      throw e.setUnfinishedMessage(this);
-    } catch (java.io.IOException e) {
-      throw new com.google.protobuf.InvalidProtocolBufferException(
-          e).setUnfinishedMessage(this);
-    } finally {
-      makeExtensionsImmutable();
-    }
-  }
-  public static final com.google.protobuf.Descriptors.Descriptor
-      getDescriptor() {
-    return com.ylpu.thales.scheduler.core.rpc.entity.JobGrpc.internal_static_JobInstanceResponseRpc_descriptor;
-  }
-
-  protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-      internalGetFieldAccessorTable() {
-    return com.ylpu.thales.scheduler.core.rpc.entity.JobGrpc.internal_static_JobInstanceResponseRpc_fieldAccessorTable
-        .ensureFieldAccessorsInitialized(
-            com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc.class, com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc.Builder.class);
-  }
-
-  public static final int ID_FIELD_NUMBER = 1;
-  private int id_;
-  /**
-   * <code>int32 id = 1;</code>
-   */
-  public int getId() {
-    return id_;
-  }
-
-  public static final int RESPONSEID_FIELD_NUMBER = 2;
-  private volatile java.lang.Object responseId_;
-  /**
-   * <code>string responseId = 2;</code>
-   */
-  public java.lang.String getResponseId() {
-    java.lang.Object ref = responseId_;
-    if (ref instanceof java.lang.String) {
-      return (java.lang.String) ref;
-    } else {
-      com.google.protobuf.ByteString bs = 
-          (com.google.protobuf.ByteString) ref;
-      java.lang.String s = bs.toStringUtf8();
-      responseId_ = s;
-      return s;
-    }
-  }
-  /**
-   * <code>string responseId = 2;</code>
-   */
-  public com.google.protobuf.ByteString
-      getResponseIdBytes() {
-    java.lang.Object ref = responseId_;
-    if (ref instanceof java.lang.String) {
-      com.google.protobuf.ByteString b = 
-          com.google.protobuf.ByteString.copyFromUtf8(
-              (java.lang.String) ref);
-      responseId_ = b;
-      return b;
-    } else {
-      return (com.google.protobuf.ByteString) ref;
-    }
-  }
-
-  public static final int TASKSTATE_FIELD_NUMBER = 3;
-  private int taskState_;
-  /**
-   * <code>int32 taskState = 3;</code>
-   */
-  public int getTaskState() {
-    return taskState_;
-  }
-
-  public static final int ERRORCODE_FIELD_NUMBER = 4;
-  private int errorCode_;
-  /**
-   * <code>int32 errorCode = 4;</code>
-   */
-  public int getErrorCode() {
-    return errorCode_;
-  }
-
-  public static final int ERRORMSG_FIELD_NUMBER = 5;
-  private volatile java.lang.Object errorMsg_;
-  /**
-   * <code>string errorMsg = 5;</code>
-   */
-  public java.lang.String getErrorMsg() {
-    java.lang.Object ref = errorMsg_;
-    if (ref instanceof java.lang.String) {
-      return (java.lang.String) ref;
-    } else {
-      com.google.protobuf.ByteString bs = 
-          (com.google.protobuf.ByteString) ref;
-      java.lang.String s = bs.toStringUtf8();
-      errorMsg_ = s;
-      return s;
-    }
-  }
-  /**
-   * <code>string errorMsg = 5;</code>
-   */
-  public com.google.protobuf.ByteString
-      getErrorMsgBytes() {
-    java.lang.Object ref = errorMsg_;
-    if (ref instanceof java.lang.String) {
-      com.google.protobuf.ByteString b = 
-          com.google.protobuf.ByteString.copyFromUtf8(
-              (java.lang.String) ref);
-      errorMsg_ = b;
-      return b;
-    } else {
-      return (com.google.protobuf.ByteString) ref;
-    }
-  }
-
-  public static final int DATA_FIELD_NUMBER = 6;
-  private com.google.protobuf.ByteString data_;
-  /**
-   * <code>bytes data = 6;</code>
-   */
-  public com.google.protobuf.ByteString getData() {
-    return data_;
-  }
-
-  private byte memoizedIsInitialized = -1;
-  public final boolean isInitialized() {
-    byte isInitialized = memoizedIsInitialized;
-    if (isInitialized == 1) return true;
-    if (isInitialized == 0) return false;
-
-    memoizedIsInitialized = 1;
-    return true;
-  }
-
-  public void writeTo(com.google.protobuf.CodedOutputStream output)
-                      throws java.io.IOException {
-    if (id_ != 0) {
-      output.writeInt32(1, id_);
-    }
-    if (!getResponseIdBytes().isEmpty()) {
-      com.google.protobuf.GeneratedMessageV3.writeString(output, 2, responseId_);
-    }
-    if (taskState_ != 0) {
-      output.writeInt32(3, taskState_);
-    }
-    if (errorCode_ != 0) {
-      output.writeInt32(4, errorCode_);
-    }
-    if (!getErrorMsgBytes().isEmpty()) {
-      com.google.protobuf.GeneratedMessageV3.writeString(output, 5, errorMsg_);
-    }
-    if (!data_.isEmpty()) {
-      output.writeBytes(6, data_);
-    }
-  }
-
-  public int getSerializedSize() {
-    int size = memoizedSize;
-    if (size != -1) return size;
-
-    size = 0;
-    if (id_ != 0) {
-      size += com.google.protobuf.CodedOutputStream
-        .computeInt32Size(1, id_);
-    }
-    if (!getResponseIdBytes().isEmpty()) {
-      size += com.google.protobuf.GeneratedMessageV3.computeStringSize(2, responseId_);
-    }
-    if (taskState_ != 0) {
-      size += com.google.protobuf.CodedOutputStream
-        .computeInt32Size(3, taskState_);
-    }
-    if (errorCode_ != 0) {
-      size += com.google.protobuf.CodedOutputStream
-        .computeInt32Size(4, errorCode_);
-    }
-    if (!getErrorMsgBytes().isEmpty()) {
-      size += com.google.protobuf.GeneratedMessageV3.computeStringSize(5, errorMsg_);
-    }
-    if (!data_.isEmpty()) {
-      size += com.google.protobuf.CodedOutputStream
-        .computeBytesSize(6, data_);
-    }
-    memoizedSize = size;
-    return size;
-  }
-
-  private static final long serialVersionUID = 0L;
-  @java.lang.Override
-  public boolean equals(final java.lang.Object obj) {
-    if (obj == this) {
-     return true;
-    }
-    if (!(obj instanceof com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc)) {
-      return super.equals(obj);
-    }
-    com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc other = (com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc) obj;
-
-    boolean result = true;
-    result = result && (getId()
-        == other.getId());
-    result = result && getResponseId()
-        .equals(other.getResponseId());
-    result = result && (getTaskState()
-        == other.getTaskState());
-    result = result && (getErrorCode()
-        == other.getErrorCode());
-    result = result && getErrorMsg()
-        .equals(other.getErrorMsg());
-    result = result && getData()
-        .equals(other.getData());
-    return result;
-  }
-
-  @java.lang.Override
-  public int hashCode() {
-    if (memoizedHashCode != 0) {
-      return memoizedHashCode;
-    }
-    int hash = 41;
-    hash = (19 * hash) + getDescriptor().hashCode();
-    hash = (37 * hash) + ID_FIELD_NUMBER;
-    hash = (53 * hash) + getId();
-    hash = (37 * hash) + RESPONSEID_FIELD_NUMBER;
-    hash = (53 * hash) + getResponseId().hashCode();
-    hash = (37 * hash) + TASKSTATE_FIELD_NUMBER;
-    hash = (53 * hash) + getTaskState();
-    hash = (37 * hash) + ERRORCODE_FIELD_NUMBER;
-    hash = (53 * hash) + getErrorCode();
-    hash = (37 * hash) + ERRORMSG_FIELD_NUMBER;
-    hash = (53 * hash) + getErrorMsg().hashCode();
-    hash = (37 * hash) + DATA_FIELD_NUMBER;
-    hash = (53 * hash) + getData().hashCode();
-    hash = (29 * hash) + unknownFields.hashCode();
-    memoizedHashCode = hash;
-    return hash;
-  }
-
-  public static com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc parseFrom(
-      com.google.protobuf.ByteString data)
-      throws com.google.protobuf.InvalidProtocolBufferException {
-    return PARSER.parseFrom(data);
-  }
-  public static com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc parseFrom(
-      com.google.protobuf.ByteString data,
-      com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-      throws com.google.protobuf.InvalidProtocolBufferException {
-    return PARSER.parseFrom(data, extensionRegistry);
-  }
-  public static com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc parseFrom(byte[] data)
-      throws com.google.protobuf.InvalidProtocolBufferException {
-    return PARSER.parseFrom(data);
-  }
-  public static com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc parseFrom(
-      byte[] data,
-      com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-      throws com.google.protobuf.InvalidProtocolBufferException {
-    return PARSER.parseFrom(data, extensionRegistry);
-  }
-  public static com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc parseFrom(java.io.InputStream input)
-      throws java.io.IOException {
-    return com.google.protobuf.GeneratedMessageV3
-        .parseWithIOException(PARSER, input);
-  }
-  public static com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc parseFrom(
-      java.io.InputStream input,
-      com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-      throws java.io.IOException {
-    return com.google.protobuf.GeneratedMessageV3
-        .parseWithIOException(PARSER, input, extensionRegistry);
-  }
-  public static com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc parseDelimitedFrom(java.io.InputStream input)
-      throws java.io.IOException {
-    return com.google.protobuf.GeneratedMessageV3
-        .parseDelimitedWithIOException(PARSER, input);
-  }
-  public static com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc parseDelimitedFrom(
-      java.io.InputStream input,
-      com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-      throws java.io.IOException {
-    return com.google.protobuf.GeneratedMessageV3
-        .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
-  }
-  public static com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc parseFrom(
-      com.google.protobuf.CodedInputStream input)
-      throws java.io.IOException {
-    return com.google.protobuf.GeneratedMessageV3
-        .parseWithIOException(PARSER, input);
-  }
-  public static com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc parseFrom(
-      com.google.protobuf.CodedInputStream input,
-      com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-      throws java.io.IOException {
-    return com.google.protobuf.GeneratedMessageV3
-        .parseWithIOException(PARSER, input, extensionRegistry);
-  }
-
-  public Builder newBuilderForType() { return newBuilder(); }
-  public static Builder newBuilder() {
-    return DEFAULT_INSTANCE.toBuilder();
-  }
-  public static Builder newBuilder(com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc prototype) {
-    return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
-  }
-  public Builder toBuilder() {
-    return this == DEFAULT_INSTANCE
-        ? new Builder() : new Builder().mergeFrom(this);
-  }
-
-  @java.lang.Override
-  protected Builder newBuilderForType(
-      com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
-    Builder builder = new Builder(parent);
-    return builder;
-  }
-  /**
-   * Protobuf type {@code JobInstanceResponseRpc}
-   */
-  public static final class Builder extends
-      com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
-      // @@protoc_insertion_point(builder_implements:JobInstanceResponseRpc)
-      com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpcOrBuilder {
-    public static final com.google.protobuf.Descriptors.Descriptor
-        getDescriptor() {
-      return com.ylpu.thales.scheduler.core.rpc.entity.JobGrpc.internal_static_JobInstanceResponseRpc_descriptor;
     }
 
-    protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-        internalGetFieldAccessorTable() {
-      return com.ylpu.thales.scheduler.core.rpc.entity.JobGrpc.internal_static_JobInstanceResponseRpc_fieldAccessorTable
-          .ensureFieldAccessorsInitialized(
-              com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc.class, com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc.Builder.class);
+    public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
+        return com.ylpu.thales.scheduler.core.rpc.entity.JobGrpc.internal_static_JobInstanceResponseRpc_descriptor;
     }
 
-    // Construct using com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc.newBuilder()
-    private Builder() {
-      maybeForceBuilderInitialization();
+    protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable internalGetFieldAccessorTable() {
+        return com.ylpu.thales.scheduler.core.rpc.entity.JobGrpc.internal_static_JobInstanceResponseRpc_fieldAccessorTable
+                .ensureFieldAccessorsInitialized(com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc.class,
+                        com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc.Builder.class);
     }
 
-    private Builder(
-        com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
-      super(parent);
-      maybeForceBuilderInitialization();
-    }
-    private void maybeForceBuilderInitialization() {
-      if (com.google.protobuf.GeneratedMessageV3
-              .alwaysUseFieldBuilders) {
-      }
-    }
-    public Builder clear() {
-      super.clear();
-      id_ = 0;
+    public static final int ID_FIELD_NUMBER = 1;
+    private int id_;
 
-      responseId_ = "";
-
-      taskState_ = 0;
-
-      errorCode_ = 0;
-
-      errorMsg_ = "";
-
-      data_ = com.google.protobuf.ByteString.EMPTY;
-
-      return this;
-    }
-
-    public com.google.protobuf.Descriptors.Descriptor
-        getDescriptorForType() {
-      return com.ylpu.thales.scheduler.core.rpc.entity.JobGrpc.internal_static_JobInstanceResponseRpc_descriptor;
-    }
-
-    public com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc getDefaultInstanceForType() {
-      return com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc.getDefaultInstance();
-    }
-
-    public com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc build() {
-      com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc result = buildPartial();
-      if (!result.isInitialized()) {
-        throw newUninitializedMessageException(result);
-      }
-      return result;
-    }
-
-    public com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc buildPartial() {
-      com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc result = new com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc(this);
-      result.id_ = id_;
-      result.responseId_ = responseId_;
-      result.taskState_ = taskState_;
-      result.errorCode_ = errorCode_;
-      result.errorMsg_ = errorMsg_;
-      result.data_ = data_;
-      onBuilt();
-      return result;
-    }
-
-    public Builder clone() {
-      return (Builder) super.clone();
-    }
-    public Builder setField(
-        com.google.protobuf.Descriptors.FieldDescriptor field,
-        Object value) {
-      return (Builder) super.setField(field, value);
-    }
-    public Builder clearField(
-        com.google.protobuf.Descriptors.FieldDescriptor field) {
-      return (Builder) super.clearField(field);
-    }
-    public Builder clearOneof(
-        com.google.protobuf.Descriptors.OneofDescriptor oneof) {
-      return (Builder) super.clearOneof(oneof);
-    }
-    public Builder setRepeatedField(
-        com.google.protobuf.Descriptors.FieldDescriptor field,
-        int index, Object value) {
-      return (Builder) super.setRepeatedField(field, index, value);
-    }
-    public Builder addRepeatedField(
-        com.google.protobuf.Descriptors.FieldDescriptor field,
-        Object value) {
-      return (Builder) super.addRepeatedField(field, value);
-    }
-    public Builder mergeFrom(com.google.protobuf.Message other) {
-      if (other instanceof com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc) {
-        return mergeFrom((com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc)other);
-      } else {
-        super.mergeFrom(other);
-        return this;
-      }
-    }
-
-    public Builder mergeFrom(com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc other) {
-      if (other == com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc.getDefaultInstance()) return this;
-      if (other.getId() != 0) {
-        setId(other.getId());
-      }
-      if (!other.getResponseId().isEmpty()) {
-        responseId_ = other.responseId_;
-        onChanged();
-      }
-      if (other.getTaskState() != 0) {
-        setTaskState(other.getTaskState());
-      }
-      if (other.getErrorCode() != 0) {
-        setErrorCode(other.getErrorCode());
-      }
-      if (!other.getErrorMsg().isEmpty()) {
-        errorMsg_ = other.errorMsg_;
-        onChanged();
-      }
-      if (other.getData() != com.google.protobuf.ByteString.EMPTY) {
-        setData(other.getData());
-      }
-      onChanged();
-      return this;
-    }
-
-    public final boolean isInitialized() {
-      return true;
-    }
-
-    public Builder mergeFrom(
-        com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
-      com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc parsedMessage = null;
-      try {
-        parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
-      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-        parsedMessage = (com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc) e.getUnfinishedMessage();
-        throw e.unwrapIOException();
-      } finally {
-        if (parsedMessage != null) {
-          mergeFrom(parsedMessage);
-        }
-      }
-      return this;
-    }
-
-    private int id_ ;
     /**
      * <code>int32 id = 1;</code>
      */
     public int getId() {
-      return id_;
-    }
-    /**
-     * <code>int32 id = 1;</code>
-     */
-    public Builder setId(int value) {
-      
-      id_ = value;
-      onChanged();
-      return this;
-    }
-    /**
-     * <code>int32 id = 1;</code>
-     */
-    public Builder clearId() {
-      
-      id_ = 0;
-      onChanged();
-      return this;
+        return id_;
     }
 
-    private java.lang.Object responseId_ = "";
+    public static final int RESPONSEID_FIELD_NUMBER = 2;
+    private volatile java.lang.Object responseId_;
+
     /**
      * <code>string responseId = 2;</code>
      */
     public java.lang.String getResponseId() {
-      java.lang.Object ref = responseId_;
-      if (!(ref instanceof java.lang.String)) {
-        com.google.protobuf.ByteString bs =
-            (com.google.protobuf.ByteString) ref;
-        java.lang.String s = bs.toStringUtf8();
-        responseId_ = s;
-        return s;
-      } else {
-        return (java.lang.String) ref;
-      }
-    }
-    /**
-     * <code>string responseId = 2;</code>
-     */
-    public com.google.protobuf.ByteString
-        getResponseIdBytes() {
-      java.lang.Object ref = responseId_;
-      if (ref instanceof String) {
-        com.google.protobuf.ByteString b = 
-            com.google.protobuf.ByteString.copyFromUtf8(
-                (java.lang.String) ref);
-        responseId_ = b;
-        return b;
-      } else {
-        return (com.google.protobuf.ByteString) ref;
-      }
-    }
-    /**
-     * <code>string responseId = 2;</code>
-     */
-    public Builder setResponseId(
-        java.lang.String value) {
-      if (value == null) {
-    throw new NullPointerException();
-  }
-  
-      responseId_ = value;
-      onChanged();
-      return this;
-    }
-    /**
-     * <code>string responseId = 2;</code>
-     */
-    public Builder clearResponseId() {
-      
-      responseId_ = getDefaultInstance().getResponseId();
-      onChanged();
-      return this;
-    }
-    /**
-     * <code>string responseId = 2;</code>
-     */
-    public Builder setResponseIdBytes(
-        com.google.protobuf.ByteString value) {
-      if (value == null) {
-    throw new NullPointerException();
-  }
-  checkByteStringIsUtf8(value);
-      
-      responseId_ = value;
-      onChanged();
-      return this;
+        java.lang.Object ref = responseId_;
+        if (ref instanceof java.lang.String) {
+            return (java.lang.String) ref;
+        } else {
+            com.google.protobuf.ByteString bs = (com.google.protobuf.ByteString) ref;
+            java.lang.String s = bs.toStringUtf8();
+            responseId_ = s;
+            return s;
+        }
     }
 
-    private int taskState_ ;
+    /**
+     * <code>string responseId = 2;</code>
+     */
+    public com.google.protobuf.ByteString getResponseIdBytes() {
+        java.lang.Object ref = responseId_;
+        if (ref instanceof java.lang.String) {
+            com.google.protobuf.ByteString b = com.google.protobuf.ByteString.copyFromUtf8((java.lang.String) ref);
+            responseId_ = b;
+            return b;
+        } else {
+            return (com.google.protobuf.ByteString) ref;
+        }
+    }
+
+    public static final int TASKSTATE_FIELD_NUMBER = 3;
+    private int taskState_;
+
     /**
      * <code>int32 taskState = 3;</code>
      */
     public int getTaskState() {
-      return taskState_;
-    }
-    /**
-     * <code>int32 taskState = 3;</code>
-     */
-    public Builder setTaskState(int value) {
-      
-      taskState_ = value;
-      onChanged();
-      return this;
-    }
-    /**
-     * <code>int32 taskState = 3;</code>
-     */
-    public Builder clearTaskState() {
-      
-      taskState_ = 0;
-      onChanged();
-      return this;
+        return taskState_;
     }
 
-    private int errorCode_ ;
+    public static final int ERRORCODE_FIELD_NUMBER = 4;
+    private int errorCode_;
+
     /**
      * <code>int32 errorCode = 4;</code>
      */
     public int getErrorCode() {
-      return errorCode_;
-    }
-    /**
-     * <code>int32 errorCode = 4;</code>
-     */
-    public Builder setErrorCode(int value) {
-      
-      errorCode_ = value;
-      onChanged();
-      return this;
-    }
-    /**
-     * <code>int32 errorCode = 4;</code>
-     */
-    public Builder clearErrorCode() {
-      
-      errorCode_ = 0;
-      onChanged();
-      return this;
+        return errorCode_;
     }
 
-    private java.lang.Object errorMsg_ = "";
+    public static final int ERRORMSG_FIELD_NUMBER = 5;
+    private volatile java.lang.Object errorMsg_;
+
     /**
      * <code>string errorMsg = 5;</code>
      */
     public java.lang.String getErrorMsg() {
-      java.lang.Object ref = errorMsg_;
-      if (!(ref instanceof java.lang.String)) {
-        com.google.protobuf.ByteString bs =
-            (com.google.protobuf.ByteString) ref;
-        java.lang.String s = bs.toStringUtf8();
-        errorMsg_ = s;
-        return s;
-      } else {
-        return (java.lang.String) ref;
-      }
-    }
-    /**
-     * <code>string errorMsg = 5;</code>
-     */
-    public com.google.protobuf.ByteString
-        getErrorMsgBytes() {
-      java.lang.Object ref = errorMsg_;
-      if (ref instanceof String) {
-        com.google.protobuf.ByteString b = 
-            com.google.protobuf.ByteString.copyFromUtf8(
-                (java.lang.String) ref);
-        errorMsg_ = b;
-        return b;
-      } else {
-        return (com.google.protobuf.ByteString) ref;
-      }
-    }
-    /**
-     * <code>string errorMsg = 5;</code>
-     */
-    public Builder setErrorMsg(
-        java.lang.String value) {
-      if (value == null) {
-    throw new NullPointerException();
-  }
-  
-      errorMsg_ = value;
-      onChanged();
-      return this;
-    }
-    /**
-     * <code>string errorMsg = 5;</code>
-     */
-    public Builder clearErrorMsg() {
-      
-      errorMsg_ = getDefaultInstance().getErrorMsg();
-      onChanged();
-      return this;
-    }
-    /**
-     * <code>string errorMsg = 5;</code>
-     */
-    public Builder setErrorMsgBytes(
-        com.google.protobuf.ByteString value) {
-      if (value == null) {
-    throw new NullPointerException();
-  }
-  checkByteStringIsUtf8(value);
-      
-      errorMsg_ = value;
-      onChanged();
-      return this;
+        java.lang.Object ref = errorMsg_;
+        if (ref instanceof java.lang.String) {
+            return (java.lang.String) ref;
+        } else {
+            com.google.protobuf.ByteString bs = (com.google.protobuf.ByteString) ref;
+            java.lang.String s = bs.toStringUtf8();
+            errorMsg_ = s;
+            return s;
+        }
     }
 
-    private com.google.protobuf.ByteString data_ = com.google.protobuf.ByteString.EMPTY;
+    /**
+     * <code>string errorMsg = 5;</code>
+     */
+    public com.google.protobuf.ByteString getErrorMsgBytes() {
+        java.lang.Object ref = errorMsg_;
+        if (ref instanceof java.lang.String) {
+            com.google.protobuf.ByteString b = com.google.protobuf.ByteString.copyFromUtf8((java.lang.String) ref);
+            errorMsg_ = b;
+            return b;
+        } else {
+            return (com.google.protobuf.ByteString) ref;
+        }
+    }
+
+    public static final int DATA_FIELD_NUMBER = 6;
+    private com.google.protobuf.ByteString data_;
+
     /**
      * <code>bytes data = 6;</code>
      */
     public com.google.protobuf.ByteString getData() {
-      return data_;
+        return data_;
     }
+
+    private byte memoizedIsInitialized = -1;
+
+    public final boolean isInitialized() {
+        byte isInitialized = memoizedIsInitialized;
+        if (isInitialized == 1)
+            return true;
+        if (isInitialized == 0)
+            return false;
+
+        memoizedIsInitialized = 1;
+        return true;
+    }
+
+    public void writeTo(com.google.protobuf.CodedOutputStream output) throws java.io.IOException {
+        if (id_ != 0) {
+            output.writeInt32(1, id_);
+        }
+        if (!getResponseIdBytes().isEmpty()) {
+            com.google.protobuf.GeneratedMessageV3.writeString(output, 2, responseId_);
+        }
+        if (taskState_ != 0) {
+            output.writeInt32(3, taskState_);
+        }
+        if (errorCode_ != 0) {
+            output.writeInt32(4, errorCode_);
+        }
+        if (!getErrorMsgBytes().isEmpty()) {
+            com.google.protobuf.GeneratedMessageV3.writeString(output, 5, errorMsg_);
+        }
+        if (!data_.isEmpty()) {
+            output.writeBytes(6, data_);
+        }
+    }
+
+    public int getSerializedSize() {
+        int size = memoizedSize;
+        if (size != -1)
+            return size;
+
+        size = 0;
+        if (id_ != 0) {
+            size += com.google.protobuf.CodedOutputStream.computeInt32Size(1, id_);
+        }
+        if (!getResponseIdBytes().isEmpty()) {
+            size += com.google.protobuf.GeneratedMessageV3.computeStringSize(2, responseId_);
+        }
+        if (taskState_ != 0) {
+            size += com.google.protobuf.CodedOutputStream.computeInt32Size(3, taskState_);
+        }
+        if (errorCode_ != 0) {
+            size += com.google.protobuf.CodedOutputStream.computeInt32Size(4, errorCode_);
+        }
+        if (!getErrorMsgBytes().isEmpty()) {
+            size += com.google.protobuf.GeneratedMessageV3.computeStringSize(5, errorMsg_);
+        }
+        if (!data_.isEmpty()) {
+            size += com.google.protobuf.CodedOutputStream.computeBytesSize(6, data_);
+        }
+        memoizedSize = size;
+        return size;
+    }
+
+    private static final long serialVersionUID = 0L;
+
+    @java.lang.Override
+    public boolean equals(final java.lang.Object obj) {
+        if (obj == this) {
+            return true;
+        }
+        if (!(obj instanceof com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc)) {
+            return super.equals(obj);
+        }
+        com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc other = (com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc) obj;
+
+        boolean result = true;
+        result = result && (getId() == other.getId());
+        result = result && getResponseId().equals(other.getResponseId());
+        result = result && (getTaskState() == other.getTaskState());
+        result = result && (getErrorCode() == other.getErrorCode());
+        result = result && getErrorMsg().equals(other.getErrorMsg());
+        result = result && getData().equals(other.getData());
+        return result;
+    }
+
+    @java.lang.Override
+    public int hashCode() {
+        if (memoizedHashCode != 0) {
+            return memoizedHashCode;
+        }
+        int hash = 41;
+        hash = (19 * hash) + getDescriptor().hashCode();
+        hash = (37 * hash) + ID_FIELD_NUMBER;
+        hash = (53 * hash) + getId();
+        hash = (37 * hash) + RESPONSEID_FIELD_NUMBER;
+        hash = (53 * hash) + getResponseId().hashCode();
+        hash = (37 * hash) + TASKSTATE_FIELD_NUMBER;
+        hash = (53 * hash) + getTaskState();
+        hash = (37 * hash) + ERRORCODE_FIELD_NUMBER;
+        hash = (53 * hash) + getErrorCode();
+        hash = (37 * hash) + ERRORMSG_FIELD_NUMBER;
+        hash = (53 * hash) + getErrorMsg().hashCode();
+        hash = (37 * hash) + DATA_FIELD_NUMBER;
+        hash = (53 * hash) + getData().hashCode();
+        hash = (29 * hash) + unknownFields.hashCode();
+        memoizedHashCode = hash;
+        return hash;
+    }
+
+    public static com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc parseFrom(
+            com.google.protobuf.ByteString data) throws com.google.protobuf.InvalidProtocolBufferException {
+        return PARSER.parseFrom(data);
+    }
+
+    public static com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc parseFrom(
+            com.google.protobuf.ByteString data, com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+            throws com.google.protobuf.InvalidProtocolBufferException {
+        return PARSER.parseFrom(data, extensionRegistry);
+    }
+
+    public static com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc parseFrom(byte[] data)
+            throws com.google.protobuf.InvalidProtocolBufferException {
+        return PARSER.parseFrom(data);
+    }
+
+    public static com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc parseFrom(byte[] data,
+            com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+            throws com.google.protobuf.InvalidProtocolBufferException {
+        return PARSER.parseFrom(data, extensionRegistry);
+    }
+
+    public static com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc parseFrom(java.io.InputStream input)
+            throws java.io.IOException {
+        return com.google.protobuf.GeneratedMessageV3.parseWithIOException(PARSER, input);
+    }
+
+    public static com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc parseFrom(java.io.InputStream input,
+            com.google.protobuf.ExtensionRegistryLite extensionRegistry) throws java.io.IOException {
+        return com.google.protobuf.GeneratedMessageV3.parseWithIOException(PARSER, input, extensionRegistry);
+    }
+
+    public static com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc parseDelimitedFrom(
+            java.io.InputStream input) throws java.io.IOException {
+        return com.google.protobuf.GeneratedMessageV3.parseDelimitedWithIOException(PARSER, input);
+    }
+
+    public static com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc parseDelimitedFrom(
+            java.io.InputStream input, com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+            throws java.io.IOException {
+        return com.google.protobuf.GeneratedMessageV3.parseDelimitedWithIOException(PARSER, input, extensionRegistry);
+    }
+
+    public static com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc parseFrom(
+            com.google.protobuf.CodedInputStream input) throws java.io.IOException {
+        return com.google.protobuf.GeneratedMessageV3.parseWithIOException(PARSER, input);
+    }
+
+    public static com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc parseFrom(
+            com.google.protobuf.CodedInputStream input, com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+            throws java.io.IOException {
+        return com.google.protobuf.GeneratedMessageV3.parseWithIOException(PARSER, input, extensionRegistry);
+    }
+
+    public Builder newBuilderForType() {
+        return newBuilder();
+    }
+
+    public static Builder newBuilder() {
+        return DEFAULT_INSTANCE.toBuilder();
+    }
+
+    public static Builder newBuilder(com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc prototype) {
+        return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+    }
+
+    public Builder toBuilder() {
+        return this == DEFAULT_INSTANCE ? new Builder() : new Builder().mergeFrom(this);
+    }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+        Builder builder = new Builder(parent);
+        return builder;
+    }
+
     /**
-     * <code>bytes data = 6;</code>
+     * Protobuf type {@code JobInstanceResponseRpc}
      */
-    public Builder setData(com.google.protobuf.ByteString value) {
-      if (value == null) {
-    throw new NullPointerException();
-  }
-  
-      data_ = value;
-      onChanged();
-      return this;
+    public static final class Builder extends com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
+            // @@protoc_insertion_point(builder_implements:JobInstanceResponseRpc)
+            com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpcOrBuilder {
+        public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
+            return com.ylpu.thales.scheduler.core.rpc.entity.JobGrpc.internal_static_JobInstanceResponseRpc_descriptor;
+        }
+
+        protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable internalGetFieldAccessorTable() {
+            return com.ylpu.thales.scheduler.core.rpc.entity.JobGrpc.internal_static_JobInstanceResponseRpc_fieldAccessorTable
+                    .ensureFieldAccessorsInitialized(
+                            com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc.class,
+                            com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc.Builder.class);
+        }
+
+        // Construct using
+        // com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc.newBuilder()
+        private Builder() {
+            maybeForceBuilderInitialization();
+        }
+
+        private Builder(com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+            super(parent);
+            maybeForceBuilderInitialization();
+        }
+
+        private void maybeForceBuilderInitialization() {
+            if (com.google.protobuf.GeneratedMessageV3.alwaysUseFieldBuilders) {
+            }
+        }
+
+        public Builder clear() {
+            super.clear();
+            id_ = 0;
+
+            responseId_ = "";
+
+            taskState_ = 0;
+
+            errorCode_ = 0;
+
+            errorMsg_ = "";
+
+            data_ = com.google.protobuf.ByteString.EMPTY;
+
+            return this;
+        }
+
+        public com.google.protobuf.Descriptors.Descriptor getDescriptorForType() {
+            return com.ylpu.thales.scheduler.core.rpc.entity.JobGrpc.internal_static_JobInstanceResponseRpc_descriptor;
+        }
+
+        public com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc getDefaultInstanceForType() {
+            return com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc.getDefaultInstance();
+        }
+
+        public com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc build() {
+            com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc result = buildPartial();
+            if (!result.isInitialized()) {
+                throw newUninitializedMessageException(result);
+            }
+            return result;
+        }
+
+        public com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc buildPartial() {
+            com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc result = new com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc(
+                    this);
+            result.id_ = id_;
+            result.responseId_ = responseId_;
+            result.taskState_ = taskState_;
+            result.errorCode_ = errorCode_;
+            result.errorMsg_ = errorMsg_;
+            result.data_ = data_;
+            onBuilt();
+            return result;
+        }
+
+        public Builder clone() {
+            return (Builder) super.clone();
+        }
+
+        public Builder setField(com.google.protobuf.Descriptors.FieldDescriptor field, Object value) {
+            return (Builder) super.setField(field, value);
+        }
+
+        public Builder clearField(com.google.protobuf.Descriptors.FieldDescriptor field) {
+            return (Builder) super.clearField(field);
+        }
+
+        public Builder clearOneof(com.google.protobuf.Descriptors.OneofDescriptor oneof) {
+            return (Builder) super.clearOneof(oneof);
+        }
+
+        public Builder setRepeatedField(com.google.protobuf.Descriptors.FieldDescriptor field, int index,
+                Object value) {
+            return (Builder) super.setRepeatedField(field, index, value);
+        }
+
+        public Builder addRepeatedField(com.google.protobuf.Descriptors.FieldDescriptor field, Object value) {
+            return (Builder) super.addRepeatedField(field, value);
+        }
+
+        public Builder mergeFrom(com.google.protobuf.Message other) {
+            if (other instanceof com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc) {
+                return mergeFrom((com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc) other);
+            } else {
+                super.mergeFrom(other);
+                return this;
+            }
+        }
+
+        public Builder mergeFrom(com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc other) {
+            if (other == com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc.getDefaultInstance())
+                return this;
+            if (other.getId() != 0) {
+                setId(other.getId());
+            }
+            if (!other.getResponseId().isEmpty()) {
+                responseId_ = other.responseId_;
+                onChanged();
+            }
+            if (other.getTaskState() != 0) {
+                setTaskState(other.getTaskState());
+            }
+            if (other.getErrorCode() != 0) {
+                setErrorCode(other.getErrorCode());
+            }
+            if (!other.getErrorMsg().isEmpty()) {
+                errorMsg_ = other.errorMsg_;
+                onChanged();
+            }
+            if (other.getData() != com.google.protobuf.ByteString.EMPTY) {
+                setData(other.getData());
+            }
+            onChanged();
+            return this;
+        }
+
+        public final boolean isInitialized() {
+            return true;
+        }
+
+        public Builder mergeFrom(com.google.protobuf.CodedInputStream input,
+                com.google.protobuf.ExtensionRegistryLite extensionRegistry) throws java.io.IOException {
+            com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc parsedMessage = null;
+            try {
+                parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+            } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+                parsedMessage = (com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc) e
+                        .getUnfinishedMessage();
+                throw e.unwrapIOException();
+            } finally {
+                if (parsedMessage != null) {
+                    mergeFrom(parsedMessage);
+                }
+            }
+            return this;
+        }
+
+        private int id_;
+
+        /**
+         * <code>int32 id = 1;</code>
+         */
+        public int getId() {
+            return id_;
+        }
+
+        /**
+         * <code>int32 id = 1;</code>
+         */
+        public Builder setId(int value) {
+
+            id_ = value;
+            onChanged();
+            return this;
+        }
+
+        /**
+         * <code>int32 id = 1;</code>
+         */
+        public Builder clearId() {
+
+            id_ = 0;
+            onChanged();
+            return this;
+        }
+
+        private java.lang.Object responseId_ = "";
+
+        /**
+         * <code>string responseId = 2;</code>
+         */
+        public java.lang.String getResponseId() {
+            java.lang.Object ref = responseId_;
+            if (!(ref instanceof java.lang.String)) {
+                com.google.protobuf.ByteString bs = (com.google.protobuf.ByteString) ref;
+                java.lang.String s = bs.toStringUtf8();
+                responseId_ = s;
+                return s;
+            } else {
+                return (java.lang.String) ref;
+            }
+        }
+
+        /**
+         * <code>string responseId = 2;</code>
+         */
+        public com.google.protobuf.ByteString getResponseIdBytes() {
+            java.lang.Object ref = responseId_;
+            if (ref instanceof String) {
+                com.google.protobuf.ByteString b = com.google.protobuf.ByteString.copyFromUtf8((java.lang.String) ref);
+                responseId_ = b;
+                return b;
+            } else {
+                return (com.google.protobuf.ByteString) ref;
+            }
+        }
+
+        /**
+         * <code>string responseId = 2;</code>
+         */
+        public Builder setResponseId(java.lang.String value) {
+            if (value == null) {
+                throw new NullPointerException();
+            }
+
+            responseId_ = value;
+            onChanged();
+            return this;
+        }
+
+        /**
+         * <code>string responseId = 2;</code>
+         */
+        public Builder clearResponseId() {
+
+            responseId_ = getDefaultInstance().getResponseId();
+            onChanged();
+            return this;
+        }
+
+        /**
+         * <code>string responseId = 2;</code>
+         */
+        public Builder setResponseIdBytes(com.google.protobuf.ByteString value) {
+            if (value == null) {
+                throw new NullPointerException();
+            }
+            checkByteStringIsUtf8(value);
+
+            responseId_ = value;
+            onChanged();
+            return this;
+        }
+
+        private int taskState_;
+
+        /**
+         * <code>int32 taskState = 3;</code>
+         */
+        public int getTaskState() {
+            return taskState_;
+        }
+
+        /**
+         * <code>int32 taskState = 3;</code>
+         */
+        public Builder setTaskState(int value) {
+
+            taskState_ = value;
+            onChanged();
+            return this;
+        }
+
+        /**
+         * <code>int32 taskState = 3;</code>
+         */
+        public Builder clearTaskState() {
+
+            taskState_ = 0;
+            onChanged();
+            return this;
+        }
+
+        private int errorCode_;
+
+        /**
+         * <code>int32 errorCode = 4;</code>
+         */
+        public int getErrorCode() {
+            return errorCode_;
+        }
+
+        /**
+         * <code>int32 errorCode = 4;</code>
+         */
+        public Builder setErrorCode(int value) {
+
+            errorCode_ = value;
+            onChanged();
+            return this;
+        }
+
+        /**
+         * <code>int32 errorCode = 4;</code>
+         */
+        public Builder clearErrorCode() {
+
+            errorCode_ = 0;
+            onChanged();
+            return this;
+        }
+
+        private java.lang.Object errorMsg_ = "";
+
+        /**
+         * <code>string errorMsg = 5;</code>
+         */
+        public java.lang.String getErrorMsg() {
+            java.lang.Object ref = errorMsg_;
+            if (!(ref instanceof java.lang.String)) {
+                com.google.protobuf.ByteString bs = (com.google.protobuf.ByteString) ref;
+                java.lang.String s = bs.toStringUtf8();
+                errorMsg_ = s;
+                return s;
+            } else {
+                return (java.lang.String) ref;
+            }
+        }
+
+        /**
+         * <code>string errorMsg = 5;</code>
+         */
+        public com.google.protobuf.ByteString getErrorMsgBytes() {
+            java.lang.Object ref = errorMsg_;
+            if (ref instanceof String) {
+                com.google.protobuf.ByteString b = com.google.protobuf.ByteString.copyFromUtf8((java.lang.String) ref);
+                errorMsg_ = b;
+                return b;
+            } else {
+                return (com.google.protobuf.ByteString) ref;
+            }
+        }
+
+        /**
+         * <code>string errorMsg = 5;</code>
+         */
+        public Builder setErrorMsg(java.lang.String value) {
+            if (value == null) {
+                throw new NullPointerException();
+            }
+
+            errorMsg_ = value;
+            onChanged();
+            return this;
+        }
+
+        /**
+         * <code>string errorMsg = 5;</code>
+         */
+        public Builder clearErrorMsg() {
+
+            errorMsg_ = getDefaultInstance().getErrorMsg();
+            onChanged();
+            return this;
+        }
+
+        /**
+         * <code>string errorMsg = 5;</code>
+         */
+        public Builder setErrorMsgBytes(com.google.protobuf.ByteString value) {
+            if (value == null) {
+                throw new NullPointerException();
+            }
+            checkByteStringIsUtf8(value);
+
+            errorMsg_ = value;
+            onChanged();
+            return this;
+        }
+
+        private com.google.protobuf.ByteString data_ = com.google.protobuf.ByteString.EMPTY;
+
+        /**
+         * <code>bytes data = 6;</code>
+         */
+        public com.google.protobuf.ByteString getData() {
+            return data_;
+        }
+
+        /**
+         * <code>bytes data = 6;</code>
+         */
+        public Builder setData(com.google.protobuf.ByteString value) {
+            if (value == null) {
+                throw new NullPointerException();
+            }
+
+            data_ = value;
+            onChanged();
+            return this;
+        }
+
+        /**
+         * <code>bytes data = 6;</code>
+         */
+        public Builder clearData() {
+
+            data_ = getDefaultInstance().getData();
+            onChanged();
+            return this;
+        }
+
+        public final Builder setUnknownFields(final com.google.protobuf.UnknownFieldSet unknownFields) {
+            return this;
+        }
+
+        public final Builder mergeUnknownFields(final com.google.protobuf.UnknownFieldSet unknownFields) {
+            return this;
+        }
+
+        // @@protoc_insertion_point(builder_scope:JobInstanceResponseRpc)
     }
-    /**
-     * <code>bytes data = 6;</code>
-     */
-    public Builder clearData() {
-      
-      data_ = getDefaultInstance().getData();
-      onChanged();
-      return this;
-    }
-    public final Builder setUnknownFields(
-        final com.google.protobuf.UnknownFieldSet unknownFields) {
-      return this;
+
+    // @@protoc_insertion_point(class_scope:JobInstanceResponseRpc)
+    private static final com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc DEFAULT_INSTANCE;
+    static {
+        DEFAULT_INSTANCE = new com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc();
     }
 
-    public final Builder mergeUnknownFields(
-        final com.google.protobuf.UnknownFieldSet unknownFields) {
-      return this;
+    public static com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc getDefaultInstance() {
+        return DEFAULT_INSTANCE;
     }
 
+    private static final com.google.protobuf.Parser<JobInstanceResponseRpc> PARSER = new com.google.protobuf.AbstractParser<JobInstanceResponseRpc>() {
+        public JobInstanceResponseRpc parsePartialFrom(com.google.protobuf.CodedInputStream input,
+                com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+                throws com.google.protobuf.InvalidProtocolBufferException {
+            return new JobInstanceResponseRpc(input, extensionRegistry);
+        }
+    };
 
-    // @@protoc_insertion_point(builder_scope:JobInstanceResponseRpc)
-  }
-
-  // @@protoc_insertion_point(class_scope:JobInstanceResponseRpc)
-  private static final com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc DEFAULT_INSTANCE;
-  static {
-    DEFAULT_INSTANCE = new com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc();
-  }
-
-  public static com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc getDefaultInstance() {
-    return DEFAULT_INSTANCE;
-  }
-
-  private static final com.google.protobuf.Parser<JobInstanceResponseRpc>
-      PARSER = new com.google.protobuf.AbstractParser<JobInstanceResponseRpc>() {
-    public JobInstanceResponseRpc parsePartialFrom(
-        com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-        return new JobInstanceResponseRpc(input, extensionRegistry);
+    public static com.google.protobuf.Parser<JobInstanceResponseRpc> parser() {
+        return PARSER;
     }
-  };
 
-  public static com.google.protobuf.Parser<JobInstanceResponseRpc> parser() {
-    return PARSER;
-  }
+    @java.lang.Override
+    public com.google.protobuf.Parser<JobInstanceResponseRpc> getParserForType() {
+        return PARSER;
+    }
 
-  @java.lang.Override
-  public com.google.protobuf.Parser<JobInstanceResponseRpc> getParserForType() {
-    return PARSER;
-  }
-
-  public com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc getDefaultInstanceForType() {
-    return DEFAULT_INSTANCE;
-  }
+    public com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc getDefaultInstanceForType() {
+        return DEFAULT_INSTANCE;
+    }
 
 }
-

@@ -23,47 +23,52 @@ public class MasterServer {
         try {
             Runtime.getRuntime().addShutdownHook(new ShutDownHookThread(prop));
             MasterManager.getInstance().init(prop);
-            for(;;);
+            for (;;)
+                ;
         } catch (Exception e) {
             LOG.error(e);
             System.exit(1);
         }
     }
 
-    private static class ShutDownHookThread extends Thread{
-        
+    private static class ShutDownHookThread extends Thread {
+
         private Properties prop;
-        
+
         public ShutDownHookThread(Properties prop) {
             this.prop = prop;
         }
+
         @Override
         public void run() {
-            //删除zk master节点
-        	    removeMaster();
-            //关掉任务调度
+            // 删除zk master节点
+            removeMaster();
+            // 关掉任务调度
             JobScheduler.shutdownJobs();
         }
-        
+
         /**
-         *  master在意外退出时删除zk节点
+         * master在意外退出时删除zk节点
          */
         private void removeMaster() {
             String masterGroup = GlobalConstants.MASTER_GROUP;
-            int masterServerPort = Configuration.getInt(prop,"thales.master.server.port",MasterManager.DEFAULT_MASTER_SERVER_PORT);
+            int masterServerPort = Configuration.getInt(prop, "thales.master.server.port",
+                    MasterManager.DEFAULT_MASTER_SERVER_PORT);
             String activeMaster = MetricsUtils.getHostName() + ":" + masterServerPort;
-            
+
             String quorum = prop.getProperty("thales.zookeeper.quorum");
-            int sessionTimeout = Configuration.getInt(prop, "thales.zookeeper.sessionTimeout", GlobalConstants.ZOOKEEPER_SESSION_TIMEOUT);
-            int connectionTimeout = Configuration.getInt(prop, "thales.zookeeper.connectionTimeout", GlobalConstants.ZOOKEEPER_CONNECTION_TIMEOUT);
+            int sessionTimeout = Configuration.getInt(prop, "thales.zookeeper.sessionTimeout",
+                    GlobalConstants.ZOOKEEPER_SESSION_TIMEOUT);
+            int connectionTimeout = Configuration.getInt(prop, "thales.zookeeper.connectionTimeout",
+                    GlobalConstants.ZOOKEEPER_CONNECTION_TIMEOUT);
             CuratorFramework client = null;
             try {
-                LOG.info("remove master path " +  masterGroup + "/" + activeMaster + " when shutdown");
-                client = CuratorHelper.getCuratorClient(quorum,sessionTimeout,connectionTimeout);
-                CuratorHelper.delete(client, masterGroup + "/" + activeMaster); 
-            }catch(Exception e) {
-            	    LOG.error(e);
-            }finally{
+                LOG.info("remove master path " + masterGroup + "/" + activeMaster + " when shutdown");
+                client = CuratorHelper.getCuratorClient(quorum, sessionTimeout, connectionTimeout);
+                CuratorHelper.delete(client, masterGroup + "/" + activeMaster);
+            } catch (Exception e) {
+                LOG.error(e);
+            } finally {
                 CuratorHelper.close(client);
             }
         }

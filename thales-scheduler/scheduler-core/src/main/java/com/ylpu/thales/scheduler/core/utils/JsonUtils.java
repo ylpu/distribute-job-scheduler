@@ -20,8 +20,8 @@ public class JsonUtils {
      */
     public static String objToJson(Object obj) {
         JSONObject jSONObject = JSONObject.fromObject(obj);
-        String jsonString = JSON.toJSONString(jSONObject, SerializerFeature.PrettyFormat, 
-        		SerializerFeature.WriteMapNullValue, SerializerFeature.WriteDateUseDateFormat);
+        String jsonString = JSON.toJSONString(jSONObject, SerializerFeature.PrettyFormat,
+                SerializerFeature.WriteMapNullValue, SerializerFeature.WriteDateUseDateFormat);
         return jsonString;
     }
 

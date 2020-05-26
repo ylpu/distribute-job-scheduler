@@ -22,13 +22,11 @@ import com.ylpu.thales.scheduler.common.service.BaseService;
 import com.ylpu.thales.scheduler.entity.BaseEntity;
 
 @Transactional
-public abstract class BaseServiceImpl<T extends BaseEntity,D extends Serializable>
-        implements BaseService<T,D> {
-    
+public abstract class BaseServiceImpl<T extends BaseEntity, D extends Serializable> implements BaseService<T, D> {
+
     private static Log LOG = LogFactory.getLog(BaseServiceImpl.class);
 
-
-    protected abstract BaseDao<T,  D> getDao();
+    protected abstract BaseDao<T, D> getDao();
 
     protected Class<T> entityClazz;
 
@@ -43,7 +41,7 @@ public abstract class BaseServiceImpl<T extends BaseEntity,D extends Serializabl
     public T findOneById(D Id) {
         return getDao().selectByPrimaryKey(Id);
     }
-    
+
     @Transactional(readOnly = false)
     public void deleteByPrimaryKey(D id) {
         getDao().deleteByPrimaryKey(id);
@@ -59,7 +57,7 @@ public abstract class BaseServiceImpl<T extends BaseEntity,D extends Serializabl
         record.setUpdateTime(new Date());
         getDao().updateByPrimaryKeySelective(record);
     }
-    
+
     public void updateByPrimaryKey(T record) {
         record.setUpdateTime(new Date());
         getDao().updateByPrimaryKey(record);

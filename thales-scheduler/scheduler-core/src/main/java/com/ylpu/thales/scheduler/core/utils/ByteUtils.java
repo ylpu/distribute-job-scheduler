@@ -9,10 +9,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 public class ByteUtils {
-	
-	private static Log LOG = LogFactory.getLog(ByteUtils.class);
-	
-	public static byte[] objectToByteArray(Object obj) {
+
+    private static Log LOG = LogFactory.getLog(ByteUtils.class);
+
+    public static byte[] objectToByteArray(Object obj) {
         byte[] bytes = null;
         ByteArrayOutputStream byteArrayOutputStream = null;
         ObjectOutputStream objectOutputStream = null;
@@ -23,20 +23,20 @@ public class ByteUtils {
             objectOutputStream.flush();
             bytes = byteArrayOutputStream.toByteArray();
         } catch (IOException e) {
-         	LOG.error(e);
+            LOG.error(e);
         } finally {
             if (objectOutputStream != null) {
                 try {
                     objectOutputStream.close();
                 } catch (IOException e) {
-                	  LOG.error(e);
+                    LOG.error(e);
                 }
             }
             if (byteArrayOutputStream != null) {
                 try {
                     byteArrayOutputStream.close();
                 } catch (IOException e) {
-                	   LOG.error(e);
+                    LOG.error(e);
                 }
             }
 
@@ -46,6 +46,7 @@ public class ByteUtils {
 
     /**
      * Byte数组转对象
+     * 
      * @param bytes
      * @return
      */
@@ -58,7 +59,7 @@ public class ByteUtils {
             objectInputStream = new ObjectInputStream(byteArrayInputStream);
             obj = objectInputStream.readObject();
         } catch (Exception e) {
-          	LOG.error(e);
+            LOG.error(e);
         } finally {
             if (byteArrayInputStream != null) {
                 try {
@@ -71,7 +72,7 @@ public class ByteUtils {
                 try {
                     objectInputStream.close();
                 } catch (IOException e) {
-                	   LOG.error(e);
+                    LOG.error(e);
                 }
             }
         }

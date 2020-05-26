@@ -6,7 +6,7 @@ import lombok.Data;
 
 @Data
 public class SchedulerJob extends BaseEntity implements Serializable {
-    
+
     private Integer id;
 
     private String jobName;
@@ -42,7 +42,7 @@ public class SchedulerJob extends BaseEntity implements Serializable {
     private String description;
 
     private String jobConfiguration;
-    
+
     private List<SchedulerJobRelation> relations;
 
     private static final long serialVersionUID = 1L;

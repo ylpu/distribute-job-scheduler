@@ -4,106 +4,81 @@
 package com.ylpu.thales.scheduler.core.rpc.entity;
 
 public final class WorkerGrpc {
-  private WorkerGrpc() {}
-  public static void registerAllExtensions(
-      com.google.protobuf.ExtensionRegistryLite registry) {
-  }
+    private WorkerGrpc() {
+    }
 
-  public static void registerAllExtensions(
-      com.google.protobuf.ExtensionRegistry registry) {
-    registerAllExtensions(
-        (com.google.protobuf.ExtensionRegistryLite) registry);
-  }
-  static final com.google.protobuf.Descriptors.Descriptor
-    internal_static_WorkerRequestRpc_descriptor;
-  static final 
-    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-      internal_static_WorkerRequestRpc_fieldAccessorTable;
-  static final com.google.protobuf.Descriptors.Descriptor
-    internal_static_WorkerParameter_descriptor;
-  static final 
-    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-      internal_static_WorkerParameter_fieldAccessorTable;
-  static final com.google.protobuf.Descriptors.Descriptor
-    internal_static_WorkerResponseRpc_descriptor;
-  static final 
-    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-      internal_static_WorkerResponseRpc_fieldAccessorTable;
-  static final com.google.protobuf.Descriptors.Descriptor
-    internal_static_JobStatusRequestRpc_descriptor;
-  static final 
-    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-      internal_static_JobStatusRequestRpc_fieldAccessorTable;
+    public static void registerAllExtensions(com.google.protobuf.ExtensionRegistryLite registry) {
+    }
 
-  public static com.google.protobuf.Descriptors.FileDescriptor
-      getDescriptor() {
-    return descriptor;
-  }
-  private static  com.google.protobuf.Descriptors.FileDescriptor
-      descriptor;
-  static {
-    java.lang.String[] descriptorData = {
-      "\n\014worker.proto\032\017timestamp.proto\"\354\001\n\020Work" +
-      "erRequestRpc\022\n\n\002id\030\001 \001(\005\022\022\n\nworkerType\030\002" +
-      " \001(\005\022\014\n\004host\030\003 \001(\t\022\014\n\004port\030\004 \001(\005\022\023\n\013work" +
-      "erGroup\030\005 \001(\t\022\023\n\013zkdirectory\030\006 \001(\t\022\020\n\010cp" +
-      "uUsage\030\007 \001(\001\022\023\n\013memoryUsage\030\010 \001(\001\0225\n\021las" +
-      "tHeartbeatTime\030\t \001(\0132\032.google.protobuf.T" +
-      "imestamp\022\024\n\014workerStatus\030\n \001(\005\"#\n\017Worker" +
-      "Parameter\022\020\n\010hostname\030\001 \001(\t\"R\n\021WorkerRes" +
-      "ponseRpc\022\n\n\002id\030\001 \001(\005\022\021\n\terrorCode\030\002 \001(\005\022" +
-      "\020\n\010errorMsg\030\003 \001(\t\022\014\n\004data\030\004 \001(\014\"I\n\023JobSt",
-      "atusRequestRpc\022\021\n\trequestId\030\001 \001(\t\022\021\n\ttas" +
-      "kState\030\002 \001(\005\022\014\n\004data\030\003 \001(\0142\251\002\n\021GrpcWorke" +
-      "rService\022/\n\007incTask\022\020.WorkerParameter\032\022." +
-      "WorkerResponseRpc\022/\n\007decTask\022\020.WorkerPar" +
-      "ameter\032\022.WorkerResponseRpc\0227\n\016updateReso" +
-      "urce\022\021.WorkerRequestRpc\032\022.WorkerResponse" +
-      "Rpc\022<\n\023insertOrUpdateGroup\022\021.WorkerReque" +
-      "stRpc\032\022.WorkerResponseRpc\022;\n\017updateJobSt" +
-      "atus\022\024.JobStatusRequestRpc\032\022.WorkerRespo" +
-      "nseRpcB9\n)com.ylpu.thales.scheduler.core",
-      ".rpc.entityB\nWorkerGrpcP\001P\000b\006proto3"
-    };
-    com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
-        new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
-          public com.google.protobuf.ExtensionRegistry assignDescriptors(
-              com.google.protobuf.Descriptors.FileDescriptor root) {
-            descriptor = root;
-            return null;
-          }
+    public static void registerAllExtensions(com.google.protobuf.ExtensionRegistry registry) {
+        registerAllExtensions((com.google.protobuf.ExtensionRegistryLite) registry);
+    }
+
+    static final com.google.protobuf.Descriptors.Descriptor internal_static_WorkerRequestRpc_descriptor;
+    static final com.google.protobuf.GeneratedMessageV3.FieldAccessorTable internal_static_WorkerRequestRpc_fieldAccessorTable;
+    static final com.google.protobuf.Descriptors.Descriptor internal_static_WorkerParameter_descriptor;
+    static final com.google.protobuf.GeneratedMessageV3.FieldAccessorTable internal_static_WorkerParameter_fieldAccessorTable;
+    static final com.google.protobuf.Descriptors.Descriptor internal_static_WorkerResponseRpc_descriptor;
+    static final com.google.protobuf.GeneratedMessageV3.FieldAccessorTable internal_static_WorkerResponseRpc_fieldAccessorTable;
+    static final com.google.protobuf.Descriptors.Descriptor internal_static_JobStatusRequestRpc_descriptor;
+    static final com.google.protobuf.GeneratedMessageV3.FieldAccessorTable internal_static_JobStatusRequestRpc_fieldAccessorTable;
+
+    public static com.google.protobuf.Descriptors.FileDescriptor getDescriptor() {
+        return descriptor;
+    }
+
+    private static com.google.protobuf.Descriptors.FileDescriptor descriptor;
+    static {
+        java.lang.String[] descriptorData = { "\n\014worker.proto\032\017timestamp.proto\"\354\001\n\020Work"
+                + "erRequestRpc\022\n\n\002id\030\001 \001(\005\022\022\n\nworkerType\030\002"
+                + " \001(\005\022\014\n\004host\030\003 \001(\t\022\014\n\004port\030\004 \001(\005\022\023\n\013work"
+                + "erGroup\030\005 \001(\t\022\023\n\013zkdirectory\030\006 \001(\t\022\020\n\010cp"
+                + "uUsage\030\007 \001(\001\022\023\n\013memoryUsage\030\010 \001(\001\0225\n\021las"
+                + "tHeartbeatTime\030\t \001(\0132\032.google.protobuf.T"
+                + "imestamp\022\024\n\014workerStatus\030\n \001(\005\"#\n\017Worker"
+                + "Parameter\022\020\n\010hostname\030\001 \001(\t\"R\n\021WorkerRes"
+                + "ponseRpc\022\n\n\002id\030\001 \001(\005\022\021\n\terrorCode\030\002 \001(\005\022"
+                + "\020\n\010errorMsg\030\003 \001(\t\022\014\n\004data\030\004 \001(\014\"I\n\023JobSt",
+                "atusRequestRpc\022\021\n\trequestId\030\001 \001(\t\022\021\n\ttas"
+                        + "kState\030\002 \001(\005\022\014\n\004data\030\003 \001(\0142\251\002\n\021GrpcWorke"
+                        + "rService\022/\n\007incTask\022\020.WorkerParameter\032\022."
+                        + "WorkerResponseRpc\022/\n\007decTask\022\020.WorkerPar"
+                        + "ameter\032\022.WorkerResponseRpc\0227\n\016updateReso"
+                        + "urce\022\021.WorkerRequestRpc\032\022.WorkerResponse"
+                        + "Rpc\022<\n\023insertOrUpdateGroup\022\021.WorkerReque"
+                        + "stRpc\032\022.WorkerResponseRpc\022;\n\017updateJobSt"
+                        + "atus\022\024.JobStatusRequestRpc\032\022.WorkerRespo"
+                        + "nseRpcB9\n)com.ylpu.thales.scheduler.core",
+                ".rpc.entityB\nWorkerGrpcP\001P\000b\006proto3" };
+        com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner = new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
+            public com.google.protobuf.ExtensionRegistry assignDescriptors(
+                    com.google.protobuf.Descriptors.FileDescriptor root) {
+                descriptor = root;
+                return null;
+            }
         };
-    com.google.protobuf.Descriptors.FileDescriptor
-      .internalBuildGeneratedFileFrom(descriptorData,
-        new com.google.protobuf.Descriptors.FileDescriptor[] {
-          com.google.protobuf.TimestampProto.getDescriptor(),
-        }, assigner);
-    internal_static_WorkerRequestRpc_descriptor =
-      getDescriptor().getMessageTypes().get(0);
-    internal_static_WorkerRequestRpc_fieldAccessorTable = new
-      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
-        internal_static_WorkerRequestRpc_descriptor,
-        new java.lang.String[] { "Id", "WorkerType", "Host", "Port", "WorkerGroup", "Zkdirectory", "CpuUsage", "MemoryUsage", "LastHeartbeatTime", "WorkerStatus", });
-    internal_static_WorkerParameter_descriptor =
-      getDescriptor().getMessageTypes().get(1);
-    internal_static_WorkerParameter_fieldAccessorTable = new
-      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
-        internal_static_WorkerParameter_descriptor,
-        new java.lang.String[] { "Hostname", });
-    internal_static_WorkerResponseRpc_descriptor =
-      getDescriptor().getMessageTypes().get(2);
-    internal_static_WorkerResponseRpc_fieldAccessorTable = new
-      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
-        internal_static_WorkerResponseRpc_descriptor,
-        new java.lang.String[] { "Id", "ErrorCode", "ErrorMsg", "Data", });
-    internal_static_JobStatusRequestRpc_descriptor =
-      getDescriptor().getMessageTypes().get(3);
-    internal_static_JobStatusRequestRpc_fieldAccessorTable = new
-      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
-        internal_static_JobStatusRequestRpc_descriptor,
-        new java.lang.String[] { "RequestId", "TaskState", "Data", });
-    com.google.protobuf.TimestampProto.getDescriptor();
-  }
+        com.google.protobuf.Descriptors.FileDescriptor.internalBuildGeneratedFileFrom(descriptorData,
+                new com.google.protobuf.Descriptors.FileDescriptor[] {
+                        com.google.protobuf.TimestampProto.getDescriptor(), },
+                assigner);
+        internal_static_WorkerRequestRpc_descriptor = getDescriptor().getMessageTypes().get(0);
+        internal_static_WorkerRequestRpc_fieldAccessorTable = new com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+                internal_static_WorkerRequestRpc_descriptor,
+                new java.lang.String[] { "Id", "WorkerType", "Host", "Port", "WorkerGroup", "Zkdirectory", "CpuUsage",
+                        "MemoryUsage", "LastHeartbeatTime", "WorkerStatus", });
+        internal_static_WorkerParameter_descriptor = getDescriptor().getMessageTypes().get(1);
+        internal_static_WorkerParameter_fieldAccessorTable = new com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+                internal_static_WorkerParameter_descriptor, new java.lang.String[] { "Hostname", });
+        internal_static_WorkerResponseRpc_descriptor = getDescriptor().getMessageTypes().get(2);
+        internal_static_WorkerResponseRpc_fieldAccessorTable = new com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+                internal_static_WorkerResponseRpc_descriptor,
+                new java.lang.String[] { "Id", "ErrorCode", "ErrorMsg", "Data", });
+        internal_static_JobStatusRequestRpc_descriptor = getDescriptor().getMessageTypes().get(3);
+        internal_static_JobStatusRequestRpc_fieldAccessorTable = new com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+                internal_static_JobStatusRequestRpc_descriptor,
+                new java.lang.String[] { "RequestId", "TaskState", "Data", });
+        com.google.protobuf.TimestampProto.getDescriptor();
+    }
 
-  // @@protoc_insertion_point(outer_class_scope)
+    // @@protoc_insertion_point(outer_class_scope)
 }

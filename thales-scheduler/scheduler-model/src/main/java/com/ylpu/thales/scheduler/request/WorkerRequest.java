@@ -6,11 +6,11 @@ import lombok.Data;
 
 @Data
 public class WorkerRequest implements Serializable {
-    
+
     private Integer id;
 
     private Integer workerType;
- 
+
     private String host;
 
     private Integer port;
@@ -20,7 +20,7 @@ public class WorkerRequest implements Serializable {
     private String zkdirectory;
 
     private double cpuUsage;
-    
+
     private double memoryUsage;
 
     private Date lastHeartbeatTime;
@@ -28,4 +28,4 @@ public class WorkerRequest implements Serializable {
     private Integer workerStatus;
 
     private static final long serialVersionUID = 1L;
-  }
+}

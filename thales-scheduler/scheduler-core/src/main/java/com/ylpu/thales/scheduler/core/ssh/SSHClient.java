@@ -15,50 +15,50 @@ import ch.ethz.ssh2.StreamGobbler;
 
 public class SSHClient {
 
-	private static Log LOG = LogFactory.getLog(SSHClient.class);
+    private static Log LOG = LogFactory.getLog(SSHClient.class);
 
-    Map<String,Connection> connectionMap = new HashMap<String,Connection>();
-    
+    Map<String, Connection> connectionMap = new HashMap<String, Connection>();
+
     private static SSHClient sshClient = new SSHClient();
-    
-    private  SSHClient(){
-      
+
+    private SSHClient() {
+
     }
-    
-    public static SSHClient getInstance(){
+
+    public static SSHClient getInstance() {
         return sshClient;
     }
-    
+
     public synchronized Connection getConnection(String hostname, String username, String password) throws Exception {
         Connection conn = null;
         LOG.info("start to connect to host " + hostname);
         try {
-            if(connectionMap.get(hostname) == null){               
-               conn = new Connection(hostname);
-               conn.connect();
-               boolean isAuthenticated = conn.authenticateWithPassword(username,password);
-               if (isAuthenticated == false){
-                   throw new Exception("failed to get ssh connection from server ");
-               }
-               connectionMap.put(hostname, conn);
-            }  
-            
-        } catch (Exception e) {
-          LOG.error(e);
-        }     
-        return connectionMap.get(hostname);
-    }    
+            if (connectionMap.get(hostname) == null) {
+                conn = new Connection(hostname);
+                conn.connect();
+                boolean isAuthenticated = conn.authenticateWithPassword(username, password);
+                if (isAuthenticated == false) {
+                    throw new Exception("failed to get ssh connection from server ");
+                }
+                connectionMap.put(hostname, conn);
+            }
 
-    public SSHClientOutput execCommandAndReturnOutput(Connection conn,String command) throws Exception {
+        } catch (Exception e) {
+            LOG.error(e);
+        }
+        return connectionMap.get(hostname);
+    }
+
+    public SSHClientOutput execCommandAndReturnOutput(Connection conn, String command) throws Exception {
         SSHClientOutput output = new SSHClientOutput();
-        Session session = null;        
+        Session session = null;
         try {
             session = conn.openSession();
-            session.execCommand(command);            
+            session.execCommand(command);
         } catch (IllegalStateException ex) {
-     
+
         } catch (IOException ex) {
-     
+
         }
 
         int timeout = 60;
@@ -67,19 +67,19 @@ public class SSHClient {
             Thread.sleep(1000);
             if (timeout < 0)
                 break;
-        }  
+        }
         InputStream stdout = new StreamGobbler(session.getStdout());
         InputStream stderr = new StreamGobbler(session.getStderr());
-        
+
         output.setStdErr(stderr);
-        output.setStdOut(stdout);  
-        session.waitForCondition(0, 0);        
-        session.close();        
+        output.setStdOut(stdout);
+        session.waitForCondition(0, 0);
+        session.close();
         return output;
     }
 
-    public int execCommand(Connection conn,String command, boolean sourceProfile) throws Exception {
-    	
+    public int execCommand(Connection conn, String command, boolean sourceProfile) throws Exception {
+
         if (sourceProfile) {
             command = "source ./.bashrc;source /etc/profile;" + command;
         }
@@ -87,8 +87,8 @@ public class SSHClient {
         try {
             session = conn.openSession();
             session.execCommand(command);
-        } catch (IllegalStateException ex) {           
-        } catch (IOException ex) {       
+        } catch (IllegalStateException ex) {
+        } catch (IOException ex) {
         }
 
         int timeout = 360;
@@ -124,21 +124,21 @@ public class SSHClient {
         return retVal;
     }
 
-    public int execCommand(Connection conn,String command) throws Exception {
-        return this.execCommand(conn,command, false);
+    public int execCommand(Connection conn, String command) throws Exception {
+        return this.execCommand(conn, command, false);
     }
-    
-    public void closeConnection(){
-      
-       if(connectionMap != null){
-          for(Entry<String,Connection> entry : connectionMap.entrySet()){
-              String server = entry.getKey();
-              Connection conn = entry.getValue();
-              if(conn != null){
-            	     LOG.info("logout the server " + server);
-                 conn.close();
-              }
-          }
-       }
+
+    public void closeConnection() {
+
+        if (connectionMap != null) {
+            for (Entry<String, Connection> entry : connectionMap.entrySet()) {
+                String server = entry.getKey();
+                Connection conn = entry.getValue();
+                if (conn != null) {
+                    LOG.info("logout the server " + server);
+                    conn.close();
+                }
+            }
+        }
     }
 }

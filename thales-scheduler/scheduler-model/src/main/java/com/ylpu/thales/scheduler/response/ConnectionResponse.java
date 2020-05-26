@@ -4,8 +4,8 @@ import java.io.Serializable;
 import lombok.Data;
 
 @Data
-public class ConnectionResponse implements Serializable{
-	
+public class ConnectionResponse implements Serializable {
+
     private Integer id;
 
     private String connectionId;
@@ -15,7 +15,7 @@ public class ConnectionResponse implements Serializable{
     private String hostname;
 
     private Integer port;
-    
+
     private String dbSchema;
 
     private String username;

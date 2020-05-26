@@ -4,31 +4,31 @@
 package com.ylpu.thales.scheduler.core.rpc.entity;
 
 public interface WorkerResponseRpcOrBuilder extends
-    // @@protoc_insertion_point(interface_extends:WorkerResponseRpc)
-    com.google.protobuf.MessageOrBuilder {
+        // @@protoc_insertion_point(interface_extends:WorkerResponseRpc)
+        com.google.protobuf.MessageOrBuilder {
 
-  /**
-   * <code>int32 id = 1;</code>
-   */
-  int getId();
+    /**
+     * <code>int32 id = 1;</code>
+     */
+    int getId();
 
-  /**
-   * <code>int32 errorCode = 2;</code>
-   */
-  int getErrorCode();
+    /**
+     * <code>int32 errorCode = 2;</code>
+     */
+    int getErrorCode();
 
-  /**
-   * <code>string errorMsg = 3;</code>
-   */
-  java.lang.String getErrorMsg();
-  /**
-   * <code>string errorMsg = 3;</code>
-   */
-  com.google.protobuf.ByteString
-      getErrorMsgBytes();
+    /**
+     * <code>string errorMsg = 3;</code>
+     */
+    java.lang.String getErrorMsg();
 
-  /**
-   * <code>bytes data = 4;</code>
-   */
-  com.google.protobuf.ByteString getData();
+    /**
+     * <code>string errorMsg = 3;</code>
+     */
+    com.google.protobuf.ByteString getErrorMsgBytes();
+
+    /**
+     * <code>bytes data = 4;</code>
+     */
+    com.google.protobuf.ByteString getData();
 }
