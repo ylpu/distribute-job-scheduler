@@ -21,7 +21,6 @@ import com.ylpu.thales.scheduler.request.WorkerRequest;
 import com.ylpu.thales.scheduler.response.JobInstanceStateResponse;
 import com.ylpu.thales.scheduler.response.WorkerResponse;
 import com.ylpu.thales.scheduler.rest.MasterRestServer;
-import com.ylpu.thales.scheduler.rpc.client.JobStatusCheck;
 import com.ylpu.thales.scheduler.rpc.server.MasterRpcServer;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.logging.Log;
@@ -173,7 +172,7 @@ public class MasterManager {
         jettyServer = new MasterRestServer(prop);
         jettyServer.startJettyServer();
         // 启动任务状态检查线程
-        JobStatusCheck.start();
+        JobChecker.start();
         // 初始化每台机器运行的任务个数,供监控使用
         initTaskCount();
         // 启动jmx服务
@@ -220,7 +219,7 @@ public class MasterManager {
                         + DateUtils.getDateAsString(response.getScheduleTime(), DateUtils.TIME_FORMAT);
                 responseRpc = JobInstanceResponseRpc.newBuilder().setId(response.getId()).setResponseId(responseId)
                         .setTaskState(response.getTaskState()).build();
-                JobStatusCheck.addResponse(responseRpc);
+                JobChecker.addResponse(responseRpc);
             }
         }
     }

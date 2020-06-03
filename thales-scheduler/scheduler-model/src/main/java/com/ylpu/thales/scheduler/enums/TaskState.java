@@ -2,12 +2,12 @@ package com.ylpu.thales.scheduler.enums;
 
 /**
  *
- * |------------kill---------------------| | | submit -> pending --> waiting ->
+ * |------------kill---------------------| | | submit -> scheduled --> waiting ->
  * running --> success -------------------->end ^ | ^ | fail |
  * |_________retry__________|__exceed retry times___|
  */
 public enum TaskState {
-    SUBMIT(1), PENDING(2), WAITING(3), RUNNING(4), KILL(5), SUCCESS(6), FAIL(7);
+    SUBMIT(1), SCHEDULED(2), WAITING_DEPENDENCY(3), QUEUED(4), WAITING_RESOURCE(5), RUNNING(6), KILL(7), SUCCESS(8), FAIL(9);
 
     private int code;
 

@@ -7,6 +7,7 @@ import com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc;
 import com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc;
 import com.ylpu.thales.scheduler.core.rpc.service.GrpcJobServiceGrpc;
 import com.ylpu.thales.scheduler.enums.TaskState;
+import com.ylpu.thales.scheduler.manager.JobChecker;
 import com.ylpu.thales.scheduler.request.JobInstanceRequest;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
@@ -46,7 +47,7 @@ public class JobGrpcBlockingClient extends AbstractJobGrpcClient {
             responseRpc = buildResponse(requestRpc, TaskState.FAIL, 500,
                     "failed to execute task " + requestRpc.getId());
         }
-        JobStatusCheck.addResponse(responseRpc);
+        JobChecker.addResponse(responseRpc);
         LOG.info("任务 " + requestRpc.getId() + " 返回值 " + responseRpc.getErrorCode() + " ,返回消息 "
                 + responseRpc.getErrorMsg());
         if (responseRpc.getErrorCode() != 200) {
@@ -75,7 +76,7 @@ public class JobGrpcBlockingClient extends AbstractJobGrpcClient {
             responseRpc = buildResponse(requestRpc, TaskState.RUNNING, 500,
                     "failed to kill task " + requestRpc.getId());
         }
-        JobStatusCheck.addResponse(responseRpc);
+        JobChecker.addResponse(responseRpc);
 
         if (responseRpc.getErrorCode() != 200) {
             throw new RuntimeException("failed to kill task " + requestRpc.getId());

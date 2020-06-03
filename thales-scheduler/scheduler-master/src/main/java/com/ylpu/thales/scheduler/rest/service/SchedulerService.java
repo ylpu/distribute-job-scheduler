@@ -9,6 +9,7 @@ import com.ylpu.thales.scheduler.core.utils.DateUtils;
 import com.ylpu.thales.scheduler.enums.TaskState;
 import com.ylpu.thales.scheduler.manager.JobScheduleInfo;
 import com.ylpu.thales.scheduler.manager.JobScheduler;
+import com.ylpu.thales.scheduler.manager.JobChecker;
 import com.ylpu.thales.scheduler.manager.JobSubmission;
 import com.ylpu.thales.scheduler.manager.SchedulerJob;
 import com.ylpu.thales.scheduler.request.JobInstanceRequest;
@@ -18,7 +19,6 @@ import com.ylpu.thales.scheduler.response.JobInstanceResponse;
 import com.ylpu.thales.scheduler.response.JobResponse;
 import com.ylpu.thales.scheduler.response.JobTree;
 import com.ylpu.thales.scheduler.rpc.client.AbstractJobGrpcClient;
-import com.ylpu.thales.scheduler.rpc.client.JobStatusCheck;
 import com.ylpu.thales.scheduler.rpc.client.JobGrpcBlockingClient;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -75,7 +75,7 @@ public class SchedulerService {
                 jr.setIds(Arrays.asList(scheduleRequest.getId()));
                 jr.setStatus(taskState);
                 JobManager.updateJobStatus(jr);
-                JobStatusCheck.addResponse(JobSubmission.buildJobStatus(jobInstanceResponse.getJobConf(),
+                JobChecker.addResponse(JobSubmission.buildJobStatus(jobInstanceResponse.getJobConf(),
                         DateUtils.getDateFromString(jobInstanceResponse.getScheduleTime(), DateUtils.DATE_TIME_FORMAT),
                         taskState));
             } catch (Exception e) {
@@ -112,10 +112,28 @@ public class SchedulerService {
      */
     public void scheduleJob(ScheduleRequest request) throws Exception {
         try {
+            JobResponse jobResponse = JobManager.getJobById(request.getId());
+            //transit job status to submit
+            JobInstanceRequest jobInstanceRequest = new JobInstanceRequest();
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(new Date());
+            calendar.add(Calendar.YEAR, 1);
+            Date scheduleTime = CronUtils.getNextTriggerTime(jobResponse.getScheduleCron(), new Date(), calendar.getTime());
+            jobInstanceRequest.setScheduleTime(scheduleTime);
+            JobSubmission.initJobInstance(jobInstanceRequest, jobResponse);
+            int jobInstanceId = 0;
+            try {
+                jobInstanceId = JobManager.addJobInstance(jobInstanceRequest);
+            } catch (Exception e) {
+                LOG.error("fail to add job instance for job " + jobInstanceId);
+                throw new RuntimeException(e);
+            }
+            //start to schedule job
             JobScheduleInfo scheduleInfo = new JobScheduleInfo();
-            JobResponse response = JobManager.getJobById(request.getId());
-            setScheduleInfo(response, scheduleInfo);
-            JobScheduler.addJob(scheduleInfo, SchedulerJob.class);
+            scheduleInfo.setId(jobInstanceId);
+            setScheduleInfo(jobResponse, scheduleInfo);
+            JobScheduler.addJob(scheduleInfo,SchedulerJob.class);
+          
         } catch (Exception e) {
             LOG.error(e);
             throw e;
@@ -172,8 +190,10 @@ public class SchedulerService {
             LOG.warn("job does not exist or has already down " + id);
             return;
         } else if (jobInstanceResponse.getTaskState() == TaskState.SUBMIT
-                || jobInstanceResponse.getTaskState() == TaskState.PENDING
-                || jobInstanceResponse.getTaskState() == TaskState.WAITING
+                || jobInstanceResponse.getTaskState() == TaskState.SCHEDULED
+                || jobInstanceResponse.getTaskState() == TaskState.WAITING_DEPENDENCY
+                || jobInstanceResponse.getTaskState() == TaskState.QUEUED
+                || jobInstanceResponse.getTaskState() == TaskState.WAITING_RESOURCE
                 || jobInstanceResponse.getTaskState() == TaskState.RUNNING) {
             LOG.warn("one job has already running " + id);
             return;
@@ -189,12 +209,12 @@ public class SchedulerService {
                 request.setStartTime(new Date());
                 request.setCreateTime(new Date());
                 JobManager.updateJobInstanceByKey(request);
-                JobStatusCheck.addResponse(JobSubmission.buildJobStatus(jobInstanceResponse.getJobConf(),
+                JobChecker.addResponse(JobSubmission.buildJobStatus(jobInstanceResponse.getJobConf(),
                         DateUtils.getDateFromString(jobInstanceResponse.getScheduleTime(), DateUtils.DATE_TIME_FORMAT),
                         TaskState.SUBMIT));
 
                 rpcRequest = JobSubmission.initJobInstanceRequestRpc(request, jobInstanceResponse.getJobConf());
-                JobSubmission.updateJobStatus(rpcRequest);
+                JobSubmission.scheduleJob(rpcRequest);
             } catch (Exception e) {
                 LOG.error("fail to update job " + rpcRequest.getId() + " status with exception " + e.getMessage());
                 request.setTaskState(TaskState.FAIL.getCode());
@@ -208,7 +228,7 @@ public class SchedulerService {
                 }
                 JobInstanceResponseRpc responseRpc = JobSubmission.buildResponse(rpcRequest, TaskState.FAIL, 500,
                         "fail to update job " + rpcRequest.getId() + " to fail status");
-                JobStatusCheck.addResponse(responseRpc);
+                JobChecker.addResponse(responseRpc);
             }
         }
     }
@@ -274,7 +294,7 @@ public class SchedulerService {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(new Date());
         calendar.add(Calendar.YEAR, 1);
-        return CronUtils.getNextTriggerTime(currentScheduleCron, startScheduleTime, calendar.getTime());
+        return CronUtils.getNextTriggerTimeAsString(currentScheduleCron, startScheduleTime, calendar.getTime());
     }
 
     private void setScheduleInfo(JobResponse response, JobScheduleInfo scheduleInfo) {
@@ -283,7 +303,6 @@ public class SchedulerService {
         scheduleInfo.setJobGroupName(GlobalConstants.DEFAULT_SCHEDULER_JOB_GROUP);
         scheduleInfo.setTriggerName(response.getJobName());
         scheduleInfo.setTriggerGroupName(GlobalConstants.DEFAULT_SCHEDULER_TRIGGER_GROUP);
-        scheduleInfo.setData(response);
-        scheduleInfo.setId(response.getId());
+//        scheduleInfo.setData(response);
     }
 }

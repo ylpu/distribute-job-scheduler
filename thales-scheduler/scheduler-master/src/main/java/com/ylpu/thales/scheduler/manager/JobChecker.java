@@ -1,4 +1,4 @@
-package com.ylpu.thales.scheduler.rpc.client;
+package com.ylpu.thales.scheduler.manager;
 
 import com.ylpu.thales.scheduler.core.config.Configuration;
 import com.ylpu.thales.scheduler.core.constants.GlobalConstants;
@@ -9,6 +9,8 @@ import com.ylpu.thales.scheduler.enums.GrpcType;
 import com.ylpu.thales.scheduler.enums.TaskState;
 import com.ylpu.thales.scheduler.manager.JobSubmission;
 import com.ylpu.thales.scheduler.manager.TaskCall;
+import com.ylpu.thales.scheduler.rpc.client.JobDependency;
+
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -20,9 +22,9 @@ import java.util.concurrent.Executors;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-public class JobStatusCheck {
+public class JobChecker {
 
-    private static Log LOG = LogFactory.getLog(JobStatusCheck.class);
+    private static Log LOG = LogFactory.getLog(JobChecker.class);
 
     private static volatile boolean stop = false;
     // key是任务id,value是待执行的任务
@@ -92,10 +94,15 @@ public class JobStatusCheck {
                             }
                         }
                     }
+                    String requestId = dependsMap.get(entry.getKey());
+                    JobInstanceRequestRpc request = jobInstanceRequestMap.get(requestId);
                     if (ids == list.size() || isRootJob(list)) {
-                        String requestId = dependsMap.remove(entry.getKey());
-                        JobInstanceRequestRpc request = jobInstanceRequestMap.remove(requestId);
+                         requestId = dependsMap.remove(entry.getKey());
+                         request = jobInstanceRequestMap.remove(requestId);
+                         LOG.info("parent job " + entry.getKey() + " has finished, will add job " + requestId + " to queue");
                         JobSubmission.addWaitingTask(new TaskCall(request, GrpcType.ASYNC));
+                    }else {
+                        LOG.info("job " + requestId + " is waiting for dependency jobs to finish" + entry.getKey());
                     }
                 }
                 try {

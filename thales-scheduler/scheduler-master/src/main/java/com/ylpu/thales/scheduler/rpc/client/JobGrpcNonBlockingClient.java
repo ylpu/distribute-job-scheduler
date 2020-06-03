@@ -13,6 +13,7 @@ import com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc;
 import com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc;
 import com.ylpu.thales.scheduler.core.rpc.service.GrpcJobServiceGrpc;
 import com.ylpu.thales.scheduler.enums.TaskState;
+import com.ylpu.thales.scheduler.manager.JobChecker;
 import com.ylpu.thales.scheduler.request.JobInstanceRequest;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
@@ -70,7 +71,7 @@ public class JobGrpcNonBlockingClient extends AbstractJobGrpcClient {
             }
             JobInstanceResponseRpc responseRpc = buildResponse(requestRpc, TaskState.FAIL, 500,
                     "failed to execute task " + requestRpc.getId());
-            JobStatusCheck.addResponse(responseRpc);
+            JobChecker.addResponse(responseRpc);
             shutdown();
             rerunIfNeeded(requestRpc);
         }
@@ -88,7 +89,7 @@ public class JobGrpcNonBlockingClient extends AbstractJobGrpcClient {
                     result = buildResponse(requestRpc, TaskState.FAIL, 500,
                             "failed to execute task " + requestRpc.getId());
                 }
-                JobStatusCheck.addResponse(result);
+                JobChecker.addResponse(result);
                 shutdown();
             }
 
@@ -105,7 +106,7 @@ public class JobGrpcNonBlockingClient extends AbstractJobGrpcClient {
                 }
                 responseRpc = buildResponse(requestRpc, TaskState.FAIL, 500,
                         "failed to execute task " + requestRpc.getId());
-                JobStatusCheck.addResponse(responseRpc);
+                JobChecker.addResponse(responseRpc);
                 shutdown();
                 rerunIfNeeded(requestRpc);
             }

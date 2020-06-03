@@ -10,9 +10,9 @@ import com.ylpu.thales.scheduler.core.rpc.entity.WorkerRequestRpc;
 import com.ylpu.thales.scheduler.core.rpc.entity.WorkerResponseRpc;
 import com.ylpu.thales.scheduler.core.rpc.service.GrpcWorkerServiceGrpc;
 import com.ylpu.thales.scheduler.core.utils.ByteUtils;
+import com.ylpu.thales.scheduler.manager.JobChecker;
 import com.ylpu.thales.scheduler.manager.MasterManager;
 import com.ylpu.thales.scheduler.request.JobInstanceRequest;
-import com.ylpu.thales.scheduler.rpc.client.JobStatusCheck;
 import io.grpc.stub.StreamObserver;
 
 public class MasterRpcServiceImpl extends GrpcWorkerServiceGrpc.GrpcWorkerServiceImplBase {
@@ -82,7 +82,7 @@ public class MasterRpcServiceImpl extends GrpcWorkerServiceGrpc.GrpcWorkerServic
                 JobManager.updateJobInstanceSelective(jobInstanceRequest);
             }
             JobInstanceResponseRpc responseRpc = setJobStatus(request);
-            JobStatusCheck.addResponse(responseRpc);
+            JobChecker.addResponse(responseRpc);
             builder.setErrorCode(200);
             builder.setErrorMsg("");
         } catch (Exception e) {

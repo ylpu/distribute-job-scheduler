@@ -1,7 +1,5 @@
 package com.ylpu.thales.scheduler.manager;
 
-import java.util.Date;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.quartz.Job;
@@ -10,11 +8,9 @@ import org.quartz.JobExecutionException;
 import com.ylpu.thales.scheduler.core.rest.JobManager;
 import com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc;
 import com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc;
-import com.ylpu.thales.scheduler.core.utils.DateUtils;
 import com.ylpu.thales.scheduler.enums.TaskState;
 import com.ylpu.thales.scheduler.request.JobInstanceRequest;
-import com.ylpu.thales.scheduler.response.JobResponse;
-import com.ylpu.thales.scheduler.rpc.client.JobStatusCheck;
+import com.ylpu.thales.scheduler.response.JobInstanceResponse;
 
 public class SchedulerJob implements Job {
 
@@ -22,52 +18,31 @@ public class SchedulerJob implements Job {
 
     @Override
     public void execute(JobExecutionContext context) throws JobExecutionException {
+        
+        //get job instance details by job instance id
         Integer id = (Integer) context.getJobDetail().getJobDataMap().get("id");
-        JobResponse jobResponse = null;
+        JobInstanceResponse jobInstanceResponse = null;
         try {
-            jobResponse = JobManager.getJobById(id);
+            jobInstanceResponse = JobManager.getJobInstanceById(id);
         } catch (Exception e1) {
-            LOG.error("can not get job detail " + id);
+            LOG.error("can not get job instance detail " + id);
             throw new RuntimeException(e1);
         }
-
+        //init rpc request
         JobInstanceRequest request = new JobInstanceRequest();
+        request.setId(id);
         request.setScheduleTime(context.getScheduledFireTime());
         request.setStartTime(context.getFireTime());
-
-        JobSubmission.initJobInstance(request, jobResponse);
-        int jobInstanceId = 0;
+        JobSubmission.initJobInstance(request, jobInstanceResponse.getJobConf());
+        JobInstanceRequestRpc rpcRequest = JobSubmission.initJobInstanceRequestRpc(request, jobInstanceResponse.getJobConf());
+        
         try {
-            jobInstanceId = JobManager.addJobInstance(request);
+            JobSubmission.scheduleJob(rpcRequest);
         } catch (Exception e) {
-            LOG.error("fail to add job instance for job " + id);
-            throw new RuntimeException(e);
-        }
-        request.setId(jobInstanceId);
-
-        LOG.info("start to schedule job " + jobInstanceId + " with fire time " + context.getFireTime());
-
-        JobStatusCheck.addResponse(
-                JobSubmission.buildJobStatus(jobResponse, context.getScheduledFireTime(), TaskState.SUBMIT));
-
-        JobInstanceRequestRpc rpcRequest = JobSubmission.initJobInstanceRequestRpc(request, jobResponse);
-        try {
-            JobSubmission.updateJobStatus(rpcRequest);
-        } catch (Exception e) {
-            LOG.error(
-                    "fail to update job " + rpcRequest.getId() + " to waiting status with exception " + e.getMessage());
-            request.setTaskState(TaskState.FAIL.getCode());
-            request.setEndTime(new Date());
-            request.setElapseTime(DateUtils.getElapseTime(request.getStartTime(), request.getEndTime()));
-            try {
-                JobManager.updateJobInstanceSelective(request);
-            } catch (Exception e1) {
-                LOG.error(e1);
-                throw new RuntimeException(e1);
-            }
+            LOG.error("fail to update job " + rpcRequest.getId() + " to waiting status with exception " + e.getMessage());
             JobInstanceResponseRpc responseRpc = JobSubmission.buildResponse(rpcRequest, TaskState.FAIL, 500,
                     "fail to update job " + rpcRequest.getId() + " to fail status");
-            JobStatusCheck.addResponse(responseRpc);
+            JobChecker.addResponse(responseRpc);
         }
     }
 }

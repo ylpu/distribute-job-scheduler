@@ -8,9 +8,9 @@ public class GlobalConstants {
 
     public static final String DEFAULT_WORKER_STRATEGY = "MEMORY";
 
-    public static final String DEFAULT_SCHEDULER_TRIGGER_GROUP = "thales_";
+    public static final String DEFAULT_SCHEDULER_TRIGGER_GROUP = "thales";
 
-    public static final String DEFAULT_SCHEDULER_JOB_GROUP = "thales_";
+    public static final String DEFAULT_SCHEDULER_JOB_GROUP = "thales";
 
     public static final String ROOT_GROUP = "/thales";
 

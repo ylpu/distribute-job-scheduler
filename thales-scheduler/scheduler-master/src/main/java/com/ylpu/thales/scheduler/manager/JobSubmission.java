@@ -19,7 +19,6 @@ import com.ylpu.thales.scheduler.request.JobStatusRequest;
 import com.ylpu.thales.scheduler.response.JobResponse;
 import com.ylpu.thales.scheduler.response.WorkerResponse;
 import com.ylpu.thales.scheduler.rpc.client.AbstractJobGrpcClient;
-import com.ylpu.thales.scheduler.rpc.client.JobStatusCheck;
 import com.ylpu.thales.scheduler.rpc.client.JobDependency;
 import com.ylpu.thales.scheduler.rpc.client.JobGrpcBlockingClient;
 import com.ylpu.thales.scheduler.rpc.client.JobGrpcNonBlockingClient;
@@ -67,12 +66,9 @@ public class JobSubmission {
         es.execute(new TimeoutThread());
     }
 
-    public static void updateJobStatus(JobInstanceRequestRpc requestRpc) throws Exception {
+    public static void scheduleJob(JobInstanceRequestRpc requestRpc) throws Exception {
         JobInstanceResponseRpc responseRpc = null;
-        JobInstanceRequest request = new JobInstanceRequest();
-        request.setId(requestRpc.getId());
-        request.setStartTime(DateUtils.getDatetime(requestRpc.getStartTime()));
-        request.setScheduleTime(DateUtils.getDatetime(requestRpc.getScheduleTime()));
+
         List<JobDependency> dependJobs = new ArrayList<JobDependency>();
 
         if (requestRpc.getJob().getDependenciesList() == null
@@ -81,15 +77,20 @@ public class JobSubmission {
         } else {
             dependJobs = getLatestJobDepends(requestRpc);
         }
-        JobStatusCheck.addJobInstanceRequest(requestRpc);
+        JobChecker.addJobInstanceRequest(requestRpc);
 
-        JobStatusCheck.addDepends(dependJobs, requestRpc.getRequestId());
-
-        request.setTaskState(TaskState.WAITING.getCode());
+        JobChecker.addDepends(dependJobs, requestRpc.getRequestId());
+        
+        //transit job status to scheduled
+        JobInstanceRequest request = new JobInstanceRequest();
+        request.setId(requestRpc.getId());
+        request.setStartTime(DateUtils.getDatetime(requestRpc.getStartTime()));
+        request.setScheduleTime(DateUtils.getDatetime(requestRpc.getScheduleTime()));
+        request.setTaskState(TaskState.SCHEDULED.getCode());
         JobManager.updateJobInstanceSelective(request);
 
-        responseRpc = buildResponse(requestRpc, TaskState.WAITING, 200, "");
-        JobStatusCheck.addResponse(responseRpc);
+        responseRpc = buildResponse(requestRpc, TaskState.SCHEDULED, 200, "");
+        JobChecker.addResponse(responseRpc);
     }
 
     private static List<JobDependency> getLatestJobDepends(JobInstanceRequestRpc request) {
@@ -134,7 +135,9 @@ public class JobSubmission {
                     AbstractJobGrpcClient client = null;
                     try {
                         try {
-                            client = getClient(taskCall.getRpcRequest(), taskCall.getGrpcType());
+                            WorkerResponse worker = getAvailableWorker(taskCall.getRpcRequest().getJob().getWorkerGroupname(),
+                                    taskCall.getRpcRequest().getId());
+                            client = getClient(worker,taskCall.getGrpcType());
                             client.submitJob(taskCall.getRpcRequest());
                         } catch (Exception e) {
                             LOG.error(e);
@@ -163,7 +166,7 @@ public class JobSubmission {
                 JobInstanceResponseRpc response = JobInstanceResponseRpc.newBuilder().setResponseId(responseId)
                         .setErrorCode(500).setTaskState(TaskState.FAIL.getCode()).setErrorMsg("failed to execute job")
                         .build();
-                JobStatusCheck.addResponse(response);
+                JobChecker.addResponse(response);
             } catch (Exception e) {
                 LOG.error(e);
             }
@@ -178,7 +181,9 @@ public class JobSubmission {
                 if (taskCall != null) {
                     AbstractJobGrpcClient client = null;
                     try {
-                        client = getClient(taskCall.getRpcRequest(), taskCall.getGrpcType());
+                        WorkerResponse worker = getAvailableWorker(taskCall.getRpcRequest().getJob().getWorkerGroupname(), 
+                                taskCall.getRpcRequest().getId());
+                        client = getClient(worker, taskCall.getGrpcType());
                         try {
                             client.kill(taskCall.getRpcRequest());
                         } catch (Exception e) {
@@ -197,9 +202,8 @@ public class JobSubmission {
         }
     }
 
-    private static AbstractJobGrpcClient getClient(JobInstanceRequestRpc rpcRequest, GrpcType grpcType) {
+    private static AbstractJobGrpcClient getClient(WorkerResponse worker,GrpcType grpcType) {
         AbstractJobGrpcClient client = null;
-        WorkerResponse worker = getAvailableWorker(rpcRequest.getJob().getWorkerGroupname(), rpcRequest.getId());
         if (grpcType == GrpcType.SYNC) {
             client = new JobGrpcBlockingClient(worker.getHost(), worker.getPort());
         } else {
@@ -211,7 +215,7 @@ public class JobSubmission {
     private static WorkerResponse getAvailableWorker(String workerGroup, int jobId) {
         WorkerResponse worker = null;
         int i = 1;
-        while (i <= 3) {
+        while (true) {
             try {
                 worker = MasterManager.getInstance().getIdleWorker(workerGroup, "");
                 return worker;
@@ -225,7 +229,6 @@ public class JobSubmission {
             }
             i++;
         }
-        throw new RuntimeException("can not get available resource to execute job " + jobId);
     }
 
     /**
