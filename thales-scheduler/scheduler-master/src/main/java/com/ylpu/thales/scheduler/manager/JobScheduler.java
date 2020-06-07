@@ -49,7 +49,7 @@ public class JobScheduler {
             JobDetail jobDetail = JobBuilder.newJob(jobClass)
                     .withIdentity(scheduleInfo.getJobName(), scheduleInfo.getJobGroupName()).build();
             jobDetail.getJobDataMap().put("id", scheduleInfo.getId());
-            jobDetail.getJobDataMap().put("data", scheduleInfo.getData());
+//            jobDetail.getJobDataMap().put("data", scheduleInfo.getData());
             // 触发器
             TriggerBuilder<Trigger> triggerBuilder = TriggerBuilder.newTrigger();
             // 触发器名,触发器组
@@ -123,6 +123,21 @@ public class JobScheduler {
         } catch (Exception e) {
             LOG.error(e);
             throw new RuntimeException(e);
+        }
+    }
+    
+    /**
+     * 判断任务
+     * 
+     * @param scheduleInfo
+     */
+    public static boolean jobExists(JobScheduleInfo scheduleInfo) {
+        try {
+            Scheduler sched = schedulerFactory.getScheduler();
+            return sched.checkExists(JobKey.jobKey(scheduleInfo.getJobName(), scheduleInfo.getJobGroupName()));
+        } catch (Exception e) {
+            LOG.error(e);
+            return false;
         }
     }
 

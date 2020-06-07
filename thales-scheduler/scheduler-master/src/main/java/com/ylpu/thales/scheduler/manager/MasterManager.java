@@ -41,7 +41,7 @@ public class MasterManager {
 
     private static MasterManager resourceManager = new MasterManager();
 
-    public static final int DEFAULT_MASTER_SERVER_PORT = 9091;
+    public static final int DEFAULT_MASTER_SERVER_PORT = 8081;
     public static final int DEFAULT_JMX_PORT = 9095;
 
     // key is worker group path,value is server list

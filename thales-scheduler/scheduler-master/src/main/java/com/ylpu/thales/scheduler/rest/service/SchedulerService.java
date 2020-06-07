@@ -113,27 +113,15 @@ public class SchedulerService {
     public void scheduleJob(ScheduleRequest request) throws Exception {
         try {
             JobResponse jobResponse = JobManager.getJobById(request.getId());
-            //transit job status to submit
-            JobInstanceRequest jobInstanceRequest = new JobInstanceRequest();
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTime(new Date());
-            calendar.add(Calendar.YEAR, 1);
-            Date scheduleTime = CronUtils.getNextTriggerTime(jobResponse.getScheduleCron(), new Date(), calendar.getTime());
-            jobInstanceRequest.setScheduleTime(scheduleTime);
-            JobSubmission.initJobInstance(jobInstanceRequest, jobResponse);
-            int jobInstanceId = 0;
-            try {
-                jobInstanceId = JobManager.addJobInstance(jobInstanceRequest);
-            } catch (Exception e) {
-                LOG.error("fail to add job instance for job " + jobInstanceId);
-                throw new RuntimeException(e);
-            }
-            //start to schedule job
+            
             JobScheduleInfo scheduleInfo = new JobScheduleInfo();
-            scheduleInfo.setId(jobInstanceId);
             setScheduleInfo(jobResponse, scheduleInfo);
-            JobScheduler.addJob(scheduleInfo,SchedulerJob.class);
-          
+            if(!JobScheduler.jobExists(scheduleInfo)) {
+                JobScheduler.addJob(scheduleInfo, SchedulerJob.class);
+            }else {
+                LOG.error("job " + jobResponse.getJobName() + " has scheduled");
+                throw new RuntimeException("job " + jobResponse.getJobName() + " has scheduled");
+            }
         } catch (Exception e) {
             LOG.error(e);
             throw e;
@@ -217,20 +205,24 @@ public class SchedulerService {
                 JobSubmission.scheduleJob(rpcRequest);
             } catch (Exception e) {
                 LOG.error("fail to update job " + rpcRequest.getId() + " status with exception " + e.getMessage());
-                request.setTaskState(TaskState.FAIL.getCode());
-                request.setEndTime(new Date());
-                request.setElapseTime(DateUtils.getElapseTime(request.getStartTime(), request.getEndTime()));
-                try {
-                    JobManager.updateJobInstanceSelective(request);
-                } catch (Exception e1) {
-                    LOG.error(e1);
-                    throw new RuntimeException(e1);
-                }
-                JobInstanceResponseRpc responseRpc = JobSubmission.buildResponse(rpcRequest, TaskState.FAIL, 500,
-                        "fail to update job " + rpcRequest.getId() + " to fail status");
-                JobChecker.addResponse(responseRpc);
+                markAsFailed(request,rpcRequest);
             }
         }
+    }
+    
+    private void markAsFailed(JobInstanceRequest request,JobInstanceRequestRpc rpcRequest) {
+        request.setTaskState(TaskState.FAIL.getCode());
+        request.setEndTime(new Date());
+        request.setElapseTime(DateUtils.getElapseTime(request.getStartTime(), request.getEndTime()));
+        try {
+            JobManager.updateJobInstanceSelective(request);
+        } catch (Exception e1) {
+            LOG.error(e1);
+            throw new RuntimeException(e1);
+        }
+        JobInstanceResponseRpc responseRpc = JobSubmission.buildResponse(rpcRequest, TaskState.FAIL, 500,
+                "fail to update job " + rpcRequest.getId() + " to fail status");
+        JobChecker.addResponse(responseRpc);
     }
 
     /**
@@ -304,5 +296,6 @@ public class SchedulerService {
         scheduleInfo.setTriggerName(response.getJobName());
         scheduleInfo.setTriggerGroupName(GlobalConstants.DEFAULT_SCHEDULER_TRIGGER_GROUP);
 //        scheduleInfo.setData(response);
+        scheduleInfo.setId(response.getId());
     }
 }

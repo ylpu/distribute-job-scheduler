@@ -70,7 +70,7 @@ public class JobSubmission {
         JobInstanceResponseRpc responseRpc = null;
 
         List<JobDependency> dependJobs = new ArrayList<JobDependency>();
-
+        //get job dependency
         if (requestRpc.getJob().getDependenciesList() == null
                 || requestRpc.getJob().getDependenciesList().size() == 0) {
             dependJobs.add(new JobDependency(requestRpc.getJob().getId(), "root"));
@@ -88,7 +88,8 @@ public class JobSubmission {
         request.setScheduleTime(DateUtils.getDatetime(requestRpc.getScheduleTime()));
         request.setTaskState(TaskState.SCHEDULED.getCode());
         JobManager.updateJobInstanceSelective(request);
-
+        
+        //update memory job status
         responseRpc = buildResponse(requestRpc, TaskState.SCHEDULED, 200, "");
         JobChecker.addResponse(responseRpc);
     }
