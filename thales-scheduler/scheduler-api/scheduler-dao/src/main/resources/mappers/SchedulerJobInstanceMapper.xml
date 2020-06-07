@@ -308,6 +308,6 @@
   </update>
   <select id = "getTaskLineByJobId" parameterType="java.lang.Integer" resultMap="taskElapseMap">
     select schedule_time,elapse_time from t_thales_scheduler_job_instance where job_id = #{id,jdbcType=INTEGER}
-      group by schedule_time,elapse_time having count(*) between 0 and 30
+      order by schedule_time desc limit 30;
   </select>
 </mapper>

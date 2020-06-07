@@ -70,7 +70,18 @@
            <groupId>com.101tec</groupId>  
            <artifactId>zkclient</artifactId>  
            <version>${zkclient.version}</version>  
-        </dependency>  
+           <exclusions>
+             <exclusion>
+                 <groupId>org.apache.zookeeper</groupId>
+                 <artifactId>zookeeper</artifactId>
+             </exclusion>
+           </exclusions>
+        </dependency> 
+        <dependency>
+           <groupId>org.apache.zookeeper</groupId>
+           <artifactId>zookeeper</artifactId>
+           <version>3.4.14</version>
+        </dependency> 
          <dependency>
             <groupId>com.ylpu.thales</groupId>
             <artifactId>thales-scheduler</artifactId>

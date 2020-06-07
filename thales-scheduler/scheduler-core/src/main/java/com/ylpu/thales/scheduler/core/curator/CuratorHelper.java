@@ -101,11 +101,4 @@ public class CuratorHelper {
         }
         return masters.get(0);
     }
-
-    public static void main(String[] args) throws Exception {
-        CuratorFramework client = CuratorHelper.getCuratorClient();
-        System.out.println(CuratorHelper.getChildren(client, "/thales"));
-        CuratorHelper.createNodeIfNotExist(client, "/thales/workers/127.0.0.1", CreateMode.EPHEMERAL,
-                "127.0.0.1".getBytes());
-    }
 }
