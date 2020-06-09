@@ -81,17 +81,20 @@ public class JobSubmission {
 
         JobChecker.addDepends(dependJobs, requestRpc.getRequestId());
         
-        //transit job status to scheduled
+        //transit task status to scheduled
+        transitTaskStatusToScheduled(requestRpc);
+        //update memory job status
+        responseRpc = buildResponse(requestRpc, TaskState.SCHEDULED, 200, "");
+        JobChecker.addResponse(responseRpc);
+    }
+    
+    private static void transitTaskStatusToScheduled(JobInstanceRequestRpc requestRpc) throws Exception {
         JobInstanceRequest request = new JobInstanceRequest();
         request.setId(requestRpc.getId());
         request.setStartTime(DateUtils.getDatetime(requestRpc.getStartTime()));
         request.setScheduleTime(DateUtils.getDatetime(requestRpc.getScheduleTime()));
         request.setTaskState(TaskState.SCHEDULED.getCode());
         JobManager.updateJobInstanceSelective(request);
-        
-        //update memory job status
-        responseRpc = buildResponse(requestRpc, TaskState.SCHEDULED, 200, "");
-        JobChecker.addResponse(responseRpc);
     }
 
     private static List<JobDependency> getLatestJobDepends(JobInstanceRequestRpc request) {
@@ -213,7 +216,7 @@ public class JobSubmission {
         return client;
     }
 
-    private static WorkerResponse getAvailableWorker(String workerGroup, int jobId) {
+    private static WorkerResponse getAvailableWorker(String workerGroup, int taskId) {
         WorkerResponse worker = null;
         int i = 1;
         while (true) {
@@ -221,14 +224,26 @@ public class JobSubmission {
                 worker = MasterManager.getInstance().getIdleWorker(workerGroup, "");
                 return worker;
             } catch (Exception e) {
-                LOG.error("can not get available resource to execute job " + jobId + " with  " + i + " tries");
+                LOG.error("can not get available resource to execute task " + taskId + " with  " + i + " tries");
             }
+            transitTaskStatusToWaitingResource(taskId);
             try {
                 Thread.sleep(RESOURCE_CHECK_INTERVAL);
             } catch (InterruptedException e) {
                 LOG.error(e);
             }
             i++;
+        }
+    }
+    
+    private static void transitTaskStatusToWaitingResource(Integer taskId) {
+        JobInstanceRequest request = new JobInstanceRequest();
+        request.setId(taskId);
+        request.setTaskState(TaskState.WAITING_RESOURCE.getCode());
+        try {
+            JobManager.updateJobInstanceSelective(request);
+        } catch (Exception e) {
+            LOG.error(e);
         }
     }
 

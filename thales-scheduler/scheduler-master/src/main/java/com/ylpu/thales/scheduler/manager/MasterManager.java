@@ -159,6 +159,7 @@ public class MasterManager {
                 addNodeChangeListener(client, groupPath);
             }
         }
+        //设置所有的worker为removed
         WorkerGroupRequest param = new WorkerGroupRequest();
         param.setStatus(WorkerStatus.REMOVED);
         WorkerManager.updateWorkersStatus(param);

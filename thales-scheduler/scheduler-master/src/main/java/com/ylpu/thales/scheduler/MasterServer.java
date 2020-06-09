@@ -10,6 +10,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.curator.framework.CuratorFramework;
 import java.util.Properties;
+import java.util.concurrent.TimeUnit;
 
 public class MasterServer {
     /**
@@ -23,8 +24,7 @@ public class MasterServer {
         try {
             Runtime.getRuntime().addShutdownHook(new ShutDownHookThread(prop));
             MasterManager.getInstance().init(prop);
-            for (;;)
-                ;
+            TimeUnit.DAYS.sleep(Integer.MAX_VALUE);
         } catch (Exception e) {
             LOG.error(e);
             System.exit(1);

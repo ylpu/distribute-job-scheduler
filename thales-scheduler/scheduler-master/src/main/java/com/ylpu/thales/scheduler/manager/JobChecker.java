@@ -2,6 +2,7 @@ package com.ylpu.thales.scheduler.manager;
 
 import com.ylpu.thales.scheduler.core.config.Configuration;
 import com.ylpu.thales.scheduler.core.constants.GlobalConstants;
+import com.ylpu.thales.scheduler.core.rest.JobManager;
 import com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc;
 import com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc;
 import com.ylpu.thales.scheduler.core.utils.DateUtils;
@@ -9,6 +10,7 @@ import com.ylpu.thales.scheduler.enums.GrpcType;
 import com.ylpu.thales.scheduler.enums.TaskState;
 import com.ylpu.thales.scheduler.manager.JobSubmission;
 import com.ylpu.thales.scheduler.manager.TaskCall;
+import com.ylpu.thales.scheduler.request.JobInstanceRequest;
 import com.ylpu.thales.scheduler.rpc.client.JobDependency;
 
 import java.util.Date;
@@ -100,9 +102,11 @@ public class JobChecker {
                          requestId = dependsMap.remove(entry.getKey());
                          request = jobInstanceRequestMap.remove(requestId);
                          LOG.info("parent job " + entry.getKey() + " has finished, will add job " + requestId + " to queue");
-                        JobSubmission.addWaitingTask(new TaskCall(request, GrpcType.ASYNC));
+                         transitTaskStatusToQueue(request.getId());
+                         JobSubmission.addWaitingTask(new TaskCall(request, GrpcType.ASYNC));
                     }else {
                         LOG.info("job " + requestId + " is waiting for dependency jobs to finish" + entry.getKey());
+                        transitTaskStatusToWaitingDependency(request.getId());
                     }
                 }
                 try {
@@ -121,6 +125,28 @@ public class JobChecker {
                 }
             }
             return false;
+        }
+    }
+    
+    private static void transitTaskStatusToQueue(Integer taskId) {
+        JobInstanceRequest request = new JobInstanceRequest();
+        request.setId(taskId);
+        request.setTaskState(TaskState.QUEUED.getCode());
+        try {
+            JobManager.updateJobInstanceSelective(request);
+        } catch (Exception e) {
+            LOG.error(e);
+        }
+    }
+    
+    private static void transitTaskStatusToWaitingDependency(Integer taskId) {
+        JobInstanceRequest request = new JobInstanceRequest();
+        request.setId(taskId);
+        request.setTaskState(TaskState.WAITING_DEPENDENCY.getCode());
+        try {
+            JobManager.updateJobInstanceSelective(request);
+        } catch (Exception e) {
+            LOG.error(e);
         }
     }
 
