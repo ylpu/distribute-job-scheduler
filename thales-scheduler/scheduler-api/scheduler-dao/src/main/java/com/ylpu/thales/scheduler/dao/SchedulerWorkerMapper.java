@@ -5,6 +5,7 @@ import java.util.Map;
 import org.apache.ibatis.annotations.Param;
 import com.ylpu.thales.scheduler.common.dao.BaseDao;
 import com.ylpu.thales.scheduler.entity.SchedulerWorker;
+import com.ylpu.thales.scheduler.entity.WorkerUsage;
 
 public interface SchedulerWorkerMapper extends BaseDao<SchedulerWorker, Integer> {
 
@@ -21,4 +22,8 @@ public interface SchedulerWorkerMapper extends BaseDao<SchedulerWorker, Integer>
     List<SchedulerWorker> findAll(@Param("workerGroup") String workerGroup, @Param("worker") String worker);
 
     List<String> getWorkerGroups(@Param("workerStatus") Integer workerStatus);
+    
+    public List<WorkerUsage> getWorkerCpuUsage();
+    
+    public List<WorkerUsage> getWorkerMemoryUsage();
 }

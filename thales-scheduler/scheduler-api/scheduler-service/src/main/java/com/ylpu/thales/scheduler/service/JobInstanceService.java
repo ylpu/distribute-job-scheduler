@@ -12,6 +12,7 @@ import com.ylpu.thales.scheduler.response.JobInstanceResponse;
 import com.ylpu.thales.scheduler.response.JobInstanceStateResponse;
 import com.ylpu.thales.scheduler.response.TaskElapseChartResponse;
 import com.ylpu.thales.scheduler.response.TaskSummaryResponse;
+import com.ylpu.thales.scheduler.response.WorkerSummaryResponse;
 
 public interface JobInstanceService extends BaseService<SchedulerJobInstance, Integer> {
 
@@ -46,6 +47,8 @@ public interface JobInstanceService extends BaseService<SchedulerJobInstance, In
     public PageInfo<JobInstanceResponse> findAll(Integer taskState, String jobName, int pageNo, int pageSize);
 
     public List<TaskSummaryResponse> getTaskSummary();
+    
+    public List<WorkerSummaryResponse> getWorkerSummary();
 
     public List<TaskElapseChartResponse> getTaskLineByJobId(Integer id);
 

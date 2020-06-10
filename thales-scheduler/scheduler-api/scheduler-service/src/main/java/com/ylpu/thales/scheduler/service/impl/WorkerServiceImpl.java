@@ -18,10 +18,14 @@ import com.ylpu.thales.scheduler.common.service.impl.BaseServiceImpl;
 import com.ylpu.thales.scheduler.common.utils.DateUtils;
 import com.ylpu.thales.scheduler.dao.SchedulerWorkerMapper;
 import com.ylpu.thales.scheduler.entity.SchedulerWorker;
+import com.ylpu.thales.scheduler.entity.WorkerSummary;
+import com.ylpu.thales.scheduler.entity.WorkerUsage;
 import com.ylpu.thales.scheduler.enums.WorkerStatus;
 import com.ylpu.thales.scheduler.request.WorkerGroupRequest;
 import com.ylpu.thales.scheduler.request.WorkerRequest;
 import com.ylpu.thales.scheduler.response.WorkerResponse;
+import com.ylpu.thales.scheduler.response.WorkerSummaryResponse;
+import com.ylpu.thales.scheduler.response.WorkerUsageResponse;
 import com.ylpu.thales.scheduler.service.WorkerService;
 
 @Service
@@ -127,5 +131,37 @@ public class WorkerServiceImpl extends BaseServiceImpl<SchedulerWorker, Integer>
         Map<String, Object> map = new HashMap<String, Object>();
         map.put("status", param.getStatus().getCode());
         schedulerWorkerMapper.updateWorkersStatus(map);
+    }
+
+    @Override
+    public List<WorkerUsageResponse> getWorkerCpuUsage() {
+        List<WorkerUsageResponse> responses = new ArrayList<WorkerUsageResponse>();
+        WorkerUsageResponse response = null;
+        List<WorkerUsage> list = schedulerWorkerMapper.getWorkerCpuUsage();
+        if (list != null && list.size() > 0) {
+            for (WorkerUsage workerUsage : list) {
+                response = new WorkerUsageResponse();
+                response.setWorker(workerUsage.getWorkerName());
+                response.setUsage(workerUsage.getUsage());
+                responses.add(response);
+            }
+        }
+        return responses;
+    }
+    
+    @Override
+    public List<WorkerUsageResponse> getWorkerMemoryUsage() {
+        List<WorkerUsageResponse> responses = new ArrayList<WorkerUsageResponse>();
+        WorkerUsageResponse response = null;
+        List<WorkerUsage> list = schedulerWorkerMapper.getWorkerMemoryUsage();
+        if (list != null && list.size() > 0) {
+            for (WorkerUsage workerUsage : list) {
+                response = new WorkerUsageResponse();
+                response.setWorker(workerUsage.getWorkerName());
+                response.setUsage(workerUsage.getUsage());
+                responses.add(response);
+            }
+        }
+        return responses;
     }
 }

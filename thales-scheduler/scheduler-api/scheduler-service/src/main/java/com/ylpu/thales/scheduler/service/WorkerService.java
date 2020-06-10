@@ -7,6 +7,7 @@ import com.ylpu.thales.scheduler.entity.SchedulerWorker;
 import com.ylpu.thales.scheduler.request.WorkerGroupRequest;
 import com.ylpu.thales.scheduler.request.WorkerRequest;
 import com.ylpu.thales.scheduler.response.WorkerResponse;
+import com.ylpu.thales.scheduler.response.WorkerUsageResponse;
 
 public interface WorkerService extends BaseService<SchedulerWorker, Integer> {
 
@@ -25,5 +26,9 @@ public interface WorkerService extends BaseService<SchedulerWorker, Integer> {
     public PageInfo<WorkerResponse> findAll(String workerGroup, String worker, int pageNo, int pageSize);
 
     public List<String> getWorkerGroups(Integer workerStatus);
+    
+    public List<WorkerUsageResponse> getWorkerCpuUsage();
+    
+    public List<WorkerUsageResponse> getWorkerMemoryUsage();
 
 }

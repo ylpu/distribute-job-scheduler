@@ -17,6 +17,7 @@ import com.ylpu.thales.scheduler.response.JobInstanceStateResponse;
 import com.ylpu.thales.scheduler.response.SchedulerResponse;
 import com.ylpu.thales.scheduler.response.TaskElapseChartResponse;
 import com.ylpu.thales.scheduler.response.TaskSummaryResponse;
+import com.ylpu.thales.scheduler.response.WorkerSummaryResponse;
 import com.ylpu.thales.scheduler.service.JobInstanceService;
 import com.ylpu.thales.scheduler.service.exception.ThalesRuntimeException;
 import org.apache.commons.lang3.StringUtils;
@@ -245,6 +246,12 @@ public class JobInstanceController {
     @RequestMapping(value = "/getTaskSummary", method = RequestMethod.GET)
     public SchedulerResponse<List<TaskSummaryResponse>> getTaskSummary() {
         return new SchedulerResponse<List<TaskSummaryResponse>>(jobInstanceService.getTaskSummary());
+    }
+    
+    @ResponseBody
+    @RequestMapping(value = "/getWorkerSummary", method = RequestMethod.GET)
+    public SchedulerResponse<List<WorkerSummaryResponse>> getWorkerSummary() {
+        return new SchedulerResponse<List<WorkerSummaryResponse>>(jobInstanceService.getWorkerSummary());
     }
 
     @ResponseBody

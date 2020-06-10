@@ -15,6 +15,25 @@
     <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
     <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
   </resultMap>
+  
+  <resultMap id="workerCpuUsageMap" type="com.ylpu.thales.scheduler.entity.WorkerUsage" >
+    <result column="host" property="workerName" jdbcType="VARCHAR" />
+    <result column="cpu_usage" property="usage" jdbcType="DOUBLE" />
+  </resultMap>
+  
+  <resultMap id="workerMemoryUsageMap" type="com.ylpu.thales.scheduler.entity.WorkerUsage" >
+    <result column="host" property="workerName" jdbcType="VARCHAR" />
+    <result column="memory_usage" property="usage" jdbcType="DOUBLE" />
+  </resultMap>
+  
+  <select id = "getWorkerCpuUsage" resultMap="workerCpuUsageMap">
+      select host,cpu_usage from t_thales_scheduler_worker
+  </select>
+  
+  <select id = "getWorkerMemoryUsage" resultMap="workerMemoryUsageMap">
+      select host,memory_usage from t_thales_scheduler_worker
+  </select>
+  
   <sql id="Base_Column_List" >
     id, worker_type, host, port, worker_group, zkDirectory, cpu_usage,memory_usage, last_heartbeat_time, 
     worker_status, create_time, update_time

@@ -9,6 +9,7 @@ import com.ylpu.thales.scheduler.entity.JobInstanceState;
 import com.ylpu.thales.scheduler.entity.SchedulerJobInstance;
 import com.ylpu.thales.scheduler.entity.TaskElapseChart;
 import com.ylpu.thales.scheduler.entity.TaskSummary;
+import com.ylpu.thales.scheduler.entity.WorkerSummary;
 
 public interface SchedulerJobInstanceMapper extends BaseDao<SchedulerJobInstance, Integer> {
 
@@ -29,6 +30,8 @@ public interface SchedulerJobInstanceMapper extends BaseDao<SchedulerJobInstance
     public Integer getInstantCount(@Param("taskState") Integer taskState, @Param("jobName") String jobName);
 
     public List<TaskSummary> getTaskSummary();
+    
+    public List<WorkerSummary> getWorkerSummary();
 
     public List<TaskElapseChart> getTaskLineByJobId(Integer id);
 

@@ -24,6 +24,7 @@ import com.ylpu.thales.scheduler.entity.JobInstanceState;
 import com.ylpu.thales.scheduler.entity.SchedulerJobInstance;
 import com.ylpu.thales.scheduler.entity.TaskElapseChart;
 import com.ylpu.thales.scheduler.entity.TaskSummary;
+import com.ylpu.thales.scheduler.entity.WorkerSummary;
 import com.ylpu.thales.scheduler.enums.JobReleaseState;
 import com.ylpu.thales.scheduler.enums.JobType;
 import com.ylpu.thales.scheduler.enums.RoleTypes;
@@ -36,6 +37,7 @@ import com.ylpu.thales.scheduler.response.JobResponse;
 import com.ylpu.thales.scheduler.response.TaskElapseChartResponse;
 import com.ylpu.thales.scheduler.response.TaskSummaryResponse;
 import com.ylpu.thales.scheduler.response.UserResponse;
+import com.ylpu.thales.scheduler.response.WorkerSummaryResponse;
 import com.ylpu.thales.scheduler.service.JobInstanceService;
 import com.ylpu.thales.scheduler.service.JobService;
 import com.ylpu.thales.scheduler.service.exception.ThalesRuntimeException;
@@ -267,6 +269,21 @@ public class JobInstanceServiceImpl extends BaseServiceImpl<SchedulerJobInstance
                 response = new TaskSummaryResponse();
                 response.setTaskState(TaskState.getTaskStateById(taskSummary.getTaskState()).toString());
                 response.setTaskCount(taskSummary.getTaskCount());
+                responses.add(response);
+            }
+        }
+        return responses;
+    }
+    
+    public List<WorkerSummaryResponse> getWorkerSummary() {
+        List<WorkerSummaryResponse> responses = new ArrayList<WorkerSummaryResponse>();
+        WorkerSummaryResponse response = null;
+        List<WorkerSummary> list = schedulerJobInstanceMapper.getWorkerSummary();
+        if (list != null && list.size() > 0) {
+            for (WorkerSummary workerSummary : list) {
+                response = new WorkerSummaryResponse();
+                response.setWorker(workerSummary.getWorkerName());
+                response.setTaskCount(workerSummary.getTaskCount());
                 responses.add(response);
             }
         }

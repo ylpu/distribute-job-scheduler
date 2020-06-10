@@ -5,6 +5,8 @@ import com.ylpu.thales.scheduler.request.WorkerGroupRequest;
 import com.ylpu.thales.scheduler.request.WorkerRequest;
 import com.ylpu.thales.scheduler.response.SchedulerResponse;
 import com.ylpu.thales.scheduler.response.WorkerResponse;
+import com.ylpu.thales.scheduler.response.WorkerSummaryResponse;
+import com.ylpu.thales.scheduler.response.WorkerUsageResponse;
 import com.ylpu.thales.scheduler.service.WorkerService;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,5 +70,17 @@ public class WorkerController {
             @RequestParam(value = "worker", required = false) String worker) {
         return new SchedulerResponse<PageInfo<WorkerResponse>>(
                 workerService.findAll(workerGroup, worker, pageNo, pageSize));
+    }
+    
+    @ResponseBody
+    @RequestMapping(value = "/getWorkerCpuUsage", method = RequestMethod.GET)
+    public SchedulerResponse<List<WorkerUsageResponse>> getWorkerCpuUsage() {
+        return new SchedulerResponse<List<WorkerUsageResponse>>(workerService.getWorkerCpuUsage());
+    }
+    
+    @ResponseBody
+    @RequestMapping(value = "/getWorkerMemoryUsage", method = RequestMethod.GET)
+    public SchedulerResponse<List<WorkerUsageResponse>> getWorkerMemoryUsage() {
+        return new SchedulerResponse<List<WorkerUsageResponse>>(workerService.getWorkerMemoryUsage());
     }
 }
