@@ -187,7 +187,7 @@ public class WorkerServiceImpl extends BaseServiceImpl<SchedulerWorker, Integer>
                 throw new ThalesRuntimeException("failed to down executor " + request.getHost() + ":" + request.getPort());
             }
         } else {
-            throw new ThalesRuntimeException("调度服务不可用");
+            throw new ThalesRuntimeException("服务不可用");
         }
     }
     
