@@ -28,8 +28,8 @@ public class SchedulerJob implements Job {
             JobInstanceRequest request = new JobInstanceRequest();
             request.setScheduleTime(context.getScheduledFireTime());
             request.setStartTime(context.getFireTime());
-            JobSubmission.initJobInstance(request, jobResponse);
-            request.setId(initJob(request,id));
+            JobSubmission.initJobInstance(request, jobResponse.getId());
+            request.setId(addJobInstance(request,id));
 
             JobInstanceRequestRpc rpcRequest = JobSubmission.initJobInstanceRequestRpc(request, jobResponse);
             try {
@@ -55,7 +55,7 @@ public class SchedulerJob implements Job {
             LOG.error(e1);
             throw new RuntimeException(e1);
         }
-        JobInstanceResponseRpc responseRpc = JobSubmission.buildResponse(rpcRequest, TaskState.FAIL, 500,
+        JobInstanceResponseRpc responseRpc = JobSubmission.buildResponse(rpcRequest.getRequestId(), TaskState.FAIL, 500,
                 "fail to update job " + rpcRequest.getId() + " to fail status");
         JobChecker.addResponse(responseRpc);
     }
@@ -71,7 +71,7 @@ public class SchedulerJob implements Job {
         return jobResponse;
     }
     
-    private int initJob(JobInstanceRequest request, int jobId) {
+    private int addJobInstance(JobInstanceRequest request, int jobId) {
         int jobInstanceId = 0;
         try {
             jobInstanceId = JobManager.addJobInstance(request);

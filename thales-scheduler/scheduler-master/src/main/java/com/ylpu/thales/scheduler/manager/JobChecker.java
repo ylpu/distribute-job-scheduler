@@ -103,9 +103,13 @@ public class JobChecker {
                          request = jobInstanceRequestMap.remove(requestId);
                          LOG.info("parent job " + entry.getKey() + " has finished, will add job " + requestId + " to queue");
                          transitTaskStatusToQueue(request.getId());
+                         JobInstanceResponseRpc responseRpc = JobSubmission.buildResponse(requestId, TaskState.QUEUED, 200,"");
+                         JobChecker.addResponse(responseRpc);
                          JobSubmission.addWaitingTask(new TaskCall(request, GrpcType.ASYNC));
                     }else {
                         LOG.info("job " + requestId + " is waiting for dependency jobs to finish" + entry.getKey());
+                        JobInstanceResponseRpc responseRpc = JobSubmission.buildResponse(requestId, TaskState.WAITING_DEPENDENCY, 200,"");
+                        JobChecker.addResponse(responseRpc);
                         transitTaskStatusToWaitingDependency(request.getId());
                     }
                 }

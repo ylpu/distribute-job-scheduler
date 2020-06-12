@@ -7,26 +7,32 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.transaction.Transactional;
+
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.ylpu.thales.scheduler.common.curator.CuratorHelper;
 import com.ylpu.thales.scheduler.common.dao.BaseDao;
+import com.ylpu.thales.scheduler.common.rest.ScheduleManager;
 import com.ylpu.thales.scheduler.common.service.impl.BaseServiceImpl;
 import com.ylpu.thales.scheduler.common.utils.DateUtils;
 import com.ylpu.thales.scheduler.dao.SchedulerWorkerMapper;
 import com.ylpu.thales.scheduler.entity.SchedulerWorker;
-import com.ylpu.thales.scheduler.entity.WorkerSummary;
 import com.ylpu.thales.scheduler.entity.WorkerUsage;
+import com.ylpu.thales.scheduler.enums.RoleTypes;
 import com.ylpu.thales.scheduler.enums.WorkerStatus;
 import com.ylpu.thales.scheduler.request.WorkerGroupRequest;
 import com.ylpu.thales.scheduler.request.WorkerRequest;
+import com.ylpu.thales.scheduler.response.UserResponse;
 import com.ylpu.thales.scheduler.response.WorkerResponse;
-import com.ylpu.thales.scheduler.response.WorkerSummaryResponse;
 import com.ylpu.thales.scheduler.response.WorkerUsageResponse;
 import com.ylpu.thales.scheduler.service.WorkerService;
+import com.ylpu.thales.scheduler.service.exception.ThalesRuntimeException;
 
 @Service
 @Transactional
@@ -163,5 +169,37 @@ public class WorkerServiceImpl extends BaseServiceImpl<SchedulerWorker, Integer>
             }
         }
         return responses;
+    }
+    
+    @Override
+    public void markDown(WorkerRequest request, Object object) {
+        if (!isAdmin(object)) {
+            throw new ThalesRuntimeException("非admin不能下线executor");
+        }
+        if(request.getCurrentWorkerStatus().equalsIgnoreCase(WorkerStatus.REMOVED.toString())) {
+            throw new ThalesRuntimeException("节点 " + request.getHost() + " 已经下线");
+        }
+        String masterUrl = CuratorHelper.getMasterServiceUri();
+        if (StringUtils.isNotBlank(masterUrl)) {
+            int status = ScheduleManager.markDown(CuratorHelper.getMasterServiceUri(), request);
+            // 204-执行成功，但无内容返回
+            if (status != HttpStatus.NO_CONTENT.value()) {
+                throw new ThalesRuntimeException("failed to down executor " + request.getHost() + ":" + request.getPort());
+            }
+        } else {
+            throw new ThalesRuntimeException("调度服务不可用");
+        }
+    }
+    
+    private boolean isAdmin(Object object) {
+        if (object == null) {
+            throw new ThalesRuntimeException("请重新登陆");
+        }
+        UserResponse user = (UserResponse) object;
+        if (user.getRoleNames().contains(RoleTypes.ROLE_ADMIN.toString())) {
+            return true;
+        } else {
+            return false;
+        }
     }
 }

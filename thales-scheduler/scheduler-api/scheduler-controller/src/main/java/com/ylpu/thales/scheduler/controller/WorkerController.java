@@ -1,6 +1,7 @@
 package com.ylpu.thales.scheduler.controller;
 
 import com.github.pagehelper.PageInfo;
+import com.ylpu.thales.scheduler.request.ScheduleRequest;
 import com.ylpu.thales.scheduler.request.WorkerGroupRequest;
 import com.ylpu.thales.scheduler.request.WorkerRequest;
 import com.ylpu.thales.scheduler.response.SchedulerResponse;
@@ -9,8 +10,12 @@ import com.ylpu.thales.scheduler.response.WorkerSummaryResponse;
 import com.ylpu.thales.scheduler.response.WorkerUsageResponse;
 import com.ylpu.thales.scheduler.service.WorkerService;
 import java.util.List;
+
+import javax.servlet.http.HttpSession;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -82,5 +87,13 @@ public class WorkerController {
     @RequestMapping(value = "/getWorkerMemoryUsage", method = RequestMethod.GET)
     public SchedulerResponse<List<WorkerUsageResponse>> getWorkerMemoryUsage() {
         return new SchedulerResponse<List<WorkerUsageResponse>>(workerService.getWorkerMemoryUsage());
+    }
+    
+    @ResponseBody
+    @RequestMapping(value = "/markDown", method = RequestMethod.POST)
+    public SchedulerResponse<Void> markDown(@Validated @RequestBody WorkerRequest request, HttpSession session) {
+        Object object = session.getAttribute("user");
+        workerService.markDown(request, object);
+        return SchedulerResponse.success();
     }
 }

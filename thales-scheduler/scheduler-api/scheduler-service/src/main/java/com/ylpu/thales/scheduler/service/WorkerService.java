@@ -30,5 +30,7 @@ public interface WorkerService extends BaseService<SchedulerWorker, Integer> {
     public List<WorkerUsageResponse> getWorkerCpuUsage();
     
     public List<WorkerUsageResponse> getWorkerMemoryUsage();
+    
+    public void markDown(WorkerRequest request, Object object);
 
 }

@@ -26,6 +26,8 @@ public class WorkerRequest implements Serializable {
     private Date lastHeartbeatTime;
 
     private Integer workerStatus;
+    
+    private String currentWorkerStatus;
 
     private static final long serialVersionUID = 1L;
 }

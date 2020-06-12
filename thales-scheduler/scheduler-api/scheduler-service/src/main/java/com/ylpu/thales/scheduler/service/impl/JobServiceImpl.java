@@ -258,7 +258,7 @@ public class JobServiceImpl extends BaseServiceImpl<SchedulerJob, Integer> imple
 
     @Override
     public void scheduleJob(ScheduleRequest request) {
-        String masterUrl = CuratorHelper.getMasterServiceUri(request.getId());
+        String masterUrl = CuratorHelper.getMasterServiceUri();
         if (StringUtils.isNotBlank(masterUrl)) {
             int status = ScheduleManager.scheduleJob(masterUrl, request);
             if (status != HttpStatus.NO_CONTENT.value()) {
@@ -272,7 +272,7 @@ public class JobServiceImpl extends BaseServiceImpl<SchedulerJob, Integer> imple
 
     @Override
     public void rescheduleJob(ScheduleRequest request) {
-        String masterUrl = CuratorHelper.getMasterServiceUri(request.getId());
+        String masterUrl = CuratorHelper.getMasterServiceUri();
         if (StringUtils.isNotBlank(masterUrl)) {
             int status = ScheduleManager.rescheduleJob(masterUrl, request);
             if (status != HttpStatus.NO_CONTENT.value()) {
@@ -294,7 +294,7 @@ public class JobServiceImpl extends BaseServiceImpl<SchedulerJob, Integer> imple
         schedulerJob.setJobReleasestate(JobReleaseState.OFFLINE.getCode());
         schedulerJob.setUpdateTime(new Date());
         updateByPrimaryKeySelective(schedulerJob);
-        String masterUrl = CuratorHelper.getMasterServiceUri(request.getId());
+        String masterUrl = CuratorHelper.getMasterServiceUri();
         if (StringUtils.isNotBlank(masterUrl)) {
             int status = ScheduleManager.downJob(masterUrl, request);
             if (status != HttpStatus.NO_CONTENT.value()) {

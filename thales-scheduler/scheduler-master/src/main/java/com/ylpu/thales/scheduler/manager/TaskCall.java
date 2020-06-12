@@ -28,6 +28,30 @@ public class TaskCall implements Comparable<TaskCall> {
     public void setGrpcType(GrpcType grpcType) {
         this.grpcType = grpcType;
     }
+    
+    @Override
+    public boolean equals(Object obj) {
+        if(this == obj){
+            return true;
+        }
+        if(obj == null){
+            return false;
+        }
+        if(obj instanceof TaskCall){
+            TaskCall other = (TaskCall) obj;
+            if(this.rpcRequest.getRequestId().equalsIgnoreCase(other.getRpcRequest().getRequestId())){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = 17;
+        result = 31 * result + (rpcRequest.getRequestId() == null ? 0 : rpcRequest.getRequestId().hashCode());
+        return result;
+    }
 
     @Override
     public int compareTo(TaskCall o) {

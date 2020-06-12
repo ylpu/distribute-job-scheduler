@@ -74,7 +74,7 @@ public class CuratorHelper {
         }
     }
 
-    public static String getMasterServiceUri(int id) {
+    public static String getMasterServiceUri() {
         Properties prop = Configuration.getConfig(GlobalConstants.CONFIG_FILE);
         String quorum = prop.getProperty("thales.zookeeper.quorum");
         int sessionTimeout = Configuration.getInt(prop, "thales.zookeeper.sessionTimeout",

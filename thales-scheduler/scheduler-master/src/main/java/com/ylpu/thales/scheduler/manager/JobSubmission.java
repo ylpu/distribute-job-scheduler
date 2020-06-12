@@ -49,6 +49,16 @@ public class JobSubmission {
     private static Queue<TaskCall> timeoutQueue = new LinkedBlockingQueue<TaskCall>();
 
     private static PriorityBlockingQueue<TaskCall> waitingQueue = new PriorityBlockingQueue<TaskCall>();
+    
+    private static volatile boolean need_waiting = true;
+
+    public static boolean isNeed_waiting() {
+        return need_waiting;
+    }
+
+    public static void setNeed_waiting(boolean need_waiting) {
+        JobSubmission.need_waiting = need_waiting;
+    }
 
     public static PriorityBlockingQueue<TaskCall> getWaitingQueue() {
         return waitingQueue;
@@ -84,7 +94,7 @@ public class JobSubmission {
         //transit task status to scheduled
         transitTaskStatusToScheduled(requestRpc);
         //update memory job status
-        responseRpc = buildResponse(requestRpc, TaskState.SCHEDULED, 200, "");
+        responseRpc = buildResponse(requestRpc.getRequestId(), TaskState.SCHEDULED, 200, "");
         JobChecker.addResponse(responseRpc);
     }
     
@@ -97,10 +107,14 @@ public class JobSubmission {
         JobManager.updateJobInstanceSelective(request);
     }
 
-    private static List<JobDependency> getLatestJobDepends(JobInstanceRequestRpc request) {
+    public static List<JobDependency> getLatestJobDepends(JobInstanceRequestRpc request) {
+        Date currentJobScheduleTime = DateUtils.getDatetime(request.getScheduleTime());
+        return getLatestJobDepends(request,currentJobScheduleTime);
+    }
+    
+    public static List<JobDependency> getLatestJobDepends(JobInstanceRequestRpc request, Date currentJobScheduleTime) {
 
         List<JobDependency> jobDependencies = new ArrayList<JobDependency>();
-        Date currentJobScheduleTime = DateUtils.getDatetime(request.getScheduleTime());
         List<JobRequestRpc> dependencies = request.getJob().getDependenciesList();
 
         Iterator<JobRequestRpc> it = dependencies.iterator();
@@ -116,9 +130,9 @@ public class JobSubmission {
         return jobDependencies;
     }
 
-    public static JobInstanceResponseRpc buildResponse(JobInstanceRequestRpc requestRpc, TaskState taskState,
+    public static JobInstanceResponseRpc buildResponse(String requestId, TaskState taskState,
             int errorCode, String errorMsg) {
-        return JobInstanceResponseRpc.newBuilder().setResponseId(requestRpc.getRequestId()).setErrorCode(errorCode)
+        return JobInstanceResponseRpc.newBuilder().setResponseId(requestId).setErrorCode(errorCode)
                 .setTaskState(taskState.getCode()).setErrorMsg(errorMsg).build();
     }
 
@@ -138,16 +152,17 @@ public class JobSubmission {
                 if (taskCall != null) {
                     AbstractJobGrpcClient client = null;
                     try {
+                        WorkerResponse worker = getAvailableWorker(taskCall.getRpcRequest());
                         try {
-                            WorkerResponse worker = getAvailableWorker(taskCall.getRpcRequest().getJob().getWorkerGroupname(),
-                                    taskCall.getRpcRequest().getId());
                             client = getClient(worker,taskCall.getGrpcType());
                             client.submitJob(taskCall.getRpcRequest());
                         } catch (Exception e) {
                             LOG.error(e);
                             processException(taskCall.getRpcRequest());
                         }
-                    } finally {
+                    } catch(Exception e) {
+                        LOG.error(e);
+                    }finally {
                         // 同步rpc直接关闭，异步rpc需要内部关闭
                         if (taskCall.getGrpcType() == GrpcType.SYNC) {
                             if (client != null) {
@@ -159,21 +174,22 @@ public class JobSubmission {
             }
         }
 
-        private void processException(JobInstanceRequestRpc request) {
-            JobStatusRequest jr = new JobStatusRequest();
-            jr.setIds(Arrays.asList(request.getId()));
-            jr.setStatus(TaskState.FAIL);
-            try {
-                JobManager.updateJobStatus(jr);
-                String responseId = request.getJob().getId() + "-" + DateUtils
-                        .getDateAsString(DateUtils.getDatetime(request.getScheduleTime()), DateUtils.TIME_FORMAT);
-                JobInstanceResponseRpc response = JobInstanceResponseRpc.newBuilder().setResponseId(responseId)
-                        .setErrorCode(500).setTaskState(TaskState.FAIL.getCode()).setErrorMsg("failed to execute job")
-                        .build();
-                JobChecker.addResponse(response);
-            } catch (Exception e) {
-                LOG.error(e);
-            }
+    }
+    
+    private static void processException(JobInstanceRequestRpc request) {
+        JobStatusRequest jr = new JobStatusRequest();
+        jr.setIds(Arrays.asList(request.getId()));
+        jr.setStatus(TaskState.FAIL);
+        try {
+            JobManager.updateJobStatus(jr);
+            String responseId = request.getJob().getId() + "-" + DateUtils
+                    .getDateAsString(DateUtils.getDatetime(request.getScheduleTime()), DateUtils.TIME_FORMAT);
+            JobInstanceResponseRpc response = JobInstanceResponseRpc.newBuilder().setResponseId(responseId)
+                    .setErrorCode(500).setTaskState(TaskState.FAIL.getCode()).setErrorMsg("failed to execute job")
+                    .build();
+            JobChecker.addResponse(response);
+        } catch (Exception e) {
+            LOG.error(e);
         }
     }
 
@@ -185,15 +201,18 @@ public class JobSubmission {
                 if (taskCall != null) {
                     AbstractJobGrpcClient client = null;
                     try {
-                        WorkerResponse worker = getAvailableWorker(taskCall.getRpcRequest().getJob().getWorkerGroupname(), 
-                                taskCall.getRpcRequest().getId());
-                        client = getClient(worker, taskCall.getGrpcType());
+                        WorkerResponse worker = getAvailableWorker(taskCall.getRpcRequest());
                         try {
+                            client = getClient(worker, taskCall.getGrpcType());
                             client.kill(taskCall.getRpcRequest());
                         } catch (Exception e) {
                             LOG.error(e);
+                            processException(taskCall.getRpcRequest());
                         }
-                    } finally {
+                    }catch(Exception e) {
+                        LOG.error(e);
+                    }
+                    finally {
                         // 同步rpc直接关闭，异步rpc需要内部关闭
                         if (taskCall.getGrpcType() == GrpcType.SYNC) {
                             if (client != null) {
@@ -216,17 +235,17 @@ public class JobSubmission {
         return client;
     }
 
-    private static WorkerResponse getAvailableWorker(String workerGroup, int taskId) {
+    private static WorkerResponse getAvailableWorker(JobInstanceRequestRpc requestRpc) {
         WorkerResponse worker = null;
         int i = 1;
-        while (true) {
+        while (need_waiting) {
             try {
-                worker = MasterManager.getInstance().getIdleWorker(workerGroup, "");
+                worker = MasterManager.getInstance().getIdleWorker(requestRpc.getJob().getWorkerGroupname(), "");
                 return worker;
             } catch (Exception e) {
-                LOG.error("can not get available resource to execute task " + taskId + " with  " + i + " tries");
+                LOG.error("can not get available resource to execute task " + requestRpc.getId() + " with  " + i + " tries");
             }
-            transitTaskStatusToWaitingResource(taskId);
+            transitTaskStatusToWaitingResource(requestRpc);
             try {
                 Thread.sleep(RESOURCE_CHECK_INTERVAL);
             } catch (InterruptedException e) {
@@ -234,17 +253,21 @@ public class JobSubmission {
             }
             i++;
         }
+        throw new RuntimeException("stop to waiting resource for " + requestRpc.getId());
     }
     
-    private static void transitTaskStatusToWaitingResource(Integer taskId) {
+    private static void transitTaskStatusToWaitingResource(JobInstanceRequestRpc requestRpc) {
         JobInstanceRequest request = new JobInstanceRequest();
-        request.setId(taskId);
+        request.setId(requestRpc.getId());
         request.setTaskState(TaskState.WAITING_RESOURCE.getCode());
         try {
             JobManager.updateJobInstanceSelective(request);
         } catch (Exception e) {
             LOG.error(e);
         }
+        JobInstanceResponseRpc responseRpc = JobSubmission.buildResponse(
+                requestRpc.getRequestId(), TaskState.WAITING_RESOURCE, 200,"");
+        JobChecker.addResponse(responseRpc);
     }
 
     /**
@@ -254,13 +277,13 @@ public class JobSubmission {
      * @throws InvocationTargetException
      * @throws IllegalAccessException
      */
-    public static void initJobInstance(JobInstanceRequest request, JobResponse jobResponse) {
+    public static void initJobInstance(JobInstanceRequest request, Integer jobId) {
         request.setApplicationid("");
         request.setCreatorEmail("");
         request.setCreatorName("");
         request.setEndTime(null);
         request.setElapseTime(0);
-        request.setJobId(jobResponse.getId());
+        request.setJobId(jobId);
         request.setLogPath("");
         request.setLogUrl("");
         request.setPid(-1);

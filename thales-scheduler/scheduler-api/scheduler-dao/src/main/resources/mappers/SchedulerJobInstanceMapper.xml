@@ -55,10 +55,10 @@
       select worker,count(*) as cnt from t_thales_scheduler_job_instance  where task_state = 4 group by worker
   </select>
   <select id = "getTaskSummary" resultMap="taskSummaryMap">
-      select task_state,count(*) as task_Count from t_thales_scheduler_job_instance group by task_state
+      select task_state,count(*) as task_Count from t_thales_scheduler_job_instance where start_time > current_date() group by task_state
   </select>
   <select id = "getWorkerSummary" resultMap="workerSummaryMap">
-      select worker,count(*) as task_Count from t_thales_scheduler_job_instance where worker is not null group by worker
+      select worker,count(*) as task_Count from t_thales_scheduler_job_instance where worker is not null and start_time > current_date() group by worker
   </select>
   
   <select id = "getInstanceIdByTime" resultMap="BaseResultMap">

@@ -6,12 +6,14 @@ import com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc;
 import com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc;
 import com.ylpu.thales.scheduler.core.utils.CronUtils;
 import com.ylpu.thales.scheduler.core.utils.DateUtils;
+import com.ylpu.thales.scheduler.enums.GrpcType;
 import com.ylpu.thales.scheduler.enums.TaskState;
 import com.ylpu.thales.scheduler.manager.JobScheduleInfo;
 import com.ylpu.thales.scheduler.manager.JobScheduler;
 import com.ylpu.thales.scheduler.manager.JobChecker;
 import com.ylpu.thales.scheduler.manager.JobSubmission;
 import com.ylpu.thales.scheduler.manager.SchedulerJob;
+import com.ylpu.thales.scheduler.manager.TaskCall;
 import com.ylpu.thales.scheduler.request.JobInstanceRequest;
 import com.ylpu.thales.scheduler.request.JobStatusRequest;
 import com.ylpu.thales.scheduler.request.ScheduleRequest;
@@ -19,14 +21,21 @@ import com.ylpu.thales.scheduler.response.JobInstanceResponse;
 import com.ylpu.thales.scheduler.response.JobResponse;
 import com.ylpu.thales.scheduler.response.JobTree;
 import com.ylpu.thales.scheduler.rpc.client.AbstractJobGrpcClient;
+import com.ylpu.thales.scheduler.rpc.client.JobDependency;
 import com.ylpu.thales.scheduler.rpc.client.JobGrpcBlockingClient;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 public class SchedulerService {
 
@@ -64,25 +73,87 @@ public class SchedulerService {
         }
     }
 
-    public void markStatus(ScheduleRequest scheduleRequest, TaskState taskState) throws Exception {
+    public void markStatus(ScheduleRequest scheduleRequest, TaskState toState) throws Exception {
         JobInstanceResponse jobInstanceResponse = JobManager.getJobInstanceById(scheduleRequest.getId());
-        if (jobInstanceResponse.getTaskState() == TaskState.RUNNING) {
-            killJob(scheduleRequest);
-        }
-        if (jobInstanceResponse.getTaskState() != taskState) {
-            try {
-                JobStatusRequest jr = new JobStatusRequest();
-                jr.setIds(Arrays.asList(scheduleRequest.getId()));
-                jr.setStatus(taskState);
-                JobManager.updateJobStatus(jr);
-                JobChecker.addResponse(JobSubmission.buildJobStatus(jobInstanceResponse.getJobConf(),
-                        DateUtils.getDateFromString(jobInstanceResponse.getScheduleTime(), DateUtils.DATE_TIME_FORMAT),
-                        taskState));
-            } catch (Exception e) {
-                LOG.error(e);
-                throw e;
+        String jobRequestId = jobInstanceResponse.getJobId() + "-" + jobInstanceResponse.getScheduleTime()
+        .replace(":", "").replace(" ", "").replace("-", "");
+//        JobInstanceResponseRpc responseRpc = JobChecker.getResponse(jobRequestId);
+        if(jobInstanceResponse != null) {
+            if (jobInstanceResponse.getTaskState() != toState) {
+                try {
+                    if (jobInstanceResponse.getTaskState() == TaskState.RUNNING) {
+                        killJob(scheduleRequest);
+                    }else {
+                        //remove rpc request from map
+                        if(jobInstanceResponse.getTaskState() == TaskState.WAITING_DEPENDENCY) {
+                            removeAndGetRequestRpc(jobInstanceResponse,jobRequestId);
+
+                        }else if(jobInstanceResponse.getTaskState() == TaskState.QUEUED) {
+                            JobInstanceRequestRpc request = removeAndGetRequestRpc(jobInstanceResponse,jobRequestId);
+                            JobSubmission.getWaitingQueue().remove(new TaskCall(request, GrpcType.ASYNC));
+                            
+                        }else if(jobInstanceResponse.getTaskState() == TaskState.WAITING_RESOURCE) {
+                            JobSubmission.setNeed_waiting(false);
+                        }
+                    }
+                    JobStatusRequest jr = new JobStatusRequest();
+                    jr.setIds(Arrays.asList(scheduleRequest.getId()));
+                    jr.setStatus(toState);
+                    JobManager.updateJobStatus(jr);
+                    JobChecker.addResponse(JobSubmission.buildJobStatus(jobInstanceResponse.getJobConf(),
+                            DateUtils.getDateFromString(jobInstanceResponse.getScheduleTime(), DateUtils.DATE_TIME_FORMAT),
+                            toState));
+                } catch (Exception e) {
+                    LOG.error(e);
+                    throw e;
+                }
             }
         }
+    }
+    private JobInstanceRequestRpc removeAndGetRequestRpc(JobInstanceResponse jobInstanceResponse,String jobRequestId) {
+        JobInstanceRequestRpc requestRpc = null;
+        Map<List<JobDependency>, String> dependsMap = JobChecker.getDepends();
+        for (Entry<List<JobDependency>, String> entry : dependsMap.entrySet()) {
+             String dependenciesAsString = getDependenciesAsString(entry.getKey());
+             if(getDependenciesAsString(jobInstanceResponse).equalsIgnoreCase(dependenciesAsString) &&
+                     entry.getValue().equalsIgnoreCase(jobRequestId)) {
+                 String requestId = JobChecker.getDepends().remove(entry.getKey());
+                 requestRpc = JobChecker.getJobInstanceRequestMap().remove(requestId);
+             }
+        }
+        return requestRpc;
+    }
+    
+    private String getDependenciesAsString(JobInstanceResponse jobInstanceResponse) {
+        JobInstanceRequest request = new JobInstanceRequest();
+        JobSubmission.initJobInstance(request, request.getJobId());
+        request.setScheduleTime(DateUtils.getDateFromString(jobInstanceResponse.getScheduleTime(),DateUtils.DATE_TIME_FORMAT));
+        request.setStartTime(DateUtils.getDateFromString(jobInstanceResponse.getStartTime(),DateUtils.DATE_TIME_FORMAT));
+        request.setId(jobInstanceResponse.getId());
+        JobInstanceRequestRpc rpcRequest = JobSubmission.initJobInstanceRequestRpc(request, jobInstanceResponse.getJobConf());
+        
+        List<JobDependency> dependJobs = new ArrayList<JobDependency>();
+        //get job dependency
+        if (rpcRequest.getJob().getDependenciesList() == null
+                || rpcRequest.getJob().getDependenciesList().size() == 0) {
+            dependJobs.add(new JobDependency(rpcRequest.getJob().getId(), "root"));
+        } else {
+            dependJobs = JobSubmission.getLatestJobDepends(rpcRequest,
+                    DateUtils.getDateFromString(jobInstanceResponse.getScheduleTime(),DateUtils.DATE_TIME_FORMAT));
+        }
+        return getDependenciesAsString(dependJobs);
+    }
+    
+    private String getDependenciesAsString(List<JobDependency> taskDependencies) {
+        StringBuilder sb = new StringBuilder();
+        Iterator<JobDependency> it = taskDependencies.iterator();
+        while(it.hasNext()) {
+            sb.append(it.next().toString());
+            if(it.hasNext()) {
+                sb.append("_");
+            }
+        }
+        return sb.toString();
     }
 
     private JobInstanceRequestRpc setRequest(JobInstanceResponse response) {
@@ -189,7 +260,7 @@ public class SchedulerService {
             JobInstanceRequest request = new JobInstanceRequest();
             try {
                 // 初始化任务
-                JobSubmission.initJobInstance(request, jobInstanceResponse.getJobConf());
+                JobSubmission.initJobInstance(request, jobInstanceResponse.getJobId());
                 request.setId(jobInstanceResponse.getId());
                 request.setRetryTimes(jobInstanceResponse.getRetryTimes() + 1);
                 request.setScheduleTime(
@@ -220,7 +291,7 @@ public class SchedulerService {
             LOG.error(e1);
             throw new RuntimeException(e1);
         }
-        JobInstanceResponseRpc responseRpc = JobSubmission.buildResponse(rpcRequest, TaskState.FAIL, 500,
+        JobInstanceResponseRpc responseRpc = JobSubmission.buildResponse(rpcRequest.getRequestId(), TaskState.FAIL, 500,
                 "fail to update job " + rpcRequest.getId() + " to fail status");
         JobChecker.addResponse(responseRpc);
     }
