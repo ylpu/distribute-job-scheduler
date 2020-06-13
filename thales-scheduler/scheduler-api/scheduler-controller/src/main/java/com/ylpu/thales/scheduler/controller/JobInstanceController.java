@@ -243,18 +243,6 @@ public class JobInstanceController {
     }
 
     @ResponseBody
-    @RequestMapping(value = "/getTaskSummary", method = RequestMethod.GET)
-    public SchedulerResponse<List<TaskSummaryResponse>> getTaskSummary() {
-        return new SchedulerResponse<List<TaskSummaryResponse>>(jobInstanceService.getTaskSummary());
-    }
-    
-    @ResponseBody
-    @RequestMapping(value = "/getWorkerSummary", method = RequestMethod.GET)
-    public SchedulerResponse<List<WorkerSummaryResponse>> getWorkerSummary() {
-        return new SchedulerResponse<List<WorkerSummaryResponse>>(jobInstanceService.getWorkerSummary());
-    }
-
-    @ResponseBody
     @RequestMapping(value = "/getTaskLineByJobId/{id}", method = RequestMethod.GET)
     public SchedulerResponse<List<TaskElapseChartResponse>> getTaskLineByJobId(@PathVariable("id") Integer id) {
         return new SchedulerResponse<List<TaskElapseChartResponse>>(jobInstanceService.getTaskLineByJobId(id));

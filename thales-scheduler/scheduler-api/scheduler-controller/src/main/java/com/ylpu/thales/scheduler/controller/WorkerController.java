@@ -78,18 +78,6 @@ public class WorkerController {
     }
     
     @ResponseBody
-    @RequestMapping(value = "/getWorkerCpuUsage", method = RequestMethod.GET)
-    public SchedulerResponse<List<WorkerUsageResponse>> getWorkerCpuUsage() {
-        return new SchedulerResponse<List<WorkerUsageResponse>>(workerService.getWorkerCpuUsage());
-    }
-    
-    @ResponseBody
-    @RequestMapping(value = "/getWorkerMemoryUsage", method = RequestMethod.GET)
-    public SchedulerResponse<List<WorkerUsageResponse>> getWorkerMemoryUsage() {
-        return new SchedulerResponse<List<WorkerUsageResponse>>(workerService.getWorkerMemoryUsage());
-    }
-    
-    @ResponseBody
     @RequestMapping(value = "/markDown", method = RequestMethod.POST)
     public SchedulerResponse<Void> markDown(@Validated @RequestBody WorkerRequest request, HttpSession session) {
         Object object = session.getAttribute("user");

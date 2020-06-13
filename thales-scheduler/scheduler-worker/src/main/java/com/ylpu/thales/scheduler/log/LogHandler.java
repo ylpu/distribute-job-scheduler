@@ -23,9 +23,6 @@ public class LogHandler {
         JobInstanceResponse jobInstanceResponse = JobManager.getJobInstanceById(taskId);
         String logPath = jobInstanceResponse.getLogPath();
         if (StringUtils.isNotBlank(logPath)) {
-            // String log = ScriptUtils.execToList("cat",jobInstanceResponse.getLogPath(),
-            // new String[] {});
-            // return log;
             return Response.ok(new LogStreamingOutput(logPath)).build();
         }
         return null;

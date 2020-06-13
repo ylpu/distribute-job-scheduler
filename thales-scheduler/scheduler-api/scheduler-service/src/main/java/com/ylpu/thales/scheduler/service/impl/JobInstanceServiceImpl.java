@@ -23,6 +23,7 @@ import com.ylpu.thales.scheduler.dao.SchedulerJobInstanceMapper;
 import com.ylpu.thales.scheduler.entity.JobInstanceState;
 import com.ylpu.thales.scheduler.entity.SchedulerJobInstance;
 import com.ylpu.thales.scheduler.entity.TaskElapseChart;
+import com.ylpu.thales.scheduler.entity.JobTypeSummary;
 import com.ylpu.thales.scheduler.entity.TaskSummary;
 import com.ylpu.thales.scheduler.entity.WorkerSummary;
 import com.ylpu.thales.scheduler.enums.JobReleaseState;
@@ -35,6 +36,7 @@ import com.ylpu.thales.scheduler.response.JobInstanceResponse;
 import com.ylpu.thales.scheduler.response.JobInstanceStateResponse;
 import com.ylpu.thales.scheduler.response.JobResponse;
 import com.ylpu.thales.scheduler.response.TaskElapseChartResponse;
+import com.ylpu.thales.scheduler.response.JobTypeSummaryResponse;
 import com.ylpu.thales.scheduler.response.TaskSummaryResponse;
 import com.ylpu.thales.scheduler.response.UserResponse;
 import com.ylpu.thales.scheduler.response.WorkerSummaryResponse;
@@ -284,6 +286,21 @@ public class JobInstanceServiceImpl extends BaseServiceImpl<SchedulerJobInstance
                 response = new WorkerSummaryResponse();
                 response.setWorker(workerSummary.getWorkerName());
                 response.setTaskCount(workerSummary.getTaskCount());
+                responses.add(response);
+            }
+        }
+        return responses;
+    }
+    
+    public List<JobTypeSummaryResponse> getJobTypeSummary() {
+        List<JobTypeSummaryResponse> responses = new ArrayList<JobTypeSummaryResponse>();
+        JobTypeSummaryResponse response = null;
+        List<JobTypeSummary> list = schedulerJobInstanceMapper.getJobTypeSummary();
+        if (list != null && list.size() > 0) {
+            for (JobTypeSummary jobTypeSummary : list) {
+                response = new JobTypeSummaryResponse();
+                response.setJobType(JobType.getJobType(jobTypeSummary.getJobType()).name());
+                response.setTaskCount(jobTypeSummary.getTaskCount());
                 responses.add(response);
             }
         }

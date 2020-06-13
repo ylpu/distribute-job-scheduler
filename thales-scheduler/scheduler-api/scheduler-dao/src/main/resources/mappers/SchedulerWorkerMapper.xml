@@ -27,11 +27,11 @@
   </resultMap>
   
   <select id = "getWorkerCpuUsage" resultMap="workerCpuUsageMap">
-      select host,cpu_usage from t_thales_scheduler_worker
+      select host,cpu_usage from t_thales_scheduler_worker where worker_status != 3
   </select>
   
   <select id = "getWorkerMemoryUsage" resultMap="workerMemoryUsageMap">
-      select host,memory_usage from t_thales_scheduler_worker
+      select host,memory_usage from t_thales_scheduler_worker where worker_status != 3
   </select>
   
   <sql id="Base_Column_List" >
