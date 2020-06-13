@@ -271,29 +271,33 @@ public class SchedulerService {
                 JobChecker.addResponse(JobSubmission.buildJobStatus(jobInstanceResponse.getJobConf(),
                         DateUtils.getDateFromString(jobInstanceResponse.getScheduleTime(), DateUtils.DATE_TIME_FORMAT),
                         TaskState.SUBMIT));
-
+            }catch(Exception e) {
+                LOG.error("failed to submit task " + request.getId() , e);
+                throw new RuntimeException(e);
+            }
+            try {
                 rpcRequest = JobSubmission.initJobInstanceRequestRpc(request, jobInstanceResponse.getJobConf());
                 JobSubmission.scheduleJob(rpcRequest);
             } catch (Exception e) {
                 LOG.error("fail to update job " + rpcRequest.getId() + " status with exception " + e.getMessage());
-                markAsFailed(request,rpcRequest);
+                scheduleFailed(request,rpcRequest);
             }
         }
     }
     
-    private void markAsFailed(JobInstanceRequest request,JobInstanceRequestRpc rpcRequest) {
+    private void scheduleFailed(JobInstanceRequest request,JobInstanceRequestRpc rpcRequest) {
         request.setTaskState(TaskState.FAIL.getCode());
         request.setEndTime(new Date());
         request.setElapseTime(DateUtils.getElapseTime(request.getStartTime(), request.getEndTime()));
         try {
             JobManager.updateJobInstanceSelective(request);
+            JobInstanceResponseRpc responseRpc = JobSubmission.buildResponse(rpcRequest.getRequestId(), TaskState.FAIL, 500,
+                    "fail to schedule job " + rpcRequest.getId());
+            JobChecker.addResponse(responseRpc);
         } catch (Exception e1) {
             LOG.error(e1);
             throw new RuntimeException(e1);
         }
-        JobInstanceResponseRpc responseRpc = JobSubmission.buildResponse(rpcRequest.getRequestId(), TaskState.FAIL, 500,
-                "fail to update job " + rpcRequest.getId() + " to fail status");
-        JobChecker.addResponse(responseRpc);
     }
 
     /**
@@ -317,7 +321,6 @@ public class SchedulerService {
             }
         } catch (Exception e) {
             LOG.error(e);
-            throw e;
         }
     }
 
@@ -342,7 +345,6 @@ public class SchedulerService {
             }
         } catch (Exception e) {
             LOG.error(e);
-            throw e;
         }
     }
 

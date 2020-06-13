@@ -102,15 +102,11 @@ public class JobChecker {
                          requestId = dependsMap.remove(entry.getKey());
                          request = jobInstanceRequestMap.remove(requestId);
                          LOG.info("parent job " + entry.getKey() + " has finished, will add job " + requestId + " to queue");
-                         transitTaskStatusToQueue(request.getId());
-                         JobInstanceResponseRpc responseRpc = JobSubmission.buildResponse(requestId, TaskState.QUEUED, 200,"");
-                         JobChecker.addResponse(responseRpc);
+                         transitTaskStatus(request.getId(),requestId,TaskState.QUEUED);
                          JobSubmission.addWaitingTask(new TaskCall(request, GrpcType.ASYNC));
                     }else {
                         LOG.info("job " + requestId + " is waiting for dependency jobs to finish" + entry.getKey());
-                        JobInstanceResponseRpc responseRpc = JobSubmission.buildResponse(requestId, TaskState.WAITING_DEPENDENCY, 200,"");
-                        JobChecker.addResponse(responseRpc);
-                        transitTaskStatusToWaitingDependency(request.getId());
+                        transitTaskStatus(request.getId(),requestId,TaskState.WAITING_DEPENDENCY);
                     }
                 }
                 try {
@@ -132,23 +128,14 @@ public class JobChecker {
         }
     }
     
-    private static void transitTaskStatusToQueue(Integer taskId) {
+    private static void transitTaskStatus(Integer taskId, String requestId,TaskState taskState) {
         JobInstanceRequest request = new JobInstanceRequest();
         request.setId(taskId);
-        request.setTaskState(TaskState.QUEUED.getCode());
+        request.setTaskState(taskState.getCode());
         try {
             JobManager.updateJobInstanceSelective(request);
-        } catch (Exception e) {
-            LOG.error(e);
-        }
-    }
-    
-    private static void transitTaskStatusToWaitingDependency(Integer taskId) {
-        JobInstanceRequest request = new JobInstanceRequest();
-        request.setId(taskId);
-        request.setTaskState(TaskState.WAITING_DEPENDENCY.getCode());
-        try {
-            JobManager.updateJobInstanceSelective(request);
+            JobInstanceResponseRpc responseRpc = JobSubmission.buildResponse(requestId, taskState, 200,"");
+            JobChecker.addResponse(responseRpc);
         } catch (Exception e) {
             LOG.error(e);
         }

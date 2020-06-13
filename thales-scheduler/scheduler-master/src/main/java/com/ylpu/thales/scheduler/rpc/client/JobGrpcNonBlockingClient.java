@@ -19,7 +19,7 @@ import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 
 /**
- * 异步rpc
+ * async rpc
  *
  */
 public class JobGrpcNonBlockingClient extends AbstractJobGrpcClient {
@@ -55,23 +55,23 @@ public class JobGrpcNonBlockingClient extends AbstractJobGrpcClient {
     }
 
     public void submitJob(JobInstanceRequestRpc requestRpc) throws Exception {
-        LOG.info("准备提交任务 " + requestRpc.getId() + " 到节点  " + host + ":" + port);
+        LOG.info("prepare to submit task " + requestRpc.getId() + " to host  " + host + ":" + port);
         JobInstanceRequest request = new JobInstanceRequest();
         setJobInstanceRequest(requestRpc, request);
         try {
             ListenableFuture<JobInstanceResponseRpc> future = futureStub.submit(requestRpc);
-            // 异步回调
+            // async callback
             addCallBack(future, executorService, requestRpc, request);
         } catch (Exception e) {
-            LOG.error("任务 " + requestRpc.getId() + " 执行失败,异常" + e.getMessage());
+            LOG.error("failed to submit task " + requestRpc.getId() + " to " + host, e);
             try {
                 updateTaskStatus(request, TaskState.FAIL.getCode());
+                JobInstanceResponseRpc responseRpc = buildResponse(requestRpc, TaskState.FAIL, 500,
+                        "failed to execute task " + requestRpc.getId());
+                JobChecker.addResponse(responseRpc);
             } catch (Exception e1) {
                 LOG.error(e1);
             }
-            JobInstanceResponseRpc responseRpc = buildResponse(requestRpc, TaskState.FAIL, 500,
-                    "failed to execute task " + requestRpc.getId());
-            JobChecker.addResponse(responseRpc);
             shutdown();
             rerunIfNeeded(requestRpc);
         }
@@ -82,31 +82,27 @@ public class JobGrpcNonBlockingClient extends AbstractJobGrpcClient {
         Futures.addCallback(future, new FutureCallback<JobInstanceResponseRpc>() {
             @Override
             public void onSuccess(JobInstanceResponseRpc result) {
-                LOG.info("任务" + requestRpc.getId() + "执行完成");
+                LOG.info("task" + requestRpc.getId() + " execute successful");
                 try {
                     updateTaskStatus(request, result.getTaskState());
+                    JobChecker.addResponse(result);
                 } catch (Exception e) {
-                    result = buildResponse(requestRpc, TaskState.FAIL, 500,
-                            "failed to execute task " + requestRpc.getId());
+                    LOG.error("failed to update task " + requestRpc.getId() +  " status to successful after callback",e);
                 }
-                JobChecker.addResponse(result);
                 shutdown();
             }
 
             @Override
             public void onFailure(Throwable t) {
-                JobInstanceResponseRpc responseRpc = null;
-                LOG.error("任务" + requestRpc.getId() + "执行失败,异常" + t.getMessage());
+                LOG.error("failed to execute task " + requestRpc.getId(),t);
                 try {
                     updateTaskStatus(request, TaskState.FAIL.getCode());
+                    JobInstanceResponseRpc responseRpc = buildResponse(requestRpc, TaskState.FAIL, 500,
+                            "failed to execute task " + requestRpc.getId());
+                    JobChecker.addResponse(responseRpc);
                 } catch (Exception e) {
-                    LOG.error(e);
-                    responseRpc = buildResponse(requestRpc, TaskState.RUNNING, 500,
-                            "failed to update task " + requestRpc.getId());
+                    LOG.error("failed to update task " + requestRpc.getId() + " status to fail after callback",e);
                 }
-                responseRpc = buildResponse(requestRpc, TaskState.FAIL, 500,
-                        "failed to execute task " + requestRpc.getId());
-                JobChecker.addResponse(responseRpc);
                 shutdown();
                 rerunIfNeeded(requestRpc);
             }

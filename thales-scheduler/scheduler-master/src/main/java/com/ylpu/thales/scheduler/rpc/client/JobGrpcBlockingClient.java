@@ -13,7 +13,7 @@ import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 
 /**
- * 同步rpc
+ * sync rpc
  *
  */
 public class JobGrpcBlockingClient extends AbstractJobGrpcClient {
@@ -34,22 +34,21 @@ public class JobGrpcBlockingClient extends AbstractJobGrpcClient {
         JobInstanceRequest request = new JobInstanceRequest();
         setJobInstanceRequest(requestRpc, request);
         try {
-            LOG.info("准备提交任务 " + requestRpc.getId() + " 到节点  " + requestRpc.getWorker());
+            LOG.info("submit task  " + requestRpc.getId() + " to host  " + requestRpc.getWorker());
             responseRpc = blockStub.submit(requestRpc);
         } catch (Exception e) {
             LOG.error(e.getMessage());
             responseRpc = buildResponse(requestRpc, TaskState.FAIL, 500,
                     "failed to execute task " + requestRpc.getId());
         }
+        LOG.info("task " + requestRpc.getId() + " return code is " + responseRpc.getErrorCode() + " ,return messsage is "
+                + responseRpc.getErrorMsg());
         try {
             updateTaskStatus(request, responseRpc.getTaskState());
+            JobChecker.addResponse(responseRpc);
         } catch (Exception e) {
-            responseRpc = buildResponse(requestRpc, TaskState.FAIL, 500,
-                    "failed to execute task " + requestRpc.getId());
+            LOG.error("failed to update task status " + requestRpc.getId(), e);
         }
-        JobChecker.addResponse(responseRpc);
-        LOG.info("任务 " + requestRpc.getId() + " 返回值 " + responseRpc.getErrorCode() + " ,返回消息 "
-                + responseRpc.getErrorMsg());
         if (responseRpc.getErrorCode() != 200) {
             rerunIfNeeded(requestRpc);
         }
@@ -66,18 +65,14 @@ public class JobGrpcBlockingClient extends AbstractJobGrpcClient {
             responseRpc = buildResponse(requestRpc, TaskState.RUNNING, 500,
                     "failed to kill task " + requestRpc.getId());
         }
-
-        LOG.info("任务 " + requestRpc.getId() + " 返回值 " + responseRpc.getErrorCode() + " ,返回消息 "
+        LOG.info("task " + requestRpc.getId() + " return code is " + responseRpc.getErrorCode() + " ,return message "
                 + responseRpc.getErrorMsg());
         try {
             updateTaskStatus(request, responseRpc.getTaskState());
+            JobChecker.addResponse(responseRpc);
         } catch (Exception e) {
-            LOG.error(e.getMessage());
-            responseRpc = buildResponse(requestRpc, TaskState.RUNNING, 500,
-                    "failed to kill task " + requestRpc.getId());
+            LOG.error("failed to update task status " + requestRpc.getId(), e);
         }
-        JobChecker.addResponse(responseRpc);
-
         if (responseRpc.getErrorCode() != 200) {
             throw new RuntimeException("failed to kill task " + requestRpc.getId());
         }

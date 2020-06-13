@@ -22,50 +22,47 @@ public class SchedulerJob implements Job {
     @Override
     public void execute(JobExecutionContext context) throws JobExecutionException {
         
-        Integer id = (Integer) context.getJobDetail().getJobDataMap().get("id");
-        JobResponse jobResponse = getJobResponseById(id);
+        Integer jobId = (Integer) context.getJobDetail().getJobDataMap().get("id");
+        JobResponse jobResponse = getJobResponseById(jobId);
+        JobInstanceRequest request = new JobInstanceRequest();
+        JobInstanceRequestRpc rpcRequest = null;
         if(jobResponse != null) {
-            JobInstanceRequest request = new JobInstanceRequest();
-            request.setScheduleTime(context.getScheduledFireTime());
-            request.setStartTime(context.getFireTime());
-            JobSubmission.initJobInstance(request, jobResponse.getId());
-            request.setId(addJobInstance(request,id));
-
-            JobInstanceRequestRpc rpcRequest = JobSubmission.initJobInstanceRequestRpc(request, jobResponse);
             try {
+                JobSubmission.initJobInstance(request, jobResponse.getId());
+                request.setScheduleTime(context.getScheduledFireTime());
+                request.setStartTime(new Date());
+                request.setId(addJobInstance(request,jobId));
+                rpcRequest = JobSubmission.initJobInstanceRequestRpc(request, jobResponse);
                 JobSubmission.scheduleJob(rpcRequest);
             } catch (Exception e) {
                 LOG.error(
-                        "fail to update job " + rpcRequest.getId() + " to waiting status with exception " + e.getMessage());
-                markAsFailed(request,rpcRequest);
+                        "fail to update job " + rpcRequest.getId() + " to waiting status with exception ",e);
+                scheduleFailed(request,rpcRequest);
             } 
-        }else {
-            LOG.error(
-                    "failed to get job response by id " + id);
         }
     }
     
-    private void markAsFailed(JobInstanceRequest request,JobInstanceRequestRpc rpcRequest) {
+    private void scheduleFailed(JobInstanceRequest request,JobInstanceRequestRpc rpcRequest) {
         request.setTaskState(TaskState.FAIL.getCode());
         request.setEndTime(new Date());
         request.setElapseTime(DateUtils.getElapseTime(request.getStartTime(), request.getEndTime()));
         try {
             JobManager.updateJobInstanceSelective(request);
+            JobInstanceResponseRpc responseRpc = JobSubmission.buildResponse(rpcRequest.getRequestId(), TaskState.FAIL, 500,
+                    "fail to update job " + rpcRequest.getId() + " to fail status");
+            JobChecker.addResponse(responseRpc);
         } catch (Exception e1) {
             LOG.error(e1);
             throw new RuntimeException(e1);
         }
-        JobInstanceResponseRpc responseRpc = JobSubmission.buildResponse(rpcRequest.getRequestId(), TaskState.FAIL, 500,
-                "fail to update job " + rpcRequest.getId() + " to fail status");
-        JobChecker.addResponse(responseRpc);
     }
     
-    private JobResponse getJobResponseById(Integer id) {
+    private JobResponse getJobResponseById(Integer jobId) {
         JobResponse jobResponse = null;
         try {
-            jobResponse = JobManager.getJobById(id);
+            jobResponse = JobManager.getJobById(jobId);
         } catch (Exception e1) {
-            LOG.error("can not get job detail " + id);
+            LOG.error("can not get job detail " + jobId);
             throw new RuntimeException(e1);
         }
         return jobResponse;
@@ -76,7 +73,7 @@ public class SchedulerJob implements Job {
         try {
             jobInstanceId = JobManager.addJobInstance(request);
         } catch (Exception e) {
-            LOG.error("fail to add job instance for job " + jobId);
+            LOG.error("fail to add instance for job " + jobId);
             throw new RuntimeException(e);
         }
         return jobInstanceId;
