@@ -307,9 +307,9 @@ public class JobServiceImpl extends BaseServiceImpl<SchedulerJob, Integer> imple
     }
 
     @Override
-    public PageInfo<JobResponse> findAll(Integer jobType, String jobName, int pageSize, int pageNo) {
+    public PageInfo<JobResponse> findAll(Integer jobType, String jobName, int pageSize, int pageNo, String userName) {
         PageHelper.startPage(pageNo, pageSize);
-        List<SchedulerJob> jobList = schedulerJobMapper.findAll(jobType, jobName);
+        List<SchedulerJob> jobList = schedulerJobMapper.findAll(jobType, jobName, userName);
         JobResponse jobResponse = null;
         Page<JobResponse> page = new Page<JobResponse>();
         if (jobList != null && jobList.size() > 0) {
@@ -320,7 +320,7 @@ public class JobServiceImpl extends BaseServiceImpl<SchedulerJob, Integer> imple
                 page.add(jobResponse);
             }
         }
-        page.setTotal(schedulerJobMapper.getJobCount(jobType, jobName));
+        page.setTotal(schedulerJobMapper.getJobCount(jobType, jobName, userName));
         PageInfo<JobResponse> pageInfo = new PageInfo<JobResponse>(page);
         return pageInfo;
     }

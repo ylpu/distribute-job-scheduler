@@ -67,6 +67,9 @@
             <if test="jobName != null and jobName != ''">
                 and job.job_name like concat(concat('%',#{jobName}),'%')
             </if>
+            <if test="userName != null and userName != ''">
+                and job.creator_id = #{userName}
+            </if>
         ORDER BY job.create_time DESC
     </select>
     
@@ -79,6 +82,9 @@
         </if>
         <if test="jobName != null and jobName != ''">
              and job_name like concat(concat('%',#{jobName}),'%')
+        </if>
+        <if test="userName != null and userName != ''">
+           and creator_id = #{userName}
         </if>
     </select> 
     

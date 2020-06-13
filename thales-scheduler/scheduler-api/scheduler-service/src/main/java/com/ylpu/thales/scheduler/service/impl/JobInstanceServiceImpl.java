@@ -228,9 +228,9 @@ public class JobInstanceServiceImpl extends BaseServiceImpl<SchedulerJobInstance
     }
 
     @Override
-    public PageInfo<JobInstanceResponse> findAll(Integer taskState, String jobName, int pageNo, int pageSize) {
+    public PageInfo<JobInstanceResponse> findAll(Integer taskState, String jobName, int pageNo, int pageSize, String userName) {
         PageHelper.startPage(pageNo, pageSize);
-        List<SchedulerJobInstance> jobInstanceList = schedulerJobInstanceMapper.findAll(taskState, jobName);
+        List<SchedulerJobInstance> jobInstanceList = schedulerJobInstanceMapper.findAll(taskState, jobName, userName);
         JobInstanceResponse jobInstanceResponse = null;
         Page<JobInstanceResponse> page = new Page<JobInstanceResponse>();
         if (jobInstanceList != null && jobInstanceList.size() > 0) {
@@ -257,7 +257,7 @@ public class JobInstanceServiceImpl extends BaseServiceImpl<SchedulerJobInstance
                 page.add(jobInstanceResponse);
             }
         }
-        page.setTotal(schedulerJobInstanceMapper.getInstantCount(taskState, jobName));
+        page.setTotal(schedulerJobInstanceMapper.getInstantCount(taskState, jobName, userName));
         PageInfo<JobInstanceResponse> pageInfo = new PageInfo<JobInstanceResponse>(page);
         return pageInfo;
     }

@@ -28,7 +28,7 @@ public interface JobService extends BaseService<SchedulerJob, Integer> {
 
     public void downJob(ScheduleRequest request, UserResponse user);
 
-    public PageInfo<JobResponse> findAll(Integer jobType, String jobName, int pageSize, int pageNo);
+    public PageInfo<JobResponse> findAll(Integer jobType, String jobName, int pageSize, int pageNo,String userName);
 
     public List<JobDependencyResponse> getAllJobs();
 

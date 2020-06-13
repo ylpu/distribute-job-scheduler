@@ -17,6 +17,7 @@ import com.ylpu.thales.scheduler.response.JobInstanceStateResponse;
 import com.ylpu.thales.scheduler.response.SchedulerResponse;
 import com.ylpu.thales.scheduler.response.TaskElapseChartResponse;
 import com.ylpu.thales.scheduler.response.TaskSummaryResponse;
+import com.ylpu.thales.scheduler.response.UserResponse;
 import com.ylpu.thales.scheduler.response.WorkerSummaryResponse;
 import com.ylpu.thales.scheduler.service.JobInstanceService;
 import com.ylpu.thales.scheduler.service.exception.ThalesRuntimeException;
@@ -74,9 +75,15 @@ public class JobInstanceController {
             @RequestParam(value = "pageNo", required = false, defaultValue = "1") Integer pageNo,
             @RequestParam(value = "pageSize", required = false, defaultValue = "10") Integer pageSize,
             @RequestParam(value = "taskState", required = false) Integer taskState,
-            @RequestParam(value = "jobName", required = false) String jobName) {
+            @RequestParam(value = "jobName", required = false) String jobName,
+            HttpSession session) {
+        Object object = session.getAttribute("user");
+        if (object == null) {
+            throw new ThalesRuntimeException("请重新登陆");
+        }
+        UserResponse user = (UserResponse) object;
         return new SchedulerResponse<PageInfo<JobInstanceResponse>>(
-                jobInstanceService.findAll(taskState, jobName, pageNo, pageSize));
+                jobInstanceService.findAll(taskState, jobName, pageNo, pageSize, user.getUserName()));
     }
 
     @ResponseBody

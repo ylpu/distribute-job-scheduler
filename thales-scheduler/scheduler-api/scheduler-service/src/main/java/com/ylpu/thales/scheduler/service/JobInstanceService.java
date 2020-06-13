@@ -45,7 +45,7 @@ public interface JobInstanceService extends BaseService<SchedulerJobInstance, In
 
     public void updateJobStatus(List<Integer> ids, TaskState status);
 
-    public PageInfo<JobInstanceResponse> findAll(Integer taskState, String jobName, int pageNo, int pageSize);
+    public PageInfo<JobInstanceResponse> findAll(Integer taskState, String jobName, int pageNo, int pageSize, String userName);
 
     public List<TaskSummaryResponse> getTaskSummary();
     

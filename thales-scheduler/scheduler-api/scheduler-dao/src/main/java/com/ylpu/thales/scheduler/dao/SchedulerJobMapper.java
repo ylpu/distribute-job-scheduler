@@ -13,11 +13,11 @@ public interface SchedulerJobMapper extends BaseDao<SchedulerJob, Integer> {
 
     public List<JobTree> queryTreeById(Integer jobId);
 
-    List<SchedulerJob> findAll(@Param("jobType") Integer jobType, @Param("jobName") String jobName);
+    List<SchedulerJob> findAll(@Param("jobType") Integer jobType, @Param("jobName") String jobName, @Param("userName") String userName);
 
     public Integer getJobCountByIds(@Param("ids") List<Integer> ids);
 
-    public Integer getJobCount(@Param("jobType") Integer jobType, @Param("jobName") String jobName);
+    public Integer getJobCount(@Param("jobType") Integer jobType, @Param("jobName") String jobName, @Param("userName") String userName);
 
     public Integer getJobCountByName(@Param("jobName") String jobName);
 

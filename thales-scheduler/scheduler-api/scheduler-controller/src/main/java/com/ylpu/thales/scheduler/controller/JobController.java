@@ -20,6 +20,7 @@ import com.ylpu.thales.scheduler.response.JobTree;
 import com.ylpu.thales.scheduler.response.SchedulerResponse;
 import com.ylpu.thales.scheduler.response.UserResponse;
 import com.ylpu.thales.scheduler.service.JobService;
+import com.ylpu.thales.scheduler.service.exception.ThalesRuntimeException;
 
 @Controller
 @RequestMapping("/api/job")
@@ -72,8 +73,14 @@ public class JobController {
             @RequestParam(value = "pageNo", required = false, defaultValue = "1") Integer pageNo,
             @RequestParam(value = "pageSize", required = false, defaultValue = "10") Integer pageSize,
             @RequestParam(value = "jobType", required = false) Integer jobType,
-            @RequestParam(value = "jobName", required = false) String jobName) {
-        return new SchedulerResponse<PageInfo<JobResponse>>(jobService.findAll(jobType, jobName, pageSize, pageNo));
+            @RequestParam(value = "jobName", required = false) String jobName,
+            HttpSession session) {
+        Object object = session.getAttribute("user");
+        if (object == null) {
+            throw new ThalesRuntimeException("请重新登陆");
+        }
+        UserResponse user = (UserResponse) object;
+        return new SchedulerResponse<PageInfo<JobResponse>>(jobService.findAll(jobType, jobName, pageSize, pageNo,user.getUserName()));
     }
 
     @ResponseBody
