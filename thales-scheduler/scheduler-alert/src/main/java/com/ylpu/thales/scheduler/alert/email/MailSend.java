@@ -14,7 +14,7 @@ public class MailSend extends AbstractMessageSend {
         this.prop = prop;
     }
 
-    public void send(Event event) {
+    public void send(Event event) throws Exception{
         MailSenderInfo mailInfo = new MailSenderInfo();
         buidMailHeader(mailInfo);
         mailInfo.setToAddress(event.getAlertUsers());

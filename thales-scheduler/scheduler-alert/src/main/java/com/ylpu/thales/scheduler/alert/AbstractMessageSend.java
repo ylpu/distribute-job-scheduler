@@ -9,7 +9,7 @@ import com.ylpu.thales.scheduler.core.alert.entity.Event;
 
 public abstract class AbstractMessageSend {
 
-    public abstract void send(Event event);
+    public abstract void send(Event event) throws Exception;
 
     public String buildMessageBody(Event event, String templateName) {
         VelocityEngine ve = new VelocityEngine();

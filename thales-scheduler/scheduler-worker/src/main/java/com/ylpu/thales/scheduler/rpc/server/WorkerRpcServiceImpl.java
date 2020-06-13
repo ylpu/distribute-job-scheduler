@@ -22,6 +22,8 @@ import com.ylpu.thales.scheduler.executor.ExecutorManager;
 import com.ylpu.thales.scheduler.request.JobInstanceRequest;
 import com.ylpu.thales.scheduler.response.JobInstanceResponse;
 import io.grpc.stub.StreamObserver;
+
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import java.util.Properties;
@@ -68,7 +70,9 @@ public class WorkerRpcServiceImpl extends GrpcJobServiceGrpc.GrpcJobServiceImplB
             // 任务失败告警
             Event event = new Event();
             setAlertEvent(event, requestRpc.getJob(), request);
-            // eventBus.post(event);
+            if(StringUtils.isNotBlank(requestRpc.getJob().getAlertUsers())) {
+                eventBus.post(event);
+            }
             throw new RuntimeException(e);
         } finally {
             // 减少任务个数
@@ -85,7 +89,7 @@ public class WorkerRpcServiceImpl extends GrpcJobServiceGrpc.GrpcJobServiceImplB
         event.setAlertUsers(requestRpc.getAlertUsers());
         event.setLogUrl(request.getLogUrl());
         event.setHostName(request.getWorker());
-        event.setEventType(EventType.TASKFAIL);
+        event.setEventType(EventType.FAIL);
     }
 
     public void kill(JobInstanceRequestRpc requestRpc, StreamObserver<JobInstanceResponseRpc> responseObserver) {

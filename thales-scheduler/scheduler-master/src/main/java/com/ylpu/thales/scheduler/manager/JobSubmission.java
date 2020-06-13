@@ -1,5 +1,8 @@
 package com.ylpu.thales.scheduler.manager;
 
+import com.google.common.eventbus.AsyncEventBus;
+import com.ylpu.thales.scheduler.alert.EventListener;
+import com.ylpu.thales.scheduler.core.alert.entity.Event;
 import com.ylpu.thales.scheduler.core.config.Configuration;
 import com.ylpu.thales.scheduler.core.rest.JobManager;
 import com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc;
@@ -8,6 +11,7 @@ import com.ylpu.thales.scheduler.core.rpc.entity.JobRequestRpc;
 import com.ylpu.thales.scheduler.core.utils.CronUtils;
 import com.ylpu.thales.scheduler.core.utils.DateUtils;
 import com.ylpu.thales.scheduler.enums.AlertType;
+import com.ylpu.thales.scheduler.enums.EventType;
 import com.ylpu.thales.scheduler.enums.GrpcType;
 import com.ylpu.thales.scheduler.enums.JobCycle;
 import com.ylpu.thales.scheduler.enums.JobPriority;
@@ -16,12 +20,15 @@ import com.ylpu.thales.scheduler.enums.JobType;
 import com.ylpu.thales.scheduler.enums.TaskState;
 import com.ylpu.thales.scheduler.request.JobInstanceRequest;
 import com.ylpu.thales.scheduler.request.JobStatusRequest;
+import com.ylpu.thales.scheduler.response.JobInstanceResponse;
 import com.ylpu.thales.scheduler.response.JobResponse;
 import com.ylpu.thales.scheduler.response.WorkerResponse;
 import com.ylpu.thales.scheduler.rpc.client.AbstractJobGrpcClient;
 import com.ylpu.thales.scheduler.rpc.client.JobDependency;
 import com.ylpu.thales.scheduler.rpc.client.JobGrpcBlockingClient;
 import com.ylpu.thales.scheduler.rpc.client.JobGrpcNonBlockingClient;
+
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import java.lang.reflect.InvocationTargetException;
@@ -51,6 +58,8 @@ public class JobSubmission {
     private static PriorityBlockingQueue<TaskCall> waitingQueue = new PriorityBlockingQueue<TaskCall>();
     
     private static volatile boolean need_waiting = true;
+    
+    private static AsyncEventBus eventBus = new AsyncEventBus(Executors.newFixedThreadPool(1));
 
     public static boolean isNeed_waiting() {
         return need_waiting;
@@ -74,6 +83,7 @@ public class JobSubmission {
         es = Executors.newFixedThreadPool(poolSize);
         es.execute(new TaskWaitingThread());
         es.execute(new TimeoutThread());
+        eventBus.register(new EventListener());
     }
 
     public static void scheduleJob(JobInstanceRequestRpc requestRpc) throws Exception {
@@ -190,37 +200,36 @@ public class JobSubmission {
             LOG.error(e);
         }
     }
-
+    
+    //send alert when task timeout
     private static class TimeoutThread implements Runnable {
         @Override
         public void run() {
             while (true) {
                 TaskCall taskCall = timeoutQueue.poll();
-                if (taskCall != null) {
-                    AbstractJobGrpcClient client = null;
+                if(taskCall != null) {
                     try {
-                        WorkerResponse worker = getAvailableWorker(taskCall.getRpcRequest());
-                        try {
-                            client = getClient(worker, taskCall.getGrpcType());
-                            client.kill(taskCall.getRpcRequest());
-                        } catch (Exception e) {
-                            LOG.error(e);
-                            processException(taskCall.getRpcRequest());
+                        JobInstanceResponse jobInstanceResponse = JobManager.getJobInstanceById(taskCall.getRpcRequest().getId());
+                        Event event = new Event();
+                        setAlertEvent(event, jobInstanceResponse);
+                        if(StringUtils.isNotBlank(jobInstanceResponse.getJobConf().getAlertUsers())) {
+                            eventBus.post(event);
                         }
-                    }catch(Exception e) {
-                        LOG.error(e);
-                    }
-                    finally {
-                        // 同步rpc直接关闭，异步rpc需要内部关闭
-                        if (taskCall.getGrpcType() == GrpcType.SYNC) {
-                            if (client != null) {
-                                client.shutdown();
-                            }
-                        }
+                    } catch (Exception e) {
+                        LOG.error("failed to send alert for task " + taskCall.getRpcRequest().getId());
                     }
                 }
             }
         }
+    }
+    
+    private static void setAlertEvent(Event event, JobInstanceResponse jobInstanceResponse) {
+        event.setTaskId(jobInstanceResponse.getId());
+        event.setAlertType(AlertType.getAlertType(jobInstanceResponse.getJobConf().getAlertTypes()));
+        event.setAlertUsers(jobInstanceResponse.getJobConf().getAlertUsers());
+        event.setLogUrl(jobInstanceResponse.getLogUrl());
+        event.setHostName(jobInstanceResponse.getWorker());
+        event.setEventType(EventType.TIMEOUT);
     }
 
     private static AbstractJobGrpcClient getClient(WorkerResponse worker,GrpcType grpcType) {

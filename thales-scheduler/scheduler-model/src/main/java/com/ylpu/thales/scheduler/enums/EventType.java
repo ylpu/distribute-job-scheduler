@@ -2,7 +2,7 @@ package com.ylpu.thales.scheduler.enums;
 
 public enum EventType {
 
-    TIMEOUT(1), NODELOST(2), TASKFAIL(3);
+    TIMEOUT(1),FAIL(2);
 
     private int code;
 

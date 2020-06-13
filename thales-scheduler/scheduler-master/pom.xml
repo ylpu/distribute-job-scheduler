@@ -59,7 +59,11 @@
       <dependency>
          <groupId>org.eclipse.jetty</groupId>
          <artifactId>jetty-jsp</artifactId>
-      </dependency>  
+      </dependency> 
+      <dependency>
+           <groupId>com.ylpu.thales</groupId>
+           <artifactId>scheduler-alert</artifactId>
+      </dependency> 
   </dependencies>
      <build>
         <plugins>
