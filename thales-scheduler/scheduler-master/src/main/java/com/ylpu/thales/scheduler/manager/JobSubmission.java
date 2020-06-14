@@ -87,7 +87,8 @@ public class JobSubmission {
     }
 
     public static void scheduleJob(JobInstanceRequestRpc requestRpc) throws Exception {
-        
+        //transit task status to scheduled
+        transitTaskStatusToScheduled(requestRpc);
         List<JobDependency> dependJobs = new ArrayList<JobDependency>();
         //get job dependency
         if (requestRpc.getJob().getDependenciesList() == null
@@ -99,9 +100,6 @@ public class JobSubmission {
         JobChecker.addJobInstanceRequest(requestRpc);
 
         JobChecker.addDepends(dependJobs, requestRpc.getRequestId());
-        
-        //transit task status to scheduled
-        transitTaskStatusToScheduled(requestRpc);
     }
     
     private static void transitTaskStatusToScheduled(JobInstanceRequestRpc requestRpc) throws Exception {

@@ -334,7 +334,7 @@ public class SchedulerService {
     private void rerunChild(Date startScheduleTime, JobTree jobTree) throws Exception {
         try {
             String scheduleTime = caculateJobScheduleTime(startScheduleTime, jobTree.getScheduleCron());
-            JobInstanceResponse response = JobManager.getInstanceIdByTime(jobTree.getJobId(), scheduleTime);
+            JobInstanceResponse response = JobManager.getJobInstanceByTime(jobTree.getJobId(), scheduleTime);
             if (response != null && response.getId() != null) {
                 rerun(response.getId());
             }

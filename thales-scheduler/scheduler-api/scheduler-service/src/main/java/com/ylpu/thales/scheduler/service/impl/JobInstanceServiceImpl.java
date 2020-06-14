@@ -116,8 +116,8 @@ public class JobInstanceServiceImpl extends BaseServiceImpl<SchedulerJobInstance
         return response;
     }
 
-    public JobInstanceResponse getInstanceIdByTime(Integer jobId, String scheduleTime) {
-        SchedulerJobInstance schedulerJobInstance = schedulerJobInstanceMapper.getInstanceIdByTime(jobId, scheduleTime);
+    public JobInstanceResponse getJobInstanceByTime(Integer jobId, String scheduleTime) {
+        SchedulerJobInstance schedulerJobInstance = schedulerJobInstanceMapper.getJobInstanceByTime(jobId, scheduleTime);
         JobInstanceResponse response = new JobInstanceResponse();
         if (schedulerJobInstance != null) {
             BeanUtils.copyProperties(schedulerJobInstance, response);
@@ -135,8 +135,10 @@ public class JobInstanceServiceImpl extends BaseServiceImpl<SchedulerJobInstance
                 response.setEndTime(
                         DateUtils.getDateAsString(schedulerJobInstance.getEndTime(), DateUtils.DATE_TIME_FORMAT));
             }
-            response.setJobReleasestate(
-                    JobReleaseState.getJobReleaseState(schedulerJobInstance.getJobReleasestate()).name());
+            if(schedulerJobInstance.getJobReleasestate() != null) {
+                response.setJobReleasestate(
+                        JobReleaseState.getJobReleaseState(schedulerJobInstance.getJobReleasestate()).name());
+            }
         }
         return response;
     }
@@ -298,10 +300,12 @@ public class JobInstanceServiceImpl extends BaseServiceImpl<SchedulerJobInstance
         List<JobTypeSummary> list = schedulerJobInstanceMapper.getJobTypeSummary();
         if (list != null && list.size() > 0) {
             for (JobTypeSummary jobTypeSummary : list) {
-                response = new JobTypeSummaryResponse();
-                response.setJobType(JobType.getJobType(jobTypeSummary.getJobType()).name());
-                response.setTaskCount(jobTypeSummary.getTaskCount());
-                responses.add(response);
+                if(jobTypeSummary.getJobType() != null) {
+                    response = new JobTypeSummaryResponse();
+                    response.setJobType(JobType.getJobType(jobTypeSummary.getJobType()).name());
+                    response.setTaskCount(jobTypeSummary.getTaskCount());
+                    responses.add(response); 
+                }
             }
         }
         return responses;

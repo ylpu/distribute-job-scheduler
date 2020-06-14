@@ -55,7 +55,7 @@ public class JobGrpcNonBlockingClient extends AbstractJobGrpcClient {
     }
 
     public void submitJob(JobInstanceRequestRpc requestRpc) throws Exception {
-        LOG.info("prepare to submit task " + requestRpc.getId() + " to host  " + host + ":" + port);
+        LOG.info("prepare to submit task " + requestRpc.getRequestId() + " to host  " + host + ":" + port);
         JobInstanceRequest request = new JobInstanceRequest();
         setJobInstanceRequest(requestRpc, request);
         try {
@@ -63,11 +63,11 @@ public class JobGrpcNonBlockingClient extends AbstractJobGrpcClient {
             // async callback
             addCallBack(future, executorService, requestRpc, request);
         } catch (Exception e) {
-            LOG.error("failed to submit task " + requestRpc.getId() + " to " + host, e);
+            LOG.error("failed to submit task " + requestRpc.getRequestId() + " to " + host, e);
             try {
                 updateTaskStatus(request, TaskState.FAIL.getCode());
                 JobInstanceResponseRpc responseRpc = buildResponse(requestRpc, TaskState.FAIL, 500,
-                        "failed to execute task " + requestRpc.getId());
+                        "failed to execute task " + requestRpc.getRequestId());
                 JobChecker.addResponse(responseRpc);
             } catch (Exception e1) {
                 LOG.error(e1);
@@ -82,7 +82,7 @@ public class JobGrpcNonBlockingClient extends AbstractJobGrpcClient {
         Futures.addCallback(future, new FutureCallback<JobInstanceResponseRpc>() {
             @Override
             public void onSuccess(JobInstanceResponseRpc result) {
-                LOG.info("task" + requestRpc.getId() + " execute successful");
+                LOG.info("task " + requestRpc.getRequestId() + " execute successful");
                 try {
                     updateTaskStatus(request, result.getTaskState());
                     JobChecker.addResponse(result);
@@ -94,14 +94,14 @@ public class JobGrpcNonBlockingClient extends AbstractJobGrpcClient {
 
             @Override
             public void onFailure(Throwable t) {
-                LOG.error("failed to execute task " + requestRpc.getId(),t);
+                LOG.error("failed to execute task " + requestRpc.getRequestId(),t);
                 try {
                     updateTaskStatus(request, TaskState.FAIL.getCode());
                     JobInstanceResponseRpc responseRpc = buildResponse(requestRpc, TaskState.FAIL, 500,
-                            "failed to execute task " + requestRpc.getId());
+                            "failed to execute task " + requestRpc.getRequestId());
                     JobChecker.addResponse(responseRpc);
                 } catch (Exception e) {
-                    LOG.error("failed to update task " + requestRpc.getId() + " status to fail after callback",e);
+                    LOG.error("failed to update task " + requestRpc.getRequestId() + " status to fail after callback",e);
                 }
                 shutdown();
                 rerunIfNeeded(requestRpc);

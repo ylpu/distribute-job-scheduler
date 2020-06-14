@@ -23,7 +23,7 @@ public interface JobInstanceService extends BaseService<SchedulerJobInstance, In
 
     public void updateJobInstanceByKey(JobInstanceRequest request);
 
-    public JobInstanceResponse getInstanceIdByTime(Integer jobId, String scheduleTime);
+    public JobInstanceResponse getJobInstanceByTime(Integer jobId, String scheduleTime);
 
     public JobInstanceResponse getJobInstanceById(Integer id);
 

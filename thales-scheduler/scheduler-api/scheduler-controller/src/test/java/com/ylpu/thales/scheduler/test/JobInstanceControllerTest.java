@@ -53,7 +53,7 @@ public class JobInstanceControllerTest {
         System.out.println(schedulerResponse.getData().size());
     }
 
-    @Test
+//    @Test
     public void addJobInstance() {
         String scheduleTime = "2020-1-1 20:00:00";
         for (int i = 0; i < 400000; i++) {
@@ -182,6 +182,18 @@ public class JobInstanceControllerTest {
                 }
             }
         }
+    }
+    
+     @Test
+    public void testGetJobInstanceByTime() {
+        Map<String, Object> map = new HashMap<String, Object>();
+        map.put("jobId", 32);
+        map.put("scheduleTime", "2020-06-14 13:10:00");
+        ParameterizedTypeReference<SchedulerResponse<JobInstanceResponse>> typeRef = new ParameterizedTypeReference<SchedulerResponse<JobInstanceResponse>>() {
+        };
+        SchedulerResponse<JobInstanceResponse> response = RestClient
+                .getForObject(API_URI + "jobInstance/getJobInstanceByTime", typeRef, map);
+        System.out.println(response.getData().getId());
     }
 
     public static InputStream getInputStream(String logUrl) {
