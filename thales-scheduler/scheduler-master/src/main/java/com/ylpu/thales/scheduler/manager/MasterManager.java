@@ -22,6 +22,8 @@ import com.ylpu.thales.scheduler.response.JobInstanceStateResponse;
 import com.ylpu.thales.scheduler.response.WorkerResponse;
 import com.ylpu.thales.scheduler.rest.MasterRestServer;
 import com.ylpu.thales.scheduler.rpc.server.MasterRpcServer;
+import com.ylpu.thales.scheduler.schedule.JobScheduler;
+
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
