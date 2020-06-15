@@ -12,12 +12,10 @@ import com.ylpu.thales.scheduler.manager.JobSubmission;
 import com.ylpu.thales.scheduler.manager.TaskCall;
 import com.ylpu.thales.scheduler.request.JobInstanceRequest;
 import com.ylpu.thales.scheduler.rpc.client.JobDependency;
-
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -31,12 +29,14 @@ public class JobChecker {
     private static volatile boolean stop = false;
     // key是任务id,value是待执行的任务
     private static Map<String, JobInstanceRequestRpc> jobInstanceRequestMap = new ConcurrentHashMap<String, JobInstanceRequestRpc>();
-    // 任务的返回列表
-    private static Map<String, JobInstanceResponseRpc> responses = new WeakHashMap<String, JobInstanceResponseRpc>();
+    // 任务的返回列表,有内存泄露风险，后续要改
+    private static Map<String, JobInstanceResponseRpc> responses = new ConcurrentHashMap<String, JobInstanceResponseRpc>();
     // key是所依赖的任务,value是任务id
     private static Map<List<JobDependency>, String> dependsMap = new ConcurrentHashMap<List<JobDependency>, String>();
 
-    private static final long CHECK_INTERVAL = 1;
+    private static final long JOB_DEPENDENCY_CHECK_INTERVAL = 1;
+    
+    private static final long TIMEOUT_CHECK_INTERVAL = 60;
 
     public static void start() {
         ExecutorService es = Executors.newFixedThreadPool(2);
@@ -83,22 +83,22 @@ public class JobChecker {
     private static class JobStatusCheckThread extends Thread {
         public void run() {
             long interval = Configuration.getLong(Configuration.getConfig(GlobalConstants.CONFIG_FILE),
-                    "thales.scheduler.job.check.interval", CHECK_INTERVAL);
+                    "thales.scheduler.job.check.interval", JOB_DEPENDENCY_CHECK_INTERVAL);
             while (!stop) {
                 for (Entry<List<JobDependency>, String> entry : dependsMap.entrySet()) {
-                    int ids = 0;
+                    int successfulJobs = 0;
                     List<JobDependency> list = entry.getKey();
                     for (JobDependency jobDependency : list) {
                         if (responses.containsKey(jobDependency.toString())) {
                             JobInstanceResponseRpc response = responses.get(jobDependency.toString());
                             if (response.getTaskState() == TaskState.SUCCESS.getCode()) {
-                                ids++;
+                                successfulJobs++;
                             }
                         }
                     }
                     String requestId = dependsMap.get(entry.getKey());
                     JobInstanceRequestRpc request = jobInstanceRequestMap.get(requestId);
-                    if (ids == list.size() || isRootJob(list)) {
+                    if (successfulJobs == list.size() || isRootJob(list)) {
                          requestId = dependsMap.remove(entry.getKey());
                          request = jobInstanceRequestMap.remove(requestId);
                          LOG.info("parent job " + entry.getKey() + " has finished, will add job " + requestId + " to queue");
@@ -144,7 +144,7 @@ public class JobChecker {
     private static class TimeoutThread extends Thread {
         public void run() {
             long interval = Configuration.getLong(Configuration.getConfig(GlobalConstants.CONFIG_FILE),
-                    "thales.scheduler.timeout.check.interval", CHECK_INTERVAL);
+                    "thales.scheduler.timeout.check.interval", TIMEOUT_CHECK_INTERVAL);
             while (true) {
                 for (Entry<String, JobInstanceRequestRpc> entry : jobInstanceRequestMap.entrySet()) {
                     if (entry.getValue() != null) {
@@ -158,7 +158,7 @@ public class JobChecker {
                     }
                 }
                 try {
-                    Thread.sleep(interval * 1000 * 60);
+                    Thread.sleep(interval);
                 } catch (InterruptedException e) {
                     LOG.error(e);
                 }

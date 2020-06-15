@@ -5,23 +5,29 @@ import com.ylpu.thales.scheduler.manager.JobSubmission;
 import com.ylpu.thales.scheduler.manager.MasterManager;
 import com.ylpu.thales.scheduler.manager.TaskCall;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.concurrent.PriorityBlockingQueue;
 
 public class MasterMetric implements MasterMetricMBean {
 
     @Override
     public String getWaitingTask() {
-        StringBuilder sb = new StringBuilder();
-        PriorityBlockingQueue<TaskCall> queue = JobSubmission.getWaitingQueue();
-        Iterator<TaskCall> it = queue.iterator();
-        while (it.hasNext()) {
-            TaskCall task = it.next();
-            sb.append(task.getRpcRequest().getId());
-            if (it.hasNext()) {
-                sb.append(",");
+        StringBuilder queueGroupBuilder = new StringBuilder();
+        Map<String,PriorityBlockingQueue<TaskCall>> queues = JobSubmission.getGroupQueue();
+        for(Map.Entry<String,PriorityBlockingQueue<TaskCall>> entry  : queues.entrySet()) {
+            PriorityBlockingQueue<TaskCall> queue = entry.getValue();
+            Iterator<TaskCall> it = queue.iterator();
+            StringBuilder queueBuilder = new StringBuilder();
+            while (it.hasNext()) {
+                TaskCall task = it.next();
+                queueBuilder.append(task.getRpcRequest().getId());
+                if (it.hasNext()) {
+                    queueBuilder.append(",");
+                }
             }
+            queueGroupBuilder.append("[" + entry.getKey() + ":" + queueBuilder.toString() + "]");
         }
-        return sb.toString();
+        return queueGroupBuilder.toString();
     }
 
     @Override

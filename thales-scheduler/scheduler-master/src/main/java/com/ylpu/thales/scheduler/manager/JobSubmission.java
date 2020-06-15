@@ -3,7 +3,6 @@ package com.ylpu.thales.scheduler.manager;
 import com.google.common.eventbus.AsyncEventBus;
 import com.ylpu.thales.scheduler.alert.EventListener;
 import com.ylpu.thales.scheduler.core.alert.entity.Event;
-import com.ylpu.thales.scheduler.core.config.Configuration;
 import com.ylpu.thales.scheduler.core.rest.JobManager;
 import com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc;
 import com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc;
@@ -27,7 +26,6 @@ import com.ylpu.thales.scheduler.rpc.client.AbstractJobGrpcClient;
 import com.ylpu.thales.scheduler.rpc.client.JobDependency;
 import com.ylpu.thales.scheduler.rpc.client.JobGrpcBlockingClient;
 import com.ylpu.thales.scheduler.rpc.client.JobGrpcNonBlockingClient;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -37,7 +35,9 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Queue;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -47,30 +47,22 @@ public class JobSubmission {
 
     private static final long RESOURCE_CHECK_INTERVAL = 3000;
 
-    private static final int POOL_SIZE = 2;
-
     private static Log LOG = LogFactory.getLog(JobSubmission.class);
-
-    private static ExecutorService es = null;
+    
+    private static ExecutorService taskEs = null;
 
     private static Queue<TaskCall> timeoutQueue = new LinkedBlockingQueue<TaskCall>();
-
-    private static PriorityBlockingQueue<TaskCall> waitingQueue = new PriorityBlockingQueue<TaskCall>();
     
-    private static volatile boolean need_waiting = true;
+    private static Map<String,PriorityBlockingQueue<TaskCall>> workerGroupQueue = new ConcurrentHashMap<String,PriorityBlockingQueue<TaskCall>>();
     
     private static AsyncEventBus eventBus = new AsyncEventBus(Executors.newFixedThreadPool(1));
-
-    public static boolean isNeed_waiting() {
-        return need_waiting;
+        
+    public static Map<String, PriorityBlockingQueue<TaskCall>> getGroupQueue() {
+        return workerGroupQueue;
     }
-
-    public static void setNeed_waiting(boolean need_waiting) {
-        JobSubmission.need_waiting = need_waiting;
-    }
-
-    public static PriorityBlockingQueue<TaskCall> getWaitingQueue() {
-        return waitingQueue;
+    
+    public static PriorityBlockingQueue<TaskCall> getGroupQueue(String groupName) {
+        return workerGroupQueue.get(groupName);
     }
 
     static {
@@ -78,11 +70,9 @@ public class JobSubmission {
     }
 
     private static void init() {
-        int poolSize = Configuration.getInt(Configuration.getConfig("config.properties"), "thales.scheduler.pool.size",
-                POOL_SIZE);
-        es = Executors.newFixedThreadPool(poolSize);
-        es.execute(new TaskWaitingThread());
-        es.execute(new TimeoutThread());
+        taskEs = Executors.newCachedThreadPool();
+        Thread timeoutThread = new Thread(new TimeoutThread());
+        timeoutThread.start();
         eventBus.register(new EventListener());
     }
 
@@ -142,25 +132,43 @@ public class JobSubmission {
                 .setTaskState(taskState.getCode()).setErrorMsg(errorMsg).build();
     }
 
-    public static void addWaitingTask(TaskCall taskCall) {
-        waitingQueue.add(taskCall);
-    }
-
     public static void addTimeoutTask(TaskCall taskCall) {
         timeoutQueue.add(taskCall);
     }
+    
+    public static void addWaitingTask(TaskCall taskCall) {
+        String workerGroupName = taskCall.getRpcRequest().getJob().getWorkerGroupname();
+        PriorityBlockingQueue<TaskCall> taskQueue = workerGroupQueue.get(workerGroupName);
+        if(taskQueue == null) {
+            workerGroupQueue.put(workerGroupName, new PriorityBlockingQueue<TaskCall>());
+            workerGroupQueue.get(workerGroupName).add(taskCall);
+            taskEs.submit(new TaskWaitingThread(workerGroupName,workerGroupQueue.get(workerGroupName)));
+        }else {
+            taskQueue.add(taskCall);
+        }
+    }
 
     private static class TaskWaitingThread implements Runnable {
+        
+        private String groupName;
+        
+        private PriorityBlockingQueue<TaskCall> taskQueue;
+        
+        public TaskWaitingThread(String groupName,PriorityBlockingQueue<TaskCall> taskQueue) {
+            this.groupName = groupName;
+            this.taskQueue = taskQueue;
+        }
         @Override
         public void run() {
             while (true) {
-                TaskCall taskCall = waitingQueue.poll();
+                TaskCall taskCall = taskQueue.poll();
                 if (taskCall != null) {
                     AbstractJobGrpcClient client = null;
                     try {
                         WorkerResponse worker = getAvailableWorker(taskCall.getRpcRequest());
                         try {
                             client = getClient(worker,taskCall.getGrpcType());
+                            LOG.info("submit task " + taskCall.getRpcRequest().getId() +  " to worker group " + groupName );
                             client.submitJob(taskCall.getRpcRequest());
                         } catch (Exception e) {
                             LOG.error(e);
@@ -168,6 +176,7 @@ public class JobSubmission {
                         }
                     } catch(Exception e) {
                         LOG.error(e);
+                        processException(taskCall.getRpcRequest());
                     }finally {
                         // 同步rpc直接关闭，异步rpc需要内部关闭
                         if (taskCall.getGrpcType() == GrpcType.SYNC) {
@@ -243,7 +252,7 @@ public class JobSubmission {
     private static WorkerResponse getAvailableWorker(JobInstanceRequestRpc requestRpc) {
         WorkerResponse worker = null;
         int i = 1;
-        while (need_waiting) {
+        while (true) {
             try {
                 worker = MasterManager.getInstance().getIdleWorker(requestRpc.getJob().getWorkerGroupname(), "");
                 return worker;
@@ -259,7 +268,6 @@ public class JobSubmission {
             }
             i++;
         }
-        throw new RuntimeException("stop to waiting resource for " + requestRpc.getId());
     }
     
     private static void transitTaskStatusToWaitingResource(JobInstanceRequestRpc requestRpc) {

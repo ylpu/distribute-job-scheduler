@@ -90,10 +90,10 @@ public class SchedulerService {
 
                         }else if(jobInstanceResponse.getTaskState() == TaskState.QUEUED) {
                             JobInstanceRequestRpc request = removeAndGetRequestRpc(jobInstanceResponse,jobRequestId);
-                            JobSubmission.getWaitingQueue().remove(new TaskCall(request, GrpcType.ASYNC));
+                            JobSubmission.getGroupQueue(request.getJob().getWorkerGroupname()).remove(new TaskCall(request, GrpcType.ASYNC));
                             
                         }else if(jobInstanceResponse.getTaskState() == TaskState.WAITING_RESOURCE) {
-                            JobSubmission.setNeed_waiting(false);
+//                            JobSubmission.setNeed_waiting(false);
                         }
                     }
                     JobStatusRequest jr = new JobStatusRequest();
@@ -190,8 +190,7 @@ public class SchedulerService {
             if(!JobScheduler.jobExists(scheduleInfo)) {
                 JobScheduler.addJob(scheduleInfo, SchedulerJob.class);
             }else {
-                LOG.error("job " + jobResponse.getJobName() + " has scheduled");
-                throw new RuntimeException("job " + jobResponse.getJobName() + " has scheduled");
+                LOG.warn("job " + jobResponse.getJobName() + " has scheduled");
             }
         } catch (Exception e) {
             LOG.error(e);
