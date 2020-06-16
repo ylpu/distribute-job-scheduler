@@ -191,7 +191,7 @@ public class SchedulerService {
             if(!JobScheduler.jobExists(scheduleInfo)) {
                 JobScheduler.addJob(scheduleInfo, SchedulerJob.class);
             }else {
-                LOG.warn("job " + jobResponse.getJobName() + " has scheduled");
+                throw new RuntimeException("job " + jobResponse.getJobName() + " has scheduled");
             }
         } catch (Exception e) {
             LOG.error(e);
