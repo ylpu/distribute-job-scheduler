@@ -1,4 +1,4 @@
-package com.ylpu.thales.scheduler.schedule;
+package com.ylpu.thales.scheduler.manager;
 
 import java.util.Date;
 
@@ -35,10 +35,10 @@ public class SchedulerJob implements Job {
                 request.setStartTime(new Date());
                 request.setId(addJobInstance(request,jobId));
                 rpcRequest = JobSubmission.initJobInstanceRequestRpc(request, jobResponse);
-                JobSubmission.scheduleJob(rpcRequest);
+                JobSubmission.caculateDependency(rpcRequest);
             } catch (Exception e) {
                 LOG.error(
-                        "fail to update job " + rpcRequest.getId() + " to waiting status with exception ",e);
+                        "fail to update job " + rpcRequest.getId(),e);
                 scheduleFailed(request,rpcRequest);
             } 
         }
@@ -51,7 +51,7 @@ public class SchedulerJob implements Job {
         try {
             JobManager.updateJobInstanceSelective(request);
             JobInstanceResponseRpc responseRpc = JobSubmission.buildResponse(rpcRequest.getRequestId(), TaskState.FAIL, 500,
-                    "fail to update job " + rpcRequest.getId() + " to fail status");
+                    "fail to update job " + rpcRequest.getId());
             JobChecker.addResponse(responseRpc);
         } catch (Exception e1) {
             LOG.error(e1);

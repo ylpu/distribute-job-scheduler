@@ -1,4 +1,4 @@
-package com.ylpu.thales.scheduler.manager.strategy;
+package com.ylpu.thales.scheduler.strategy;
 
 import com.ylpu.thales.scheduler.manager.MasterManager;
 import com.ylpu.thales.scheduler.response.WorkerResponse;

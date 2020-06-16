@@ -1,4 +1,4 @@
-package com.ylpu.thales.scheduler.manager.strategy;
+package com.ylpu.thales.scheduler.strategy;
 
 public enum JobStrategy {
 

@@ -76,7 +76,11 @@ public class JobSubmission {
         eventBus.register(new EventListener());
     }
 
-    public static void scheduleJob(JobInstanceRequestRpc requestRpc) throws Exception {
+    public static ExecutorService getTaskEs() {
+        return taskEs;
+    }
+
+    public static void caculateDependency(JobInstanceRequestRpc requestRpc) throws Exception {
         //transit task status to scheduled
         transitTaskStatusToScheduled(requestRpc);
         List<JobDependency> dependJobs = new ArrayList<JobDependency>();
@@ -142,20 +146,17 @@ public class JobSubmission {
         if(taskQueue == null) {
             workerGroupQueue.put(workerGroupName, new PriorityBlockingQueue<TaskCall>());
             workerGroupQueue.get(workerGroupName).add(taskCall);
-            taskEs.submit(new TaskWaitingThread(workerGroupName,workerGroupQueue.get(workerGroupName)));
+            taskEs.submit(new TaskWaitingThread(workerGroupQueue.get(workerGroupName)));
         }else {
             taskQueue.add(taskCall);
         }
     }
 
     private static class TaskWaitingThread implements Runnable {
-        
-        private String groupName;
-        
+                
         private PriorityBlockingQueue<TaskCall> taskQueue;
         
-        public TaskWaitingThread(String groupName,PriorityBlockingQueue<TaskCall> taskQueue) {
-            this.groupName = groupName;
+        public TaskWaitingThread(PriorityBlockingQueue<TaskCall> taskQueue) {
             this.taskQueue = taskQueue;
         }
         @Override
@@ -168,7 +169,6 @@ public class JobSubmission {
                         WorkerResponse worker = getAvailableWorker(taskCall.getRpcRequest());
                         try {
                             client = getClient(worker,taskCall.getGrpcType());
-                            LOG.info("submit task " + taskCall.getRpcRequest().getId() +  " to worker group " + groupName );
                             client.submitJob(taskCall.getRpcRequest());
                         } catch (Exception e) {
                             LOG.error(e);
@@ -188,23 +188,67 @@ public class JobSubmission {
                 }
             }
         }
-
-    }
-    
-    private static void processException(JobInstanceRequestRpc request) {
-        JobStatusRequest jr = new JobStatusRequest();
-        jr.setIds(Arrays.asList(request.getId()));
-        jr.setStatus(TaskState.FAIL);
-        try {
-            JobManager.updateJobStatus(jr);
-            String responseId = request.getJob().getId() + "-" + DateUtils
-                    .getDateAsString(DateUtils.getDatetime(request.getScheduleTime()), DateUtils.TIME_FORMAT);
-            JobInstanceResponseRpc response = JobInstanceResponseRpc.newBuilder().setResponseId(responseId)
-                    .setErrorCode(500).setTaskState(TaskState.FAIL.getCode()).setErrorMsg("failed to execute job")
-                    .build();
-            JobChecker.addResponse(response);
-        } catch (Exception e) {
-            LOG.error(e);
+        
+        private WorkerResponse getAvailableWorker(JobInstanceRequestRpc requestRpc) {
+            WorkerResponse worker = null;
+            int i = 1;
+            while (true) {
+                try {
+                    worker = MasterManager.getInstance().getIdleWorker(requestRpc.getJob().getWorkerGroupname(), "");
+                    return worker;
+                } catch (Exception e) {
+                    LOG.error("can not get available resource to execute task " + requestRpc.getId() + " with  " + i + " tries");
+                }
+                //transit job status to waiting resource
+                transitTaskStatusToWaitingResource(requestRpc);
+                try {
+                    Thread.sleep(RESOURCE_CHECK_INTERVAL);
+                } catch (InterruptedException e) {
+                    LOG.error(e);
+                }
+                i++;
+            }
+        }
+        
+        private void transitTaskStatusToWaitingResource(JobInstanceRequestRpc requestRpc) {
+            JobInstanceRequest request = new JobInstanceRequest();
+            request.setId(requestRpc.getId());
+            request.setTaskState(TaskState.WAITING_RESOURCE.getCode());
+            try {
+                JobManager.updateJobInstanceSelective(request);
+                JobInstanceResponseRpc responseRpc = JobSubmission.buildResponse(
+                        requestRpc.getRequestId(), TaskState.WAITING_RESOURCE, 200,"");
+                JobChecker.addResponse(responseRpc);
+            } catch (Exception e) {
+                LOG.error(e);
+            }
+        }
+        
+        private AbstractJobGrpcClient getClient(WorkerResponse worker,GrpcType grpcType) {
+            AbstractJobGrpcClient client = null;
+            if (grpcType == GrpcType.SYNC) {
+                client = new JobGrpcBlockingClient(worker.getHost(), worker.getPort());
+            } else {
+                client = new JobGrpcNonBlockingClient(worker.getHost(), worker.getPort());
+            }
+            return client;
+        }
+        
+        private void processException(JobInstanceRequestRpc request) {
+            JobStatusRequest jobStatusRequest = new JobStatusRequest();
+            jobStatusRequest.setIds(Arrays.asList(request.getId()));
+            jobStatusRequest.setStatus(TaskState.FAIL);
+            try {
+                JobManager.updateJobStatus(jobStatusRequest);
+                String responseId = request.getJob().getId() + "-" + DateUtils
+                        .getDateAsString(DateUtils.getDatetime(request.getScheduleTime()), DateUtils.TIME_FORMAT);
+                JobInstanceResponseRpc response = JobInstanceResponseRpc.newBuilder().setResponseId(responseId)
+                        .setErrorCode(500).setTaskState(TaskState.FAIL.getCode()).setErrorMsg("failed to execute job")
+                        .build();
+                JobChecker.addResponse(response);
+            } catch (Exception e) {
+                LOG.error(e);
+            }
         }
     }
     
@@ -228,62 +272,16 @@ public class JobSubmission {
                 }
             }
         }
-    }
-    
-    private static void setAlertEvent(Event event, JobInstanceResponse jobInstanceResponse) {
-        event.setTaskId(jobInstanceResponse.getId());
-        event.setAlertType(AlertType.getAlertType(jobInstanceResponse.getJobConf().getAlertTypes()));
-        event.setAlertUsers(jobInstanceResponse.getJobConf().getAlertUsers());
-        event.setLogUrl(jobInstanceResponse.getLogUrl());
-        event.setHostName(jobInstanceResponse.getWorker());
-        event.setEventType(EventType.TIMEOUT);
-    }
-
-    private static AbstractJobGrpcClient getClient(WorkerResponse worker,GrpcType grpcType) {
-        AbstractJobGrpcClient client = null;
-        if (grpcType == GrpcType.SYNC) {
-            client = new JobGrpcBlockingClient(worker.getHost(), worker.getPort());
-        } else {
-            client = new JobGrpcNonBlockingClient(worker.getHost(), worker.getPort());
-        }
-        return client;
-    }
-
-    private static WorkerResponse getAvailableWorker(JobInstanceRequestRpc requestRpc) {
-        WorkerResponse worker = null;
-        int i = 1;
-        while (true) {
-            try {
-                worker = MasterManager.getInstance().getIdleWorker(requestRpc.getJob().getWorkerGroupname(), "");
-                return worker;
-            } catch (Exception e) {
-                LOG.error("can not get available resource to execute task " + requestRpc.getId() + " with  " + i + " tries");
-            }
-            //transit job status to waiting resource
-            transitTaskStatusToWaitingResource(requestRpc);
-            try {
-                Thread.sleep(RESOURCE_CHECK_INTERVAL);
-            } catch (InterruptedException e) {
-                LOG.error(e);
-            }
-            i++;
+        private void setAlertEvent(Event event, JobInstanceResponse jobInstanceResponse) {
+            event.setTaskId(jobInstanceResponse.getId());
+            event.setAlertType(AlertType.getAlertType(jobInstanceResponse.getJobConf().getAlertTypes()));
+            event.setAlertUsers(jobInstanceResponse.getJobConf().getAlertUsers());
+            event.setLogUrl(jobInstanceResponse.getLogUrl());
+            event.setHostName(jobInstanceResponse.getWorker());
+            event.setEventType(EventType.TIMEOUT);
         }
     }
     
-    private static void transitTaskStatusToWaitingResource(JobInstanceRequestRpc requestRpc) {
-        JobInstanceRequest request = new JobInstanceRequest();
-        request.setId(requestRpc.getId());
-        request.setTaskState(TaskState.WAITING_RESOURCE.getCode());
-        try {
-            JobManager.updateJobInstanceSelective(request);
-            JobInstanceResponseRpc responseRpc = JobSubmission.buildResponse(
-                    requestRpc.getRequestId(), TaskState.WAITING_RESOURCE, 200,"");
-            JobChecker.addResponse(responseRpc);
-        } catch (Exception e) {
-            LOG.error(e);
-        }
-    }
-
     /**
      * 保存任务并开始调度
      * 

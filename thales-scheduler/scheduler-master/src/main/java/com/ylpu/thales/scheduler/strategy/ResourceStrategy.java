@@ -1,4 +1,4 @@
-package com.ylpu.thales.scheduler.manager.strategy;
+package com.ylpu.thales.scheduler.strategy;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;

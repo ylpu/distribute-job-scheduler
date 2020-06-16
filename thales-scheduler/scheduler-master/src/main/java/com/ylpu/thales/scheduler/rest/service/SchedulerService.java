@@ -20,9 +20,9 @@ import com.ylpu.thales.scheduler.response.JobTree;
 import com.ylpu.thales.scheduler.rpc.client.AbstractJobGrpcClient;
 import com.ylpu.thales.scheduler.rpc.client.JobDependency;
 import com.ylpu.thales.scheduler.rpc.client.JobGrpcBlockingClient;
-import com.ylpu.thales.scheduler.schedule.JobScheduleInfo;
-import com.ylpu.thales.scheduler.schedule.JobScheduler;
-import com.ylpu.thales.scheduler.schedule.SchedulerJob;
+import com.ylpu.thales.scheduler.manager.JobScheduleInfo;
+import com.ylpu.thales.scheduler.manager.JobScheduler;
+import com.ylpu.thales.scheduler.manager.SchedulerJob;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -277,7 +277,7 @@ public class SchedulerService {
             }
             try {
                 rpcRequest = JobSubmission.initJobInstanceRequestRpc(request, jobInstanceResponse.getJobConf());
-                JobSubmission.scheduleJob(rpcRequest);
+                JobSubmission.caculateDependency(rpcRequest);
             } catch (Exception e) {
                 LOG.error("fail to update job " + rpcRequest.getId() + " status with exception " + e.getMessage());
                 scheduleFailed(request,rpcRequest);

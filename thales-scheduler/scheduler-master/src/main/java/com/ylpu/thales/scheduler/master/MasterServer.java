@@ -5,12 +5,14 @@ import com.ylpu.thales.scheduler.core.constants.GlobalConstants;
 import com.ylpu.thales.scheduler.core.curator.CuratorHelper;
 import com.ylpu.thales.scheduler.core.utils.MetricsUtils;
 import com.ylpu.thales.scheduler.manager.MasterManager;
-import com.ylpu.thales.scheduler.schedule.JobScheduler;
+import com.ylpu.thales.scheduler.manager.JobScheduler;
+import com.ylpu.thales.scheduler.manager.JobSubmission;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.curator.framework.CuratorFramework;
 import java.util.Properties;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class MasterServer {
@@ -46,6 +48,11 @@ public class MasterServer {
             removeMaster();
             // 关掉任务调度
             JobScheduler.shutdownJobs();
+            // 关掉等待线程池
+            ExecutorService es = JobSubmission.getTaskEs();
+            if(es != null) {
+                es.shutdown();
+            }
         }
 
         /**

@@ -1,4 +1,4 @@
-package com.ylpu.thales.scheduler.schedule;
+package com.ylpu.thales.scheduler.manager;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
