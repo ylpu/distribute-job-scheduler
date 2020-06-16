@@ -4,9 +4,8 @@ import com.ylpu.thales.scheduler.core.config.Configuration;
 import com.ylpu.thales.scheduler.core.constants.GlobalConstants;
 import com.ylpu.thales.scheduler.core.curator.CuratorHelper;
 import com.ylpu.thales.scheduler.core.utils.MetricsUtils;
-import com.ylpu.thales.scheduler.manager.MasterManager;
-import com.ylpu.thales.scheduler.manager.JobScheduler;
-import com.ylpu.thales.scheduler.manager.JobSubmission;
+import com.ylpu.thales.scheduler.schedule.JobScheduler;
+import com.ylpu.thales.scheduler.schedule.JobSubmission;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

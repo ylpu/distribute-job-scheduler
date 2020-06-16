@@ -1,4 +1,4 @@
-package com.ylpu.thales.scheduler.manager;
+package com.ylpu.thales.scheduler.schedule;
 
 import lombok.Data;
 

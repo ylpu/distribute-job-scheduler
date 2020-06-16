@@ -5,9 +5,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
-
 import com.ylpu.thales.scheduler.core.constants.GlobalConstants;
-import com.ylpu.thales.scheduler.manager.MasterManager;
+import com.ylpu.thales.scheduler.master.MasterManager;
 import com.ylpu.thales.scheduler.response.WorkerResponse;
 
 import java.util.Comparator;

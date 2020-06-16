@@ -9,9 +9,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
-
 import com.ylpu.thales.scheduler.core.constants.GlobalConstants;
-import com.ylpu.thales.scheduler.manager.MasterManager;
+import com.ylpu.thales.scheduler.master.MasterManager;
 import com.ylpu.thales.scheduler.response.WorkerResponse;
 
 /**

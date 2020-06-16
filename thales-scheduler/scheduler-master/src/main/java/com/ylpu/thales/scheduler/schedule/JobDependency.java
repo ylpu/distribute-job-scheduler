@@ -1,4 +1,4 @@
-package com.ylpu.thales.scheduler.rpc.client;
+package com.ylpu.thales.scheduler.schedule;
 
 import java.io.Serializable;
 

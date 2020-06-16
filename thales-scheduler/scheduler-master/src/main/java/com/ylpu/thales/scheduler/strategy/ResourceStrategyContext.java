@@ -1,6 +1,6 @@
 package com.ylpu.thales.scheduler.strategy;
 
-import com.ylpu.thales.scheduler.manager.MasterManager;
+import com.ylpu.thales.scheduler.master.MasterManager;
 import com.ylpu.thales.scheduler.response.WorkerResponse;
 
 public class ResourceStrategyContext {

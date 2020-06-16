@@ -1,4 +1,4 @@
-package com.ylpu.thales.scheduler.manager;
+package com.ylpu.thales.scheduler.schedule;
 
 import com.google.common.eventbus.AsyncEventBus;
 import com.ylpu.thales.scheduler.alert.EventListener;
@@ -17,13 +17,13 @@ import com.ylpu.thales.scheduler.enums.JobPriority;
 import com.ylpu.thales.scheduler.enums.JobReleaseState;
 import com.ylpu.thales.scheduler.enums.JobType;
 import com.ylpu.thales.scheduler.enums.TaskState;
+import com.ylpu.thales.scheduler.master.MasterManager;
 import com.ylpu.thales.scheduler.request.JobInstanceRequest;
 import com.ylpu.thales.scheduler.request.JobStatusRequest;
 import com.ylpu.thales.scheduler.response.JobInstanceResponse;
 import com.ylpu.thales.scheduler.response.JobResponse;
 import com.ylpu.thales.scheduler.response.WorkerResponse;
 import com.ylpu.thales.scheduler.rpc.client.AbstractJobGrpcClient;
-import com.ylpu.thales.scheduler.rpc.client.JobDependency;
 import com.ylpu.thales.scheduler.rpc.client.JobGrpcBlockingClient;
 import com.ylpu.thales.scheduler.rpc.client.JobGrpcNonBlockingClient;
 import org.apache.commons.lang3.StringUtils;

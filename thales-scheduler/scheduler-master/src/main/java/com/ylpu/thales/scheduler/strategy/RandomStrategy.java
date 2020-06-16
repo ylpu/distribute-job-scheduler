@@ -2,9 +2,8 @@ package com.ylpu.thales.scheduler.strategy;
 
 import java.util.List;
 import java.util.Random;
-
 import com.ylpu.thales.scheduler.core.constants.GlobalConstants;
-import com.ylpu.thales.scheduler.manager.MasterManager;
+import com.ylpu.thales.scheduler.master.MasterManager;
 import com.ylpu.thales.scheduler.response.WorkerResponse;
 
 /**

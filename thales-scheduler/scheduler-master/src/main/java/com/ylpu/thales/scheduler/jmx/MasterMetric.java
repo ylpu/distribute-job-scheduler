@@ -1,9 +1,10 @@
 package com.ylpu.thales.scheduler.jmx;
 
 import com.ylpu.thales.scheduler.core.utils.StringUtils;
-import com.ylpu.thales.scheduler.manager.JobSubmission;
-import com.ylpu.thales.scheduler.manager.MasterManager;
-import com.ylpu.thales.scheduler.manager.TaskCall;
+import com.ylpu.thales.scheduler.master.MasterManager;
+import com.ylpu.thales.scheduler.schedule.JobSubmission;
+import com.ylpu.thales.scheduler.schedule.TaskCall;
+
 import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.PriorityBlockingQueue;

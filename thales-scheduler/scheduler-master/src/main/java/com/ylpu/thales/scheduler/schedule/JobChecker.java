@@ -1,4 +1,4 @@
-package com.ylpu.thales.scheduler.manager;
+package com.ylpu.thales.scheduler.schedule;
 
 import com.ylpu.thales.scheduler.core.config.Configuration;
 import com.ylpu.thales.scheduler.core.constants.GlobalConstants;
@@ -8,10 +8,10 @@ import com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc;
 import com.ylpu.thales.scheduler.core.utils.DateUtils;
 import com.ylpu.thales.scheduler.enums.GrpcType;
 import com.ylpu.thales.scheduler.enums.TaskState;
-import com.ylpu.thales.scheduler.manager.JobSubmission;
-import com.ylpu.thales.scheduler.manager.TaskCall;
 import com.ylpu.thales.scheduler.request.JobInstanceRequest;
-import com.ylpu.thales.scheduler.rpc.client.JobDependency;
+import com.ylpu.thales.scheduler.schedule.JobSubmission;
+import com.ylpu.thales.scheduler.schedule.TaskCall;
+
 import java.util.Date;
 import java.util.List;
 import java.util.Map;

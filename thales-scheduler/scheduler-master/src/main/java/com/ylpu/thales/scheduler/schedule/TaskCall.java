@@ -1,4 +1,4 @@
-package com.ylpu.thales.scheduler.manager;
+package com.ylpu.thales.scheduler.schedule;
 
 import com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc;
 import com.ylpu.thales.scheduler.enums.GrpcType;

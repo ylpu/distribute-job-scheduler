@@ -1,4 +1,4 @@
-package com.ylpu.thales.scheduler.manager;
+package com.ylpu.thales.scheduler.master;
 
 import com.ylpu.thales.scheduler.core.config.Configuration;
 import com.ylpu.thales.scheduler.core.constants.GlobalConstants;
@@ -18,11 +18,12 @@ import com.ylpu.thales.scheduler.response.JobInstanceStateResponse;
 import com.ylpu.thales.scheduler.response.WorkerResponse;
 import com.ylpu.thales.scheduler.rest.MasterRestServer;
 import com.ylpu.thales.scheduler.rpc.server.MasterRpcServer;
+import com.ylpu.thales.scheduler.schedule.JobChecker;
+import com.ylpu.thales.scheduler.schedule.JobScheduler;
 import com.ylpu.thales.scheduler.strategy.JobStrategy;
 import com.ylpu.thales.scheduler.strategy.ResourceStrategy;
 import com.ylpu.thales.scheduler.strategy.ResourceStrategyContext;
 import com.ylpu.thales.scheduler.strategy.WorkerSelectStrategy;
-import com.ylpu.thales.scheduler.manager.JobScheduler;
 
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.logging.Log;

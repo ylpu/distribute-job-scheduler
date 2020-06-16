@@ -7,8 +7,9 @@ import com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc;
 import com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc;
 import com.ylpu.thales.scheduler.core.rpc.service.GrpcJobServiceGrpc;
 import com.ylpu.thales.scheduler.enums.TaskState;
-import com.ylpu.thales.scheduler.manager.JobChecker;
 import com.ylpu.thales.scheduler.request.JobInstanceRequest;
+import com.ylpu.thales.scheduler.schedule.JobChecker;
+
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 
