@@ -2,7 +2,7 @@ package com.ylpu.thales.scheduler.enums;
 
 public enum DBType {
 
-    ORACLE, MYSQL, SQLSERVER;
+    ORACLE, MYSQL, SQLSERVER, CLICKHOUSE;
 
     public static DBType getDBType(String name) {
         for (DBType dbType : DBType.values()) {

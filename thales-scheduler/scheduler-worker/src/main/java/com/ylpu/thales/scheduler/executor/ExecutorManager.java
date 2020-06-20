@@ -4,7 +4,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.ylpu.thales.scheduler.enums.JobType;
+import com.ylpu.thales.scheduler.executor.clickHouse.ClickHouseExecutor;
 import com.ylpu.thales.scheduler.executor.command.CommandExecutor;
+import com.ylpu.thales.scheduler.executor.flink.FlinkExecutor;
 import com.ylpu.thales.scheduler.executor.hive.HiveExecutor;
 import com.ylpu.thales.scheduler.executor.shell.ShellExecutor;
 import com.ylpu.thales.scheduler.executor.spark.*;
@@ -24,6 +26,8 @@ public class ExecutorManager {
         executors.put(JobType.HTTP, HttpExecutor.class);
         executors.put(JobType.PYTHON, PythonExecutor.class);
         executors.put(JobType.SQL, SQLExecutor.class);
+        executors.put(JobType.FLINK, FlinkExecutor.class);
+        executors.put(JobType.CLICKHOUSE, ClickHouseExecutor.class);
     }
 
     public static Class<? extends AbstractCommonExecutor> getExecutor(JobType jobType) {

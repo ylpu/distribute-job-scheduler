@@ -62,7 +62,7 @@ public class SQLExecutor extends AbstractCommonExecutor {
                 SQLConfig sqlConfig = JsonUtils.jsonToBean(jobConfig, SQLConfig.class);
                 String operator = sqlConfig.getOperator();
                 SQLOperator sqlOperator = SQLOperator.getSQLOperator(operator);
-                connection = ConnectionManager.getConnection(sqlConfig.getConnection());
+                connection = ConnectionManager.getConnection(sqlConfig.getDsName());
                 switch (sqlOperator) {
                 case SELECT:
                     select(connection, new JdbcExtractor(), sqlConfig.getSql(), sqlConfig.getParameters(), logOutPath);

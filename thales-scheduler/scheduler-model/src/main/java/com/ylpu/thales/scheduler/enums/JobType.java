@@ -2,7 +2,7 @@ package com.ylpu.thales.scheduler.enums;
 
 public enum JobType {
 
-    SHELL(1), HQL(2), SPARK(3), COMMAND(4), HTTP(5), PYTHON(6), SQL(7);
+    SHELL(1), HQL(2), SPARK(3), COMMAND(4), HTTP(5), PYTHON(6), SQL(7), FLINK(8), CLICKHOUSE(9);
 
     private int code;
 

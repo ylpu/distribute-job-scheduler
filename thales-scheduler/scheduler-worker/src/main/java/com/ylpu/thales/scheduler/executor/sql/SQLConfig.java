@@ -4,17 +4,17 @@ import java.util.Map;
 
 public class SQLConfig {
 
-    private String connectionId;
+    private String dsName;
     private String operator;
     private String sql;
     private Map<String, Object> parameters;
 
-    public String getConnection() {
-        return connectionId;
+    public String getDsName() {
+        return dsName;
     }
 
-    public void setConnection(String connectionId) {
-        this.connectionId = connectionId;
+    public void setDsName(String dsName) {
+        this.dsName = dsName;
     }
 
     public String getOperator() {
