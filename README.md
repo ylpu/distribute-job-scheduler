@@ -124,7 +124,7 @@ api作为接口层，主要有如下功能：
 }
 }
      * sql : {
-  "connection":"mysql-test(连接管理里的连接名称)",
+  "dsName":"mysql-test(连接管理里的连接名称)",
   "operator":"select",
   "sql":"select * from t_thales_scheduler_job_instance where id = ?",
   "parameters":{"param1":76}
