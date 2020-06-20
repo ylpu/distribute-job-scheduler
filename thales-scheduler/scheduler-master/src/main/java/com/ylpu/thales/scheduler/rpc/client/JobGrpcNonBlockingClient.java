@@ -13,9 +13,8 @@ import com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc;
 import com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc;
 import com.ylpu.thales.scheduler.core.rpc.service.GrpcJobServiceGrpc;
 import com.ylpu.thales.scheduler.enums.TaskState;
-import com.ylpu.thales.scheduler.request.JobInstanceRequest;
 import com.ylpu.thales.scheduler.schedule.JobChecker;
-
+import com.ylpu.thales.scheduler.schedule.JobSubmission;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 
@@ -55,37 +54,34 @@ public class JobGrpcNonBlockingClient extends AbstractJobGrpcClient {
         }
     }
 
-    public void submitJob(JobInstanceRequestRpc requestRpc) throws Exception {
-        LOG.info("prepare to submit task " + requestRpc.getRequestId() + " to host  " + host + ":" + port);
-        JobInstanceRequest request = new JobInstanceRequest();
-        setJobInstanceRequest(requestRpc, request);
+    public void submitJob(JobInstanceRequestRpc rpcRequest) throws Exception {
+        LOG.info("prepare to submit task " + rpcRequest.getRequestId() + " to host  " + host + ":" + port);
         try {
-            ListenableFuture<JobInstanceResponseRpc> future = futureStub.submit(requestRpc);
+            ListenableFuture<JobInstanceResponseRpc> future = futureStub.submit(rpcRequest);
             // async callback
-            addCallBack(future, executorService, requestRpc, request);
+            addCallBack(future, executorService, rpcRequest);
         } catch (Exception e) {
-            LOG.error("failed to submit task " + requestRpc.getRequestId() + " to " + host, e);
+            LOG.error("failed to submit task " + rpcRequest.getRequestId() + " to " + host, e);
             try {
-                updateTaskStatus(request, TaskState.FAIL.getCode());
-                JobInstanceResponseRpc responseRpc = buildResponse(requestRpc, TaskState.FAIL, 500,
-                        "failed to execute task " + requestRpc.getRequestId());
+                transitTaskStatus(rpcRequest, TaskState.FAIL.getCode());
+                JobInstanceResponseRpc responseRpc = JobSubmission.buildResponse(rpcRequest.getRequestId(), TaskState.FAIL.getCode());
                 JobChecker.addResponse(responseRpc);
             } catch (Exception e1) {
                 LOG.error(e1);
             }
             shutdown();
-            rerunIfNeeded(requestRpc);
+            rerunIfNeeded(rpcRequest);
         }
     }
 
     private void addCallBack(ListenableFuture<JobInstanceResponseRpc> future, ListeningExecutorService executorService,
-            JobInstanceRequestRpc requestRpc, JobInstanceRequest request) {
+            JobInstanceRequestRpc requestRpc) {
         Futures.addCallback(future, new FutureCallback<JobInstanceResponseRpc>() {
             @Override
             public void onSuccess(JobInstanceResponseRpc result) {
                 LOG.info("task " + requestRpc.getRequestId() + " execute successful");
                 try {
-                    updateTaskStatus(request, result.getTaskState());
+                    transitTaskStatus(requestRpc, result.getTaskState());
                     JobChecker.addResponse(result);
                 } catch (Exception e) {
                     LOG.error("failed to update task " + requestRpc.getId() +  " status to successful after callback",e);
@@ -97,9 +93,8 @@ public class JobGrpcNonBlockingClient extends AbstractJobGrpcClient {
             public void onFailure(Throwable t) {
                 LOG.error("failed to execute task " + requestRpc.getRequestId(),t);
                 try {
-                    updateTaskStatus(request, TaskState.FAIL.getCode());
-                    JobInstanceResponseRpc responseRpc = buildResponse(requestRpc, TaskState.FAIL, 500,
-                            "failed to execute task " + requestRpc.getRequestId());
+                    transitTaskStatus(requestRpc, TaskState.FAIL.getCode());
+                    JobInstanceResponseRpc responseRpc = JobSubmission.buildResponse(requestRpc.getRequestId(), TaskState.FAIL.getCode());
                     JobChecker.addResponse(responseRpc);
                 } catch (Exception e) {
                     LOG.error("failed to update task " + requestRpc.getRequestId() + " status to fail after callback",e);

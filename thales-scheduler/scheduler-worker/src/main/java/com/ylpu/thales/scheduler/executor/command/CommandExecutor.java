@@ -4,17 +4,13 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc;
 import com.ylpu.thales.scheduler.core.utils.JsonUtils;
-import com.ylpu.thales.scheduler.core.utils.TaskProcessUtils;
 import com.ylpu.thales.scheduler.executor.AbstractCommonExecutor;
 import com.ylpu.thales.scheduler.request.JobInstanceRequest;
 
 public class CommandExecutor extends AbstractCommonExecutor {
 
-    private JobInstanceRequestRpc requestRpc;
-
     public CommandExecutor(JobInstanceRequestRpc requestRpc, JobInstanceRequest request) {
         super(requestRpc, request);
-        this.requestRpc = requestRpc;
     }
 
     /**
@@ -22,11 +18,7 @@ public class CommandExecutor extends AbstractCommonExecutor {
      */
     @Override
     public void kill() throws Exception {
-        Integer pid = requestRpc.getPid();
-        if (pid != null) {
-            TaskProcessUtils.execCommand("./src/script/killProcess.sh", "/tmp/pid/" + pid + ".out",
-                    "/tmp/pid/" + pid + ".error", pid);
-        }
+        killProcess();
     }
 
     @Override

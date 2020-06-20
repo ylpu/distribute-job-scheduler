@@ -220,7 +220,7 @@ public class MasterManager {
         if (list != null && list.size() > 0) {
             for (JobInstanceStateResponse response : list) {
                 String responseId = response.getJobId() + "-"
-                        + DateUtils.getDateAsString(response.getScheduleTime(), DateUtils.TIME_FORMAT);
+                        + DateUtils.getDateAsString(response.getScheduleTime(), DateUtils.MINUTE_TIME_FORMAT);
                 responseRpc = JobInstanceResponseRpc.newBuilder().setId(response.getId()).setResponseId(responseId)
                         .setTaskState(response.getTaskState()).build();
                 JobChecker.addResponse(responseRpc);

@@ -7,9 +7,8 @@ import com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc;
 import com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc;
 import com.ylpu.thales.scheduler.core.rpc.service.GrpcJobServiceGrpc;
 import com.ylpu.thales.scheduler.enums.TaskState;
-import com.ylpu.thales.scheduler.request.JobInstanceRequest;
 import com.ylpu.thales.scheduler.schedule.JobChecker;
-
+import com.ylpu.thales.scheduler.schedule.JobSubmission;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 
@@ -30,52 +29,46 @@ public class JobGrpcBlockingClient extends AbstractJobGrpcClient {
     }
 
     @Override
-    public void submitJob(JobInstanceRequestRpc requestRpc) throws Exception {
+    public void submitJob(JobInstanceRequestRpc rpcRequest) throws Exception {
         JobInstanceResponseRpc responseRpc = null;
-        JobInstanceRequest request = new JobInstanceRequest();
-        setJobInstanceRequest(requestRpc, request);
         try {
-            LOG.info("submit task  " + requestRpc.getRequestId() + " to host  " + requestRpc.getWorker());
-            responseRpc = blockStub.submit(requestRpc);
+            LOG.info("submit task  " + rpcRequest.getRequestId() + " to host  " + rpcRequest.getWorker());
+            responseRpc = blockStub.submit(rpcRequest);
         } catch (Exception e) {
             LOG.error(e.getMessage());
-            responseRpc = buildResponse(requestRpc, TaskState.FAIL, 500,
-                    "failed to execute task " + requestRpc.getRequestId());
+            responseRpc = JobSubmission.buildResponse(rpcRequest.getRequestId(), TaskState.FAIL.getCode());
         }
-        LOG.info("task " + requestRpc.getRequestId() + " return code is " + responseRpc.getErrorCode() + " ,return messsage is "
+        LOG.info("task " + rpcRequest.getRequestId() + " return code is " + responseRpc.getErrorCode() + " ,return messsage is "
                 + responseRpc.getErrorMsg());
         try {
-            updateTaskStatus(request, responseRpc.getTaskState());
+            transitTaskStatus(rpcRequest, responseRpc.getTaskState());
             JobChecker.addResponse(responseRpc);
         } catch (Exception e) {
-            LOG.error("failed to update task status " + requestRpc.getRequestId(), e);
+            LOG.error("failed to update task status " + rpcRequest.getRequestId(), e);
         }
         if (responseRpc.getErrorCode() != 200) {
-            rerunIfNeeded(requestRpc);
+            rerunIfNeeded(rpcRequest);
         }
     }
 
-    public void kill(JobInstanceRequestRpc requestRpc) throws Exception {
+    public void kill(JobInstanceRequestRpc rpcRequest) throws Exception {
         JobInstanceResponseRpc responseRpc = null;
-        JobInstanceRequest request = new JobInstanceRequest();
-        setJobInstanceRequest(requestRpc, request);
         try {
-            responseRpc = blockStub.kill(requestRpc);
+            responseRpc = blockStub.kill(rpcRequest);
         } catch (Exception e) {
             LOG.error(e.getMessage());
-            responseRpc = buildResponse(requestRpc, TaskState.RUNNING, 500,
-                    "failed to kill task " + requestRpc.getRequestId());
+            responseRpc = JobSubmission.buildResponse(rpcRequest.getRequestId(), TaskState.RUNNING.getCode());
         }
-        LOG.info("task " + requestRpc.getRequestId() + " return code is " + responseRpc.getErrorCode() + " ,return message "
+        LOG.info("task " + rpcRequest.getRequestId() + " return code is " + responseRpc.getErrorCode() + " ,return message "
                 + responseRpc.getErrorMsg());
         try {
-            updateTaskStatus(request, responseRpc.getTaskState());
+            transitTaskStatus(rpcRequest, responseRpc.getTaskState());
             JobChecker.addResponse(responseRpc);
         } catch (Exception e) {
-            LOG.error("failed to update task status " + requestRpc.getRequestId(), e);
+            LOG.error("failed to update task status " + rpcRequest.getRequestId(), e);
         }
         if (responseRpc.getErrorCode() != 200) {
-            throw new RuntimeException("failed to kill task " + requestRpc.getRequestId());
+            throw new RuntimeException("failed to kill task " + rpcRequest.getRequestId());
         }
     }
 

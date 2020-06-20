@@ -3,7 +3,6 @@ package com.ylpu.thales.scheduler.executor.python;
 import com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc;
 import com.ylpu.thales.scheduler.core.utils.FileUtils;
 import com.ylpu.thales.scheduler.core.utils.JsonUtils;
-import com.ylpu.thales.scheduler.core.utils.TaskProcessUtils;
 import com.ylpu.thales.scheduler.executor.AbstractCommonExecutor;
 import com.ylpu.thales.scheduler.request.JobInstanceRequest;
 import java.io.File;
@@ -16,11 +15,8 @@ public class PythonExecutor extends AbstractCommonExecutor {
 
     private static final String PYTHON_COMMAND = "python";
 
-    private JobInstanceRequestRpc requestRpc;
-
     public PythonExecutor(JobInstanceRequestRpc requestRpc, JobInstanceRequest request) {
         super(requestRpc, request);
-        this.requestRpc = requestRpc;
     }
 
     /**
@@ -28,19 +24,7 @@ public class PythonExecutor extends AbstractCommonExecutor {
      */
     @Override
     public void kill() throws Exception {
-        Integer pid = requestRpc.getPid();
-        if (pid != null) {
-            TaskProcessUtils.execCommand("./src/script/killProcess.sh", "/tmp/pid/" + pid + ".out",
-                    "/tmp/pid/" + pid + ".error", pid);
-        }
-        // 脚本中如果有hql,杀掉相关的任务
-        String logPath = requestRpc.getLogPath();
-        List<String> applicationList = FileUtils.getApplicationIdFromLog(logPath);
-        if (applicationList != null && applicationList.size() > 0) {
-            for (String application : applicationList) {
-                TaskProcessUtils.killYarnApplication(application);
-            }
-        }
+        killProcess();
     }
 
     /**

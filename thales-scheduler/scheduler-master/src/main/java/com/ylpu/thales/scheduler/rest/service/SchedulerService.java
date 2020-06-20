@@ -87,10 +87,10 @@ public class SchedulerService {
                     }else {
                         //remove rpc request from map
                         if(jobInstanceResponse.getTaskState() == TaskState.WAITING_DEPENDENCY) {
-                            removeAndGetRequestRpc(jobInstanceResponse,jobRequestId);
+                            removeRequestRpc(jobInstanceResponse,jobRequestId);
 
                         }else if(jobInstanceResponse.getTaskState() == TaskState.QUEUED) {
-                            JobInstanceRequestRpc request = removeAndGetRequestRpc(jobInstanceResponse,jobRequestId);
+                            JobInstanceRequestRpc request = removeRequestRpc(jobInstanceResponse,jobRequestId);
                             JobSubmission.getGroupQueue(request.getJob().getWorkerGroupname()).remove(new TaskCall(request, GrpcType.ASYNC));
                             
                         }else if(jobInstanceResponse.getTaskState() == TaskState.WAITING_RESOURCE) {
@@ -101,9 +101,11 @@ public class SchedulerService {
                     jr.setIds(Arrays.asList(scheduleRequest.getId()));
                     jr.setStatus(toState);
                     JobManager.updateJobStatus(jr);
-                    JobChecker.addResponse(JobSubmission.buildJobStatus(jobInstanceResponse.getJobConf(),
-                            DateUtils.getDateFromString(jobInstanceResponse.getScheduleTime(), DateUtils.DATE_TIME_FORMAT),
-                            toState));
+                    String responseId = jobInstanceResponse.getJobConf().getId() + "-" + 
+                    DateUtils.getDateAsString(DateUtils.getDateFromString(jobInstanceResponse.getScheduleTime(), 
+                            DateUtils.DATE_TIME_FORMAT), DateUtils.MINUTE_TIME_FORMAT);
+                    
+                    JobChecker.addResponse(JobSubmission.buildResponse(responseId,toState.getCode()));
                 } catch (Exception e) {
                     LOG.error(e);
                     throw e;
@@ -111,7 +113,7 @@ public class SchedulerService {
             }
         }
     }
-    private JobInstanceRequestRpc removeAndGetRequestRpc(JobInstanceResponse jobInstanceResponse,String jobRequestId) {
+    private JobInstanceRequestRpc removeRequestRpc(JobInstanceResponse jobInstanceResponse,String jobRequestId) {
         JobInstanceRequestRpc requestRpc = null;
         Map<List<JobDependency>, String> dependsMap = JobChecker.getDepends();
         for (Entry<List<JobDependency>, String> entry : dependsMap.entrySet()) {
@@ -163,7 +165,7 @@ public class SchedulerService {
                 .setRequestId(
                         response.getJobConf().getId() + "-"
                                 + DateUtils.getDateAsString(DateUtils.getDateFromString(response.getScheduleTime(),
-                                        DateUtils.DATE_TIME_FORMAT), DateUtils.TIME_FORMAT))
+                                        DateUtils.DATE_TIME_FORMAT), DateUtils.MINUTE_TIME_FORMAT))
                 .setJob(JobSubmission.setJobRequest(response.getJobConf())).setCreatorEmail(response.getCreatorEmail())
                 .setCreatorName(response.getCreatorName())
                 .setScheduleTime(DateUtils.getProtobufTime(
@@ -267,36 +269,43 @@ public class SchedulerService {
                         DateUtils.getDateFromString(jobInstanceResponse.getScheduleTime(), DateUtils.DATE_TIME_FORMAT));
                 request.setStartTime(new Date());
                 request.setCreateTime(new Date());
+                //transit task status to submit
                 JobManager.updateJobInstanceByKey(request);
-                JobChecker.addResponse(JobSubmission.buildJobStatus(jobInstanceResponse.getJobConf(),
-                        DateUtils.getDateFromString(jobInstanceResponse.getScheduleTime(), DateUtils.DATE_TIME_FORMAT),
-                        TaskState.SUBMIT));
+                
+                String responseId = jobInstanceResponse.getJobConf().getId() + "-" + 
+                DateUtils.getDateAsString(DateUtils.getDateFromString(jobInstanceResponse.getScheduleTime(), 
+                        DateUtils.DATE_TIME_FORMAT), DateUtils.MINUTE_TIME_FORMAT);
+                JobChecker.addResponse(JobSubmission.buildResponse(responseId,TaskState.SUBMIT.getCode()));
+
             }catch(Exception e) {
                 LOG.error("failed to submit task " + request.getId() , e);
                 throw new RuntimeException(e);
             }
             try {
                 rpcRequest = JobSubmission.initJobInstanceRequestRpc(request, jobInstanceResponse.getJobConf());
-                JobSubmission.caculateDependency(rpcRequest);
+                //transit task status to scheduled
+                JobSubmission.transitTaskStatusToScheduled(rpcRequest);
+                JobInstanceResponseRpc responseRpc = JobSubmission.buildResponse(rpcRequest.getRequestId(), TaskState.SCHEDULED.getCode());
+                JobChecker.addResponse(responseRpc);
+                //caculate dependency and add to request
+                JobSubmission.addRpcRequest(rpcRequest);
             } catch (Exception e) {
                 LOG.error("fail to update job " + rpcRequest.getId() + " status with exception " + e.getMessage());
-                scheduleFailed(request,rpcRequest);
+                scheduleFailed(request);
+                JobInstanceResponseRpc responseRpc = JobSubmission.buildResponse(rpcRequest.getRequestId(), TaskState.FAIL.getCode());
+                JobChecker.addResponse(responseRpc);
             }
         }
     }
     
-    private void scheduleFailed(JobInstanceRequest request,JobInstanceRequestRpc rpcRequest) {
+    private void scheduleFailed(JobInstanceRequest request) {
         request.setTaskState(TaskState.FAIL.getCode());
         request.setEndTime(new Date());
         request.setElapseTime(DateUtils.getElapseTime(request.getStartTime(), request.getEndTime()));
         try {
             JobManager.updateJobInstanceSelective(request);
-            JobInstanceResponseRpc responseRpc = JobSubmission.buildResponse(rpcRequest.getRequestId(), TaskState.FAIL, 500,
-                    "fail to schedule job " + rpcRequest.getId());
-            JobChecker.addResponse(responseRpc);
         } catch (Exception e1) {
             LOG.error(e1);
-            throw new RuntimeException(e1);
         }
     }
 

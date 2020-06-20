@@ -7,9 +7,7 @@ import org.apache.commons.logging.LogFactory;
 import com.ylpu.thales.scheduler.core.config.Configuration;
 import com.ylpu.thales.scheduler.core.rest.JobManager;
 import com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc;
-import com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc;
 import com.ylpu.thales.scheduler.core.utils.DateUtils;
-import com.ylpu.thales.scheduler.enums.TaskState;
 import com.ylpu.thales.scheduler.request.JobInstanceRequest;
 import com.ylpu.thales.scheduler.response.JobInstanceResponse;
 import com.ylpu.thales.scheduler.rest.service.SchedulerService;
@@ -24,23 +22,13 @@ public abstract class AbstractJobGrpcClient {
 
     public abstract void kill(JobInstanceRequestRpc requestRpc) throws Exception;
 
-    public void setJobInstanceRequest(JobInstanceRequestRpc requestRpc, JobInstanceRequest request) {
+    public void transitTaskStatus(JobInstanceRequestRpc requestRpc, int code) throws Exception {
+        JobInstanceRequest request = new JobInstanceRequest();
         request.setId(requestRpc.getId());
-        request.setStartTime(DateUtils.getDatetime(requestRpc.getStartTime()));
-        request.setScheduleTime(DateUtils.getDatetime(requestRpc.getScheduleTime()));
-    }
-
-    public void updateTaskStatus(JobInstanceRequest request, int code) throws Exception {
-        request.setTaskState(code);
         request.setEndTime(new Date());
-        request.setElapseTime(DateUtils.getElapseTime(request.getStartTime(), request.getEndTime()));
+        request.setElapseTime(DateUtils.getElapseTime(DateUtils.getDatetime(requestRpc.getStartTime()), request.getEndTime()));
+        request.setTaskState(code);
         JobManager.updateJobInstanceSelective(request);
-    }
-
-    public JobInstanceResponseRpc buildResponse(JobInstanceRequestRpc requestRpc, TaskState taskState, int errorCode,
-            String errorMsg) {
-        return JobInstanceResponseRpc.newBuilder().setResponseId(requestRpc.getRequestId()).setErrorCode(errorCode)
-                .setTaskState(taskState.getCode()).setErrorMsg(errorMsg).build();
     }
 
     public void rerunIfNeeded(JobInstanceRequestRpc requestRpc) {

@@ -35,24 +35,28 @@ public class SchedulerJob implements Job {
                 request.setStartTime(new Date());
                 request.setId(addJobInstance(request,jobId));
                 rpcRequest = JobSubmission.initJobInstanceRequestRpc(request, jobResponse);
-                JobSubmission.caculateDependency(rpcRequest);
+              //transit task status to scheduled
+                JobSubmission.transitTaskStatusToScheduled(rpcRequest);
+                JobInstanceResponseRpc responseRpc = JobSubmission.buildResponse(rpcRequest.getRequestId(), TaskState.SCHEDULED.getCode());
+                JobChecker.addResponse(responseRpc);
+              //caculate dependency and add to request
+                JobSubmission.addRpcRequest(rpcRequest);
             } catch (Exception e) {
                 LOG.error(
                         "fail to update job " + rpcRequest.getId(),e);
-                scheduleFailed(request,rpcRequest);
+                scheduleFailed(request);
+                JobInstanceResponseRpc responseRpc = JobSubmission.buildResponse(rpcRequest.getRequestId(), TaskState.FAIL.getCode());
+                JobChecker.addResponse(responseRpc);
             } 
         }
     }
     
-    private void scheduleFailed(JobInstanceRequest request,JobInstanceRequestRpc rpcRequest) {
+    private void scheduleFailed(JobInstanceRequest request) {
         request.setTaskState(TaskState.FAIL.getCode());
         request.setEndTime(new Date());
         request.setElapseTime(DateUtils.getElapseTime(request.getStartTime(), request.getEndTime()));
         try {
             JobManager.updateJobInstanceSelective(request);
-            JobInstanceResponseRpc responseRpc = JobSubmission.buildResponse(rpcRequest.getRequestId(), TaskState.FAIL, 500,
-                    "fail to update job " + rpcRequest.getId());
-            JobChecker.addResponse(responseRpc);
         } catch (Exception e1) {
             LOG.error(e1);
             throw new RuntimeException(e1);

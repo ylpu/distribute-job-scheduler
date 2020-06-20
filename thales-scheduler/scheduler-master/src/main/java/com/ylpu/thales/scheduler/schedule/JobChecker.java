@@ -96,18 +96,24 @@ public class JobChecker {
                             }
                         }
                     }
+                    JobInstanceResponseRpc responseRpc = null;
                     String requestId = dependsMap.get(entry.getKey());
-                    JobInstanceRequestRpc request = jobInstanceRequestMap.get(requestId);
+                    JobInstanceRequestRpc rpcRequest = jobInstanceRequestMap.get(requestId);
                     if (successfulJobs == list.size() || isRootJob(list)) {
                          requestId = dependsMap.remove(entry.getKey());
-                         request = jobInstanceRequestMap.remove(requestId);
+                         rpcRequest = jobInstanceRequestMap.remove(requestId);
                          LOG.info("parent job " + entry.getKey() + " has finished, will add job " + requestId + " to queue");
-                         transitTaskStatus(request.getId(),requestId,TaskState.QUEUED);
-                         JobSubmission.addWaitingTask(new TaskCall(request, GrpcType.ASYNC));
+                       //transit task status to queue
+                         transitTaskStatus(rpcRequest.getId(),requestId,TaskState.QUEUED);
+                         responseRpc = JobSubmission.buildResponse(requestId, TaskState.QUEUED.getCode());
+                         JobSubmission.addWaitingTask(new TaskCall(rpcRequest, GrpcType.ASYNC));
                     }else {
                         LOG.info("job " + requestId + " is waiting for dependency jobs to finish" + entry.getKey());
-                        transitTaskStatus(request.getId(),requestId,TaskState.WAITING_DEPENDENCY);
+                        //transit task status to waiting dependency
+                        transitTaskStatus(rpcRequest.getId(),requestId,TaskState.WAITING_DEPENDENCY);
+                        responseRpc = JobSubmission.buildResponse(requestId, TaskState.WAITING_DEPENDENCY.getCode());
                     }
+                    JobChecker.addResponse(responseRpc);
                 }
                 try {
                     Thread.sleep(interval);
@@ -134,8 +140,6 @@ public class JobChecker {
         request.setTaskState(taskState.getCode());
         try {
             JobManager.updateJobInstanceSelective(request);
-            JobInstanceResponseRpc responseRpc = JobSubmission.buildResponse(requestId, taskState, 200,"");
-            JobChecker.addResponse(responseRpc);
         } catch (Exception e) {
             LOG.error(e);
         }

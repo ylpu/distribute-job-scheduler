@@ -27,6 +27,7 @@ public class HiveExecutor extends AbstractCommonExecutor {
      */
     @Override
     public void kill() throws Exception {
+        killProcess();
         Properties prop = Configuration.getConfig();
         String hadoopHome = Configuration.getString(prop, "hadoop.home", "");
         TaskProcessUtils.execCommand("./src/script/killMR.sh", "/tmp/pid/" + requestRpc.getPid() + ".out",

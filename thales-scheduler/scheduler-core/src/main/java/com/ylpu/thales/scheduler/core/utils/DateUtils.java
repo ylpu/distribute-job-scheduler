@@ -11,6 +11,8 @@ public class DateUtils {
 
     public static final String DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
 
+    public static final String MINUTE_TIME_FORMAT = "yyyyMMddHHmm00";
+    
     public static final String TIME_FORMAT = "yyyyMMddHHmmss";
 
     private DateUtils() {
@@ -76,5 +78,8 @@ public class DateUtils {
             break;
         }
         return calendar.getTime();
+    }
+    public static void main(String[] args) {
+        System.out.println(getDateAsString(new Date(),TIME_FORMAT));
     }
 }

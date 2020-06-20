@@ -80,9 +80,8 @@ public class JobSubmission {
         return taskEs;
     }
 
-    public static void caculateDependency(JobInstanceRequestRpc requestRpc) throws Exception {
-        //transit task status to scheduled
-        transitTaskStatusToScheduled(requestRpc);
+    public static void addRpcRequest(JobInstanceRequestRpc requestRpc) throws Exception {
+
         List<JobDependency> dependJobs = new ArrayList<JobDependency>();
         //get job dependency
         if (requestRpc.getJob().getDependenciesList() == null
@@ -91,20 +90,15 @@ public class JobSubmission {
         } else {
             dependJobs = getLatestJobDepends(requestRpc);
         }
-        JobChecker.addJobInstanceRequest(requestRpc);
-
         JobChecker.addDepends(dependJobs, requestRpc.getRequestId());
+        JobChecker.addJobInstanceRequest(requestRpc);
     }
     
-    private static void transitTaskStatusToScheduled(JobInstanceRequestRpc requestRpc) throws Exception {
+    public static void transitTaskStatusToScheduled(JobInstanceRequestRpc requestRpc) throws Exception {
         JobInstanceRequest request = new JobInstanceRequest();
         request.setId(requestRpc.getId());
-        request.setStartTime(DateUtils.getDatetime(requestRpc.getStartTime()));
-        request.setScheduleTime(DateUtils.getDatetime(requestRpc.getScheduleTime()));
         request.setTaskState(TaskState.SCHEDULED.getCode());
         JobManager.updateJobInstanceSelective(request);
-        JobInstanceResponseRpc responseRpc = buildResponse(requestRpc.getRequestId(), TaskState.SCHEDULED, 200, "");
-        JobChecker.addResponse(responseRpc);
     }
 
     public static List<JobDependency> getLatestJobDepends(JobInstanceRequestRpc request) {
@@ -128,12 +122,6 @@ public class JobSubmission {
             jobDependencies.add(jobDependency);
         }
         return jobDependencies;
-    }
-
-    public static JobInstanceResponseRpc buildResponse(String requestId, TaskState taskState,
-            int errorCode, String errorMsg) {
-        return JobInstanceResponseRpc.newBuilder().setResponseId(requestId).setErrorCode(errorCode)
-                .setTaskState(taskState.getCode()).setErrorMsg(errorMsg).build();
     }
 
     public static void addTimeoutTask(TaskCall taskCall) {
@@ -189,18 +177,21 @@ public class JobSubmission {
             }
         }
         
-        private WorkerResponse getAvailableWorker(JobInstanceRequestRpc requestRpc) {
+        private WorkerResponse getAvailableWorker(JobInstanceRequestRpc rpcRequest) {
             WorkerResponse worker = null;
             int i = 1;
             while (true) {
                 try {
-                    worker = MasterManager.getInstance().getIdleWorker(requestRpc.getJob().getWorkerGroupname(), "");
+                    worker = MasterManager.getInstance().getIdleWorker(rpcRequest.getJob().getWorkerGroupname(), "");
                     return worker;
                 } catch (Exception e) {
-                    LOG.error("can not get available resource to execute task " + requestRpc.getId() + " with  " + i + " tries");
+                    LOG.error("can not get available resource to execute task " + rpcRequest.getId() + " with  " + i + " tries");
                 }
                 //transit job status to waiting resource
-                transitTaskStatusToWaitingResource(requestRpc);
+                transitTaskStatusToWaitingResource(rpcRequest);
+                JobInstanceResponseRpc responseRpc = JobSubmission.buildResponse(
+                        rpcRequest.getRequestId(), TaskState.WAITING_RESOURCE.getCode());
+                JobChecker.addResponse(responseRpc);
                 try {
                     Thread.sleep(RESOURCE_CHECK_INTERVAL);
                 } catch (InterruptedException e) {
@@ -216,9 +207,6 @@ public class JobSubmission {
             request.setTaskState(TaskState.WAITING_RESOURCE.getCode());
             try {
                 JobManager.updateJobInstanceSelective(request);
-                JobInstanceResponseRpc responseRpc = JobSubmission.buildResponse(
-                        requestRpc.getRequestId(), TaskState.WAITING_RESOURCE, 200,"");
-                JobChecker.addResponse(responseRpc);
             } catch (Exception e) {
                 LOG.error(e);
             }
@@ -241,7 +229,7 @@ public class JobSubmission {
             try {
                 JobManager.updateJobStatus(jobStatusRequest);
                 String responseId = request.getJob().getId() + "-" + DateUtils
-                        .getDateAsString(DateUtils.getDatetime(request.getScheduleTime()), DateUtils.TIME_FORMAT);
+                        .getDateAsString(DateUtils.getDatetime(request.getScheduleTime()), DateUtils.MINUTE_TIME_FORMAT);
                 JobInstanceResponseRpc response = JobInstanceResponseRpc.newBuilder().setResponseId(responseId)
                         .setErrorCode(500).setTaskState(TaskState.FAIL.getCode()).setErrorMsg("failed to execute job")
                         .build();
@@ -303,15 +291,14 @@ public class JobSubmission {
         request.setTaskState(TaskState.SUBMIT.getCode());
         request.setElapseTime(0);
     }
-
-    public static JobInstanceResponseRpc buildJobStatus(JobResponse jobResponse, Date scheduleTime, TaskState state) {
-        String responseId = jobResponse.getId() + "-" + DateUtils.getDateAsString(scheduleTime, DateUtils.TIME_FORMAT);
-        if (state == TaskState.FAIL) {
-            return JobInstanceResponseRpc.newBuilder().setResponseId(responseId).setErrorCode(500)
-                    .setTaskState(state.getCode()).setErrorMsg("failed to execute job").build();
+    
+    public static JobInstanceResponseRpc buildResponse(String rpcId, int taskState) {
+        if (taskState == TaskState.FAIL.getCode()) {
+            return JobInstanceResponseRpc.newBuilder().setResponseId(rpcId).setErrorCode(500)
+                    .setTaskState(taskState).setErrorMsg("failed to execute job").build();
         } else {
-            return JobInstanceResponseRpc.newBuilder().setResponseId(responseId).setErrorCode(200)
-                    .setTaskState(state.getCode()).setErrorMsg("").build();
+            return JobInstanceResponseRpc.newBuilder().setResponseId(rpcId).setErrorCode(200)
+                    .setTaskState(taskState).setErrorMsg("").build();
         }
     }
 
@@ -333,7 +320,7 @@ public class JobSubmission {
                 .setRetryTimes(request.getRetryTimes()).setTaskState(TaskState.SUBMIT.getCode()).setWorker("")
                 .setId(request.getId())
                 .setRequestId(request.getJobId() + "-"
-                        + DateUtils.getDateAsString(request.getScheduleTime(), DateUtils.TIME_FORMAT))
+                        + DateUtils.getDateAsString(request.getScheduleTime(), DateUtils.MINUTE_TIME_FORMAT))
                 .setJob(setJobRequest(response)).build();
         return rpcJobInstanceRequest;
     }
