@@ -48,7 +48,7 @@ public class CronUtils {
         return date;
     }
     public static void main(String[] args) {
-        Date date = DateUtils.getDateFromString("2020-06-20 10:22:00", DateUtils.DATE_TIME_FORMAT);
+        Date date = DateUtils.getDateFromString("2020-06-21 09:37:00", DateUtils.DATE_TIME_FORMAT);
         System.out.println(getLatestTriggerTime("0 */2 * * * ?",
                 DateUtils.getTime(date, 1, -1), date));
     }

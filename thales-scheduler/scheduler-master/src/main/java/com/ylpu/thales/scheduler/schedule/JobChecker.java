@@ -101,16 +101,16 @@ public class JobChecker {
                     JobInstanceRequestRpc rpcRequest = jobInstanceRequestMap.get(requestId);
                     if (successfulJobs == list.size() || isRootJob(list)) {
                          requestId = dependsMap.remove(entry.getKey());
-                         rpcRequest = jobInstanceRequestMap.remove(requestId);
+//                         rpcRequest = jobInstanceRequestMap.remove(requestId);
                          LOG.info("parent job " + entry.getKey() + " has finished, will add job " + requestId + " to queue");
                        //transit task status to queue
-                         transitTaskStatus(rpcRequest.getId(),requestId,TaskState.QUEUED);
+                         transitTaskStatus(rpcRequest.getId(),TaskState.QUEUED);
                          responseRpc = JobSubmission.buildResponse(requestId, TaskState.QUEUED.getCode());
                          JobSubmission.addWaitingTask(new TaskCall(rpcRequest, GrpcType.ASYNC));
                     }else {
                         LOG.info("job " + requestId + " is waiting for dependency jobs to finish" + entry.getKey());
                         //transit task status to waiting dependency
-                        transitTaskStatus(rpcRequest.getId(),requestId,TaskState.WAITING_DEPENDENCY);
+                        transitTaskStatus(rpcRequest.getId(),TaskState.WAITING_DEPENDENCY);
                         responseRpc = JobSubmission.buildResponse(requestId, TaskState.WAITING_DEPENDENCY.getCode());
                     }
                     JobChecker.addResponse(responseRpc);
@@ -134,7 +134,7 @@ public class JobChecker {
         }
     }
     
-    private static void transitTaskStatus(Integer taskId, String requestId,TaskState taskState) {
+    private static void transitTaskStatus(Integer taskId,TaskState taskState) {
         JobInstanceRequest request = new JobInstanceRequest();
         request.setId(taskId);
         request.setTaskState(taskState.getCode());

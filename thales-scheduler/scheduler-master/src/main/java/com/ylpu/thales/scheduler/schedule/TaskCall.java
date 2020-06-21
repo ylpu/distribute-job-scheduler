@@ -8,6 +8,10 @@ public class TaskCall implements Comparable<TaskCall> {
     private JobInstanceRequestRpc rpcRequest;
     private GrpcType grpcType;
 
+    public TaskCall(JobInstanceRequestRpc rpcRequest) {
+        this(rpcRequest,GrpcType.ASYNC);
+    }
+    
     public TaskCall(JobInstanceRequestRpc rpcRequest, GrpcType grpcType) {
         this.rpcRequest = rpcRequest;
         this.grpcType = grpcType;

@@ -93,13 +93,6 @@ public class JobSubmission {
         JobChecker.addDepends(dependJobs, requestRpc.getRequestId());
         JobChecker.addJobInstanceRequest(requestRpc);
     }
-    
-    public static void transitTaskStatusToScheduled(JobInstanceRequestRpc requestRpc) throws Exception {
-        JobInstanceRequest request = new JobInstanceRequest();
-        request.setId(requestRpc.getId());
-        request.setTaskState(TaskState.SCHEDULED.getCode());
-        JobManager.updateJobInstanceSelective(request);
-    }
 
     public static List<JobDependency> getLatestJobDepends(JobInstanceRequestRpc request) {
         Date currentJobScheduleTime = DateUtils.getDatetime(request.getScheduleTime());

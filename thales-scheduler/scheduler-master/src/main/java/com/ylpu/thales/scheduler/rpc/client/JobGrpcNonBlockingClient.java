@@ -85,6 +85,9 @@ public class JobGrpcNonBlockingClient extends AbstractJobGrpcClient {
                     JobChecker.addResponse(result);
                 } catch (Exception e) {
                     LOG.error("failed to update task " + requestRpc.getId() +  " status to successful after callback",e);
+                }finally {
+                    //remove request after execute successful
+                    JobChecker.getJobInstanceRequestMap().remove(requestRpc.getRequestId()); 
                 }
                 shutdown();
             }
@@ -98,6 +101,9 @@ public class JobGrpcNonBlockingClient extends AbstractJobGrpcClient {
                     JobChecker.addResponse(responseRpc);
                 } catch (Exception e) {
                     LOG.error("failed to update task " + requestRpc.getRequestId() + " status to fail after callback",e);
+                }finally {
+                    //remove request after execute fail
+                    JobChecker.getJobInstanceRequestMap().remove(requestRpc.getRequestId());
                 }
                 shutdown();
                 rerunIfNeeded(requestRpc);

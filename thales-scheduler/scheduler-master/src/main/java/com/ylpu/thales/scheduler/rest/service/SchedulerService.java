@@ -6,7 +6,6 @@ import com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc;
 import com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc;
 import com.ylpu.thales.scheduler.core.utils.CronUtils;
 import com.ylpu.thales.scheduler.core.utils.DateUtils;
-import com.ylpu.thales.scheduler.enums.GrpcType;
 import com.ylpu.thales.scheduler.enums.TaskState;
 import com.ylpu.thales.scheduler.request.JobInstanceRequest;
 import com.ylpu.thales.scheduler.request.JobStatusRequest;
@@ -28,7 +27,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -49,10 +47,14 @@ public class SchedulerService {
      * @throws Exception
      */
     public void killJob(ScheduleRequest request) throws Exception {
+        killJob(request.getId());
+    }
+    
+    public void killJob(Integer id) throws Exception{
         try {
-            JobInstanceResponse response = JobManager.getJobInstanceById(request.getId());
+            JobInstanceResponse response = JobManager.getJobInstanceById(id);
             if (response.getTaskState() != TaskState.RUNNING) {
-                throw new RuntimeException("can not kill job " + request.getId() + " because job is not running ");
+                throw new RuntimeException("can not kill job " + id + " because job is not running ");
             }
             String worker = response.getWorker();
             if (StringUtils.isNotBlank(worker)) {
@@ -76,34 +78,19 @@ public class SchedulerService {
 
     public void markStatus(ScheduleRequest scheduleRequest, TaskState toState) throws Exception {
         JobInstanceResponse jobInstanceResponse = JobManager.getJobInstanceById(scheduleRequest.getId());
-        String jobRequestId = jobInstanceResponse.getJobId() + "-" + jobInstanceResponse.getScheduleTime()
-        .replace(":", "").replace(" ", "").replace("-", "");
 //        JobInstanceResponseRpc responseRpc = JobChecker.getResponse(jobRequestId);
+        String responseId = jobInstanceResponse.getJobConf().getId() + "-" + 
+        DateUtils.getDateAsString(DateUtils.getDateFromString(jobInstanceResponse.getScheduleTime(), 
+                DateUtils.DATE_TIME_FORMAT), DateUtils.MINUTE_TIME_FORMAT);
+        
         if(jobInstanceResponse != null) {
             if (jobInstanceResponse.getTaskState() != toState) {
                 try {
-                    if (jobInstanceResponse.getTaskState() == TaskState.RUNNING) {
-                        killJob(scheduleRequest);
-                    }else {
-                        //remove rpc request from map
-                        if(jobInstanceResponse.getTaskState() == TaskState.WAITING_DEPENDENCY) {
-                            removeRequestRpc(jobInstanceResponse,jobRequestId);
-
-                        }else if(jobInstanceResponse.getTaskState() == TaskState.QUEUED) {
-                            JobInstanceRequestRpc request = removeRequestRpc(jobInstanceResponse,jobRequestId);
-                            JobSubmission.getGroupQueue(request.getJob().getWorkerGroupname()).remove(new TaskCall(request, GrpcType.ASYNC));
-                            
-                        }else if(jobInstanceResponse.getTaskState() == TaskState.WAITING_RESOURCE) {
-//                            JobSubmission.setNeed_waiting(false);
-                        }
-                    }
+                    cleanExistingTask(jobInstanceResponse,responseId);
                     JobStatusRequest jr = new JobStatusRequest();
                     jr.setIds(Arrays.asList(scheduleRequest.getId()));
                     jr.setStatus(toState);
                     JobManager.updateJobStatus(jr);
-                    String responseId = jobInstanceResponse.getJobConf().getId() + "-" + 
-                    DateUtils.getDateAsString(DateUtils.getDateFromString(jobInstanceResponse.getScheduleTime(), 
-                            DateUtils.DATE_TIME_FORMAT), DateUtils.MINUTE_TIME_FORMAT);
                     
                     JobChecker.addResponse(JobSubmission.buildResponse(responseId,toState.getCode()));
                 } catch (Exception e) {
@@ -113,6 +100,27 @@ public class SchedulerService {
             }
         }
     }
+    
+    private void cleanExistingTask(JobInstanceResponse jobInstanceResponse,String responseId) throws Exception {
+        
+        if (jobInstanceResponse.getTaskState() == TaskState.RUNNING) {
+            killJob(jobInstanceResponse.getId());
+        }
+        //remove rpc request from request map
+        else if(jobInstanceResponse.getTaskState() == TaskState.WAITING_DEPENDENCY) {
+            removeRequestRpc(jobInstanceResponse,responseId);
+
+        }else if(jobInstanceResponse.getTaskState() == TaskState.QUEUED) {
+            JobInstanceRequestRpc request = JobChecker.getJobInstanceRequestMap().remove(responseId);
+            JobSubmission.getGroupQueue(request.getJob().getWorkerGroupname()).remove(new TaskCall(request));
+                
+        }else if(jobInstanceResponse.getTaskState() == TaskState.WAITING_RESOURCE) {
+            JobChecker.getJobInstanceRequestMap().remove(responseId);
+//          cancel waiting
+//          JobSubmission.setNeed_waiting(false);
+        }
+    }
+    
     private JobInstanceRequestRpc removeRequestRpc(JobInstanceResponse jobInstanceResponse,String jobRequestId) {
         JobInstanceRequestRpc requestRpc = null;
         Map<List<JobDependency>, String> dependsMap = JobChecker.getDepends();
@@ -250,15 +258,21 @@ public class SchedulerService {
         if (jobInstanceResponse.getJobConf() == null) {
             LOG.warn("job does not exist or has already down " + id);
             return;
-        } else if (jobInstanceResponse.getTaskState() == TaskState.SUBMIT
-                || jobInstanceResponse.getTaskState() == TaskState.SCHEDULED
-                || jobInstanceResponse.getTaskState() == TaskState.WAITING_DEPENDENCY
-                || jobInstanceResponse.getTaskState() == TaskState.QUEUED
-                || jobInstanceResponse.getTaskState() == TaskState.WAITING_RESOURCE
-                || jobInstanceResponse.getTaskState() == TaskState.RUNNING) {
-            LOG.warn("one job has already running " + id);
-            return;
-        } else {
+        }else {
+            
+            String responseId = jobInstanceResponse.getJobConf().getId() + "-" + 
+            DateUtils.getDateAsString(DateUtils.getDateFromString(jobInstanceResponse.getScheduleTime(), 
+                    DateUtils.DATE_TIME_FORMAT), DateUtils.MINUTE_TIME_FORMAT);
+            
+            if (jobInstanceResponse.getTaskState() == TaskState.SUBMIT
+                    || jobInstanceResponse.getTaskState() == TaskState.SCHEDULED
+                    || jobInstanceResponse.getTaskState() == TaskState.WAITING_DEPENDENCY
+                    || jobInstanceResponse.getTaskState() == TaskState.QUEUED
+                    || jobInstanceResponse.getTaskState() == TaskState.WAITING_RESOURCE
+                    || jobInstanceResponse.getTaskState() == TaskState.RUNNING) {
+                LOG.warn("job" + id +  " has already running,will clean the existing job");
+                cleanExistingTask(jobInstanceResponse,responseId);
+            } 
             JobInstanceRequest request = new JobInstanceRequest();
             try {
                 // 初始化任务
@@ -271,10 +285,7 @@ public class SchedulerService {
                 request.setCreateTime(new Date());
                 //transit task status to submit
                 JobManager.updateJobInstanceByKey(request);
-                
-                String responseId = jobInstanceResponse.getJobConf().getId() + "-" + 
-                DateUtils.getDateAsString(DateUtils.getDateFromString(jobInstanceResponse.getScheduleTime(), 
-                        DateUtils.DATE_TIME_FORMAT), DateUtils.MINUTE_TIME_FORMAT);
+
                 JobChecker.addResponse(JobSubmission.buildResponse(responseId,TaskState.SUBMIT.getCode()));
 
             }catch(Exception e) {
@@ -283,11 +294,7 @@ public class SchedulerService {
             }
             try {
                 rpcRequest = JobSubmission.initJobInstanceRequestRpc(request, jobInstanceResponse.getJobConf());
-                //transit task status to scheduled
-                JobSubmission.transitTaskStatusToScheduled(rpcRequest);
-                JobInstanceResponseRpc responseRpc = JobSubmission.buildResponse(rpcRequest.getRequestId(), TaskState.SCHEDULED.getCode());
-                JobChecker.addResponse(responseRpc);
-                //caculate dependency and add to request
+//                caculate dependency and add to request
                 JobSubmission.addRpcRequest(rpcRequest);
             } catch (Exception e) {
                 LOG.error("fail to update job " + rpcRequest.getId() + " status with exception " + e.getMessage());
@@ -295,7 +302,7 @@ public class SchedulerService {
                 JobInstanceResponseRpc responseRpc = JobSubmission.buildResponse(rpcRequest.getRequestId(), TaskState.FAIL.getCode());
                 JobChecker.addResponse(responseRpc);
             }
-        }
+        } 
     }
     
     private void scheduleFailed(JobInstanceRequest request) {

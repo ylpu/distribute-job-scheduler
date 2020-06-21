@@ -66,6 +66,9 @@ public class JobGrpcBlockingClient extends AbstractJobGrpcClient {
             JobChecker.addResponse(responseRpc);
         } catch (Exception e) {
             LOG.error("failed to update task status " + rpcRequest.getRequestId(), e);
+        } finally {
+            //remove request after kill
+            JobChecker.getJobInstanceRequestMap().remove(rpcRequest.getRequestId());
         }
         if (responseRpc.getErrorCode() != 200) {
             throw new RuntimeException("failed to kill task " + rpcRequest.getRequestId());

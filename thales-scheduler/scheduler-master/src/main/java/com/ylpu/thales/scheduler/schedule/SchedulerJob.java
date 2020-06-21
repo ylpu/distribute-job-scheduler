@@ -36,7 +36,7 @@ public class SchedulerJob implements Job {
                 request.setId(addJobInstance(request,jobId));
                 rpcRequest = JobSubmission.initJobInstanceRequestRpc(request, jobResponse);
               //transit task status to scheduled
-                JobSubmission.transitTaskStatusToScheduled(rpcRequest);
+                transitTaskStatusToScheduled(rpcRequest.getId(),TaskState.SCHEDULED.getCode());
                 JobInstanceResponseRpc responseRpc = JobSubmission.buildResponse(rpcRequest.getRequestId(), TaskState.SCHEDULED.getCode());
                 JobChecker.addResponse(responseRpc);
               //caculate dependency and add to request
@@ -49,6 +49,13 @@ public class SchedulerJob implements Job {
                 JobChecker.addResponse(responseRpc);
             } 
         }
+    }
+    
+    private void transitTaskStatusToScheduled(Integer taskId, Integer statusCode) throws Exception {
+        JobInstanceRequest request = new JobInstanceRequest();
+        request.setId(taskId);
+        request.setTaskState(statusCode);
+        JobManager.updateJobInstanceSelective(request);
     }
     
     private void scheduleFailed(JobInstanceRequest request) {
