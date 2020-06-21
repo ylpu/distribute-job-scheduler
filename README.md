@@ -1,5 +1,5 @@
 # Introduction
-thales是一款自主研发的分布式任务调度系统，系统支持command,shell,hive,spark,python,http,sql等各种类型任务的调用。
+thales是一款自主研发的分布式任务调度系统，系统支持command,shell,hive,spark,python,http,sql,flink,clickhouse等各种类型任务的调用。
 
 # Architecture
 ![image](https://github.com/ylpu/distribute-job-scheduler/tree/master/docs/thales-arch.png)
@@ -129,6 +129,15 @@ api作为接口层，主要有如下功能：
   "sql":"select * from t_thales_scheduler_job_instance where id = ?",
   "parameters":{"param1":76}
 }
+    * flink : {
+  "parameters":  {"mode":76,"slotNumber":2,"applicationName":"","taskManagerNumber":2,"taskManagerMemory":"2g","jobManagerMemory":"2g","className":"","jarName":""}
+}
+    * clickhouse : {
+      "dsName":"ck-test(连接管理里的连接名称)",
+      "query":"select * from t_thales_scheduler_job_instance where id = ?",
+      "parameters":{"sendTimeout":10000,"receiveTimeout":10000},
+      "placeHolder":{"dt":"20191205","hm":"1000"}
+ }
  * 修改任务
    * 参数与创建任务相同（修改后需要点击重新调度）
  * 任务图
