@@ -130,7 +130,9 @@ api作为接口层，主要有如下功能：
   "parameters":{"param1":76}
 }
     * flink : {
-  "parameters":  {"mode":76,"slotNumber":2,"applicationName":"","taskManagerNumber":2,"taskManagerMemory":"2g","jobManagerMemory":"2g","className":"","jarName":""}
+  "className":"",
+  "jarName":"",
+  "parameters":  {"mode":76,"slotNumber":2,"applicationName":"","taskManagerNumber":2,"taskManagerMemory":"2g","jobManagerMemory":"2g"}
 }
     * clickhouse : {
       "dsName":"ck-test(连接管理里的连接名称)",
