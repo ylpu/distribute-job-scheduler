@@ -8,8 +8,6 @@ public class FlinkParameters {
     private Integer taskManagerNumber;
     private String taskManagerMemory;
     private String jobManagerMemory;
-    private String className;
-    private String jarName;
     
     public String getMode() {
         return mode;
@@ -46,17 +44,5 @@ public class FlinkParameters {
     }
     public void setJobManagerMemory(String jobManagerMemory) {
         this.jobManagerMemory = jobManagerMemory;
-    }
-    public String getClassName() {
-        return className;
-    }
-    public void setClassName(String className) {
-        this.className = className;
-    }
-    public String getJarName() {
-        return jarName;
-    }
-    public void setJarName(String jarName) {
-        this.jarName = jarName;
     }
 }

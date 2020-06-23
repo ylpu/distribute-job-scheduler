@@ -37,7 +37,7 @@ public class ClickHouseExecutor extends AbstractCommonExecutor {
         if (clickHouseParameters == null) {
             throw new RuntimeException("clickhouse任务参数不能为空");
         }
-        ConnectionResponse cr = JobManager.getConnection(clickHouseParameters.getDsName());
+        ConnectionResponse cr = JobManager.getConnection(clickHouseConfig.getDsName());
         
         commandBuilder.append(CLICKHOUSE_COMMAND);
 
@@ -55,7 +55,7 @@ public class ClickHouseExecutor extends AbstractCommonExecutor {
         commandBuilder.append("--port " + cr.getPort());
         commandBuilder.append(" ");
 
-        String finalQuery = replaceParameters(clickHouseConfig.getPlaceHolder(), clickHouseParameters.getQuery());
+        String finalQuery = replaceParameters(clickHouseConfig.getPlaceHolder(), clickHouseConfig.getQuery());
         commandBuilder.append("--query " + finalQuery);
         commandBuilder.append(" ");
 

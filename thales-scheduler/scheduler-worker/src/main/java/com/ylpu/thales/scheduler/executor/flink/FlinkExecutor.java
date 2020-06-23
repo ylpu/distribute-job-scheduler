@@ -74,9 +74,9 @@ public class FlinkExecutor extends AbstractCommonExecutor {
         commandBuilder.append("-ytm " + flinkParameters.getTaskManagerMemory() == null ? "2g": flinkParameters.getTaskManagerMemory());
         commandBuilder.append(" ");
         
-        commandBuilder.append("-c " + flinkParameters.getClassName() == null ? "": flinkParameters.getClassName());
+        commandBuilder.append("-c " + flinkConfig.getClassName() == null ? "": flinkConfig.getClassName());
         commandBuilder.append(" ");
-        commandBuilder.append(flinkParameters.getJarName() == null ? "" : flinkParameters.getJarName());
+        commandBuilder.append(flinkConfig.getJarName() == null ? "" : flinkConfig.getJarName());
         
         String[] commands = new String[1];
         commands[0] = commandBuilder.toString();
