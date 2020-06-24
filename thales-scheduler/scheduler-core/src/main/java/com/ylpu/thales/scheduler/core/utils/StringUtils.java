@@ -51,4 +51,21 @@ public class StringUtils {
         }
         return builder.toString();
     }
+    
+    
+    public static String isBlank(String value,String defaultValue) {
+        
+        if (org.apache.commons.lang3.StringUtils.isBlank(value)){
+            return defaultValue;
+        }
+        return value;
+    }
+    
+    public static boolean isBlank(String value) {
+        
+        if (org.apache.commons.lang3.StringUtils.isBlank(value)){
+            return Boolean.TRUE;
+        }
+        return Boolean.FALSE;
+    }
 }

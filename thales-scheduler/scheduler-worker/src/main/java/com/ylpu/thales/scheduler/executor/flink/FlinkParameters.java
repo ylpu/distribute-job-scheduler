@@ -8,6 +8,7 @@ public class FlinkParameters {
     private Integer taskManagerNumber;
     private String taskManagerMemory;
     private String jobManagerMemory;
+    private String queue;
     
     public String getMode() {
         return mode;
@@ -45,4 +46,11 @@ public class FlinkParameters {
     public void setJobManagerMemory(String jobManagerMemory) {
         this.jobManagerMemory = jobManagerMemory;
     }
+    public String getQueue() {
+        return queue;
+    }
+    public void setQueue(String queue) {
+        this.queue = queue;
+    }
+    
 }

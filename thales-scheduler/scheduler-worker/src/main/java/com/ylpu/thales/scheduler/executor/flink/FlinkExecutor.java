@@ -1,17 +1,17 @@
 package com.ylpu.thales.scheduler.executor.flink;
 
 import java.util.Properties;
-import org.apache.commons.lang3.StringUtils;
 import com.ylpu.thales.scheduler.core.config.Configuration;
 import com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc;
 import com.ylpu.thales.scheduler.core.utils.JsonUtils;
+import com.ylpu.thales.scheduler.core.utils.StringUtils;
 import com.ylpu.thales.scheduler.core.utils.TaskProcessUtils;
 import com.ylpu.thales.scheduler.executor.AbstractCommonExecutor;
 import com.ylpu.thales.scheduler.request.JobInstanceRequest;
 
 public class FlinkExecutor extends AbstractCommonExecutor {
 
-    private static final String FLINK_COMMAND = "flink ";
+    private static final String FLINK_COMMAND = "flink run ";
 
     private JobInstanceRequestRpc requestRpc;
 
@@ -58,25 +58,31 @@ public class FlinkExecutor extends AbstractCommonExecutor {
         }
 
         commandBuilder.append(" ");
-
-        commandBuilder.append("-ys " + flinkParameters.getSlotNumber() == null ? 2:flinkParameters.getSlotNumber());
+        
+        commandBuilder.append("-m " + StringUtils.isBlank(flinkParameters.getMode(),"yarn-cluster"));
         commandBuilder.append(" ");
 
-        commandBuilder.append("-ynm " + requestRpc.getJob().getJobName() == null ? "default" : requestRpc.getJob().getJobName());
+        commandBuilder.append("-ys " + flinkParameters.getSlotNumber() == null ? 2 : flinkParameters.getSlotNumber());
+        commandBuilder.append(" ");
+
+        commandBuilder.append("-ynm " + StringUtils.isBlank(requestRpc.getJob().getJobName(),"default"));
         commandBuilder.append(" ");
 
         commandBuilder.append("-yn " + flinkParameters.getTaskManagerNumber() == null ? 2: flinkParameters.getTaskManagerNumber());
         commandBuilder.append(" ");
 
-        commandBuilder.append("-yjm " + flinkParameters.getJobManagerMemory() == null ? "2g": flinkParameters.getJobManagerMemory());
+        commandBuilder.append("-yjm " + StringUtils.isBlank(flinkParameters.getJobManagerMemory(),"2g"));
         commandBuilder.append(" ");
         
-        commandBuilder.append("-ytm " + flinkParameters.getTaskManagerMemory() == null ? "2g": flinkParameters.getTaskManagerMemory());
+        commandBuilder.append("-ytm " + StringUtils.isBlank(flinkParameters.getTaskManagerMemory(),"2g"));
         commandBuilder.append(" ");
         
-        commandBuilder.append("-c " + flinkConfig.getClassName() == null ? "": flinkConfig.getClassName());
+        commandBuilder.append("-yqu " + StringUtils.isBlank(flinkParameters.getQueue(),"default"));
         commandBuilder.append(" ");
-        commandBuilder.append(flinkConfig.getJarName() == null ? "" : flinkConfig.getJarName());
+        
+        commandBuilder.append("-c " + StringUtils.isBlank(flinkConfig.getClassName(),""));
+        commandBuilder.append(" ");
+        commandBuilder.append(StringUtils.isBlank(flinkConfig.getJarName(),""));
         
         String[] commands = new String[1];
         commands[0] = commandBuilder.toString();

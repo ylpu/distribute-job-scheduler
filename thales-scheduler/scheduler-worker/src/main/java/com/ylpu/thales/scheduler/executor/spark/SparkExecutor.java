@@ -2,11 +2,11 @@ package com.ylpu.thales.scheduler.executor.spark;
 
 import java.io.File;
 import java.util.Properties;
-import org.apache.commons.lang3.StringUtils;
 import com.ylpu.thales.scheduler.core.config.Configuration;
 import com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc;
 import com.ylpu.thales.scheduler.core.utils.FileUtils;
 import com.ylpu.thales.scheduler.core.utils.JsonUtils;
+import com.ylpu.thales.scheduler.core.utils.StringUtils;
 import com.ylpu.thales.scheduler.core.utils.TaskProcessUtils;
 import com.ylpu.thales.scheduler.executor.AbstractCommonExecutor;
 import com.ylpu.thales.scheduler.request.JobInstanceRequest;
@@ -64,7 +64,7 @@ public class SparkExecutor extends AbstractCommonExecutor {
 
         String fileContent = FileUtils.readFile(fileName);
         fileContent = replaceParameters(sparkConfig.getPlaceHolder(), fileContent);
-
+        
         commandBuilder.append("\"");
         commandBuilder.append("set spark.app.name=" + requestRpc.getJob().getJobName() + ";");
         commandBuilder.append(fileContent + ";");
@@ -72,16 +72,27 @@ public class SparkExecutor extends AbstractCommonExecutor {
 
         commandBuilder.append(" ");
 
-        commandBuilder.append("--master " + sparkParameters.getMasterUrl());
+        commandBuilder.append("--master " + StringUtils.isBlank(sparkParameters.getMaster(),"yarn"));
+        commandBuilder.append(" ");
+        
+        commandBuilder.append("--deploy-mode " + StringUtils.isBlank(sparkParameters.getDeployMode(),"cluster"));
+        commandBuilder.append(" ");
+        
+        commandBuilder.append("--driver-memory " + StringUtils.isBlank(sparkParameters.getDriverMemory(),"2g"));
         commandBuilder.append(" ");
 
-        commandBuilder.append("--executor-memory " + sparkParameters.getExecutorMemory());
+        commandBuilder.append("--executor-memory " + StringUtils.isBlank(sparkParameters.getExecutorMemory(),"2g"));
+        commandBuilder.append(" ");
+        
+        commandBuilder.append("--queue " + StringUtils.isBlank(sparkParameters.getQueue(),"default"));
         commandBuilder.append(" ");
 
-        commandBuilder.append("--executor-cores " + sparkParameters.getExecutorCores());
+        commandBuilder.append("--executor-cores " + sparkParameters.getExecutorCores() == null ? 
+                2: sparkParameters.getExecutorCores());
         commandBuilder.append(" ");
 
-        commandBuilder.append("--total-executor-cores " + sparkParameters.getTotalExecutorCores());
+        commandBuilder.append("--total-executor-cores " + sparkParameters.getTotalExecutorCores() == null ? 
+                4 : sparkParameters.getTotalExecutorCores());
 
         String[] commands = new String[1];
         commands[0] = commandBuilder.toString();

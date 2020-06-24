@@ -59,10 +59,12 @@ public class ClickHouseExecutor extends AbstractCommonExecutor {
         commandBuilder.append("--query " + finalQuery);
         commandBuilder.append(" ");
 
-        commandBuilder.append("--send_timeout " + clickHouseParameters.getSendTimeout());
+        commandBuilder.append("--send_timeout " + clickHouseParameters.getSendTimeout() == null ? 
+                3000 : clickHouseParameters.getSendTimeout());
         commandBuilder.append(" ");
         
-        commandBuilder.append("--receive_timeout " + clickHouseParameters.getReceiveTimeout());
+        commandBuilder.append("--receive_timeout " + clickHouseParameters.getReceiveTimeout() == null ? 
+                3000 : clickHouseParameters.getReceiveTimeout());
         commandBuilder.append(" ");
         
         commandBuilder.append("--m ");

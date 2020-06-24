@@ -8,10 +8,10 @@ public class SparkParameters {
     private String deployMode;
 
     /**
-     * master url
+     * master
      */
 
-    private String masterUrl;
+    private String master;
 
     /**
      * arguments
@@ -21,7 +21,7 @@ public class SparkParameters {
     /**
      * driver-cores Number of cores used by the driver, only in cluster mode
      */
-    private int driverCores;
+    private Integer driverCores;
 
     /**
      * driver-memory Memory for driver
@@ -32,17 +32,17 @@ public class SparkParameters {
     /**
      * num-executors Number of executors to launch
      */
-    private int numExecutors;
+    private Integer numExecutors;
 
     /**
      * total-executor-cores Number of cores per executor
      */
-    private int totalExecutorCores;
+    private Integer totalExecutorCores;
 
     /**
      * executor-cores Number of cores per executor
      */
-    private int executorCores;
+    private Integer executorCores;
 
     /**
      * Memory per executor
@@ -70,11 +70,11 @@ public class SparkParameters {
         this.mainArgs = mainArgs;
     }
 
-    public int getDriverCores() {
+    public Integer getDriverCores() {
         return driverCores;
     }
 
-    public void setDriverCores(int driverCores) {
+    public void setDriverCores(Integer driverCores) {
         this.driverCores = driverCores;
     }
 
@@ -86,19 +86,19 @@ public class SparkParameters {
         this.driverMemory = driverMemory;
     }
 
-    public int getNumExecutors() {
+    public Integer getNumExecutors() {
         return numExecutors;
     }
 
-    public void setNumExecutors(int numExecutors) {
+    public void setNumExecutors(Integer numExecutors) {
         this.numExecutors = numExecutors;
     }
 
-    public int getExecutorCores() {
+    public Integer getExecutorCores() {
         return executorCores;
     }
 
-    public void setExecutorCores(int executorCores) {
+    public void setExecutorCores(Integer executorCores) {
         this.executorCores = executorCores;
     }
 
@@ -118,19 +118,19 @@ public class SparkParameters {
         this.queue = queue;
     }
 
-    public int getTotalExecutorCores() {
+    public Integer getTotalExecutorCores() {
         return totalExecutorCores;
     }
 
-    public void setTotalExecutorCores(int totalExecutorCores) {
+    public void setTotalExecutorCores(Integer totalExecutorCores) {
         this.totalExecutorCores = totalExecutorCores;
     }
 
-    public String getMasterUrl() {
-        return masterUrl;
+    public String getMaster() {
+        return master;
     }
 
-    public void setMasterUrl(String masterUrl) {
-        this.masterUrl = masterUrl;
+    public void setMaster(String master) {
+        this.master = master;
     }
 }
