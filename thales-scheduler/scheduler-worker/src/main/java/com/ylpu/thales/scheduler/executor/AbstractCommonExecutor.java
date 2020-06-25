@@ -47,6 +47,12 @@ public abstract class AbstractCommonExecutor {
 
     public abstract void preExecute() throws Exception;
     
+    public abstract void postExecute() throws Exception;
+    
+    public abstract void kill() throws Exception;
+
+    public abstract String[] buildCommand(String configFile) throws Exception;
+    
     public String getJobName() {
         return requestRpc.getJob().getJobName() + "-" + 
                 DateUtils.getDateAsString(DateUtils.getDatetime(requestRpc.getScheduleTime()),DateUtils.TIME_FORMAT);
@@ -70,17 +76,19 @@ public abstract class AbstractCommonExecutor {
         String logPath = logDir + File.separator + requestRpc.getJob().getId() + "-" + request.getId() + "-"
                 + DateUtils.getDateAsString(request.getStartTime(), DateUtils.TIME_FORMAT);
         String logOutPath = logPath + ".out";
-        Long pid = -1l;
+        String logUrl = "http://" + MetricsUtils.getHostIpAddress() + ":" + logServerPort + "/api/log/viewLog/"
+                + requestRpc.getId();
         try {
+            
+            request.setLogPath(logOutPath);
+            request.setLogUrl(logUrl);
+            
             String[] command = buildCommand(requestRpc.getJob().getJobConfiguration());
             Process process = Runtime.getRuntime().exec(command);
             FileUtils.writeOuput(process.getInputStream(), logOutPath);
             FileUtils.writeOuput(process.getErrorStream(), logOutPath);
-            pid = TaskProcessUtils.getLinuxPid(process);
+            Long pid = TaskProcessUtils.getLinuxPid(process);
 
-            request.setLogPath(logOutPath);
-            request.setLogUrl("http://" + MetricsUtils.getHostIpAddress() + ":" + logServerPort + "/api/log/viewLog/"
-                    + requestRpc.getId());
             request.setPid(pid.intValue());
             request.setTaskState(TaskState.RUNNING.getCode());
 
@@ -99,14 +107,12 @@ public abstract class AbstractCommonExecutor {
             }
         } catch (Exception e) {
             // execute exception
+            FileUtils.writeFile("failed to execute task " + request.getId() + " with exception " + e.getMessage(),logOutPath);
+            request.setPid(-1);
             JobManager.updateJobInstanceSelective(request);
-            FileUtils.writeFile("failed to execute task " + request.getId() + " with exception " + e.getMessage(),
-                    logOutPath);
             throw new RuntimeException(e);
         }
     }
-
-    public abstract void postExecute() throws Exception;
 
     public JobStatusRequestRpc buildJobStatus(String requestId, TaskState taskState, JobInstanceRequest request) {
         JobStatusRequestRpc.Builder builder = JobStatusRequestRpc.newBuilder();
@@ -141,11 +147,7 @@ public abstract class AbstractCommonExecutor {
         }
         return returnCode;
     }
-
-    public abstract void kill() throws Exception;
-
-    public abstract String[] buildCommand(String configFile) throws Exception;
-
+    
     public String replaceParameters(Map<String, Object> parameters, String fileContent) {
         if (parameters != null) {
             for (Entry<String, Object> entry : parameters.entrySet()) {

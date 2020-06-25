@@ -75,7 +75,7 @@
   </select>
   
     <select id = "getInstantCount" resultType="java.lang.Integer">
-      select count(*) from t_thales_scheduler_job_instance instance left join t_thales_scheduler_job job on instance.job_id = job.id where 1=1
+      select count(*) from t_thales_scheduler_job_instance instance left join t_thales_scheduler_job job on instance.job_id = job.id where job.job_ReleaseState != -1
       <if test="taskState != null and taskState != ''">
            and instance.task_state = #{taskState}     
       </if>
@@ -83,7 +83,7 @@
            and job.job_name like concat(concat('%',#{jobName}),'%')
       </if>
       <if test="userName != null and userName != ''">
-           and job.creator_id = #{userName}
+           and job.owner_ids = #{userName} or job.owner_ids like concat(#{userName},',%') or job.owner_ids like concat('%,',#{userName}) or job.owner_ids like concat(concat('%,',#{userName}),',%')
       </if>
    </select>
 
@@ -91,14 +91,14 @@
         select instance.id,job.job_name,job.job_type,job.job_ReleaseState,instance.task_state,instance.log_url,instance.log_path,instance.worker,instance.creator_name,
         instance.creator_email,instance.retry_times,instance.pid,instance.applicationId,instance.elapse_time,
         instance.schedule_time,instance.start_time,instance.end_time,instance.create_time,instance.update_time
-        from t_thales_scheduler_job_instance instance left join t_thales_scheduler_job job on instance.job_id = job.id where 1=1
+        from t_thales_scheduler_job_instance instance left join t_thales_scheduler_job job on instance.job_id = job.id where job.job_ReleaseState != -1
             <if test="taskState != null and taskState != ''">
                 and instance.task_state = #{taskState}
             </if>
             <if test="userName != null and userName != ''">
-                and job.creator_id = #{userName}
+                and job.owner_ids = #{userName} or job.owner_ids like concat(#{userName},',%') or job.owner_ids like concat('%,',#{userName}) or job.owner_ids like concat(concat('%,',#{userName}),',%')
             </if>
-            <if test="jobName != null and jobName != ''">
+            <if test="jobName != null and jobName != ''">	
                 and job.job_name like concat(concat('%',#{jobName}),'%')
             </if>
         ORDER BY instance.create_time DESC
