@@ -49,7 +49,7 @@ public class SQLExecutor extends AbstractCommonExecutor {
 
         // 修改任务状态
         JobStatusRequestRpc jobStatusRequestRpc = buildJobStatus(requestRpc.getRequestId(), TaskState.RUNNING, request);
-        int returnCode = updateJobStatus(jobStatusRequestRpc);
+        int returnCode = transitJobStatusToRunning(jobStatusRequestRpc);
 
         if (returnCode != 200) {
             throw new RuntimeException("failed to update task for " + requestRpc.getId());

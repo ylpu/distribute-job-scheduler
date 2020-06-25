@@ -31,7 +31,7 @@ public class HiveExecutor extends AbstractCommonExecutor {
         Properties prop = Configuration.getConfig();
         String hadoopHome = Configuration.getString(prop, "hadoop.home", "");
         TaskProcessUtils.execCommand("./src/script/killMR.sh", "/tmp/pid/" + requestRpc.getPid() + ".out",
-                "/tmp/pid/" + requestRpc.getPid() + ".error", requestRpc.getJob().getJobName(), hadoopHome);
+                "/tmp/pid/" + requestRpc.getPid() + ".error", getJobName(), hadoopHome);
     }
 
     @Override
@@ -59,7 +59,7 @@ public class HiveExecutor extends AbstractCommonExecutor {
         String fileContent = FileUtils.readFile(fileName);
         fileContent = replaceParameters(hiveConfig.getPlaceHolder(), fileContent);
         sb.append("\"");
-        sb.append("set mapred.job.name=" + requestRpc.getJob().getJobName() + ";");
+        sb.append("set mapred.job.name=" + getJobName() + ";");
         sb.append(fileContent + ";");
         sb.append("\"");
         commands[0] = sb.toString();

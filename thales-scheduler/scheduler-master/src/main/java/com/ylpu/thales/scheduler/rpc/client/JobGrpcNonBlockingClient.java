@@ -68,6 +68,9 @@ public class JobGrpcNonBlockingClient extends AbstractJobGrpcClient {
                 JobChecker.addResponse(responseRpc);
             } catch (Exception e1) {
                 LOG.error(e1);
+            } finally {
+                //remove request after execute successful
+                JobChecker.getJobInstanceRequestMap().remove(rpcRequest.getRequestId()); 
             }
             shutdown();
             rerunIfNeeded(rpcRequest);

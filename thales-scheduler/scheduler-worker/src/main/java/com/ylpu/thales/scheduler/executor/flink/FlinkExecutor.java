@@ -29,7 +29,7 @@ public class FlinkExecutor extends AbstractCommonExecutor {
         Properties prop = Configuration.getConfig();
         String hadoopHome = Configuration.getString(prop, "hadoop.home", "");
         TaskProcessUtils.execCommand("./src/script/killSpark.sh", "/tmp/pid/" + requestRpc.getPid() + ".out",
-                "/tmp/pid/" + requestRpc.getPid() + ".error", requestRpc.getJob().getJobName(), hadoopHome);
+                "/tmp/pid/" + requestRpc.getPid() + ".error", getJobName(), hadoopHome);
     }
 
     @Override
@@ -56,33 +56,33 @@ public class FlinkExecutor extends AbstractCommonExecutor {
         } else {
             commandBuilder.append(flink_home + "/bin/" + FLINK_COMMAND);
         }
-
+        
         commandBuilder.append(" ");
         
-        commandBuilder.append("-m " + StringUtils.isBlank(flinkParameters.getMode(),"yarn-cluster"));
+        commandBuilder.append("-m " + StringUtils.getValue(flinkParameters.getMode(),"yarn-cluster"));
         commandBuilder.append(" ");
 
         commandBuilder.append("-ys " + flinkParameters.getSlotNumber() == null ? 2 : flinkParameters.getSlotNumber());
         commandBuilder.append(" ");
 
-        commandBuilder.append("-ynm " + StringUtils.isBlank(requestRpc.getJob().getJobName(),"default"));
+        commandBuilder.append("-ynm " + getJobName());
         commandBuilder.append(" ");
 
         commandBuilder.append("-yn " + flinkParameters.getTaskManagerNumber() == null ? 2: flinkParameters.getTaskManagerNumber());
         commandBuilder.append(" ");
 
-        commandBuilder.append("-yjm " + StringUtils.isBlank(flinkParameters.getJobManagerMemory(),"2g"));
+        commandBuilder.append("-yjm " + StringUtils.getValue(flinkParameters.getJobManagerMemory(),"2g"));
         commandBuilder.append(" ");
         
-        commandBuilder.append("-ytm " + StringUtils.isBlank(flinkParameters.getTaskManagerMemory(),"2g"));
+        commandBuilder.append("-ytm " + StringUtils.getValue(flinkParameters.getTaskManagerMemory(),"2g"));
         commandBuilder.append(" ");
         
-        commandBuilder.append("-yqu " + StringUtils.isBlank(flinkParameters.getQueue(),"default"));
+        commandBuilder.append("-yqu " + StringUtils.getValue(flinkParameters.getQueue(),"default"));
         commandBuilder.append(" ");
         
-        commandBuilder.append("-c " + StringUtils.isBlank(flinkConfig.getClassName(),""));
+        commandBuilder.append("-c " + StringUtils.getValue(flinkConfig.getClassName(),""));
         commandBuilder.append(" ");
-        commandBuilder.append(StringUtils.isBlank(flinkConfig.getJarName(),""));
+        commandBuilder.append(StringUtils.getValue(flinkConfig.getJarName(),""));
         
         String[] commands = new String[1];
         commands[0] = commandBuilder.toString();

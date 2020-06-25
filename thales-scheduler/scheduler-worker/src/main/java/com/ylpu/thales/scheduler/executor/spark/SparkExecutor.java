@@ -31,7 +31,7 @@ public class SparkExecutor extends AbstractCommonExecutor {
         Properties prop = Configuration.getConfig();
         String hadoopHome = Configuration.getString(prop, "hadoop.home", "");
         TaskProcessUtils.execCommand("./src/script/killSpark.sh", "/tmp/pid/" + requestRpc.getPid() + ".out",
-                "/tmp/pid/" + requestRpc.getPid() + ".error", requestRpc.getJob().getJobName(), hadoopHome);
+                "/tmp/pid/" + requestRpc.getPid() + ".error", getJobName(), hadoopHome);
     }
 
     @Override
@@ -64,27 +64,27 @@ public class SparkExecutor extends AbstractCommonExecutor {
 
         String fileContent = FileUtils.readFile(fileName);
         fileContent = replaceParameters(sparkConfig.getPlaceHolder(), fileContent);
-        
+                
         commandBuilder.append("\"");
-        commandBuilder.append("set spark.app.name=" + requestRpc.getJob().getJobName() + ";");
+        commandBuilder.append("set spark.app.name=" + getJobName() + ";");
         commandBuilder.append(fileContent + ";");
         commandBuilder.append("\"");
 
         commandBuilder.append(" ");
 
-        commandBuilder.append("--master " + StringUtils.isBlank(sparkParameters.getMaster(),"yarn"));
+        commandBuilder.append("--master " + StringUtils.getValue(sparkParameters.getMaster(),"yarn"));
         commandBuilder.append(" ");
         
-        commandBuilder.append("--deploy-mode " + StringUtils.isBlank(sparkParameters.getDeployMode(),"cluster"));
+        commandBuilder.append("--deploy-mode " + StringUtils.getValue(sparkParameters.getDeployMode(),"cluster"));
         commandBuilder.append(" ");
         
-        commandBuilder.append("--driver-memory " + StringUtils.isBlank(sparkParameters.getDriverMemory(),"2g"));
+        commandBuilder.append("--driver-memory " + StringUtils.getValue(sparkParameters.getDriverMemory(),"2g"));
         commandBuilder.append(" ");
 
-        commandBuilder.append("--executor-memory " + StringUtils.isBlank(sparkParameters.getExecutorMemory(),"2g"));
+        commandBuilder.append("--executor-memory " + StringUtils.getValue(sparkParameters.getExecutorMemory(),"2g"));
         commandBuilder.append(" ");
         
-        commandBuilder.append("--queue " + StringUtils.isBlank(sparkParameters.getQueue(),"default"));
+        commandBuilder.append("--queue " + StringUtils.getValue(sparkParameters.getQueue(),"default"));
         commandBuilder.append(" ");
 
         commandBuilder.append("--executor-cores " + sparkParameters.getExecutorCores() == null ? 

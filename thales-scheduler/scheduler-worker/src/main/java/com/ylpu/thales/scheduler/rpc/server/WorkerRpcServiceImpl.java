@@ -55,19 +55,19 @@ public class WorkerRpcServiceImpl extends GrpcJobServiceGrpc.GrpcJobServiceImplB
         JobInstanceRequest request = new JobInstanceRequest();
         initJobInstanceRequest(requestRpc, request);
         try {
-            // 增加任务个数
+            // increase task number
             jobMetric.increaseTask();
-            // 执行任务
+            // run task
             LOG.info("start to execute task " + requestRpc.getId());
             AbstractCommonExecutor executor = getExecutor(requestRpc, request);
             executor.preExecute();
             executor.execute();
             executor.postExecute();
-            // 设置任务成功返回状态
+            // set task response status
             setCodeAndMessage(builder, TaskState.SUCCESS.getCode(), 200, "");
         } catch (Exception e) {
             LOG.error(e);
-            // 任务失败告警
+            // task fail warning
             Event event = new Event();
             setAlertEvent(event, requestRpc.getJob(), request);
             if(StringUtils.isNotBlank(requestRpc.getJob().getAlertUsers())) {
@@ -75,10 +75,10 @@ public class WorkerRpcServiceImpl extends GrpcJobServiceGrpc.GrpcJobServiceImplB
             }
             throw new RuntimeException(e);
         } finally {
-            // 减少任务个数
+            // decrease task number
             jobMetric.decreaseTask();
         }
-        // rpc任务返回
+        // rpc task response
         responseObserver.onNext(builder.build());
         responseObserver.onCompleted();
     }
@@ -92,6 +92,7 @@ public class WorkerRpcServiceImpl extends GrpcJobServiceGrpc.GrpcJobServiceImplB
         event.setEventType(EventType.FAIL);
     }
 
+    //sync kill
     public void kill(JobInstanceRequestRpc requestRpc, StreamObserver<JobInstanceResponseRpc> responseObserver) {
         JobInstanceResponseRpc.Builder builder = JobInstanceResponseRpc.newBuilder();
         builder.setResponseId(requestRpc.getRequestId());
@@ -101,7 +102,7 @@ public class WorkerRpcServiceImpl extends GrpcJobServiceGrpc.GrpcJobServiceImplB
         try {
             AbstractCommonExecutor executor = getExecutor(requestRpc, request);
             executor.kill();
-            // 等待任务失败
+            // wait for task to fail
             int i = 0;
             while (i < 3) {
                 JobInstanceResponse instanceResponse = JobManager.getJobInstanceById(requestRpc.getId());
@@ -117,10 +118,11 @@ public class WorkerRpcServiceImpl extends GrpcJobServiceGrpc.GrpcJobServiceImplB
             LOG.error(e);
             FileUtils.writeFile("failed to kill job " + requestRpc.getId(), requestRpc.getLogPath());
             setCodeAndMessage(builder, TaskState.RUNNING.getCode(), 500, "failed to kill task" + requestRpc.getId());
+        } finally {
+            // rpc response
+            responseObserver.onNext(builder.build());
+            responseObserver.onCompleted();
         }
-        // rpc任务返回
-        responseObserver.onNext(builder.build());
-        responseObserver.onCompleted();
     }
 
     private void setCodeAndMessage(JobInstanceResponseRpc.Builder builder, int state, int code, String message) {

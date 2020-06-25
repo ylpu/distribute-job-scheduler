@@ -53,7 +53,7 @@ public class StringUtils {
     }
     
     
-    public static String isBlank(String value,String defaultValue) {
+    public static String getValue(String value,String defaultValue) {
         
         if (org.apache.commons.lang3.StringUtils.isBlank(value)){
             return defaultValue;

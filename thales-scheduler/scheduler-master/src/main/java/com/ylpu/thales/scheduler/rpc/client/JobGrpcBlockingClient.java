@@ -30,37 +30,19 @@ public class JobGrpcBlockingClient extends AbstractJobGrpcClient {
 
     @Override
     public void submitJob(JobInstanceRequestRpc rpcRequest) throws Exception {
-        JobInstanceResponseRpc responseRpc = null;
-        try {
-            LOG.info("submit task  " + rpcRequest.getRequestId() + " to host  " + rpcRequest.getWorker());
-            responseRpc = blockStub.submit(rpcRequest);
-        } catch (Exception e) {
-            LOG.error(e.getMessage());
-            responseRpc = JobSubmission.buildResponse(rpcRequest.getRequestId(), TaskState.FAIL.getCode());
-        }
-        LOG.info("task " + rpcRequest.getRequestId() + " return code is " + responseRpc.getErrorCode() + " ,return messsage is "
-                + responseRpc.getErrorMsg());
-        try {
-            transitTaskStatus(rpcRequest, responseRpc.getTaskState());
-            JobChecker.addResponse(responseRpc);
-        } catch (Exception e) {
-            LOG.error("failed to update task status " + rpcRequest.getRequestId(), e);
-        }
-        if (responseRpc.getErrorCode() != 200) {
-            rerunIfNeeded(rpcRequest);
-        }
+
     }
 
     public void kill(JobInstanceRequestRpc rpcRequest) throws Exception {
         JobInstanceResponseRpc responseRpc = null;
         try {
             responseRpc = blockStub.kill(rpcRequest);
+            LOG.info("task " + rpcRequest.getRequestId() + " return code is " + responseRpc.getErrorCode() + " ,return message "
+                    + responseRpc.getErrorMsg());
         } catch (Exception e) {
             LOG.error(e.getMessage());
             responseRpc = JobSubmission.buildResponse(rpcRequest.getRequestId(), TaskState.RUNNING.getCode());
         }
-        LOG.info("task " + rpcRequest.getRequestId() + " return code is " + responseRpc.getErrorCode() + " ,return message "
-                + responseRpc.getErrorMsg());
         try {
             transitTaskStatus(rpcRequest, responseRpc.getTaskState());
             JobChecker.addResponse(responseRpc);

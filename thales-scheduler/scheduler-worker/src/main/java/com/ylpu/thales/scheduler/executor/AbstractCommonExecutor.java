@@ -47,6 +47,11 @@ public abstract class AbstractCommonExecutor {
 
     public abstract void preExecute() throws Exception;
     
+    public String getJobName() {
+        return requestRpc.getJob().getJobName() + "-" + 
+                DateUtils.getDateAsString(DateUtils.getDatetime(requestRpc.getScheduleTime()),DateUtils.TIME_FORMAT);
+    }
+    
 
     public void killProcess() throws Exception {
         Integer pid = requestRpc.getPid();
@@ -65,12 +70,13 @@ public abstract class AbstractCommonExecutor {
         String logPath = logDir + File.separator + requestRpc.getJob().getId() + "-" + request.getId() + "-"
                 + DateUtils.getDateAsString(request.getStartTime(), DateUtils.TIME_FORMAT);
         String logOutPath = logPath + ".out";
+        Long pid = -1l;
         try {
             String[] command = buildCommand(requestRpc.getJob().getJobConfiguration());
             Process process = Runtime.getRuntime().exec(command);
             FileUtils.writeOuput(process.getInputStream(), logOutPath);
             FileUtils.writeOuput(process.getErrorStream(), logOutPath);
-            Long pid = TaskProcessUtils.getLinuxPid(process);
+            pid = TaskProcessUtils.getLinuxPid(process);
 
             request.setLogPath(logOutPath);
             request.setLogUrl("http://" + MetricsUtils.getHostIpAddress() + ":" + logServerPort + "/api/log/viewLog/"
@@ -81,7 +87,7 @@ public abstract class AbstractCommonExecutor {
             // 修改任务状态
             JobStatusRequestRpc jobStatusRequestRpc = buildJobStatus(requestRpc.getRequestId(), TaskState.RUNNING,
                     request);
-            int returnCode = updateJobStatus(jobStatusRequestRpc);
+            int returnCode = transitJobStatusToRunning(jobStatusRequestRpc);
 
             if (returnCode != 200) {
                 process.destroy();
@@ -92,14 +98,11 @@ public abstract class AbstractCommonExecutor {
                 throw new RuntimeException("failed to execute task " + requestRpc.getId());
             }
         } catch (Exception e) {
-            // 非执行异常
-            request.setLogPath(logOutPath);
-            request.setLogUrl("http://" + MetricsUtils.getHostIpAddress() + ":" + logServerPort + "/api/log/viewLog/"
-                    + requestRpc.getId());
+            // execute exception
             JobManager.updateJobInstanceSelective(request);
             FileUtils.writeFile("failed to execute task " + request.getId() + " with exception " + e.getMessage(),
                     logOutPath);
-            throw e;
+            throw new RuntimeException(e);
         }
     }
 
@@ -113,7 +116,7 @@ public abstract class AbstractCommonExecutor {
         return builder.build();
     }
 
-    public int updateJobStatus(JobStatusRequestRpc request) {
+    public int transitJobStatusToRunning(JobStatusRequestRpc request) {
         WorkerGrpcClient client = null;
         int returnCode = 200;
         try {
