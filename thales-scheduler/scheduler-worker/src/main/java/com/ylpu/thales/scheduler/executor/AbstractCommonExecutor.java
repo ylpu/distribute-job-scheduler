@@ -55,7 +55,8 @@ public abstract class AbstractCommonExecutor {
     
     public String getJobName() {
         return requestRpc.getJob().getJobName() + "-" + 
-                DateUtils.getDateAsString(DateUtils.getDatetime(requestRpc.getScheduleTime()),DateUtils.TIME_FORMAT);
+                DateUtils.getDateAsString(DateUtils.getDatetime(requestRpc.getScheduleTime()),DateUtils.TIME_FORMAT) + 
+                "-" + requestRpc.getRetryTimes();
     }
     
 

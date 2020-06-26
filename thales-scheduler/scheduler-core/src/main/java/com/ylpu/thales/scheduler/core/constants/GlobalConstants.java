@@ -35,4 +35,6 @@ public class GlobalConstants {
     public static final String APPLICATION_REGEX = "application_\\d+_\\d+";
 
     public static final String DEFAULT_WORKER_LOG_DIR = "/tmp/log/worker";
+    
+    public static final String ROOT_SCHEDULE_TIME = "19700101000000";
 }

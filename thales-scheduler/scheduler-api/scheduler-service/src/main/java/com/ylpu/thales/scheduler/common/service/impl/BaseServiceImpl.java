@@ -1,22 +1,12 @@
 package com.ylpu.thales.scheduler.common.service.impl;
 
-import java.io.IOException;
 import java.io.Serializable;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.Date;
-import java.util.List;
-import java.util.Properties;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.curator.framework.CuratorFramework;
 import org.springframework.transaction.annotation.Transactional;
-import com.ylpu.thales.scheduler.common.config.Configuration;
-import com.ylpu.thales.scheduler.common.constants.GlobalConstants;
-import com.ylpu.thales.scheduler.common.curator.CuratorHelper;
 import com.ylpu.thales.scheduler.common.dao.BaseDao;
 import com.ylpu.thales.scheduler.common.service.BaseService;
 import com.ylpu.thales.scheduler.entity.BaseEntity;

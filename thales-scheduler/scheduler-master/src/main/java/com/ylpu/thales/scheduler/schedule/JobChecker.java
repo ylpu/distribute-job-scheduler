@@ -126,7 +126,7 @@ public class JobChecker {
         private boolean isRootJob(List<JobDependency> list) {
             if (list != null && list.size() == 1) {
                 JobDependency dependency = list.get(0);
-                if (dependency.toString().split("-")[1].equals("root")) {
+                if (dependency.toString().split("-")[1].equals(GlobalConstants.ROOT_SCHEDULE_TIME)) {
                     return true;
                 }
             }

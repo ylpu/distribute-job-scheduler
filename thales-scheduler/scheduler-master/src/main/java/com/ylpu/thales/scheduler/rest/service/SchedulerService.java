@@ -147,7 +147,7 @@ public class SchedulerService {
         //get job dependency
         if (rpcRequest.getJob().getDependenciesList() == null
                 || rpcRequest.getJob().getDependenciesList().size() == 0) {
-            dependJobs.add(new JobDependency(rpcRequest.getJob().getId(), "root"));
+            dependJobs.add(new JobDependency(rpcRequest.getJob().getId(), GlobalConstants.ROOT_SCHEDULE_TIME));
         } else {
             dependJobs = JobSubmission.getLatestJobDepends(rpcRequest,
                     DateUtils.getDateFromString(jobInstanceResponse.getScheduleTime(),DateUtils.DATE_TIME_FORMAT));

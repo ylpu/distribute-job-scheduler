@@ -1,18 +1,13 @@
 package com.ylpu.thales.scheduler.controller;
 
 import com.github.pagehelper.PageInfo;
-import com.ylpu.thales.scheduler.request.ScheduleRequest;
 import com.ylpu.thales.scheduler.request.WorkerGroupRequest;
 import com.ylpu.thales.scheduler.request.WorkerRequest;
 import com.ylpu.thales.scheduler.response.SchedulerResponse;
 import com.ylpu.thales.scheduler.response.WorkerResponse;
-import com.ylpu.thales.scheduler.response.WorkerSummaryResponse;
-import com.ylpu.thales.scheduler.response.WorkerUsageResponse;
 import com.ylpu.thales.scheduler.service.WorkerService;
 import java.util.List;
-
 import javax.servlet.http.HttpSession;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;

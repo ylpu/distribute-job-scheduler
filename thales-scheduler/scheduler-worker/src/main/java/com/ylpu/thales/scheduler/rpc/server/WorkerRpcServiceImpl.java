@@ -64,23 +64,23 @@ public class WorkerRpcServiceImpl extends GrpcJobServiceGrpc.GrpcJobServiceImplB
             executor.execute();
             executor.postExecute();
             // set task response status
-            setCodeAndMessage(builder, TaskState.SUCCESS.getCode(), 200, "");
+            setResponse(builder, TaskState.SUCCESS.getCode(), 200, "");
         } catch (Exception e) {
             LOG.error(e);
+            setResponse(builder, TaskState.FAIL.getCode(), 500, "failed to run task" + requestRpc.getId());
             // task fail warning
             Event event = new Event();
             setAlertEvent(event, requestRpc.getJob(), request);
             if(StringUtils.isNotBlank(requestRpc.getJob().getAlertUsers())) {
                 eventBus.post(event);
             }
-            throw new RuntimeException(e);
         } finally {
             // decrease task number
             jobMetric.decreaseTask();
+            // rpc task response
+            responseObserver.onNext(builder.build());
+            responseObserver.onCompleted();
         }
-        // rpc task response
-        responseObserver.onNext(builder.build());
-        responseObserver.onCompleted();
     }
 
     private void setAlertEvent(Event event, JobRequestRpc requestRpc, JobInstanceRequest request) {
@@ -113,11 +113,13 @@ public class WorkerRpcServiceImpl extends GrpcJobServiceGrpc.GrpcJobServiceImplB
                 i++;
             }
             FileUtils.writeFile("sucessful kill job " + requestRpc.getId(), requestRpc.getLogPath());
-            setCodeAndMessage(builder, TaskState.KILL.getCode(), 200, "");
+            setResponse(builder, TaskState.KILL.getCode(), 200, "");
+            // decrease task number
+            jobMetric.decreaseTask();
         } catch (Exception e) {
             LOG.error(e);
+            setResponse(builder, TaskState.RUNNING.getCode(), 500, "failed to kill task" + requestRpc.getId());
             FileUtils.writeFile("failed to kill job " + requestRpc.getId(), requestRpc.getLogPath());
-            setCodeAndMessage(builder, TaskState.RUNNING.getCode(), 500, "failed to kill task" + requestRpc.getId());
         } finally {
             // rpc response
             responseObserver.onNext(builder.build());
@@ -125,7 +127,7 @@ public class WorkerRpcServiceImpl extends GrpcJobServiceGrpc.GrpcJobServiceImplB
         }
     }
 
-    private void setCodeAndMessage(JobInstanceResponseRpc.Builder builder, int state, int code, String message) {
+    private void setResponse(JobInstanceResponseRpc.Builder builder, int state, int code, String message) {
         builder.setTaskState(state);
         builder.setErrorMsg(message);
         builder.setErrorCode(code);

@@ -84,7 +84,11 @@ public class JobGrpcNonBlockingClient extends AbstractJobGrpcClient {
             public void onSuccess(JobInstanceResponseRpc result) {
                 LOG.info("task " + requestRpc.getRequestId() + " execute successful");
                 try {
-                    transitTaskStatus(requestRpc, result.getTaskState());
+                    if(result.getErrorCode() == 200) {
+                        transitTaskStatus(requestRpc, TaskState.SUCCESS.getCode());
+                    }else {
+                        transitTaskStatus(requestRpc, TaskState.FAIL.getCode());
+                    }
                     JobChecker.addResponse(result);
                 } catch (Exception e) {
                     LOG.error("failed to update task " + requestRpc.getId() +  " status to successful after callback",e);

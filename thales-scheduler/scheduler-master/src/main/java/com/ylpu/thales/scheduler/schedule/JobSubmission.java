@@ -3,6 +3,7 @@ package com.ylpu.thales.scheduler.schedule;
 import com.google.common.eventbus.AsyncEventBus;
 import com.ylpu.thales.scheduler.alert.EventListener;
 import com.ylpu.thales.scheduler.core.alert.entity.Event;
+import com.ylpu.thales.scheduler.core.constants.GlobalConstants;
 import com.ylpu.thales.scheduler.core.rest.JobManager;
 import com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc;
 import com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc;
@@ -86,7 +87,7 @@ public class JobSubmission {
         //get job dependency
         if (requestRpc.getJob().getDependenciesList() == null
                 || requestRpc.getJob().getDependenciesList().size() == 0) {
-            dependJobs.add(new JobDependency(requestRpc.getJob().getId(), "root"));
+            dependJobs.add(new JobDependency(requestRpc.getJob().getId(), GlobalConstants.ROOT_SCHEDULE_TIME));
         } else {
             dependJobs = getLatestJobDepends(requestRpc);
         }
