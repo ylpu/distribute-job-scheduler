@@ -280,6 +280,16 @@
 	        <artifactId>cglib</artifactId>
 	        <version>${cglib.version}</version>
         </dependency>
+        <dependency>
+             <groupId>ru.yandex.clickhouse</groupId>
+             <artifactId>clickhouse-jdbc</artifactId>
+             <version>0.2.4</version>
+        </dependency>
+        <dependency>
+             <groupId>com.microsoft.sqlserver</groupId>
+             <artifactId>mssql-jdbc</artifactId>
+             <version>8.2.2.jre13</version>
+        </dependency>
      </dependencies>
   </dependencyManagement>
     <build>

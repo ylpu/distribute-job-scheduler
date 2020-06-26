@@ -35,6 +35,14 @@
          <groupId>mysql</groupId>
          <artifactId>mysql-connector-java</artifactId>
       </dependency>
+      <dependency>
+         <groupId>ru.yandex.clickhouse</groupId>
+         <artifactId>clickhouse-jdbc</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>com.microsoft.sqlserver</groupId>
+         <artifactId>mssql-jdbc</artifactId>
+      </dependency>
   </dependencies>
     <build>
         <plugins>

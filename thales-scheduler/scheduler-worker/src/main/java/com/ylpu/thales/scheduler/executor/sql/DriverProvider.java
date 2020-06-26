@@ -12,6 +12,7 @@ public class DriverProvider {
         map.put(DBType.ORACLE, "oracle.jdbc.driver.OracleDriver");
         map.put(DBType.MYSQL, "com.mysql.jdbc.Driver");
         map.put(DBType.SQLSERVER, "com.microsoft.sqlserver.jdbc.SQLServerDriver");
+        map.put(DBType.CLICKHOUSE, "ru.yandex.clickhouse.ClickHouseDriver");
     }
 
     public static String getDriver(DBType dbType) {
