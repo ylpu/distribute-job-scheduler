@@ -18,9 +18,7 @@ import java.io.File;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Map.Entry;
-
 import org.apache.commons.lang.math.NumberUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -94,14 +92,10 @@ public abstract class AbstractCommonExecutor {
             request.setTaskState(TaskState.RUNNING.getCode());
 
             // 修改任务状态
-            JobStatusRequestRpc jobStatusRequestRpc = buildJobStatus(requestRpc.getRequestId(), TaskState.RUNNING,
+            JobStatusRequestRpc jobStatusRequestRpc = buildJobStatusRequestRpc(requestRpc.getRequestId(), TaskState.RUNNING,
                     request);
-            int returnCode = transitJobStatusToRunning(jobStatusRequestRpc);
+            transitJobStatusToRunning(jobStatusRequestRpc);
 
-            if (returnCode != 200) {
-                process.destroy();
-                throw new RuntimeException("failed to update task " + requestRpc.getId());
-            }
             int c = process.waitFor();
             if (c != 0) {
                 throw new RuntimeException("failed to execute task " + requestRpc.getId());
@@ -115,7 +109,7 @@ public abstract class AbstractCommonExecutor {
         }
     }
 
-    public JobStatusRequestRpc buildJobStatus(String requestId, TaskState taskState, JobInstanceRequest request) {
+    public JobStatusRequestRpc buildJobStatusRequestRpc(String requestId, TaskState taskState, JobInstanceRequest request) {
         JobStatusRequestRpc.Builder builder = JobStatusRequestRpc.newBuilder();
         builder.setRequestId(requestId);
         builder.setTaskState(taskState.getCode());
@@ -126,23 +120,30 @@ public abstract class AbstractCommonExecutor {
     public int transitJobStatusToRunning(JobStatusRequestRpc request) {
         WorkerGrpcClient client = null;
         int returnCode = 200;
-        try {
-            String master = CuratorHelper.getActiveMaster();
-            if (StringUtils.isNoneBlank(master)) {
+        String master = "";
+        //确保master连上active的master，如果master在切换中，需要一直等待
+        while(true) {
+            try {
+                master = CuratorHelper.getActiveMaster(); 
                 String[] hostAndPort = master.split(":");
                 client = new WorkerGrpcClient(hostAndPort[0], NumberUtils.toInt(hostAndPort[1]));
                 returnCode = client.updateJobStatus(request);
-            }
-        } catch (Exception e) {
-            returnCode = 500;
-            LOG.error(e);
-        } finally {
-            if (client != null) {
+                break;
+            }catch (Exception e) {
+                returnCode = 500;
+                LOG.error(e);
                 try {
-                    client.shutdown();
-                } catch (InterruptedException e) {
-                    returnCode = 500;
-                    LOG.error(e);
+                    Thread.sleep(10000);
+                } catch (InterruptedException e1) {
+                    LOG.error(e1);
+                }
+            }finally {
+                if (client != null) {
+                    try {
+                        client.shutdown();
+                    } catch (InterruptedException e) {
+                        LOG.error(e);
+                    }
                 }
             }
         }

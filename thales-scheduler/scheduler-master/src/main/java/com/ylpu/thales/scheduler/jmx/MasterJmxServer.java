@@ -19,18 +19,22 @@ public class MasterJmxServer {
         this.jmxPort = checkNotNull(jmxPort, "JMX Port cannot be null");
     }
 
-    public void start() throws Exception {
+    public void start(){
+        try {
+            Runtime.getRuntime().addShutdownHook(new ShutdownHookThread());
 
-        Runtime.getRuntime().addShutdownHook(new ShutdownHookThread());
-
-        MBeanServer server = MBeanServerFactory.createMBeanServer();
-        ObjectName jobResource = new ObjectName("com.ylpu.thales.scheduler:name=MasterManager");
-        server.registerMBean(new MasterMetric(), jobResource);
-        ObjectName adapterName = new ObjectName("ResourceAgent:name=htmladapter,port=9095");
-        adapter = new HtmlAdaptorServer();
-        server.registerMBean(adapter, adapterName);
-        adapter.setPort(jmxPort);
-        adapter.start();
+            MBeanServer server = MBeanServerFactory.createMBeanServer();
+            ObjectName jobResource = new ObjectName("com.ylpu.thales.scheduler:name=MasterManager");
+            server.registerMBean(new MasterMetric(), jobResource);
+            ObjectName adapterName = new ObjectName("ResourceAgent:name=htmladapter,port=9095");
+            adapter = new HtmlAdaptorServer();
+            server.registerMBean(adapter, adapterName);
+            adapter.setPort(jmxPort);
+            adapter.start();
+        }catch(Exception e) {
+            LOG.error(e);
+            System.exit(1);
+        }
     }
 
     private class ShutdownHookThread extends Thread {

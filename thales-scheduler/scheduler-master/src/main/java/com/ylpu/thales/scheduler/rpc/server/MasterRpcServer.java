@@ -18,9 +18,14 @@ public class MasterRpcServer {
 
     private Server server;
 
-    public void start() throws IOException {
-        server = ServerBuilder.forPort(port).addService(new MasterRpcServiceImpl()).build().start();
-        Runtime.getRuntime().addShutdownHook(new ShutdownHookThread());
+    public void start(){
+        try {
+            server = ServerBuilder.forPort(port).addService(new MasterRpcServiceImpl()).build().start();
+            Runtime.getRuntime().addShutdownHook(new ShutdownHookThread()); 
+        }catch(Exception e) {
+            LOG.error(e);
+            System.exit(1);
+        }
     }
 
     private class ShutdownHookThread extends Thread {

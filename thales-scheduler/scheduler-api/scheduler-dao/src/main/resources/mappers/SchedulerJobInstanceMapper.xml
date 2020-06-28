@@ -13,7 +13,7 @@
     <result column="worker" property="worker" jdbcType="VARCHAR" />
     <result column="creator_name" property="creatorName" jdbcType="VARCHAR" />
     <result column="creator_email" property="creatorEmail" jdbcType="VARCHAR" />
-    <result column="retry_times" property="retryTimes" jdbcType="TINYINT" />
+    <result column="retry_times" property="retryTimes" jdbcType="INTEGER" />
     <result column="pid" property="pid" jdbcType="INTEGER" />
     <result column="applicationId" property="applicationid" jdbcType="VARCHAR" />
     <result column="elapse_time" property="elapseTime" jdbcType="INTEGER" />

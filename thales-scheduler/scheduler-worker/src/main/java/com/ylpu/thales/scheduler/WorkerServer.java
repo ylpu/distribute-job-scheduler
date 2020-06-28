@@ -47,7 +47,13 @@ public class WorkerServer {
         try {
             Runtime.getRuntime().addShutdownHook(new ShutDownHookThread());
             // 注册自己到zk
-            String workerPath = regist(prop);
+            String quorum = prop.getProperty("thales.zookeeper.quorum");
+            int sessionTimeout = Configuration.getInt(prop, "thales.zookeeper.sessionTimeout",
+                    GlobalConstants.ZOOKEEPER_SESSION_TIMEOUT);
+            int connectionTimeout = Configuration.getInt(prop, "thales.zookeeper.connectionTimeout",
+                    GlobalConstants.ZOOKEEPER_CONNECTION_TIMEOUT);
+            String workerGroup = Configuration.getString(prop, "thales.worker.group", DEFAULT_WORKER_GROUP);
+            String workerPath = regist(quorum,sessionTimeout,connectionTimeout,workerGroup);
             // 启动心跳线程
             WorkerHeartBeatThread heartBeatThread = new WorkerHeartBeatThread(workerPath, workerServerPort,
                     heartBeatInterval);
@@ -94,13 +100,8 @@ public class WorkerServer {
         jobExecutorServer.start();
     }
 
-    private String regist(Properties prop) throws Exception {
-        String quorum = prop.getProperty("thales.zookeeper.quorum");
-        int sessionTimeout = Configuration.getInt(prop, "thales.zookeeper.sessionTimeout",
-                GlobalConstants.ZOOKEEPER_SESSION_TIMEOUT);
-        int connectionTimeout = Configuration.getInt(prop, "thales.zookeeper.connectionTimeout",
-                GlobalConstants.ZOOKEEPER_CONNECTION_TIMEOUT);
-        String workerGroup = Configuration.getString(prop, "thales.worker.group", DEFAULT_WORKER_GROUP);
+    private String regist(String quorum, int sessionTimeout, int connectionTimeout,String workerGroup) throws Exception {
+
 
         CuratorFramework client = CuratorHelper.getCuratorClient(quorum, sessionTimeout, connectionTimeout);
         CuratorHelper.createNodeIfNotExist(client, GlobalConstants.ROOT_GROUP, CreateMode.PERSISTENT, null);

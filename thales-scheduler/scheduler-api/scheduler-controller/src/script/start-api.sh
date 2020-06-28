@@ -28,7 +28,7 @@ function stop(){
      then
       echo "controller已经停止"
      else
-       kill -9 $pid
+       kill -15 $pid
        echo "controller成功停止"
     fi
 }

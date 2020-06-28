@@ -48,7 +48,7 @@ public class SQLExecutor extends AbstractCommonExecutor {
         request.setTaskState(TaskState.RUNNING.getCode());
 
         // 修改任务状态
-        JobStatusRequestRpc jobStatusRequestRpc = buildJobStatus(requestRpc.getRequestId(), TaskState.RUNNING, request);
+        JobStatusRequestRpc jobStatusRequestRpc = buildJobStatusRequestRpc(requestRpc.getRequestId(), TaskState.RUNNING, request);
         int returnCode = transitJobStatusToRunning(jobStatusRequestRpc);
 
         if (returnCode != 200) {

@@ -84,19 +84,17 @@ public class SchedulerService {
                 DateUtils.DATE_TIME_FORMAT), DateUtils.MINUTE_TIME_FORMAT);
         
         if(jobInstanceResponse != null) {
-            if (jobInstanceResponse.getTaskState() != toState) {
-                try {
-                    cleanExistingTask(jobInstanceResponse,responseId);
-                    JobStatusRequest jr = new JobStatusRequest();
-                    jr.setIds(Arrays.asList(scheduleRequest.getId()));
-                    jr.setStatus(toState);
-                    JobManager.updateJobStatus(jr);
-                    
-                    JobChecker.addResponse(JobSubmission.buildResponse(responseId,toState.getCode()));
-                } catch (Exception e) {
-                    LOG.error(e);
-                    throw e;
-                }
+            try {
+                cleanExistingTask(jobInstanceResponse,responseId);
+                JobStatusRequest jr = new JobStatusRequest();
+                jr.setIds(Arrays.asList(scheduleRequest.getId()));
+                jr.setStatus(toState);
+                JobManager.updateJobStatus(jr);
+                
+                JobChecker.addResponse(JobSubmission.buildResponse(responseId,toState.getCode()));
+            } catch (Exception e) {
+                LOG.error(e);
+                throw e;
             }
         }
     }
@@ -257,7 +255,6 @@ public class SchedulerService {
         JobInstanceResponse jobInstanceResponse = JobManager.getJobInstanceById(id);
         if (jobInstanceResponse.getJobConf() == null) {
             LOG.warn("job does not exist or has already down " + id);
-            return;
         }else {
             
             String responseId = jobInstanceResponse.getJobConf().getId() + "-" + 
@@ -270,7 +267,7 @@ public class SchedulerService {
                     || jobInstanceResponse.getTaskState() == TaskState.QUEUED
                     || jobInstanceResponse.getTaskState() == TaskState.WAITING_RESOURCE
                     || jobInstanceResponse.getTaskState() == TaskState.RUNNING) {
-                LOG.warn("job" + id +  " has already running,will clean the existing job");
+                LOG.warn("job " + id +  " has already running,will clean the existing job");
                 cleanExistingTask(jobInstanceResponse,responseId);
             } 
             JobInstanceRequest request = new JobInstanceRequest();
@@ -290,7 +287,6 @@ public class SchedulerService {
 
             }catch(Exception e) {
                 LOG.error("failed to submit task " + request.getId() , e);
-                throw new RuntimeException(e);
             }
             try {
                 rpcRequest = JobSubmission.initJobInstanceRequestRpc(request, jobInstanceResponse.getJobConf());
@@ -311,8 +307,8 @@ public class SchedulerService {
         request.setElapseTime(DateUtils.getElapseTime(request.getStartTime(), request.getEndTime()));
         try {
             JobManager.updateJobInstanceSelective(request);
-        } catch (Exception e1) {
-            LOG.error(e1);
+        } catch (Exception e) {
+            LOG.error(e);
         }
     }
 

@@ -10,6 +10,7 @@ import com.ylpu.thales.scheduler.core.utils.ByteUtils;
 import com.ylpu.thales.scheduler.core.utils.DateUtils;
 import com.ylpu.thales.scheduler.core.utils.MetricsUtils;
 import com.ylpu.thales.scheduler.core.utils.SSHUtils;
+import com.ylpu.thales.scheduler.enums.TaskState;
 import com.ylpu.thales.scheduler.enums.WorkerStatus;
 import com.ylpu.thales.scheduler.jmx.MasterJmxServer;
 import com.ylpu.thales.scheduler.request.WorkerGroupRequest;
@@ -17,6 +18,7 @@ import com.ylpu.thales.scheduler.request.WorkerRequest;
 import com.ylpu.thales.scheduler.response.JobInstanceStateResponse;
 import com.ylpu.thales.scheduler.response.WorkerResponse;
 import com.ylpu.thales.scheduler.rest.MasterRestServer;
+import com.ylpu.thales.scheduler.rest.service.SchedulerService;
 import com.ylpu.thales.scheduler.rpc.server.MasterRpcServer;
 import com.ylpu.thales.scheduler.schedule.JobChecker;
 import com.ylpu.thales.scheduler.schedule.JobScheduler;
@@ -130,19 +132,27 @@ public class MasterManager {
                     String masterIp = master.split(":")[0];
                     String username = Configuration.getString(prop, "thales.master.username", "default");
                     String password = Configuration.getString(prop, "thales.master.password", "default");
-                    String command = "ps -ef | grep MasterServer | grep -v grep | awk '{print $2}' | xargs kill -9";
+                    String command = "ps -ef | grep MasterServer | grep -v grep | awk '{print $2}' | xargs kill -15";
                     int returnCode = SSHUtils.executeCommand(masterIp, username, password, command);
                     if (returnCode != 0) {
                         LOG.error("failed to kill standy by master " + masterIp);
                     }
                 }
             }
+
+            init(GlobalConstants.WORKER_GROUP, prop);
             int masterServerPort = Configuration.getInt(prop, "thales.master.server.port", DEFAULT_MASTER_SERVER_PORT);
+            // 启动master rpc服务
+            server = new MasterRpcServer(masterServerPort);
+            server.start();
+            
+            //当前节点竞选成为active节点
             activeMaster = MetricsUtils.getHostIpAddress() + ":" + masterServerPort;
             String masterPath = GlobalConstants.MASTER_GROUP + "/" + activeMaster;
             LOG.info("active master is " + activeMaster);
             CuratorHelper.createNodeIfNotExist(client, masterPath, CreateMode.PERSISTENT, null);
-            init(GlobalConstants.WORKER_GROUP, prop);
+            
+            server.blockUntilShutdown();
         }
     }
 
@@ -152,7 +162,6 @@ public class MasterManager {
                 GlobalConstants.ZOOKEEPER_SESSION_TIMEOUT);
         int connectionTimeout = Configuration.getInt(prop, "thales.zookeeper.connectionTimeout",
                 GlobalConstants.ZOOKEEPER_CONNECTION_TIMEOUT);
-        int masterServerPort = Configuration.getInt(prop, "thales.master.server.port", DEFAULT_MASTER_SERVER_PORT);
         CuratorFramework client = CuratorHelper.getCuratorClient(quorum, sessionTimeout, connectionTimeout);
         List<String> list = CuratorHelper.getChildren(client, GlobalConstants.WORKER_GROUP);
         if (list != null && list.size() > 0) {
@@ -166,10 +175,8 @@ public class MasterManager {
         WorkerGroupRequest param = new WorkerGroupRequest();
         param.setStatus(WorkerStatus.REMOVED);
         WorkerManager.updateWorkersStatus(param);
-        // 标识以前的任务状态为失败
-        JobManager.markStatus();
-        // 加载任务实例状态，比较耗时
-        restoreTaskState();
+//      标识以前的任务状态为失败
+//         JobManager.markStatus();
         // 调度所有任务
         JobScheduler.startJobs();
         // 启动master服务
@@ -177,15 +184,13 @@ public class MasterManager {
         jettyServer.startJettyServer();
         // 启动任务状态检查线程
         JobChecker.start();
+        // 恢复任务状态，比较耗时
+        restoreTaskState();
         // 初始化每台机器运行的任务个数,供监控使用
         initTaskCount();
         // 启动jmx服务
         agent = new MasterJmxServer(Configuration.getInt(prop, "thales.master.jmx.port", DEFAULT_JMX_PORT));
         agent.start();
-        // 启动master rpc服务
-        server = new MasterRpcServer(masterServerPort);
-        server.start();
-        server.blockUntilShutdown();
     }
 
     private void initGroup(String groupPath) throws Exception {
@@ -210,21 +215,29 @@ public class MasterManager {
     }
 
     /**
-     * 目前任务状态都保存在mysql中，master在启动的时候需要从mysql中恢复任务状态
+     * 目前任务状态都保存在mysql中，master在启动的时候需要从mysql中恢复任务状态, 对于非最终状态和非running状态的任务需要再次提交。
      * 
      * @throws Exception
      */
     private void restoreTaskState() throws Exception {
         JobInstanceResponseRpc responseRpc = null;
+        SchedulerService schedulerService = new SchedulerService();
         List<JobInstanceStateResponse> list = JobManager.getAllJobStatus();
         if (list != null && list.size() > 0) {
             for (JobInstanceStateResponse response : list) {
-                String responseId = response.getJobId() + "-"
-                        + DateUtils.getDateAsString(response.getScheduleTime(), DateUtils.MINUTE_TIME_FORMAT);
-                responseRpc = JobInstanceResponseRpc.newBuilder().setId(response.getId()).setResponseId(responseId)
-                        .setTaskState(response.getTaskState()).build();
-                JobChecker.addResponse(responseRpc);
+                if(response.getTaskState() == TaskState.SUBMIT.getCode() || response.getTaskState() == TaskState.SCHEDULED.getCode()
+                        || response.getTaskState() == TaskState.WAITING_DEPENDENCY.getCode() || response.getTaskState() == TaskState.QUEUED.getCode()
+                        || response.getTaskState() == TaskState.WAITING_RESOURCE.getCode()) {
+                    schedulerService.rerun(response.getId());
+                }else {
+                    String responseId = response.getJobId() + "-"
+                            + DateUtils.getDateAsString(response.getScheduleTime(), DateUtils.MINUTE_TIME_FORMAT);
+                    responseRpc = JobInstanceResponseRpc.newBuilder().setId(response.getId()).setResponseId(responseId)
+                            .setTaskState(response.getTaskState()).build();
+                    JobChecker.addResponse(responseRpc);
+                }
             }
+            
         }
     }
 

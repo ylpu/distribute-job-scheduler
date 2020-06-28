@@ -43,7 +43,7 @@ CREATE TABLE `t_thales_scheduler_job_instance` (
   `worker` varchar(50) DEFAULT NULL COMMENT '任务执行节点',
   `creator_name` varchar(50) DEFAULT NULL COMMENT '任务触发人',
   `creator_email` varchar(50) DEFAULT NULL COMMENT '任务触发人邮件',
-  `retry_times` tinyint(4) DEFAULT NULL COMMENT '重试次数',
+  `retry_times` int DEFAULT NULL COMMENT '重试次数',
   `pid` int(11) DEFAULT NULL COMMENT '任务进程id',
   `applicationId` varchar(50) DEFAULT NULL COMMENT 'yarn任务应用id',
   `schedule_time` datetime DEFAULT NULL COMMENT '任务预计开始时间，比如任务预计10点执行，但由于quartz调度器非常繁忙，有可能10点01分才开始执行',

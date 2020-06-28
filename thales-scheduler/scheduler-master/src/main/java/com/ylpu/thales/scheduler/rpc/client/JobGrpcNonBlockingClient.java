@@ -84,12 +84,13 @@ public class JobGrpcNonBlockingClient extends AbstractJobGrpcClient {
             public void onSuccess(JobInstanceResponseRpc result) {
                 LOG.info("task " + requestRpc.getRequestId() + " execute successful");
                 try {
-                    if(result.getErrorCode() == 200) {
-                        transitTaskStatus(requestRpc, TaskState.SUCCESS.getCode());
-                    }else {
-                        transitTaskStatus(requestRpc, TaskState.FAIL.getCode());
-                    }
                     JobChecker.addResponse(result);
+                    if(result.getErrorCode() == 500) {
+                        transitTaskStatus(requestRpc, TaskState.FAIL.getCode());
+                        rerunIfNeeded(requestRpc);
+                    }else {
+                        transitTaskStatus(requestRpc, TaskState.SUCCESS.getCode());
+                    }
                 } catch (Exception e) {
                     LOG.error("failed to update task " + requestRpc.getId() +  " status to successful after callback",e);
                 }finally {
@@ -98,7 +99,7 @@ public class JobGrpcNonBlockingClient extends AbstractJobGrpcClient {
                 }
                 shutdown();
             }
-
+            //worker网络异常或其它未知异常
             @Override
             public void onFailure(Throwable t) {
                 LOG.error("failed to execute task " + requestRpc.getRequestId(),t);

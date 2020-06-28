@@ -28,7 +28,7 @@ function stop(){
      then
       echo "master已经停止"
      else
-       kill -9 $pid
+       kill -15 $pid
        echo "master停止"
     fi
 }

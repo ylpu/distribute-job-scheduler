@@ -20,7 +20,7 @@ public class SchedulerWorkerResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public void downWorker(WorkerRequest request) throws Exception {
-        String command = "ps -ef | grep WorkerServer | grep -v grep | awk '{print $2}'|xargs kill -9";
+        String command = "ps -ef | grep WorkerServer | grep -v grep | awk '{print $2}'|xargs kill -15";
         int returnCode = SSHUtils.executeCommand(request.getHost(), null, null, command);
         if(returnCode != 0) {
             String errorMsg = "failed to kill worker " + request.getHost() + ";" + request.getPort();

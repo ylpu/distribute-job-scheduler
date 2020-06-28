@@ -170,7 +170,7 @@ public class JobScheduler {
             sched.start();
         } catch (Exception e) {
             LOG.error(e);
-            throw new RuntimeException(e);
+            System.exit(1);
         }
     }
 
@@ -185,7 +185,6 @@ public class JobScheduler {
             }
         } catch (Exception e) {
             LOG.error(e);
-            throw new RuntimeException(e);
         }
     }
 }

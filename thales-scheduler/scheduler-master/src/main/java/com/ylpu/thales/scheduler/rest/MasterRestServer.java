@@ -19,11 +19,14 @@ public class MasterRestServer {
 
     private static Log LOG = LogFactory.getLog(MasterRestServer.class);
 
-    private static int JETTY_SERVER_PORT = 9090;
+    private static int MASTER_SERVICE_PORT = 9090;
 
     private Properties prop;
 
     Server server = null;
+    
+    public MasterRestServer() {
+    }
 
     public MasterRestServer(Properties prop) {
         this.prop = prop;
@@ -33,7 +36,7 @@ public class MasterRestServer {
 
         Runtime.getRuntime().addShutdownHook(new ShutdownHookThread());
 
-        int jettyServerPort = Configuration.getInt(prop, "thales.master.service.port", JETTY_SERVER_PORT);
+        int jettyServerPort = Configuration.getInt(prop, "thales.master.service.port", MASTER_SERVICE_PORT);
 
         server = new Server(jettyServerPort);
 
@@ -68,7 +71,7 @@ public class MasterRestServer {
             server.start();
         } catch (Exception e) {
             LOG.error(e);
-            throw e;
+            System.exit(1);
         }
     }
 
