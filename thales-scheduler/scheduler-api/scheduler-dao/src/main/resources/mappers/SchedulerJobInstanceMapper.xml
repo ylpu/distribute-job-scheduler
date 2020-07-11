@@ -83,7 +83,7 @@
            and job.job_name like concat(concat('%',#{jobName}),'%')
       </if>
       <if test="userName != null and userName != ''">
-           and job.owner_ids = #{userName} or job.owner_ids like concat(#{userName},',%') or job.owner_ids like concat('%,',#{userName}) or job.owner_ids like concat(concat('%,',#{userName}),',%')
+           and (job.owner_ids = #{userName} or job.owner_ids like concat(#{userName},',%') or job.owner_ids like concat('%,',#{userName}) or job.owner_ids like concat(concat('%,',#{userName}),',%'))
       </if>
    </select>
 
@@ -96,7 +96,7 @@
                 and instance.task_state = #{taskState}
             </if>
             <if test="userName != null and userName != ''">
-                and job.owner_ids = #{userName} or job.owner_ids like concat(#{userName},',%') or job.owner_ids like concat('%,',#{userName}) or job.owner_ids like concat(concat('%,',#{userName}),',%')
+                and (job.owner_ids = #{userName} or job.owner_ids like concat(#{userName},',%') or job.owner_ids like concat('%,',#{userName}) or job.owner_ids like concat(concat('%,',#{userName}),',%'))
             </if>
             <if test="jobName != null and jobName != ''">	
                 and job.job_name like concat(concat('%',#{jobName}),'%')

@@ -68,7 +68,7 @@
                 and job.job_name like concat(concat('%',#{jobName}),'%')
             </if>
             <if test="userName != null and userName != ''">
-                and job.owner_ids = #{userName} or job.owner_ids like concat(#{userName},',%') or job.owner_ids like concat('%,',#{userName}) or job.owner_ids like concat(concat('%,',#{userName}),',%')
+                and (job.owner_ids = #{userName} or job.owner_ids like concat(#{userName},',%') or job.owner_ids like concat('%,',#{userName}) or job.owner_ids like concat(concat('%,',#{userName}),',%'))
             </if>
         ORDER BY job.create_time DESC
     </select>
@@ -84,7 +84,7 @@
              and job_name like concat(concat('%',#{jobName}),'%')
         </if>
         <if test="userName != null and userName != ''">
-           and owner_ids = #{userName} or owner_ids like concat(#{userName},',%') or owner_ids like concat('%,',#{userName}) or owner_ids like concat(concat('%,',#{userName}),',%')
+           and (owner_ids = #{userName} or owner_ids like concat(#{userName},',%') or owner_ids like concat('%,',#{userName}) or owner_ids like concat(concat('%,',#{userName}),',%'))
         </if>
     </select> 
     
