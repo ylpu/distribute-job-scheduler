@@ -56,6 +56,8 @@ public class JobSubmission {
     
     private static Map<String,PriorityBlockingQueue<TaskCall>> workerGroupQueue = new ConcurrentHashMap<String,PriorityBlockingQueue<TaskCall>>();
     
+    private static Map<String, Boolean> waitingResourceMap = new ConcurrentHashMap<String, Boolean>();
+    
     private static AsyncEventBus eventBus = new AsyncEventBus(Executors.newFixedThreadPool(1));
         
     public static Map<String, PriorityBlockingQueue<TaskCall>> getGroupQueue() {
@@ -64,6 +66,11 @@ public class JobSubmission {
     
     public static PriorityBlockingQueue<TaskCall> getGroupQueue(String groupName) {
         return workerGroupQueue.get(groupName);
+    }
+    
+
+    public static Map<String, Boolean> getWaitingResourceMap() {
+        return waitingResourceMap;
     }
 
     static {
@@ -126,6 +133,7 @@ public class JobSubmission {
         String workerGroupName = taskCall.getRpcRequest().getJob().getWorkerGroupname();
         PriorityBlockingQueue<TaskCall> taskQueue = workerGroupQueue.get(workerGroupName);
         if(taskQueue == null) {
+            waitingResourceMap.put(workerGroupName, true);
             workerGroupQueue.put(workerGroupName, new PriorityBlockingQueue<TaskCall>());
             workerGroupQueue.get(workerGroupName).add(taskCall);
             taskEs.submit(new TaskWaitingThread(workerGroupQueue.get(workerGroupName)));
@@ -149,12 +157,14 @@ public class JobSubmission {
                     AbstractJobGrpcClient client = null;
                     try {
                         WorkerResponse worker = getAvailableWorker(taskCall.getRpcRequest());
-                        try {
-                            client = getClient(worker,taskCall.getGrpcType());
-                            client.submitJob(taskCall.getRpcRequest());
-                        } catch (Exception e) {
-                            LOG.error(e);
-                            processException(taskCall.getRpcRequest());
+                        if(worker != null) {
+                            try {
+                                client = getClient(worker,taskCall.getGrpcType());
+                                client.submitJob(taskCall.getRpcRequest());
+                            } catch (Exception e) {
+                                LOG.error(e);
+                                processException(taskCall.getRpcRequest());
+                            }
                         }
                     } catch(Exception e) {
                         LOG.error(e);
@@ -174,7 +184,7 @@ public class JobSubmission {
         private WorkerResponse getAvailableWorker(JobInstanceRequestRpc rpcRequest) {
             WorkerResponse worker = null;
             int i = 1;
-            while (true) {
+            while (waitingResourceMap.get(rpcRequest.getJob().getWorkerGroupname())) {
                 try {
                     worker = MasterManager.getInstance().getIdleWorker(rpcRequest.getJob().getWorkerGroupname(), "");
                     return worker;
@@ -193,6 +203,8 @@ public class JobSubmission {
                 }
                 i++;
             }
+            JobSubmission.getWaitingResourceMap().put(rpcRequest.getJob().getWorkerGroupname(), true);
+            return null;
         }
         
         private void transitTaskStatusToWaitingResource(JobInstanceRequestRpc requestRpc) {

@@ -3,6 +3,7 @@ package com.ylpu.thales.scheduler;
 import com.ylpu.thales.scheduler.core.config.Configuration;
 import com.ylpu.thales.scheduler.core.constants.GlobalConstants;
 import com.ylpu.thales.scheduler.core.curator.CuratorHelper;
+import com.ylpu.thales.scheduler.core.rest.WorkerManager;
 import com.ylpu.thales.scheduler.core.rpc.entity.WorkerRequestRpc;
 import com.ylpu.thales.scheduler.core.utils.ByteUtils;
 import com.ylpu.thales.scheduler.core.utils.MetricsUtils;
@@ -10,6 +11,7 @@ import com.ylpu.thales.scheduler.enums.NodeType;
 import com.ylpu.thales.scheduler.enums.WorkerStatus;
 import com.ylpu.thales.scheduler.log.LogServer;
 import com.ylpu.thales.scheduler.request.WorkerRequest;
+import com.ylpu.thales.scheduler.response.GroupStrategyResponse;
 import com.ylpu.thales.scheduler.rpc.client.WorkerGrpcClient;
 import com.ylpu.thales.scheduler.rpc.server.WorkerRpcServer;
 import org.I0Itec.zkclient.ZkClient;
@@ -45,63 +47,37 @@ public class WorkerServer {
         long heartBeatInterval = Configuration.getLong(prop, "thales.worker.heartbeat.interval",
                 WORKER_HEARTBEAT_INTERVAL);
         try {
-            Runtime.getRuntime().addShutdownHook(new ShutDownHookThread());
-            // 注册自己到zk
-            String quorum = prop.getProperty("thales.zookeeper.quorum");
-            int sessionTimeout = Configuration.getInt(prop, "thales.zookeeper.sessionTimeout",
-                    GlobalConstants.ZOOKEEPER_SESSION_TIMEOUT);
-            int connectionTimeout = Configuration.getInt(prop, "thales.zookeeper.connectionTimeout",
-                    GlobalConstants.ZOOKEEPER_CONNECTION_TIMEOUT);
             String workerGroup = Configuration.getString(prop, "thales.worker.group", DEFAULT_WORKER_GROUP);
-            String workerPath = regist(quorum,sessionTimeout,connectionTimeout,workerGroup);
-            // 启动心跳线程
-            WorkerHeartBeatThread heartBeatThread = new WorkerHeartBeatThread(workerPath, workerServerPort,
-                    heartBeatInterval);
-            heartBeatThread.setDaemon(true);
-            heartBeatThread.start();
-            // 启动日志服务
-            logServer = new LogServer(prop);
-            logServer.startLogServer();
-            // 启动rpc服务
-            rpcServer = new WorkerRpcServer(workerServerPort);
-            rpcServer.startServer();
-            rpcServer.blockUntilShutdown();
+            if(isValidateGroup(workerGroup)) {
+                Runtime.getRuntime().addShutdownHook(new ShutDownHookThread());
+                // 注册自己到zk
+                String quorum = prop.getProperty("thales.zookeeper.quorum");
+                int sessionTimeout = Configuration.getInt(prop, "thales.zookeeper.sessionTimeout",
+                        GlobalConstants.ZOOKEEPER_SESSION_TIMEOUT);
+                int connectionTimeout = Configuration.getInt(prop, "thales.zookeeper.connectionTimeout",
+                        GlobalConstants.ZOOKEEPER_CONNECTION_TIMEOUT);
+                String workerPath = regist(quorum,sessionTimeout,connectionTimeout,workerGroup);
+                // 启动心跳线程
+                WorkerHeartBeatThread heartBeatThread = new WorkerHeartBeatThread(workerPath, workerServerPort,
+                        heartBeatInterval);
+                heartBeatThread.setDaemon(true);
+                heartBeatThread.start();
+                // 启动日志服务
+                logServer = new LogServer(prop);
+                logServer.startLogServer();
+                // 启动rpc服务
+                rpcServer = new WorkerRpcServer(workerServerPort);
+                rpcServer.startServer();
+                rpcServer.blockUntilShutdown();
+            }
         } catch (Exception e) {
             LOG.error(e);
             System.exit(1);
         }
     }
 
-    private class ShutDownHookThread extends Thread {
-        @Override
-        public void run() {
-            if (logServer != null) {
-                LOG.warn("*** shutting down log server since JVM is shutting down");
-                logServer.stop();
-                LOG.warn("*** log server shut down");
-            }
-            if (rpcServer != null) {
-                LOG.warn("*** shutting down gRPC server since JVM is shutting down");
-                rpcServer.shutdownNow();
-                LOG.warn("*** rpc server shut down");
-            }
-            if (zkClient != null) {
-                LOG.warn("*** close zkClient since JVM is shutting down");
-                zkClient.close();
-                LOG.warn("*** close zkclient");
-            }
-            LOG.warn("*** stop heartbeat since JVM is shutting down");
-            stopHeartBeat();
-        }
-    }
-
-    public static void main(String[] args) {
-        WorkerServer jobExecutorServer = new WorkerServer();
-        jobExecutorServer.start();
-    }
 
     private String regist(String quorum, int sessionTimeout, int connectionTimeout,String workerGroup) throws Exception {
-
 
         CuratorFramework client = CuratorHelper.getCuratorClient(quorum, sessionTimeout, connectionTimeout);
         CuratorHelper.createNodeIfNotExist(client, GlobalConstants.ROOT_GROUP, CreateMode.PERSISTENT, null);
@@ -138,6 +114,14 @@ public class WorkerServer {
         if (stop == false) {
             stop = true;
         }
+    }
+    
+    private boolean isValidateGroup(String groupName) throws Exception {
+        GroupStrategyResponse groupStrategy = WorkerManager.getGroupStrategy(groupName);
+        if(groupStrategy == null) {
+            return false;
+        }
+        return true;
     }
 
     private static class WorkerHeartBeatThread extends Thread {
@@ -195,5 +179,33 @@ public class WorkerServer {
                 }
             }
         }
+    }
+    
+    private class ShutDownHookThread extends Thread {
+        @Override
+        public void run() {
+            if (logServer != null) {
+                LOG.warn("*** shutting down log server since JVM is shutting down");
+                logServer.stop();
+                LOG.warn("*** log server shut down");
+            }
+            if (rpcServer != null) {
+                LOG.warn("*** shutting down gRPC server since JVM is shutting down");
+                rpcServer.shutdownNow();
+                LOG.warn("*** rpc server shut down");
+            }
+            if (zkClient != null) {
+                LOG.warn("*** close zkClient since JVM is shutting down");
+                zkClient.close();
+                LOG.warn("*** close zkclient");
+            }
+            LOG.warn("*** stop heartbeat since JVM is shutting down");
+            stopHeartBeat();
+        }
+    }
+    
+    public static void main(String[] args) {
+        WorkerServer jobExecutorServer = new WorkerServer();
+        jobExecutorServer.start();
     }
 }

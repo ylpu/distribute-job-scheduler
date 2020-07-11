@@ -26,7 +26,6 @@ import com.ylpu.thales.scheduler.strategy.JobStrategy;
 import com.ylpu.thales.scheduler.strategy.ResourceStrategy;
 import com.ylpu.thales.scheduler.strategy.ResourceStrategyContext;
 import com.ylpu.thales.scheduler.strategy.WorkerSelectStrategy;
-
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -37,7 +36,6 @@ import org.apache.curator.framework.recipes.leader.LeaderSelector;
 import org.apache.curator.framework.recipes.leader.LeaderSelectorListenerAdapter;
 import org.apache.zookeeper.CreateMode;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 import org.apache.curator.framework.recipes.cache.*;
 
 public class MasterManager {
@@ -50,7 +48,7 @@ public class MasterManager {
     public static final int DEFAULT_JMX_PORT = 9095;
 
     // key is worker group path,value is server list
-    private Map<String, List<String>> groups = new ConcurrentHashMap<String, List<String>>();
+    private Map<String, List<String>> groups = new HashMap<String, List<String>>();
 
     // key is hostname,value is host info
     private Map<String, WorkerResponse> resourceMap = new HashMap<String, WorkerResponse>();
@@ -283,18 +281,20 @@ public class MasterManager {
 
     public void insertOrUpdateGroup(String groupName) throws Exception {
         String groupPath = GlobalConstants.WORKER_GROUP + "/" + groupName;
-        if (groups.get(groupPath) == null) {
-            Properties prop = Configuration.getConfig();
-            String quorum = prop.getProperty("thales.zookeeper.quorum");
-            int sessionTimeout = Configuration.getInt(prop, "thales.zookeeper.sessionTimeout",
-                    GlobalConstants.ZOOKEEPER_SESSION_TIMEOUT);
-            int connectionTimeout = Configuration.getInt(prop, "thales.zookeeper.connectionTimeout",
-                    GlobalConstants.ZOOKEEPER_CONNECTION_TIMEOUT);
-            CuratorFramework client = CuratorHelper.getCuratorClient(quorum, sessionTimeout, connectionTimeout);
+        synchronized(groups) {
+            if (groups.get(groupPath) == null) {
+                Properties prop = Configuration.getConfig();
+                String quorum = prop.getProperty("thales.zookeeper.quorum");
+                int sessionTimeout = Configuration.getInt(prop, "thales.zookeeper.sessionTimeout",
+                        GlobalConstants.ZOOKEEPER_SESSION_TIMEOUT);
+                int connectionTimeout = Configuration.getInt(prop, "thales.zookeeper.connectionTimeout",
+                        GlobalConstants.ZOOKEEPER_CONNECTION_TIMEOUT);
+                CuratorFramework client = CuratorHelper.getCuratorClient(quorum, sessionTimeout, connectionTimeout);
 
-            CuratorHelper.createNodeIfNotExist(client, groupPath, CreateMode.PERSISTENT, null);
-            groups.put(groupPath, new ArrayList<String>());
-            addNodeChangeListener(client, groupPath);
+                CuratorHelper.createNodeIfNotExist(client, groupPath, CreateMode.PERSISTENT, null);
+                groups.put(groupPath, new ArrayList<String>());
+                addNodeChangeListener(client, groupPath);
+            } 
         }
     }
 
@@ -372,10 +372,10 @@ public class MasterManager {
      * @param input
      * @param lastFailedHosts
      * @return
+     * @throws Exception 
      */
-    public synchronized WorkerResponse getIdleWorker(String groupName, String... lastFailedWorkers) {
-        String workerStrategy = Configuration.getString(Configuration.getConfig(GlobalConstants.CONFIG_FILE),
-                "thales.scheduler.worker.strategy", GlobalConstants.DEFAULT_WORKER_STRATEGY);
+    public synchronized WorkerResponse getIdleWorker(String groupName, String... lastFailedWorkers) throws Exception {
+        String workerStrategy = WorkerManager.getGroupStrategy(groupName).getGroupStrategy();
         WorkerSelectStrategy workerSelectStrategy = ResourceStrategy
                 .getStrategy(JobStrategy.getJobStrategyByName(workerStrategy));
         return new ResourceStrategyContext(workerSelectStrategy).select(this, groupName, lastFailedWorkers);

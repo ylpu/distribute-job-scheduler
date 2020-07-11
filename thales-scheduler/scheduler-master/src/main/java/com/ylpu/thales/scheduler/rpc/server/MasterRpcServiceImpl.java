@@ -4,10 +4,8 @@ import java.util.Properties;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import com.ylpu.thales.scheduler.core.config.Configuration;
 import com.ylpu.thales.scheduler.core.rest.JobManager;
-import com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc;
 import com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc;
 import com.ylpu.thales.scheduler.core.rpc.entity.JobStatusRequestRpc;
 import com.ylpu.thales.scheduler.core.rpc.entity.WorkerParameter;

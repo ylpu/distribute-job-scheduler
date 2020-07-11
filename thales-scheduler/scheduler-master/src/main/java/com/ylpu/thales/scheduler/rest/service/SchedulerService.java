@@ -113,9 +113,9 @@ public class SchedulerService {
             JobSubmission.getGroupQueue(request.getJob().getWorkerGroupname()).remove(new TaskCall(request));
                 
         }else if(jobInstanceResponse.getTaskState() == TaskState.WAITING_RESOURCE) {
-            JobChecker.getJobInstanceRequestMap().remove(responseId);
 //          cancel waiting
-//          JobSubmission.setNeed_waiting(false);
+            JobSubmission.getWaitingResourceMap().put(jobInstanceResponse.getJobConf().getWorkerGroupname(), false);
+            JobChecker.getJobInstanceRequestMap().remove(responseId);
         }
     }
     
