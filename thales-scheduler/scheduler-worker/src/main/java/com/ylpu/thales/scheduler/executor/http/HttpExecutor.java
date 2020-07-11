@@ -50,7 +50,7 @@ public class HttpExecutor extends AbstractCommonExecutor {
         String logOutPath = logPath + ".out";
         try {
             request.setLogPath(logOutPath);
-            request.setLogUrl("http://" + MetricsUtils.getHostIpAddress() + ":" + logServerPort + "/api/log/viewLog/"
+            request.setLogUrl("http://" + MetricsUtils.getHostName() + ":" + logServerPort + "/api/log/viewLog/"
                     + requestRpc.getId());
             request.setTaskState(TaskState.RUNNING.getCode());
 

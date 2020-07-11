@@ -89,34 +89,34 @@ public class MetricsUtils {
      * 
      * @return
      */
-//    public static String getHostName() {
-//        InetAddress addr;
-//        String hostName;
-//        try {
-//            addr = InetAddress.getLocalHost();
-//            hostName = addr.getHostName(); // 获得机器名称
-//        } catch (Exception e) {
-//            throw new RuntimeException("can not find host name");
-//        }
-//        return hostName;
-//    }
+    public static String getHostName() {
+        InetAddress addr;
+        String hostName;
+        try {
+            addr = InetAddress.getLocalHost();
+            hostName = addr.getHostName(); // 获得机器名称
+        } catch (Exception e) {
+            throw new RuntimeException("can not find host name");
+        }
+        return hostName;
+    }
 
     /**
      * 获取主机ip地址
      * 
      * @return
      */
-    public static String getHostIpAddress() {
-        InetAddress addr;
-        String ip;
-        try {
-            addr = InetAddress.getLocalHost();
-            ip = addr.getHostAddress(); // 获得机器IP
-        } catch (Exception e) {
-            throw new RuntimeException("can not find ip address");
-        }
-        return ip;
-    }
+//    public static String getHostIpAddress() {
+//        InetAddress addr;
+//        String ip;
+//        try {
+//            addr = InetAddress.getLocalHost();
+//            ip = addr.getHostAddress(); // 获得机器IP
+//        } catch (Exception e) {
+//            throw new RuntimeException("can not find ip address");
+//        }
+//        return ip;
+//    }
 
     public static void main(String[] args) {
     }

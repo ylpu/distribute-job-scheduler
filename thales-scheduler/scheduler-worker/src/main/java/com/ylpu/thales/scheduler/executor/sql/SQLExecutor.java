@@ -43,7 +43,7 @@ public class SQLExecutor extends AbstractCommonExecutor {
                 + DateUtils.getDateAsString(request.getStartTime(), DateUtils.TIME_FORMAT);
         String logOutPath = logPath + ".out";
         request.setLogPath(logOutPath);
-        request.setLogUrl("http://" + MetricsUtils.getHostIpAddress() + ":" + logServerPort + "/api/log/viewLog/"
+        request.setLogUrl("http://" + MetricsUtils.getHostName() + ":" + logServerPort + "/api/log/viewLog/"
                 + requestRpc.getId());
         request.setTaskState(TaskState.RUNNING.getCode());
 

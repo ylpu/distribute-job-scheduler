@@ -61,7 +61,7 @@ public class MasterServer {
             String masterGroup = GlobalConstants.MASTER_GROUP;
             int masterServerPort = Configuration.getInt(prop, "thales.master.server.port",
                     MasterManager.DEFAULT_MASTER_SERVER_PORT);
-            String activeMaster = MetricsUtils.getHostIpAddress() + ":" + masterServerPort;
+            String activeMaster = MetricsUtils.getHostName() + ":" + masterServerPort;
 
             String quorum = prop.getProperty("thales.zookeeper.quorum");
             int sessionTimeout = Configuration.getInt(prop, "thales.zookeeper.sessionTimeout",

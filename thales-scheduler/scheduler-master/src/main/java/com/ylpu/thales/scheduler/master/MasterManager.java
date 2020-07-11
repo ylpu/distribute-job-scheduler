@@ -145,7 +145,7 @@ public class MasterManager {
             server.start();
             
             //当前节点竞选成为active节点
-            activeMaster = MetricsUtils.getHostIpAddress() + ":" + masterServerPort;
+            activeMaster = MetricsUtils.getHostName() + ":" + masterServerPort;
             String masterPath = GlobalConstants.MASTER_GROUP + "/" + activeMaster;
             LOG.info("active master is " + activeMaster);
             CuratorHelper.createNodeIfNotExist(client, masterPath, CreateMode.PERSISTENT, null);

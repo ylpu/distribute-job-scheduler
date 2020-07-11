@@ -85,8 +85,8 @@ public class WorkerServer {
 
         insertOrUpdateGroup(workerGroup);
 
-        String ipAddress = MetricsUtils.getHostIpAddress();
-        String workerPath = GlobalConstants.WORKER_GROUP + "/" + workerGroup + "/" + ipAddress;
+        String hostname = MetricsUtils.getHostName();
+        String workerPath = GlobalConstants.WORKER_GROUP + "/" + workerGroup + "/" + hostname;
         CuratorHelper.createNodeIfNotExist(client, workerPath, CreateMode.EPHEMERAL, null);
         return workerPath;
     }
@@ -157,7 +157,7 @@ public class WorkerServer {
                     }
                     client = CuratorHelper.getCuratorClient(quorum, sessionTimeout, connectionTimeout);
                     WorkerRequest workerRequest = new WorkerRequest();
-                    workerRequest.setHost(MetricsUtils.getHostIpAddress());
+                    workerRequest.setHost(MetricsUtils.getHostName());
                     workerRequest.setCpuUsage(MetricsUtils.getCpuUsage());
                     workerRequest.setMemoryUsage(MetricsUtils.getMemoryUsage());
                     workerRequest.setWorkerGroup(workerGroup);

@@ -24,7 +24,7 @@ public class JobMetricImpl implements IJobMetric {
             String master = CuratorHelper.getActiveMaster();
             if (StringUtils.isNoneBlank(master)) {
                 String[] hostAndPort = master.split(":");
-                WorkerParameter parameter = WorkerParameter.newBuilder().setHostname(MetricsUtils.getHostIpAddress())
+                WorkerParameter parameter = WorkerParameter.newBuilder().setHostname(MetricsUtils.getHostName())
                         .build();
                 client = new WorkerGrpcClient(hostAndPort[0], NumberUtils.toInt(hostAndPort[1]));
                 client.incTask(parameter);
@@ -48,7 +48,7 @@ public class JobMetricImpl implements IJobMetric {
             String master = CuratorHelper.getActiveMaster();
             if (StringUtils.isNoneBlank(master)) {
                 String[] hostAndPort = master.split(":");
-                WorkerParameter parameter = WorkerParameter.newBuilder().setHostname(MetricsUtils.getHostIpAddress())
+                WorkerParameter parameter = WorkerParameter.newBuilder().setHostname(MetricsUtils.getHostName())
                         .build();
                 client = new WorkerGrpcClient(hostAndPort[0], NumberUtils.toInt(hostAndPort[1]));
                 client.decTask(parameter);

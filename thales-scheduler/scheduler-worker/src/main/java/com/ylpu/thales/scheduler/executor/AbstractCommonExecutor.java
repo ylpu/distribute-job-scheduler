@@ -75,7 +75,7 @@ public abstract class AbstractCommonExecutor {
         String logPath = logDir + File.separator + requestRpc.getJob().getId() + "-" + request.getId() + "-"
                 + DateUtils.getDateAsString(request.getStartTime(), DateUtils.TIME_FORMAT);
         String logOutPath = logPath + ".out";
-        String logUrl = "http://" + MetricsUtils.getHostIpAddress() + ":" + logServerPort + "/api/log/viewLog/"
+        String logUrl = "http://" + MetricsUtils.getHostName() + ":" + logServerPort + "/api/log/viewLog/"
                 + requestRpc.getId();
         try {
             

@@ -262,7 +262,7 @@ public class WorkerRpcServiceImpl extends GrpcJobServiceGrpc.GrpcJobServiceImplB
         Properties prop = Configuration.getConfig();
         int wokerServerPort = Configuration.getInt(prop, "thales.worker.server.port",
                 WorkerServer.DEFAULT_WORKER_SERVER_PORT);
-        request.setWorker(MetricsUtils.getHostIpAddress() + ":" + wokerServerPort);
+        request.setWorker(MetricsUtils.getHostName() + ":" + wokerServerPort);
         request.setJobId(requestRpc.getJob().getId());
         request.setId(requestRpc.getId());
     }
