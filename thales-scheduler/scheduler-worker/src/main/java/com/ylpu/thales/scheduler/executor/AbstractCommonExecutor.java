@@ -19,6 +19,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Map.Entry;
 import org.apache.commons.lang.math.NumberUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -125,18 +126,15 @@ public abstract class AbstractCommonExecutor {
         while(true) {
             try {
                 master = CuratorHelper.getActiveMaster(); 
-                String[] hostAndPort = master.split(":");
-                client = new WorkerGrpcClient(hostAndPort[0], NumberUtils.toInt(hostAndPort[1]));
-                returnCode = client.updateJobStatus(request);
-                break;
+                if(StringUtils.isNoneBlank(master)) {
+                    String[] hostAndPort = master.split(":");
+                    client = new WorkerGrpcClient(hostAndPort[0], NumberUtils.toInt(hostAndPort[1]));
+                    returnCode = client.updateJobStatus(request);
+                    break;  
+                }
             }catch (Exception e) {
                 returnCode = 500;
                 LOG.error(e);
-                try {
-                    Thread.sleep(10000);
-                } catch (InterruptedException e1) {
-                    LOG.error(e1);
-                }
             }finally {
                 if (client != null) {
                     try {
@@ -145,6 +143,11 @@ public abstract class AbstractCommonExecutor {
                         LOG.error(e);
                     }
                 }
+            }
+            try {
+                Thread.sleep(10000);
+            } catch (InterruptedException e1) {
+                LOG.error(e1);
             }
         }
         return returnCode;

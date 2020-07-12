@@ -110,8 +110,10 @@ public class SchedulerService {
 
         }else if(jobInstanceResponse.getTaskState() == TaskState.QUEUED) {
             JobInstanceRequestRpc request = JobChecker.getJobInstanceRequestMap().remove(responseId);
-            JobSubmission.getGroupQueue(request.getJob().getWorkerGroupname()).remove(new TaskCall(request));
-                
+            if(request != null) {
+                JobSubmission.getGroupQueue(request.getJob().getWorkerGroupname()).remove(new TaskCall(request));
+            }
+            
         }else if(jobInstanceResponse.getTaskState() == TaskState.WAITING_RESOURCE) {
 //          cancel waiting
             JobSubmission.getWaitingResourceMap().put(jobInstanceResponse.getJobConf().getWorkerGroupname(), false);
@@ -267,7 +269,7 @@ public class SchedulerService {
                     || jobInstanceResponse.getTaskState() == TaskState.QUEUED
                     || jobInstanceResponse.getTaskState() == TaskState.WAITING_RESOURCE
                     || jobInstanceResponse.getTaskState() == TaskState.RUNNING) {
-                LOG.warn("job " + id +  " has already running,will clean the existing job");
+                LOG.warn("job " + id +  " has already exist,will clean it at first");
                 cleanExistingTask(jobInstanceResponse,responseId);
             } 
             JobInstanceRequest request = new JobInstanceRequest();

@@ -83,21 +83,13 @@ public class JobGrpcNonBlockingClient extends AbstractJobGrpcClient {
             @Override
             public void onSuccess(JobInstanceResponseRpc result) {
                 LOG.info("task " + requestRpc.getRequestId() + " execute successful");
-                try {
-                    JobChecker.addResponse(result);
-                    if(result.getErrorCode() == 500) {
-                        transitTaskStatus(requestRpc, TaskState.FAIL.getCode());
-                        rerunIfNeeded(requestRpc);
-                    }else {
-                        transitTaskStatus(requestRpc, TaskState.SUCCESS.getCode());
-                    }
-                } catch (Exception e) {
-                    LOG.error("failed to update task " + requestRpc.getId() +  " status to successful after callback",e);
-                }finally {
-                    //remove request after execute successful
-                    JobChecker.getJobInstanceRequestMap().remove(requestRpc.getRequestId()); 
-                }
+                JobChecker.addResponse(result);
+                //remove request after execute successful
+                JobChecker.getJobInstanceRequestMap().remove(requestRpc.getRequestId()); 
                 shutdown();
+                if(result.getErrorCode() == 500) {
+                    rerunIfNeeded(requestRpc);
+                }
             }
             //worker网络异常或其它未知异常
             @Override

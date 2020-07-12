@@ -71,8 +71,11 @@ public class MasterServer {
             CuratorFramework client = null;
             try {
                 LOG.info("remove master path " + masterGroup + "/" + activeMaster + " when shutdown");
+                String masterPath = masterGroup + "/" + activeMaster;
                 client = CuratorHelper.getCuratorClient(quorum, sessionTimeout, connectionTimeout);
-                CuratorHelper.delete(client, masterGroup + "/" + activeMaster);
+                if(CuratorHelper.nodeExist(client, masterPath)) {
+                    CuratorHelper.delete(client, masterPath);
+                }
             } catch (Exception e) {
                 LOG.error(e);
             } finally {

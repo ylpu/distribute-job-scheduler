@@ -78,14 +78,22 @@ public class WorkerRpcServiceImpl extends GrpcJobServiceGrpc.GrpcJobServiceImplB
             executor.preExecute();
             executor.execute();
             executor.postExecute();
+            transitTaskStatus(request,TaskState.SUCCESS);
             // set task response status
             builder.setTaskState(TaskState.SUCCESS.getCode()).setErrorCode(200).setErrorMsg("");
+            // job status when master failover
             jobStatusRequestRpc = buildJobStatusRequestRpc(requestRpc, TaskState.SUCCESS,
                     request);
             // decrease task number
             jobMetric.decreaseTask();
         } catch (Exception e) {
             LOG.error(e);
+            try {
+                transitTaskStatus(request,TaskState.FAIL);
+            } catch (Exception e1) {
+                LOG.error(e1);
+                throw new RuntimeException(e1);
+            }
             builder.setTaskState(TaskState.FAIL.getCode()).setErrorCode(500).setErrorMsg("failed to run task" + requestRpc.getId());
             jobStatusRequestRpc = buildJobStatusRequestRpc(requestRpc, TaskState.FAIL,
                     request);
@@ -100,8 +108,6 @@ public class WorkerRpcServiceImpl extends GrpcJobServiceGrpc.GrpcJobServiceImplB
         }
     }
     
-
-
     private void setAlertEvent(Event event, JobRequestRpc requestRpc, JobInstanceRequest request) {
         event.setTaskId(requestRpc.getId());
         event.setAlertType(AlertType.getAlertType(requestRpc.getAlertTypes()));
@@ -134,10 +140,10 @@ public class WorkerRpcServiceImpl extends GrpcJobServiceGrpc.GrpcJobServiceImplB
                 Thread.sleep(1000);
                 i++;
             }
+            transitTaskStatus(request,TaskState.KILL);
             FileUtils.writeFile("sucessful kill job " + requestRpc.getId(), requestRpc.getLogPath());
-            
             builder.setTaskState(TaskState.KILL.getCode()).setErrorCode(200).setErrorMsg("");
-            
+            // job status when master failover
             jobStatusRequestRpc = buildJobStatusRequestRpc(requestRpc, TaskState.KILL,
                     request);
             // decrease task number
@@ -153,23 +159,11 @@ public class WorkerRpcServiceImpl extends GrpcJobServiceGrpc.GrpcJobServiceImplB
         }
     }
     
-    private void processResponse(StreamObserver<JobInstanceResponseRpc> responseObserver,
-            JobInstanceResponseRpc.Builder builder,JobStatusRequestRpc jobStatusRequestRpc,String oldMaster) {
-        String currentMaster = "";
-        try {
-            currentMaster = CuratorHelper.getActiveMaster();
-        } catch (Exception e) {
-            LOG.error(e);
-        }
-        //master未发生切换
-        if(currentMaster.equalsIgnoreCase(oldMaster)) {
-            responseObserver.onNext(builder.build());
-            responseObserver.onCompleted();
-        }
-        //master发生了切换，重建rpc连接并更新状态
-        else {
-            jobStatusUpdate(jobStatusRequestRpc,currentMaster);
-        }
+    public void transitTaskStatus(JobInstanceRequest request, TaskState taskState) throws Exception {
+        request.setEndTime(new Date());
+        request.setElapseTime(DateUtils.getElapseTime(request.getStartTime(), request.getEndTime()));
+        request.setTaskState(taskState.getCode());
+        JobManager.updateJobInstanceSelective(request);
     }
     
     public JobStatusRequestRpc buildJobStatusRequestRpc(JobInstanceRequestRpc requestRpc, TaskState taskState, JobInstanceRequest request) {
@@ -182,33 +176,49 @@ public class WorkerRpcServiceImpl extends GrpcJobServiceGrpc.GrpcJobServiceImplB
         return builder.build();
     }
     
-    public void jobStatusUpdate(JobStatusRequestRpc request,String currentMaster) {
-        WorkerGrpcClient client = null;
-        //master还在切换中，等待master切换完成
-        if(StringUtils.isBlank(currentMaster)) {
-            LOG.warn("waiting for node " + currentMaster + " become new master");
-            waitForMasterSwitch(client,currentMaster,request);
-        }else {
-            LOG.warn("update task status to new master " +  currentMaster);
-            submitToCurrentMaster(client,currentMaster,request);
+    private void processResponse(StreamObserver<JobInstanceResponseRpc> responseObserver,
+            JobInstanceResponseRpc.Builder builder,JobStatusRequestRpc jobStatusRequestRpc,String oldMaster) {
+        String currentMaster = "";
+        try {
+            currentMaster = CuratorHelper.getActiveMaster();
+        } catch (Exception e) {
+            LOG.error(e);
+        }
+        //master does not failover
+        if(currentMaster.equalsIgnoreCase(oldMaster)) {
+            responseObserver.onNext(builder.build());
+            responseObserver.onCompleted();
+        }
+        //master failover，rebuild rpc and update job status
+        else {
+            updateJobStatus(jobStatusRequestRpc,currentMaster);
         }
     }
     
-    private void waitForMasterSwitch(WorkerGrpcClient client,String currentMaster, JobStatusRequestRpc request) {
+    public void updateJobStatus(JobStatusRequestRpc request,String currentMaster) {
+        //master还在切换中，等待master切换完成
+        if(StringUtils.isBlank(currentMaster)) {
+            LOG.warn("waiting for node " + currentMaster + " become new master");
+            tryToUpdateJobStatus(request);
+        }else {
+            LOG.warn("update task status to new master " +  currentMaster);
+            tryToUpdateJobStatus(request,currentMaster);
+        }
+    }
+    
+    private void tryToUpdateJobStatus(JobStatusRequestRpc request) {
+        WorkerGrpcClient client = null;
         while(true) {
             try {
-                currentMaster = CuratorHelper.getActiveMaster(); 
-                String[] hostAndPort = currentMaster.split(":");
-                client = new WorkerGrpcClient(hostAndPort[0], NumberUtils.toInt(hostAndPort[1]));
-                client.updateJobStatus(request);
-                break;
+                String currentMaster = CuratorHelper.getActiveMaster(); 
+                if(StringUtils.isNotBlank(currentMaster)) {
+                    String[] hostAndPort = currentMaster.split(":");
+                    client = new WorkerGrpcClient(hostAndPort[0], NumberUtils.toInt(hostAndPort[1]));
+                    client.updateJobStatus(request);
+                    break;
+                }
             }catch (Exception e) {
                 LOG.error(e);
-                try {
-                    Thread.sleep(MASTER_SWITCH_WAIT_INTERVAL);
-                } catch (InterruptedException e1) {
-                    LOG.error(e1);
-                }
             }finally {
                 if (client != null) {
                     try {
@@ -218,10 +228,16 @@ public class WorkerRpcServiceImpl extends GrpcJobServiceGrpc.GrpcJobServiceImplB
                     }
                 }
             }
+            try {
+                Thread.sleep(MASTER_SWITCH_WAIT_INTERVAL);
+            } catch (InterruptedException e1) {
+                LOG.error(e1);
+            }
         }
     }
     
-    private void submitToCurrentMaster(WorkerGrpcClient client,String currentMaster, JobStatusRequestRpc request) {
+    private void tryToUpdateJobStatus(JobStatusRequestRpc request, String currentMaster) {
+        WorkerGrpcClient client = null;
         try {
             String[] hostAndPort = currentMaster.split(":");
             client = new WorkerGrpcClient(hostAndPort[0], NumberUtils.toInt(hostAndPort[1]));

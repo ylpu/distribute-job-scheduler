@@ -170,20 +170,18 @@ public class MasterManager {
             }
         }
         //设置所有的worker为removed
-        WorkerGroupRequest param = new WorkerGroupRequest();
-        param.setStatus(WorkerStatus.REMOVED);
-        WorkerManager.updateWorkersStatus(param);
-//      标识以前的任务状态为失败
-//         JobManager.markStatus();
-        // 调度所有任务
-        JobScheduler.startJobs();
-        // 启动master服务
-        jettyServer = new MasterRestServer(prop);
-        jettyServer.startJettyServer();
+//        WorkerGroupRequest param = new WorkerGroupRequest();
+//        param.setStatus(WorkerStatus.REMOVED);
+//        WorkerManager.updateWorkersStatus(param);
         // 启动任务状态检查线程
         JobChecker.start();
         // 恢复任务状态，比较耗时
         restoreTaskState();
+        // 启动master服务
+        jettyServer = new MasterRestServer(prop);
+        jettyServer.startJettyServer();
+        // 调度所有任务
+        JobScheduler.startJobs();
         // 初始化每台机器运行的任务个数,供监控使用
         initTaskCount();
         // 启动jmx服务
@@ -217,25 +215,30 @@ public class MasterManager {
      * 
      * @throws Exception
      */
-    private void restoreTaskState() throws Exception {
-        JobInstanceResponseRpc responseRpc = null;
-        SchedulerService schedulerService = new SchedulerService();
-        List<JobInstanceStateResponse> list = JobManager.getAllJobStatus();
-        if (list != null && list.size() > 0) {
-            for (JobInstanceStateResponse response : list) {
-                if(response.getTaskState() == TaskState.SUBMIT.getCode() || response.getTaskState() == TaskState.SCHEDULED.getCode()
-                        || response.getTaskState() == TaskState.WAITING_DEPENDENCY.getCode() || response.getTaskState() == TaskState.QUEUED.getCode()
-                        || response.getTaskState() == TaskState.WAITING_RESOURCE.getCode()) {
-                    schedulerService.rerun(response.getId());
-                }else {
-                    String responseId = response.getJobId() + "-"
-                            + DateUtils.getDateAsString(response.getScheduleTime(), DateUtils.MINUTE_TIME_FORMAT);
-                    responseRpc = JobInstanceResponseRpc.newBuilder().setId(response.getId()).setResponseId(responseId)
-                            .setTaskState(response.getTaskState()).build();
-                    JobChecker.addResponse(responseRpc);
+    private void restoreTaskState(){
+        try {
+            JobInstanceResponseRpc responseRpc = null;
+            SchedulerService schedulerService = new SchedulerService();
+            List<JobInstanceStateResponse> list = JobManager.getAllJobStatus();
+            if (list != null && list.size() > 0) {
+                for (JobInstanceStateResponse response : list) {
+                    if(response.getTaskState() == TaskState.SUBMIT.getCode() || response.getTaskState() == TaskState.SCHEDULED.getCode()
+                            || response.getTaskState() == TaskState.WAITING_DEPENDENCY.getCode() || response.getTaskState() == TaskState.QUEUED.getCode()
+                            || response.getTaskState() == TaskState.WAITING_RESOURCE.getCode()) {
+                        schedulerService.rerun(response.getId());
+                    }else {
+                        String responseId = response.getJobId() + "-"
+                                + DateUtils.getDateAsString(response.getScheduleTime(), DateUtils.MINUTE_TIME_FORMAT);
+                        responseRpc = JobInstanceResponseRpc.newBuilder().setId(response.getId()).setResponseId(responseId)
+                                .setTaskState(response.getTaskState()).build();
+                        JobChecker.addResponse(responseRpc);
+                    }
                 }
+                
             }
-            
+        }catch(Exception e) {
+            LOG.error(e);
+            System.exit(1);
         }
     }
 
