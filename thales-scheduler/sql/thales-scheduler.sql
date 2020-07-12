@@ -9,6 +9,7 @@ DROP TABLE IF EXISTS t_thales_scheduler_user;
 DROP TABLE IF EXISTS t_thales_scheduler_role;
 DROP TABLE IF EXISTS t_thales_scheduler_user_role;
 DROP TABLE IF EXISTS t_thales_scheduler_connection;
+DROP TABLE IF EXISTS t_thales_scheduler_group_strategy
 
 CREATE TABLE `t_thales_scheduler_job` (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键',
@@ -119,6 +120,15 @@ CREATE TABLE `t_thales_scheduler_connection` (
   `password` varchar(50) DEFAULT NULL COMMENT '密码',
   `create_time` datetime DEFAULT NULL COMMENT '连接创建时间',
   `update_time` datetime DEFAULT NULL COMMENT '连接修改时间',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=66 DEFAULT CHARSET=utf8;
+
+CREATE TABLE `t_thales_scheduler_group_strategy` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `group_name` varchar(512) DEFAULT NULL COMMENT '组名',
+  `group_strategy` varchar(512) DEFAULT NULL COMMENT '组策略',
+  `create_time` datetime DEFAULT NULL COMMENT '创建时间',
+  `update_time` datetime DEFAULT NULL COMMENT '修改时间',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=66 DEFAULT CHARSET=utf8;
 
