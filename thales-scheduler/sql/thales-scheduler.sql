@@ -9,7 +9,7 @@ DROP TABLE IF EXISTS t_thales_scheduler_user;
 DROP TABLE IF EXISTS t_thales_scheduler_role;
 DROP TABLE IF EXISTS t_thales_scheduler_user_role;
 DROP TABLE IF EXISTS t_thales_scheduler_connection;
-DROP TABLE IF EXISTS t_thales_scheduler_group_strategy
+DROP TABLE IF EXISTS t_thales_scheduler_group_strategy;
 
 CREATE TABLE `t_thales_scheduler_job` (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键',
