@@ -2,7 +2,6 @@ package com.ylpu.thales.scheduler.rpc.server;
 
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
-import java.io.IOException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 

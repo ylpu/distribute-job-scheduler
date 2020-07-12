@@ -3,7 +3,6 @@ package com.ylpu.thales.scheduler.executor;
 import com.google.protobuf.ByteString;
 import com.ylpu.thales.scheduler.core.config.Configuration;
 import com.ylpu.thales.scheduler.core.curator.CuratorHelper;
-import com.ylpu.thales.scheduler.core.rest.JobManager;
 import com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc;
 import com.ylpu.thales.scheduler.core.rpc.entity.JobStatusRequestRpc;
 import com.ylpu.thales.scheduler.core.utils.ByteUtils;
@@ -104,8 +103,6 @@ public abstract class AbstractCommonExecutor {
         } catch (Exception e) {
             // execute exception
             FileUtils.writeFile("failed to execute task " + request.getId() + " with exception " + e.getMessage(),logOutPath);
-            request.setPid(-1);
-            JobManager.updateJobInstanceSelective(request);
             throw new RuntimeException(e);
         }
     }
