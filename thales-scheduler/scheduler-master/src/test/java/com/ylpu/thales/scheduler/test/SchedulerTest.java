@@ -2,9 +2,9 @@ package com.ylpu.thales.scheduler.test;
 
 import org.junit.Test;
 
+import com.ylpu.thales.scheduler.master.schedule.JobScheduleInfo;
+import com.ylpu.thales.scheduler.master.schedule.JobScheduler;
 import com.ylpu.thales.scheduler.response.JobResponse;
-import com.ylpu.thales.scheduler.schedule.JobScheduleInfo;
-import com.ylpu.thales.scheduler.schedule.JobScheduler;
 
 public class SchedulerTest {
 

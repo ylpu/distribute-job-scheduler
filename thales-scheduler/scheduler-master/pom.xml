@@ -82,7 +82,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>com.ylpu.thales.scheduler.master.MasterServer</mainClass>
+                            <mainClass>com.ylpu.thales.scheduler.master.server.MasterServer</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>
