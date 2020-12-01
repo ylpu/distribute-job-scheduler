@@ -60,15 +60,15 @@
       select worker,count(*) as cnt from t_thales_scheduler_job_instance  where task_state = 4 group by worker
   </select>
   <select id = "getTaskSummary" resultMap="taskSummaryMap">
-      select task_state,count(*) as task_Count from t_thales_scheduler_job_instance instance inner join t_thales_scheduler_job job on instance.job_id = job.id where job.job_ReleaseState != -1 and instance.start_time > current_date() group by task_state
+      select task_state,count(*) as task_Count from t_thales_scheduler_job_instance instance inner join t_thales_scheduler_job job on instance.job_id = job.id where job.job_ReleaseState != -1 group by task_state
   </select>
   <select id = "getWorkerSummary" resultMap="workerSummaryMap">
-      select worker,count(*) as task_Count from t_thales_scheduler_job_instance where worker is not null and start_time > current_date() group by worker
+      select worker,count(*) as task_Count from t_thales_scheduler_job_instance where worker is not null group by worker
   </select>
   
   <select id = "getJobTypeSummary" resultMap="jobTypeSummaryMap">
 	  select job.job_type ,count(*) as task_Count from t_thales_scheduler_job_instance job_instance left join t_thales_scheduler_job job on job_instance.job_id = job.id
-      where job_instance.start_time > current_date() group by job.job_type
+      group by job.job_type
   </select>
   
   <select id = "getJobInstanceByTime" resultMap="BaseResultMap">
