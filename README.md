@@ -88,11 +88,11 @@ api作为接口层，主要有如下功能：
   * 超时时间：超过多少分钟任务将会被杀死。
   * 任务描述：任务的详细信息
   * 任务配置：根据类型不同有不同的配置（以下为简单例子）：
-    * command: {"commandLine" :"pwd;cat /tmp/log/scheduler-worker/info.log"}
+    * command: {"commandLine" :"pwd;cat /tmp/log/scheduler-worker/info.log","parameters" : {"param1":"test"}}
     * shell: {"fileName" : "/tmp/shell/test.sh","parameters" : {"param1":"test"}}
     * python: {"fileName" : "/tmp/python/test.py","parameters" : {"param1":"test"}}
-    * hive: {"fileName" : "/tmp/shell/test.hql","parameters" : "","placeHolder":{"dt":"20191205","hm":"1000"}
-    * spark: {"fileName":"/tmp/shell/test.sql","parameters":{"masterUrl":"spark://localhost:7077","executorMemory":"2g","executorCores":2,"totalExecutorCores":20},"placeHolder":{"dt":"20191205","hm":"1000"}
+    * hive: {"fileName" : "/tmp/shell/test.hql","config" : "","parameters":{"dt":"20191205","hm":"1000"}
+    * spark: {"fileName":"/tmp/shell/test.sql","config":{"masterUrl":"spark://localhost:7077","executorMemory":"2g","executorCores":2,"totalExecutorCores":20},"parameters":{"dt":"20191205","hm":"1000"}
     * http:
       * get:{"url":"http://localhost:8085/api/job/getJobById",
 "method": "get",
@@ -132,13 +132,13 @@ api作为接口层，主要有如下功能：
     * flink : {
   "className":"",
   "jarName":"",
-  "parameters":  {"mode":"","slotNumber":2,"applicationName":"","taskManagerNumber":2,"taskManagerMemory":"2g","jobManagerMemory":"2g"}
+  "config":  {"mode":"","slotNumber":2,"applicationName":"","taskManagerNumber":2,"taskManagerMemory":"2g","jobManagerMemory":"2g"}
 }
     * clickhouse : {
       "dsName":"ck-test(连接管理里的连接名称)",
       "query":"select * from t_thales_scheduler_job_instance where id = ?",
-      "parameters":{"sendTimeout":10000,"receiveTimeout":10000},
-      "placeHolder":{"dt":"20191205","hm":"1000"}
+      "config":{"sendTimeout":10000,"receiveTimeout":10000},
+      "parameters":{"dt":"20191205","hm":"1000"}
  }
  * 修改任务
    * 参数与创建任务相同（修改后需要点击重新调度）
