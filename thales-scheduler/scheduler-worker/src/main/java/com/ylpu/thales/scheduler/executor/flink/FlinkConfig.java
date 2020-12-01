@@ -5,7 +5,7 @@ public class FlinkConfig {
     private String className;
     private String jarName;
 
-    private FlinkParameters parameters = new FlinkParameters();
+    private Config config = new Config();
 
     public String getClassName() {
         return className;
@@ -23,11 +23,11 @@ public class FlinkConfig {
         this.jarName = jarName;
     }
 
-    public FlinkParameters getParameters() {
-        return parameters;
+    public Config getConfig() {
+        return config;
     }
 
-    public void setParameters(FlinkParameters parameters) {
-        this.parameters = parameters;
+    public void setConfig(Config config) {
+        this.config = config;
     }
 }

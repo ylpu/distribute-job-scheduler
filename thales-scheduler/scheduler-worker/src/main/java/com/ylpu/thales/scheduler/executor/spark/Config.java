@@ -1,6 +1,6 @@
 package com.ylpu.thales.scheduler.executor.spark;
 
-public class SparkParameters {
+public class Config {
 
     /**
      * deploy mode

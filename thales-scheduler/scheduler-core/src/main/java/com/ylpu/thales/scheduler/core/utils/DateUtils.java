@@ -14,6 +14,8 @@ public class DateUtils {
     public static final String MINUTE_TIME_FORMAT = "yyyyMMddHHmm00";
     
     public static final String TIME_FORMAT = "yyyyMMddHHmmss";
+    
+    public static final String DATE_FORMAT = "yyyyMMdd";
 
     private DateUtils() {
 
@@ -79,7 +81,63 @@ public class DateUtils {
         }
         return calendar.getTime();
     }
-    public static void main(String[] args) {
-        System.out.println(getDateAsString(new Date(),TIME_FORMAT));
+    
+    public static String getToday() {
+        return getDateAsString(new Date(),DATE_FORMAT);
+    }
+    
+    public static String getYesterday() {
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.DATE, -1);
+        return getDateAsString(calendar.getTime(),DATE_FORMAT);
+    }
+    
+    public static String getTomorrow() {
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.DATE, 1);
+        return getDateAsString(calendar.getTime(),DATE_FORMAT);
+    }
+    
+    public static String getWeekStart(){
+        Calendar cal=Calendar.getInstance();
+        cal.add(Calendar.WEEK_OF_MONTH, 0);
+        cal.set(Calendar.DAY_OF_WEEK, 2);
+        Date time=cal.getTime();
+        return getDateAsString(time,DATE_FORMAT);
+    }
+    
+    public static String getWeekEnd(){
+        Calendar cal=Calendar.getInstance();
+        cal.set(Calendar.DAY_OF_WEEK, cal.getActualMaximum(Calendar.DAY_OF_WEEK));
+        cal.add(Calendar.DAY_OF_WEEK, 1);
+        Date time=cal.getTime();
+        return getDateAsString(time,DATE_FORMAT);
+    }
+    
+    public static String getMonthStart(){
+        Calendar cal=Calendar.getInstance();
+        cal.add(Calendar.MONTH, 0);
+        cal.set(Calendar.DAY_OF_MONTH, 1);
+        Date time=cal.getTime();
+        return getDateAsString(time,DATE_FORMAT);
+    }
+    
+    public static String getMonthEnd(){
+        Calendar cal=Calendar.getInstance();
+        cal.set(Calendar.DAY_OF_MONTH, cal.getActualMaximum(Calendar.DAY_OF_MONTH));
+        Date time=cal.getTime();
+        return getDateAsString(time,DATE_FORMAT);
+    }
+    
+    public static String getYearStart(){
+        return new SimpleDateFormat("yyyy").format(new Date())+"0101";
+    }
+    
+    public static String getYearEnd(){
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.MONTH,calendar.getActualMaximum(Calendar.MONTH));
+        calendar.set(Calendar.DAY_OF_MONTH,calendar.getActualMaximum(Calendar.DAY_OF_MONTH));
+        Date currYearLast = calendar.getTime();
+        return getDateAsString(currYearLast,DATE_FORMAT);
     }
 }

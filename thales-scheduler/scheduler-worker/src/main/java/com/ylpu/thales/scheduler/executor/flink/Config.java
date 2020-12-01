@@ -1,6 +1,6 @@
 package com.ylpu.thales.scheduler.executor.flink;
 
-public class FlinkParameters {
+public class Config {
     
     private String mode;
     private Integer slotNumber;

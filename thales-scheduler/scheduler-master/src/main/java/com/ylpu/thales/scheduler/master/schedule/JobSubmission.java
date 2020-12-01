@@ -10,6 +10,7 @@ import com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc;
 import com.ylpu.thales.scheduler.core.rpc.entity.JobRequestRpc;
 import com.ylpu.thales.scheduler.core.utils.CronUtils;
 import com.ylpu.thales.scheduler.core.utils.DateUtils;
+import com.ylpu.thales.scheduler.core.utils.JsonUtils;
 import com.ylpu.thales.scheduler.enums.AlertType;
 import com.ylpu.thales.scheduler.enums.EventType;
 import com.ylpu.thales.scheduler.enums.GrpcType;
@@ -18,6 +19,7 @@ import com.ylpu.thales.scheduler.enums.JobPriority;
 import com.ylpu.thales.scheduler.enums.JobReleaseState;
 import com.ylpu.thales.scheduler.enums.JobType;
 import com.ylpu.thales.scheduler.enums.TaskState;
+import com.ylpu.thales.scheduler.master.context.parameter.ContextParameterProvider;
 import com.ylpu.thales.scheduler.master.rpc.client.AbstractJobGrpcClient;
 import com.ylpu.thales.scheduler.master.rpc.client.JobGrpcBlockingClient;
 import com.ylpu.thales.scheduler.master.rpc.client.JobGrpcNonBlockingClient;
@@ -31,6 +33,8 @@ import com.ylpu.thales.scheduler.response.WorkerResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.eclipse.jetty.util.StringUtil;
+
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -284,19 +288,24 @@ public class JobSubmission {
      * @throws InvocationTargetException
      * @throws IllegalAccessException
      */
-    public static void initJobInstance(JobInstanceRequest request, Integer jobId) {
+    public static void initJobInstance(JobInstanceRequest request, JobResponse jobResponse) {
         request.setApplicationid("");
         request.setCreatorEmail("");
         request.setCreatorName("");
         request.setEndTime(null);
         request.setElapseTime(0);
-        request.setJobId(jobId);
+        request.setJobId(jobResponse.getId());
         request.setLogPath("");
         request.setLogUrl("");
         request.setPid(-1);
         request.setRetryTimes(0);
         request.setTaskState(TaskState.SUBMIT.getCode());
         request.setElapseTime(0);
+        if(StringUtil.isBlank(request.getParameters())){
+            String replacedJson = JsonUtils.replaceHolder(jobResponse.getJobConfiguration(),ContextParameterProvider.getContextParameter());
+            String parameters = JsonUtils.getParameters(replacedJson);
+            request.setParameters(parameters);
+        }
     }
     
     public static JobInstanceResponseRpc buildResponse(String rpcId, int taskState) {
@@ -328,7 +337,7 @@ public class JobSubmission {
                 .setId(request.getId())
                 .setRequestId(request.getJobId() + "-"
                         + DateUtils.getDateAsString(request.getScheduleTime(), DateUtils.MINUTE_TIME_FORMAT))
-                .setJob(setJobRequest(response)).build();
+                .setJob(setJobRequest(request.getParameters(),response)).build();
         return rpcJobInstanceRequest;
     }
 
@@ -338,7 +347,7 @@ public class JobSubmission {
      * @param response
      * @return
      */
-    public static JobRequestRpc setJobRequest(JobResponse response) {
+    public static JobRequestRpc setJobRequest(String parameters,JobResponse response) {
         List<JobRequestRpc> rpcDependencies = new ArrayList<JobRequestRpc>();
         JobRequestRpc rpcDependency = null;
         List<JobResponse> dependencies = response.getDependencies();
@@ -376,6 +385,9 @@ public class JobSubmission {
                 rpcDependencies.add(rpcDependency);
             }
         }
+        String jobConfiguration = response.getJobConfiguration() == null ? "" : response.getJobConfiguration();
+        String replacedJobConfiguration = JsonUtils.replaceParameterValue(jobConfiguration, parameters);
+        
         JobRequestRpc rpcJobRequest = JobRequestRpc.newBuilder()
                 .setAlertTypes(response.getAlertTypes() == null ? AlertType.SMS.getCode()
                         : AlertType.getAlertType(response.getAlertTypes()).getCode())
@@ -385,7 +397,7 @@ public class JobSubmission {
                 .setExecutionTimeout(response.getExecutionTimeout() == null ? 0 : response.getExecutionTimeout())
                 .setId(response.getId())
                 .setIsSelfdependent(response.getIsSelfdependent() == null ? true : response.getIsSelfdependent())
-                .setJobConfiguration(response.getJobConfiguration() == null ? "" : response.getJobConfiguration())
+                .setJobConfiguration(replacedJobConfiguration)
                 .setJobCycle(response.getJobCycle() == null ? JobCycle.MINUTE.getCode()
                         : JobCycle.getJobCycle(response.getJobCycle()).getCode())
                 .setJobName(response.getJobName() == null ? "" : response.getJobName())

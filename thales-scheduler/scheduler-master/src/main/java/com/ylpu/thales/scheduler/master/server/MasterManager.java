@@ -21,6 +21,7 @@ import com.ylpu.thales.scheduler.master.schedule.JobScheduler;
 import com.ylpu.thales.scheduler.master.strategy.JobStrategy;
 import com.ylpu.thales.scheduler.master.strategy.ResourceStrategy;
 import com.ylpu.thales.scheduler.master.strategy.ResourceStrategyContext;
+import com.ylpu.thales.scheduler.master.strategy.WorkerGroupStrategy;
 import com.ylpu.thales.scheduler.master.strategy.WorkerSelectStrategy;
 import com.ylpu.thales.scheduler.request.WorkerGroupRequest;
 import com.ylpu.thales.scheduler.request.WorkerRequest;
@@ -173,6 +174,7 @@ public class MasterManager {
 //        WorkerGroupRequest param = new WorkerGroupRequest();
 //        param.setStatus(WorkerStatus.REMOVED);
 //        WorkerManager.updateWorkersStatus(param);
+        WorkerGroupStrategy.init();
         // 启动任务状态检查线程
         JobStatusChecker.start();
         // 恢复任务状态，比较耗时
@@ -238,7 +240,7 @@ public class MasterManager {
             }
         }catch(Exception e) {
             LOG.error(e);
-            System.exit(1);
+//            System.exit(1);
         }
     }
 
@@ -378,7 +380,8 @@ public class MasterManager {
      * @throws Exception 
      */
     public synchronized WorkerResponse getIdleWorker(String groupName, String... lastFailedWorkers) throws Exception {
-        String workerStrategy = WorkerManager.getGroupStrategy(groupName).getGroupStrategy();
+//        String workerStrategy = WorkerManager.getGroupStrategy(groupName).getGroupStrategy();
+        String workerStrategy = WorkerGroupStrategy.getGroupStrategy(groupName);
         WorkerSelectStrategy workerSelectStrategy = ResourceStrategy
                 .getStrategy(JobStrategy.getJobStrategyByName(workerStrategy));
         return new ResourceStrategyContext(workerSelectStrategy).select(this, groupName, lastFailedWorkers);

@@ -43,6 +43,15 @@ public class WorkerManager {
         RestClient.post(apiUrl + "worker/insertOrUpdateWorker", workerRequest, SchedulerResponse.class);
     }
     
+    public static List<GroupStrategyResponse> getAllGroupStrategy() throws Exception {
+        String apiUrl = Configuration.getString(Configuration.getConfig(), "thales.api.url",
+                GlobalConstants.DEFAULT_API_URL);
+        ParameterizedTypeReference<SchedulerResponse<List<GroupStrategyResponse>>> typeRef = new ParameterizedTypeReference<SchedulerResponse<List<GroupStrategyResponse>>>() {
+        };
+        SchedulerResponse<List<GroupStrategyResponse>> jobResponse = RestClient.getForObject(apiUrl + "groupStrategy/getAllGroupStrategy", typeRef, null);
+        return jobResponse.getData();
+    }
+    
     /**
      * 根据groupName查看策略
      * 

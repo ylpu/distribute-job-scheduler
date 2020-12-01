@@ -48,8 +48,8 @@ public class SparkExecutor extends AbstractCommonExecutor {
         if (!FileUtils.exist(new File(fileName)) || !fileName.endsWith(".sql")) {
             throw new RuntimeException("请输入合法的sql文件" + fileName);
         }
-        SparkParameters sparkParameters = sparkConfig.getParameters();
-        if (sparkParameters == null) {
+        Config config = sparkConfig.getConfig();
+        if (config == null) {
             throw new RuntimeException("spark任务参数不能为空");
         }
 
@@ -63,7 +63,7 @@ public class SparkExecutor extends AbstractCommonExecutor {
         }
 
         String fileContent = FileUtils.readFile(fileName);
-        fileContent = replaceParameters(sparkConfig.getPlaceHolder(), fileContent);
+        fileContent = replaceParameters(sparkConfig.getParameters(), fileContent);
                 
         commandBuilder.append("\"");
         commandBuilder.append("set spark.app.name=" + getJobName() + ";");
@@ -72,27 +72,27 @@ public class SparkExecutor extends AbstractCommonExecutor {
 
         commandBuilder.append(" ");
 
-        commandBuilder.append("--master " + StringUtils.getValue(sparkParameters.getMaster(),"yarn"));
+        commandBuilder.append("--master " + StringUtils.getValue(config.getMaster(),"yarn"));
         commandBuilder.append(" ");
         
-        commandBuilder.append("--deploy-mode " + StringUtils.getValue(sparkParameters.getDeployMode(),"cluster"));
+        commandBuilder.append("--deploy-mode " + StringUtils.getValue(config.getDeployMode(),"cluster"));
         commandBuilder.append(" ");
         
-        commandBuilder.append("--driver-memory " + StringUtils.getValue(sparkParameters.getDriverMemory(),"2g"));
+        commandBuilder.append("--driver-memory " + StringUtils.getValue(config.getDriverMemory(),"2g"));
         commandBuilder.append(" ");
 
-        commandBuilder.append("--executor-memory " + StringUtils.getValue(sparkParameters.getExecutorMemory(),"2g"));
+        commandBuilder.append("--executor-memory " + StringUtils.getValue(config.getExecutorMemory(),"2g"));
         commandBuilder.append(" ");
         
-        commandBuilder.append("--queue " + StringUtils.getValue(sparkParameters.getQueue(),"default"));
+        commandBuilder.append("--queue " + StringUtils.getValue(config.getQueue(),"default"));
         commandBuilder.append(" ");
 
-        commandBuilder.append("--executor-cores " + sparkParameters.getExecutorCores() == null ? 
-                2: sparkParameters.getExecutorCores());
+        commandBuilder.append("--executor-cores " + config.getExecutorCores() == null ? 
+                2: config.getExecutorCores());
         commandBuilder.append(" ");
 
-        commandBuilder.append("--total-executor-cores " + sparkParameters.getTotalExecutorCores() == null ? 
-                4 : sparkParameters.getTotalExecutorCores());
+        commandBuilder.append("--total-executor-cores " + config.getTotalExecutorCores() == null ? 
+                4 : config.getTotalExecutorCores());
 
         String[] commands = new String[1];
         commands[0] = commandBuilder.toString();

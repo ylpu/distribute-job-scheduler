@@ -5,6 +5,9 @@ import com.ylpu.thales.scheduler.request.GroupStrategyRequest;
 import com.ylpu.thales.scheduler.response.GroupStrategyResponse;
 import com.ylpu.thales.scheduler.response.SchedulerResponse;
 import com.ylpu.thales.scheduler.service.GroupStrategyService;
+
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -32,6 +35,12 @@ public class GroupStategyController {
     public SchedulerResponse<Void> updateGroupStrategy(@RequestBody GroupStrategyRequest request) {
         groupStategyService.updateGroupStrategy(request);
         return SchedulerResponse.success();
+    }
+    
+    @ResponseBody
+    @RequestMapping(value = "/getAllGroupStrategy", method = RequestMethod.GET)
+    public SchedulerResponse<List<GroupStrategyResponse>> getAllGroupStrategy() {
+        return new SchedulerResponse<List<GroupStrategyResponse>>(groupStategyService.getAllGroupStrategy());
     }
 
     @ResponseBody

@@ -42,6 +42,8 @@ public class SchedulerJobInstance extends BaseEntity implements Serializable {
     private Date startTime;
 
     private Date endTime;
+    
+    private String parameters;
 
     private static final long serialVersionUID = 1L;
 

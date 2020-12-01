@@ -1,6 +1,6 @@
 package com.ylpu.thales.scheduler.executor.clickHouse;
 
-public class ClickHouseParameters {
+public class Config {
    private Long sendTimeout;
    private long receiveTimeout;
    

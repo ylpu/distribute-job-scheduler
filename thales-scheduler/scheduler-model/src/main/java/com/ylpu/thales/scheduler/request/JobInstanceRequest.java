@@ -38,6 +38,8 @@ public class JobInstanceRequest implements Serializable {
     private Date createTime;
 
     private Integer elapseTime;
+    
+    private String parameters;
 
     private static final long serialVersionUID = 1L;
 

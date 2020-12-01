@@ -2,13 +2,13 @@ package com.ylpu.thales.scheduler.executor.hive;
 
 import java.util.Map;
 
-import com.ylpu.thales.scheduler.executor.hive.HiveParameters;
+import com.ylpu.thales.scheduler.executor.hive.Config;
 
 public class HiveConfig {
 
     private String fileName;
-    private HiveParameters parameters = new HiveParameters();
-    private Map<String, Object> placeHolder;
+    private Config config = new Config();
+    private Map<String, Object> parameters;
 
     public String getFileName() {
         return fileName;
@@ -18,19 +18,20 @@ public class HiveConfig {
         this.fileName = fileName;
     }
 
-    public HiveParameters getParameters() {
+    public Config getConfig() {
+        return config;
+    }
+
+    public void setConfig(Config config) {
+        this.config = config;
+    }
+
+    public Map<String, Object> getParameters() {
         return parameters;
     }
 
-    public void setParameters(HiveParameters parameters) {
+    public void setParameters(Map<String, Object> parameters) {
         this.parameters = parameters;
     }
 
-    public Map<String, Object> getPlaceHolder() {
-        return placeHolder;
-    }
-
-    public void setPlaceHolder(Map<String, Object> placeHolder) {
-        this.placeHolder = placeHolder;
-    }
 }

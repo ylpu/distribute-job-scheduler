@@ -9,7 +9,7 @@ import com.ylpu.thales.scheduler.entity.GroupStrategy;
 
 public interface GroupStrategyMapper extends BaseDao<GroupStrategy, Integer>{
     
-    GroupStrategy getGroupStrategy(@Param("groupName") String groupName);
+    List<GroupStrategy> getGroupStrategy(@Param("groupName") String groupName);
     
     List<GroupStrategy> findAll(@Param("groupName") String groupName);
     

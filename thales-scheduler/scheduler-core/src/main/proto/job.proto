@@ -44,6 +44,7 @@ message JobInstanceRequestRpc{
     google.protobuf.Timestamp startTime = 14;
     google.protobuf.Timestamp endTime = 15;
     int32 elapseTime = 16;
+    string parameters = 17;
 }
 message JobInstanceResponseRpc{
     int32 id = 1;

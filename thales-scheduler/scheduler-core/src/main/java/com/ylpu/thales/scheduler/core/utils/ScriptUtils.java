@@ -9,6 +9,8 @@ import org.apache.commons.logging.LogFactory;
 import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 脚本执行类 优点：使用apache帮助类，简单，方便 缺点：无法获取process类，因而无法得到执行任务的进程id
@@ -16,16 +18,16 @@ import java.io.IOException;
 
 class CollectingLogOutputStream extends LogOutputStream {
 
-    private final StringBuilder lines = new StringBuilder();
+    private final List<String> lines = new ArrayList<String>();
 
     @Override
     protected void processLine(String line, int level) {
-        lines.append(line);
-        lines.append("<br>");
+        lines.add(line);
+//        lines.append("<br>");
     }
 
-    public String getLines() {
-        return lines.toString();
+    public List<String> getLines() {
+        return lines;
     }
 }
 
@@ -68,7 +70,7 @@ public class ScriptUtils {
      * @return
      * @throws IOException
      */
-    public static int execToFile(String command, String scriptFile, String outLogFile, String errLogFile,
+    public static int execToFile(String command, String outLogFile, String errLogFile,
             String... params) throws IOException {
         FileOutputStream fileOutputStream = null;
         FileOutputStream fileErrorOputStream = null;
@@ -76,7 +78,7 @@ public class ScriptUtils {
             fileOutputStream = new FileOutputStream(outLogFile, true);
             fileErrorOputStream = new FileOutputStream(outLogFile, true);
             PumpStreamHandler streamHandler = new PumpStreamHandler(fileOutputStream, fileErrorOputStream, null);
-            int exitValue = execCmd(command, scriptFile, params, streamHandler);
+            int exitValue = execCmd(command, params, streamHandler);
             return exitValue;
         } catch (Exception e) {
             LOG.error(e);
@@ -100,18 +102,15 @@ public class ScriptUtils {
      * @return
      * @throws IOException
      */
-    public static int execCmd(String command, String scriptFile, String... params) throws IOException {
+    public static int execCmd(String command, String... params) throws IOException {
         PumpStreamHandler streamHandler = new PumpStreamHandler(new CollectingLogOutputStream());
         // command
-        return execCmd(command, scriptFile, params, streamHandler);
+        return execCmd(command, params, streamHandler);
     }
 
-    public static int execCmd(String command, String scriptFile, String[] params, PumpStreamHandler streamHandler)
+    public static int execCmd(String command, String[] params, PumpStreamHandler streamHandler)
             throws IOException {
-        CommandLine commandline = new CommandLine(command);
-        if (scriptFile != null && scriptFile.length() > 0) {
-            commandline.addArgument(scriptFile);
-        }
+        CommandLine commandline = CommandLine.parse(command);
         if (params != null && params.length > 0) {
             commandline.addArguments(params);
         }
@@ -132,11 +131,11 @@ public class ScriptUtils {
      * @return
      * @throws IOException
      */
-    public static String execToList(String command, String scriptFile, String... params) throws IOException {
+    public static List<String> execToList(String command,String... params) throws IOException {
         CollectingLogOutputStream outputStream = new CollectingLogOutputStream();
         try {
             PumpStreamHandler streamHandler = new PumpStreamHandler(outputStream, outputStream);
-            execCmd(command, scriptFile, params, streamHandler);
+            execCmd(command,params, streamHandler);
         } catch (Exception e) {
             LOG.error(e);
             return null;
@@ -152,11 +151,11 @@ public class ScriptUtils {
         return outputStream.getLines();
     }
 
-    public static String execToString(String command, String scriptFile, String... params) throws IOException {
+    public static String execToString(String command, String... params) throws IOException {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         try {
             PumpStreamHandler streamHandler = new PumpStreamHandler(outputStream, outputStream);
-            execCmd(command, scriptFile, params, streamHandler);
+            execCmd(command, params, streamHandler);
         } catch (Exception e) {
             LOG.error(e);
             return null;
@@ -176,17 +175,21 @@ public class ScriptUtils {
         try {
             // System.out.println(ScriptUtils.execToFile("sh", "/tmp/script/test.sh",
             // "/tmp/log/1.out", "/tmp/log/1.error", new String[1]));
-            System.out.println(ScriptUtils.execToList("cat", "/tmp/log/scheduler-worker/warn.log", new String[] {}));
+            List<String> list = ScriptUtils.execToList("head -100 /tmp/log/autoel-api/spring.log | tail -10", new String[] {});
+            for(String str : list) {
+                System.out.println(str);
+            }
+            System.out.println(list.size());
             // System.out.println("test");
 
-            String[] strs = new String[3];
-            strs[0] = "/bin/bash";
-            strs[1] = "-c";
-            strs[2] = "tail -100 /tmp/log/scheduler-worker/warn.log";
-            Process process = Runtime.getRuntime().exec(strs);
-
-            FileUtils.writeOuput(process.getInputStream(), "/tmp/test.log");
-            FileUtils.writeOuput(process.getErrorStream(), "/tmp/test.log");
+//            String[] strs = new String[3];
+//            strs[0] = "/bin/bash";
+//            strs[1] = "-c";
+//            strs[2] = "tail -100 /tmp/log/scheduler-worker/warn.log";
+//            Process process = Runtime.getRuntime().exec(strs);
+//
+//            FileUtils.writeOuput(process.getInputStream(), "/tmp/test.log");
+//            FileUtils.writeOuput(process.getErrorStream(), "/tmp/test.log");
         } catch (Exception e) {
             e.printStackTrace();
         }

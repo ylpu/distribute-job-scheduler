@@ -19,7 +19,7 @@
   </select>
   
     
-  <select id="findAll" resultMap="BaseResultMap" parameterType="java.lang.String" >
+  <select id="findAll" resultMap="BaseResultMap" >
     select 
     <include refid="Base_Column_List" />
     from t_thales_scheduler_group_strategy where 1=1
@@ -116,5 +116,4 @@
       update_time = #{updateTime,jdbcType=TIMESTAMP}
     where id = #{id,jdbcType=INTEGER}
   </update>
-  <cache />
 </mapper>

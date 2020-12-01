@@ -156,9 +156,9 @@ public abstract class AbstractCommonExecutor {
             for (Entry<String, Object> entry : parameters.entrySet()) {
                 Class<?> cls = entry.getValue().getClass();
                 if (cls == Integer.class || cls == Double.class || cls == Long.class || cls == Float.class) {
-                    fileContent = fileContent.replace("${" + entry.getKey() + "}", String.valueOf(entry.getValue()));
+                    fileContent = fileContent.replace("&" + entry.getKey(), String.valueOf(entry.getValue()));
                 } else {
-                    fileContent = fileContent.replace("${" + entry.getKey() + "}",
+                    fileContent = fileContent.replace("&" + entry.getKey(),
                             "'" + String.valueOf(entry.getValue()) + "'");
                 }
             }

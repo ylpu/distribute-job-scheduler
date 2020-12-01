@@ -5,8 +5,8 @@ import java.util.Map;
 public class ClickHouseConfig {
     private String dsName;
     private String query;
-    private ClickHouseParameters parameters = new ClickHouseParameters();
-    private Map<String, Object> placeHolder;
+    private Config config = new Config();
+    private Map<String, Object> parameters;
     
     public String getDsName() {
         return dsName;
@@ -24,19 +24,19 @@ public class ClickHouseConfig {
         this.query = query;
     }
 
-    public ClickHouseParameters getParameters() {
+    public Config getConfig() {
+        return config;
+    }
+
+    public void setConfig(Config config) {
+        this.config = config;
+    }
+
+    public Map<String, Object> getParameters() {
         return parameters;
     }
 
-    public void setParameters(ClickHouseParameters parameters) {
+    public void setParameters(Map<String, Object> parameters) {
         this.parameters = parameters;
-    }
-
-    public Map<String, Object> getPlaceHolder() {
-        return placeHolder;
-    }
-
-    public void setPlaceHolder(Map<String, Object> placeHolder) {
-        this.placeHolder = placeHolder;
     }
 }

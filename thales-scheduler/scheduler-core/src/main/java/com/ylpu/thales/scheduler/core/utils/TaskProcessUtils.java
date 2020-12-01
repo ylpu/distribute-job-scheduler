@@ -1,6 +1,13 @@
 package com.ylpu.thales.scheduler.core.utils;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
@@ -93,6 +100,50 @@ public class TaskProcessUtils {
             result = "c:/windows/system32/cmd.exe /c taskkill /PID " + Pid + " /F /T ";
         return result;
     }
+    /*
+      execute command in local host
+      @param:command  cmd collection
+      @return     command response list
+   */
+    public static List<String> execCommandToList(String command) {
+        String[] commands = new String[3];
+        List<String> rspList = new ArrayList<>();
+        Runtime run = Runtime.getRuntime();
+        BufferedReader in = null;
+        PrintWriter out = null;
+        Process proc = null;
+        try {
+            commands[0] = "/bin/bash";
+            commands[1] = "-c";
+            commands[2] = command;
+            proc = run.exec(commands);
+            in = new BufferedReader(new InputStreamReader(proc.getInputStream()));
+            String rspLine;
+            while ((rspLine = in.readLine()) != null) {
+                rspList.add(rspLine);
+            }
+            proc.waitFor();
+        } catch (IOException e1) {
+            e1.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if(in != null) {
+                    in.close();
+                }
+                if(out != null) {
+                    out.close();
+                }
+            }catch(Exception e) {
+                e.printStackTrace();
+            }
+            if(proc != null) {
+                proc.destroy();
+            }
+        }
+        return rspList;
+    }
 
     public static void main(String[] args) {
         // String fileName = "/tmp/script/test.sh";
@@ -106,6 +157,10 @@ public class TaskProcessUtils {
             int pid = 65633;
             TaskProcessUtils.execCommand("/Users/admin/thales/thales-scheduler/scheduler-worker/src/script/kill.sh",
                     "/tmp/pid/" + pid + ".out", "/tmp/pid/" + pid + ".error", String.valueOf(pid));
+            
+            List<String> list = execCommandToList("head -100 /tmp/log/autoel-api/spring.log | tail -10");
+            System.out.println(list.size());
+
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -107,17 +107,18 @@ public class SchedulerService {
         //remove rpc request from request map
         else if(jobInstanceResponse.getTaskState() == TaskState.WAITING_DEPENDENCY) {
             removeRequestRpc(jobInstanceResponse,responseId);
-
         }else if(jobInstanceResponse.getTaskState() == TaskState.QUEUED) {
             JobInstanceRequestRpc request = JobStatusChecker.getJobInstanceRequestMap().remove(responseId);
             if(request != null) {
                 JobSubmission.getGroupQueue(request.getJob().getWorkerGroupname()).remove(new TaskCall(request));
             }
-            
         }else if(jobInstanceResponse.getTaskState() == TaskState.WAITING_RESOURCE) {
 //          cancel waiting
             JobSubmission.getWaitingResourceMap().put(jobInstanceResponse.getJobConf().getWorkerGroupname(), false);
             JobStatusChecker.getJobInstanceRequestMap().remove(responseId);
+        }else if(jobInstanceResponse.getTaskState() == TaskState.FAIL || jobInstanceResponse.getTaskState() == TaskState.SUCCESS
+                || jobInstanceResponse.getTaskState() == TaskState.KILL) {
+            JobStatusChecker.getResponses().remove(responseId);
         }
     }
     
@@ -137,7 +138,7 @@ public class SchedulerService {
     
     private String getDependenciesAsString(JobInstanceResponse jobInstanceResponse) {
         JobInstanceRequest request = new JobInstanceRequest();
-        JobSubmission.initJobInstance(request, request.getJobId());
+        JobSubmission.initJobInstance(request, jobInstanceResponse.getJobConf());
         request.setScheduleTime(DateUtils.getDateFromString(jobInstanceResponse.getScheduleTime(),DateUtils.DATE_TIME_FORMAT));
         request.setStartTime(DateUtils.getDateFromString(jobInstanceResponse.getStartTime(),DateUtils.DATE_TIME_FORMAT));
         request.setId(jobInstanceResponse.getId());
@@ -174,7 +175,7 @@ public class SchedulerService {
                         response.getJobConf().getId() + "-"
                                 + DateUtils.getDateAsString(DateUtils.getDateFromString(response.getScheduleTime(),
                                         DateUtils.DATE_TIME_FORMAT), DateUtils.MINUTE_TIME_FORMAT))
-                .setJob(JobSubmission.setJobRequest(response.getJobConf())).setCreatorEmail(response.getCreatorEmail())
+                .setJob(JobSubmission.setJobRequest(response.getParameters(),response.getJobConf())).setCreatorEmail(response.getCreatorEmail())
                 .setCreatorName(response.getCreatorName())
                 .setScheduleTime(DateUtils.getProtobufTime(
                         DateUtils.getDateFromString(response.getScheduleTime(), DateUtils.DATE_TIME_FORMAT)))
@@ -273,9 +274,10 @@ public class SchedulerService {
                 cleanExistingTask(jobInstanceResponse,responseId);
             } 
             JobInstanceRequest request = new JobInstanceRequest();
+            request.setParameters(jobInstanceResponse.getParameters());
             try {
                 // 初始化任务
-                JobSubmission.initJobInstance(request, jobInstanceResponse.getJobId());
+                JobSubmission.initJobInstance(request, jobInstanceResponse.getJobConf());
                 request.setId(jobInstanceResponse.getId());
                 request.setRetryTimes(jobInstanceResponse.getRetryTimes() + 1);
                 request.setScheduleTime(

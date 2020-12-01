@@ -50,6 +50,7 @@ CREATE TABLE `t_thales_scheduler_job_instance` (
   `schedule_time` datetime DEFAULT NULL COMMENT '任务预计开始时间，比如任务预计10点执行，但由于quartz调度器非常繁忙，有可能10点01分才开始执行',
   `start_time` datetime DEFAULT NULL COMMENT '任务真实开始时间',
   `end_time` datetime DEFAULT NULL COMMENT '任务结束时间',
+  `parameters` varchar(512) DEFAULT NULL COMMENT '任务参数',
   `elapse_time` int(11) DEFAULT NULL COMMENT '任务花费时间',
   `create_time` datetime DEFAULT NULL COMMENT '任务创建时间',
   `update_time` datetime DEFAULT NULL COMMENT '任务修改时间',

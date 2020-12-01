@@ -44,6 +44,8 @@ public class JobInstanceResponse implements Serializable {
     private String endTime;
 
     private Integer elapseTime;
+    
+    private String parameters;
 
     private static final long serialVersionUID = 1L;
 

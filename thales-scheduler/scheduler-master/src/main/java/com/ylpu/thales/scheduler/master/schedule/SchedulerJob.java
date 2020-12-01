@@ -30,7 +30,8 @@ public class SchedulerJob implements Job {
         JobInstanceRequestRpc rpcRequest = null;
         if(jobResponse != null) {
             try {
-                JobSubmission.initJobInstance(request, jobResponse.getId());
+                JobSubmission.initJobInstance(request, jobResponse);
+                LOG.info("job " + jobResponse.getId() + " schedule time is " + context.getScheduledFireTime());
                 request.setScheduleTime(context.getScheduledFireTime());
                 request.setStartTime(new Date());
                 request.setId(addJobInstance(request,jobId));

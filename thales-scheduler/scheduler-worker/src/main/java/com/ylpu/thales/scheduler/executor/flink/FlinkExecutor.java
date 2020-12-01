@@ -43,8 +43,8 @@ public class FlinkExecutor extends AbstractCommonExecutor {
         StringBuilder commandBuilder = new StringBuilder();
         FlinkConfig flinkConfig = JsonUtils.jsonToBean(configFile, FlinkConfig.class);
 
-        FlinkParameters flinkParameters = flinkConfig.getParameters();
-        if (flinkParameters == null) {
+        Config config = flinkConfig.getConfig();
+        if (config == null) {
             throw new RuntimeException("flink任务参数不能为空");
         }
 
@@ -59,25 +59,25 @@ public class FlinkExecutor extends AbstractCommonExecutor {
         
         commandBuilder.append(" ");
         
-        commandBuilder.append("-m " + StringUtils.getValue(flinkParameters.getMode(),"yarn-cluster"));
+        commandBuilder.append("-m " + StringUtils.getValue(config.getMode(),"yarn-cluster"));
         commandBuilder.append(" ");
 
-        commandBuilder.append("-ys " + flinkParameters.getSlotNumber() == null ? 2 : flinkParameters.getSlotNumber());
+        commandBuilder.append("-ys " + config.getSlotNumber() == null ? 2 : config.getSlotNumber());
         commandBuilder.append(" ");
 
         commandBuilder.append("-ynm " + getJobName());
         commandBuilder.append(" ");
 
-        commandBuilder.append("-yn " + flinkParameters.getTaskManagerNumber() == null ? 2: flinkParameters.getTaskManagerNumber());
+        commandBuilder.append("-yn " + config.getTaskManagerNumber() == null ? 2: config.getTaskManagerNumber());
         commandBuilder.append(" ");
 
-        commandBuilder.append("-yjm " + StringUtils.getValue(flinkParameters.getJobManagerMemory(),"2g"));
+        commandBuilder.append("-yjm " + StringUtils.getValue(config.getJobManagerMemory(),"2g"));
         commandBuilder.append(" ");
         
-        commandBuilder.append("-ytm " + StringUtils.getValue(flinkParameters.getTaskManagerMemory(),"2g"));
+        commandBuilder.append("-ytm " + StringUtils.getValue(config.getTaskManagerMemory(),"2g"));
         commandBuilder.append(" ");
         
-        commandBuilder.append("-yqu " + StringUtils.getValue(flinkParameters.getQueue(),"default"));
+        commandBuilder.append("-yqu " + StringUtils.getValue(config.getQueue(),"default"));
         commandBuilder.append(" ");
         
         commandBuilder.append("-c " + StringUtils.getValue(flinkConfig.getClassName(),""));

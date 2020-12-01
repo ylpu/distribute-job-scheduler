@@ -33,8 +33,8 @@ public class ClickHouseExecutor extends AbstractCommonExecutor {
         StringBuilder commandBuilder = new StringBuilder();
         ClickHouseConfig clickHouseConfig = JsonUtils.jsonToBean(configFile, ClickHouseConfig.class);
 
-        ClickHouseParameters clickHouseParameters = clickHouseConfig.getParameters();
-        if (clickHouseParameters == null) {
+        Config config = clickHouseConfig.getConfig();
+        if (config == null) {
             throw new RuntimeException("clickhouse任务参数不能为空");
         }
         ConnectionResponse cr = JobManager.getConnection(clickHouseConfig.getDsName());
@@ -55,16 +55,16 @@ public class ClickHouseExecutor extends AbstractCommonExecutor {
         commandBuilder.append("--port " + cr.getPort());
         commandBuilder.append(" ");
 
-        String finalQuery = replaceParameters(clickHouseConfig.getPlaceHolder(), clickHouseConfig.getQuery());
+        String finalQuery = replaceParameters(clickHouseConfig.getParameters(), clickHouseConfig.getQuery());
         commandBuilder.append("--query " + finalQuery);
         commandBuilder.append(" ");
 
-        commandBuilder.append("--send_timeout " + clickHouseParameters.getSendTimeout() == null ? 
-                3000 : clickHouseParameters.getSendTimeout());
+        commandBuilder.append("--send_timeout " + config.getSendTimeout() == null ? 
+                3000 : config.getSendTimeout());
         commandBuilder.append(" ");
         
-        commandBuilder.append("--receive_timeout " + clickHouseParameters.getReceiveTimeout() == null ? 
-                3000 : clickHouseParameters.getReceiveTimeout());
+        commandBuilder.append("--receive_timeout " + config.getReceiveTimeout() == null ? 
+                3000 : config.getReceiveTimeout());
         commandBuilder.append(" ");
         
         commandBuilder.append("--m ");

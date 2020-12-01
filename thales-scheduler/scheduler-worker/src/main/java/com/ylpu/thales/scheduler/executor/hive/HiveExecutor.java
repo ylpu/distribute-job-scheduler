@@ -57,7 +57,7 @@ public class HiveExecutor extends AbstractCommonExecutor {
             sb.append(hive_home + "/bin/" + HIVE_COMMAND);
         }
         String fileContent = FileUtils.readFile(fileName);
-        fileContent = replaceParameters(hiveConfig.getPlaceHolder(), fileContent);
+        fileContent = replaceParameters(hiveConfig.getParameters(), fileContent);
         sb.append("\"");
         sb.append("set mapred.job.name=" + getJobName() + ";");
         sb.append(fileContent + ";");
