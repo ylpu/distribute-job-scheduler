@@ -44,16 +44,16 @@ public class GroupStrategyServiceImpl extends BaseServiceImpl<GroupStrategy, Int
         GroupStrategy record = new GroupStrategy();
         BeanUtils.copyProperties(groupStrategryRequest, record);
         groupStrategyMapper.insertSelective(record);
-        
-        String masterUrl = CuratorHelper.getMasterServiceUri();
-        if (StringUtils.isNotBlank(masterUrl)) {
-            int status = GroupStrategyManager.addGroupStrategy(masterUrl, groupStrategryRequest);
-            if (status != HttpStatus.NO_CONTENT.value()) {
-                 throw new ThalesRuntimeException("failed to add group strategy job " + groupStrategryRequest.getGroupName());
-            }
-        } else {
-            throw new ThalesRuntimeException("调度服务不可用");
-        }
+//        
+//        String masterUrl = CuratorHelper.getMasterServiceUri();
+//        if (StringUtils.isNotBlank(masterUrl)) {
+//            int status = GroupStrategyManager.addGroupStrategy(masterUrl, groupStrategryRequest);
+//            if (status != HttpStatus.NO_CONTENT.value()) {
+//                 throw new ThalesRuntimeException("failed to add group strategy job " + groupStrategryRequest.getGroupName());
+//            }
+//        } else {
+//            throw new ThalesRuntimeException("调度服务不可用");
+//        }
     }
 
     @Override
@@ -63,15 +63,15 @@ public class GroupStrategyServiceImpl extends BaseServiceImpl<GroupStrategy, Int
         BeanUtils.copyProperties(groupStrategryRequest, record);
         groupStrategyMapper.updateByPrimaryKeySelective(record);
         
-        String masterUrl = CuratorHelper.getMasterServiceUri();
-        if (StringUtils.isNotBlank(masterUrl)) {
-            int status = GroupStrategyManager.updateGroupStrategy(masterUrl, groupStrategryRequest);
-            if (status != HttpStatus.NO_CONTENT.value()) {
-                 throw new ThalesRuntimeException("failed to update group strategy job " + groupStrategryRequest.getGroupName());
-            }
-        } else {
-            throw new ThalesRuntimeException("调度服务不可用");
-        }
+//        String masterUrl = CuratorHelper.getMasterServiceUri();
+//        if (StringUtils.isNotBlank(masterUrl)) {
+//            int status = GroupStrategyManager.updateGroupStrategy(masterUrl, groupStrategryRequest);
+//            if (status != HttpStatus.NO_CONTENT.value()) {
+//                 throw new ThalesRuntimeException("failed to update group strategy job " + groupStrategryRequest.getGroupName());
+//            }
+//        } else {
+//            throw new ThalesRuntimeException("调度服务不可用");
+//        }
     }
 
     @Override

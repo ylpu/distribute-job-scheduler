@@ -174,7 +174,7 @@ public class MasterManager {
 //        WorkerGroupRequest param = new WorkerGroupRequest();
 //        param.setStatus(WorkerStatus.REMOVED);
 //        WorkerManager.updateWorkersStatus(param);
-        WorkerGroupStrategy.init();
+//        WorkerGroupStrategy.init();
         // 启动任务状态检查线程
         JobStatusChecker.start();
         // 恢复任务状态，比较耗时
@@ -380,8 +380,8 @@ public class MasterManager {
      * @throws Exception 
      */
     public synchronized WorkerResponse getIdleWorker(String groupName, String... lastFailedWorkers) throws Exception {
-//        String workerStrategy = WorkerManager.getGroupStrategy(groupName).getGroupStrategy();
-        String workerStrategy = WorkerGroupStrategy.getGroupStrategy(groupName);
+        String workerStrategy = WorkerManager.getGroupStrategy(groupName).getGroupStrategy();
+//        String workerStrategy = WorkerGroupStrategy.getGroupStrategy(groupName);
         WorkerSelectStrategy workerSelectStrategy = ResourceStrategy
                 .getStrategy(JobStrategy.getJobStrategyByName(workerStrategy));
         return new ResourceStrategyContext(workerSelectStrategy).select(this, groupName, lastFailedWorkers);
