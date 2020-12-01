@@ -30,12 +30,14 @@ thales是一款自主研发的分布式任务调度系统，系统支持command,
 		- common --通用帮助类
 		--model --对外接口模型
 	- master --任务调度
-	    - quartz --任务扫描调度
+	    - quartz --任务调度
 	    - master manager --任务资源管理
-	    - task schedule & submit --任务提交调度
+	    - task status management --任务状态管理
+	    - rpc client --提交任务
 	- worker --任务执行
+	    - rpc server --接收任务请求
 	    - log --任务日志
-	    - execute thread -- 任务执行
+	    - executor-- 任务执行器
 	- core --核心实现
 # scheduler-master
 master作为调度的核心，主要有如下功能：
