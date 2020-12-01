@@ -4,7 +4,6 @@ import com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc;
 import com.ylpu.thales.scheduler.core.utils.FileUtils;
 import com.ylpu.thales.scheduler.core.utils.JsonUtils;
 import com.ylpu.thales.scheduler.executor.AbstractCommonExecutor;
-import com.ylpu.thales.scheduler.executor.python.PythonConfig;
 import com.ylpu.thales.scheduler.request.JobInstanceRequest;
 import java.io.File;
 import java.util.ArrayList;
@@ -37,7 +36,7 @@ public class ShellExecutor extends AbstractCommonExecutor {
     @Override
     public String[] buildCommand(String configFile) throws Exception {
         List<String> commands = new ArrayList<String>();
-        PythonConfig config = JsonUtils.jsonToBean(configFile, PythonConfig.class);
+        ShellConfig config = JsonUtils.jsonToBean(configFile, ShellConfig.class);
         String fileName = config.getFileName();
         if (!FileUtils.exist(new File(fileName))) {
             throw new RuntimeException("file does not exist " + fileName);

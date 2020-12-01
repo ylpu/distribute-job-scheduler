@@ -152,7 +152,7 @@ public abstract class AbstractCommonExecutor {
     }
     
     public String replaceParameters(Map<String, Object> parameters, String fileContent) {
-        if (parameters != null) {
+        if (parameters != null && parameters.size() > 0) {
             for (Entry<String, Object> entry : parameters.entrySet()) {
                 Class<?> cls = entry.getValue().getClass();
                 if (cls == Integer.class || cls == Double.class || cls == Long.class || cls == Float.class) {
@@ -162,8 +162,7 @@ public abstract class AbstractCommonExecutor {
                             "'" + String.valueOf(entry.getValue()) + "'");
                 }
             }
-            return fileContent;
         }
-        return "";
+        return fileContent;
     }
 }
