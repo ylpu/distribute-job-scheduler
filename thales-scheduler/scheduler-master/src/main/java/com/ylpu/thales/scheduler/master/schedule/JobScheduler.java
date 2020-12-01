@@ -1,5 +1,7 @@
 package com.ylpu.thales.scheduler.master.schedule;
 
+import java.util.Properties;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.quartz.CronScheduleBuilder;
@@ -14,6 +16,9 @@ import org.quartz.TriggerBuilder;
 import org.quartz.TriggerKey;
 import org.quartz.SchedulerFactory;
 import org.quartz.impl.StdSchedulerFactory;
+
+import com.ylpu.thales.scheduler.core.config.Configuration;
+import com.ylpu.thales.scheduler.enums.MisfirePolicy;
 
 public class JobScheduler {
 
@@ -56,8 +61,9 @@ public class JobScheduler {
             triggerBuilder.withIdentity(scheduleInfo.getTriggerName(), scheduleInfo.getTriggerGroupName());
             triggerBuilder.startNow();
             // 触发器时间设定
-            triggerBuilder.withSchedule(CronScheduleBuilder.cronSchedule(scheduleInfo.getCron()).
-                    withMisfireHandlingInstructionIgnoreMisfires());
+            CronScheduleBuilder cb = CronScheduleBuilder.cronSchedule(scheduleInfo.getCron());
+            setMisfirePolicy(cb);
+            triggerBuilder.withSchedule(cb);
             // 创建Trigger对象
             CronTrigger trigger = (CronTrigger) triggerBuilder.build();
             // 调度容器设置JobDetail和Trigger
@@ -71,7 +77,7 @@ public class JobScheduler {
             throw new RuntimeException(e);
         }
     }
-
+    
     /**
      * 动态修改任务时间
      * 
@@ -91,9 +97,11 @@ public class JobScheduler {
             // 触发器名,触发器组
             triggerBuilder.withIdentity(scheduleInfo.getTriggerName(), scheduleInfo.getTriggerGroupName());
             triggerBuilder.startNow();
+            
+            CronScheduleBuilder cb = CronScheduleBuilder.cronSchedule(scheduleInfo.getCron());
+            setMisfirePolicy(cb);
             // 触发器时间设定
-            triggerBuilder.withSchedule(CronScheduleBuilder.cronSchedule(scheduleInfo.getCron()).
-                    withMisfireHandlingInstructionIgnoreMisfires());
+            triggerBuilder.withSchedule(cb);
             // 创建Trigger对象
             trigger = (CronTrigger) triggerBuilder.build();
             sched.rescheduleJob(triggerKey, trigger);
@@ -184,6 +192,19 @@ public class JobScheduler {
             }
         } catch (Exception e) {
             LOG.error(e);
+        }
+    }
+    
+    private static void setMisfirePolicy(CronScheduleBuilder cb) {
+        Properties prop = Configuration.getConfig();
+        String misfirePolicy = Configuration.getString(prop, "thales.scheduler.misfire.policy", "ignore");
+        MisfirePolicy ms = MisfirePolicy.getMisfirePolicy(misfirePolicy);
+        if (ms == MisfirePolicy.IGONRE) {
+            cb.withMisfireHandlingInstructionIgnoreMisfires();
+        }else if(ms == MisfirePolicy.NOTHING) {
+            cb.withMisfireHandlingInstructionDoNothing();
+        }else if (ms == MisfirePolicy.PROCEED){
+            cb.withMisfireHandlingInstructionFireAndProceed();
         }
     }
 }
