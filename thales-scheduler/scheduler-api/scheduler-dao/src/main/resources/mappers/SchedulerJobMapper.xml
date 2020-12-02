@@ -59,7 +59,7 @@
   
   <select id="findAll" resultMap="ResultMapWithRelations">
      select *
-        from t_thales_scheduler_job job left join t_thales_scheduler_job_relation job_relation on job.id = job_relation.job_id
+        from t_thales_scheduler_job job 
         where job.job_ReleaseState != -1
             <if test="jobType != null and jobType != ''">
                 and job.job_type = #{jobType}
