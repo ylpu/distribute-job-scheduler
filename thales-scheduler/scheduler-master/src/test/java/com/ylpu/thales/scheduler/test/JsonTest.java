@@ -12,14 +12,17 @@ import com.google.gson.JsonObject;
 
 public class JsonTest {
     
-    public static String replaceHolder(String json, Map<String,String> placeHolder) {
+    public static String replaceHolder(String json, Map<String,Object> placeHolder) {
         if(placeHolder != null && placeHolder.size() > 0) {
             Gson gson = new Gson();
             Map<String , Object> map = gson.fromJson(json,Map.class);
             Map<String, Object> parameters = (Map<String, Object>) map.get("parameters");
             if(parameters != null && parameters.size() > 0) {
-                for(Entry<String,String> entry : placeHolder.entrySet()) {
-                    json = json.replace("&"+entry.getKey(), "\"" + entry.getValue() + "\"");
+                for(Entry<String,Object> entry : parameters.entrySet()) {
+                    String placeHolderKey = entry.getValue().toString().replace("&", "").toLowerCase();
+                    if(placeHolder.containsKey(placeHolderKey)) {
+                        json = json.replace(entry.getValue().toString(), "\"" + placeHolder.get(placeHolderKey) + "\"");
+                    }
                 }
             }
         }
@@ -67,7 +70,7 @@ public class JsonTest {
     public static void main(String[] args) {
                 
         String jsonString = "{\"fileName\" : \"/tmp/shell/test.sh\",\"parameters\" : {\"param1\":&from,\"param2\":&to}}";
-        Map<String,String> placeHolder = new HashMap<String,String>();
+        Map<String,Object> placeHolder = new HashMap<String,Object>();
         placeHolder.put("from", "20201201");
         placeHolder.put("to", "20201202");
         String replaceJsonString = replaceHolder(jsonString,placeHolder);

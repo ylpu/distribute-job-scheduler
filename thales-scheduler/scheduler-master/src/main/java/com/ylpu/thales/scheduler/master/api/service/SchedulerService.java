@@ -170,19 +170,24 @@ public class SchedulerService {
 
     private JobInstanceRequestRpc setRequest(JobInstanceResponse response) {
         JobInstanceRequestRpc newRpcJobInstanceRequest = JobInstanceRequestRpc.newBuilder()
-                .setApplicationid(response.getApplicationid()).setPid(response.getPid()).setId(response.getId())
+                .setApplicationid(response.getApplicationid())
+                .setPid(response.getPid())
+                .setId(response.getId())
                 .setRequestId(
                         response.getJobConf().getId() + "-"
                                 + DateUtils.getDateAsString(DateUtils.getDateFromString(response.getScheduleTime(),
                                         DateUtils.DATE_TIME_FORMAT), DateUtils.MINUTE_TIME_FORMAT))
-                .setJob(JobSubmission.setJobRequest(response.getParameters(),response.getJobConf())).setCreatorEmail(response.getCreatorEmail())
+                .setJob(JobSubmission.setJobRequest(response.getParameters(),response.getJobConf()))
+                .setCreatorEmail(response.getCreatorEmail())
                 .setCreatorName(response.getCreatorName())
                 .setScheduleTime(DateUtils.getProtobufTime(
                         DateUtils.getDateFromString(response.getScheduleTime(), DateUtils.DATE_TIME_FORMAT)))
                 .setStartTime(DateUtils.getProtobufTime(
                         DateUtils.getDateFromString(response.getStartTime(), DateUtils.DATE_TIME_FORMAT)))
-                .setLogPath(response.getLogPath()).setLogUrl(response.getLogUrl())
-                .setRetryTimes(response.getRetryTimes()).setTaskState(response.getTaskState().getCode())
+                .setLogPath(response.getLogPath())
+                .setLogUrl(response.getLogUrl())
+                .setRetryTimes(response.getRetryTimes())
+                .setTaskState(response.getTaskState().getCode())
                 .setWorker(response.getWorker()).build();
         return newRpcJobInstanceRequest;
     }

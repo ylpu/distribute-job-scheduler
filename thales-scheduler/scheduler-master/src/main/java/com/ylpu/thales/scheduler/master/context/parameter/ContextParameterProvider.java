@@ -25,6 +25,10 @@ public class ContextParameterProvider {
         return contextParameter.get(key);
     }
     
+    public static void addParameter(String parameter, Object value) {
+        contextParameter.put(parameter, value);
+    }
+    
     public static Map<String,Object> getContextParameter() {
         return contextParameter;
     }
