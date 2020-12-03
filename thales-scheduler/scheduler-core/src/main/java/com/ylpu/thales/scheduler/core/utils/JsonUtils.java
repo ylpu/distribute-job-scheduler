@@ -154,18 +154,20 @@ public class JsonUtils {
     
     public static String getParameters(String json) {
         Gson gson = new Gson();
+        StringBuilder sb = new StringBuilder();
         Map<String , Object> map = gson.fromJson(json,Map.class);
         Map<String, Object> parameters = (Map<String, Object>) map.get("parameters");
-        Set<Entry<String,Object>> entrySet = parameters.entrySet();
-        Iterator<Entry<String,Object>> it = entrySet.iterator();
-        StringBuilder sb = new StringBuilder();
-        while(it.hasNext()) {
-            Entry<String,Object> entry = it.next();
-            sb.append(entry.getKey() + "=" + entry.getValue());
-            if(it.hasNext()) {
-                sb.append(",");
+        if(parameters != null && parameters.size() > 0) {
+            Set<Entry<String,Object>> entrySet = parameters.entrySet();
+            Iterator<Entry<String,Object>> it = entrySet.iterator();
+            while(it.hasNext()) {
+                Entry<String,Object> entry = it.next();
+                sb.append(entry.getKey() + "=" + entry.getValue());
+                if(it.hasNext()) {
+                    sb.append(",");
+                }
             }
-        }     
+        }
         return sb.toString();
     }
     
