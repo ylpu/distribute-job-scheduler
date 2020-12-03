@@ -205,4 +205,14 @@ public class JobManager {
                 .getForObject(apiUrl + "jobInstance/getJobInstanceByTime", typeRef, map);
         return jobResponse.getData();
     }
+    
+    public static List<Map<String, Object>> getTaskCountByWorker() throws Exception {
+        ParameterizedTypeReference<SchedulerResponse<List<Map<String, Object>>>> typeRef = new ParameterizedTypeReference<SchedulerResponse<List<Map<String, Object>>>>() {
+        };
+        String apiUrl = Configuration.getString(Configuration.getConfig(), "thales.api.url",
+                GlobalConstants.DEFAULT_API_URL);
+        SchedulerResponse<List<Map<String, Object>>> schedulerResponse = RestClient
+                .getForObject(apiUrl + "jobInstance/getRunningJobCount", typeRef, null);
+        return schedulerResponse.getData();
+    }
 }

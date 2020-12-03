@@ -3,7 +3,6 @@ package com.ylpu.thales.scheduler.master.strategy;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import com.ylpu.thales.scheduler.core.rest.WorkerManager;
 import com.ylpu.thales.scheduler.request.GroupStrategyRequest;
 import com.ylpu.thales.scheduler.response.GroupStrategyResponse;
 

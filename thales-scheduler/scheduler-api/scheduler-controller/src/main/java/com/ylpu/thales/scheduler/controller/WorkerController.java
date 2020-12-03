@@ -1,7 +1,6 @@
 package com.ylpu.thales.scheduler.controller;
 
 import com.github.pagehelper.PageInfo;
-import com.ylpu.thales.scheduler.request.WorkerGroupRequest;
 import com.ylpu.thales.scheduler.request.WorkerRequest;
 import com.ylpu.thales.scheduler.response.SchedulerResponse;
 import com.ylpu.thales.scheduler.response.WorkerResponse;
@@ -25,40 +24,10 @@ public class WorkerController {
     private WorkerService workerService;
 
     @ResponseBody
-    @RequestMapping(value = "/addWorker", method = RequestMethod.POST)
-    public void addWorker(@RequestBody WorkerRequest request) {
-        workerService.addWorker(request);
-    }
-
-    @ResponseBody
-    @RequestMapping(value = "/insertOrUpdateWorker", method = RequestMethod.POST)
-    public void insertOrUpdateWorker(@RequestBody WorkerRequest request) {
-        workerService.insertOrUpdateWorker(request);
-    }
-
-    @ResponseBody
-    @RequestMapping(value = "/updateWorkersStatusByGroup", method = RequestMethod.POST)
-    public void updateWorkersStatusByGroup(@RequestBody WorkerGroupRequest request) {
-        workerService.updateWorkersStatusByGroup(request);
-    }
-
-    @ResponseBody
-    @RequestMapping(value = "/updateWorkersStatus", method = RequestMethod.POST)
-    public void updateWorkersStatus(@RequestBody WorkerGroupRequest request) {
-        workerService.updateWorkersStatus(request);
-    }
-
-    @ResponseBody
-    @RequestMapping(value = "/getWorkersInfoByGroup", method = RequestMethod.POST)
-    public SchedulerResponse<List<WorkerResponse>> getWorkersInfoByGroup(@RequestBody WorkerGroupRequest request) {
-        return new SchedulerResponse<List<WorkerResponse>>(workerService.getWorkersInfoByGroup(request));
-    }
-
-    @ResponseBody
     @RequestMapping(value = "/getWorkerGroups", method = RequestMethod.GET)
     public SchedulerResponse<List<String>> getWorkerGroups(
             @RequestParam(value = "workerStatus", required = false) Integer workerStatus) {
-        return new SchedulerResponse<List<String>>(workerService.getWorkerGroups(workerStatus));
+        return new SchedulerResponse<List<String>>(workerService.getWorkerGroups());
     }
 
     @ResponseBody
@@ -71,7 +40,7 @@ public class WorkerController {
         return new SchedulerResponse<PageInfo<WorkerResponse>>(
                 workerService.findAll(workerGroup, worker, pageNo, pageSize));
     }
-    
+     
     @ResponseBody
     @RequestMapping(value = "/markDown", method = RequestMethod.POST)
     public SchedulerResponse<Void> markDown(@Validated @RequestBody WorkerRequest request, HttpSession session) {

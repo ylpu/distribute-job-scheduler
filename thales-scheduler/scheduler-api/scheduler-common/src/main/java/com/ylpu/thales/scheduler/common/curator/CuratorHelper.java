@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import org.apache.commons.logging.Log;
@@ -16,6 +17,8 @@ import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.data.Stat;
 import com.ylpu.thales.scheduler.common.config.Configuration;
 import com.ylpu.thales.scheduler.common.constants.GlobalConstants;
+import com.ylpu.thales.scheduler.common.utils.ByteUtils;
+import com.ylpu.thales.scheduler.request.WorkerRequest;
 
 public class CuratorHelper {
 
@@ -72,6 +75,58 @@ public class CuratorHelper {
         if (client != null) {
             client.close();
         }
+    }
+    
+    public static List<String> getWorkerGroups(){
+        List<WorkerRequest> list = new ArrayList<WorkerRequest>();
+        Properties prop = Configuration.getConfig(GlobalConstants.CONFIG_FILE);
+        String quorum = prop.getProperty("thales.zookeeper.quorum");
+        int sessionTimeout = Configuration.getInt(prop, "thales.zookeeper.sessionTimeout",
+                GlobalConstants.ZOOKEEPER_SESSION_TIMEOUT);
+        int connectionTimeout = Configuration.getInt(prop, "thales.zookeeper.connectionTimeout",
+                GlobalConstants.ZOOKEEPER_CONNECTION_TIMEOUT);
+        CuratorFramework client  = CuratorHelper.getCuratorClient(quorum, sessionTimeout, connectionTimeout);
+        List<String> groupList = null;
+        try {
+            groupList = CuratorHelper.getChildren(client, GlobalConstants.WORKER_GROUP);
+        } catch (Exception e) {
+            LOG.error(e);
+        }finally {
+            CuratorHelper.close(client);
+        }
+        return groupList;
+    }
+    
+    public static List<WorkerRequest> getAllWorkers(){
+        List<WorkerRequest> list = new ArrayList<WorkerRequest>();
+        Properties prop = Configuration.getConfig(GlobalConstants.CONFIG_FILE);
+        String quorum = prop.getProperty("thales.zookeeper.quorum");
+        int sessionTimeout = Configuration.getInt(prop, "thales.zookeeper.sessionTimeout",
+                GlobalConstants.ZOOKEEPER_SESSION_TIMEOUT);
+        int connectionTimeout = Configuration.getInt(prop, "thales.zookeeper.connectionTimeout",
+                GlobalConstants.ZOOKEEPER_CONNECTION_TIMEOUT);
+        CuratorFramework client  = CuratorHelper.getCuratorClient(quorum, sessionTimeout, connectionTimeout);
+        List<String> groupList;
+        try {
+            groupList = CuratorHelper.getChildren(client, GlobalConstants.WORKER_GROUP);
+            if(groupList != null && groupList.size() > 0) {
+                for(String group : groupList) {
+                    List<String> workerList = CuratorHelper.getChildren(client, GlobalConstants.WORKER_GROUP + "/" + group);
+                    if(workerList != null && workerList.size() > 0) {
+                        for(String worker : workerList) {
+                            byte[] bytes = CuratorHelper.getData(client, GlobalConstants.WORKER_GROUP + "/" + group + "/" + worker);
+                            WorkerRequest request = (WorkerRequest) ByteUtils.byteArrayToObject(bytes);
+                            list.add(request);
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            LOG.error(e);
+        }finally {
+            CuratorHelper.close(client);
+        }
+        return list;
     }
 
     public static String getMasterServiceUri() {

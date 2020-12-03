@@ -3,8 +3,8 @@ package com.ylpu.thales.scheduler.master.server;
 import com.ylpu.thales.scheduler.core.config.Configuration;
 import com.ylpu.thales.scheduler.core.constants.GlobalConstants;
 import com.ylpu.thales.scheduler.core.curator.CuratorHelper;
+import com.ylpu.thales.scheduler.core.rest.GroupStrategyManager;
 import com.ylpu.thales.scheduler.core.rest.JobManager;
-import com.ylpu.thales.scheduler.core.rest.WorkerManager;
 import com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc;
 import com.ylpu.thales.scheduler.core.utils.ByteUtils;
 import com.ylpu.thales.scheduler.core.utils.DateUtils;
@@ -201,7 +201,7 @@ public class MasterManager {
 
     private void initTaskCount() throws Exception {
         synchronized (taskMap) {
-            List<Map<String, Object>> list = WorkerManager.getTaskCountByWorker();
+            List<Map<String, Object>> list = JobManager.getTaskCountByWorker();
             for (Map<String, Object> map : list) {
                 Object worker = map.get("worker");
                 if (worker != null) {
@@ -250,12 +250,12 @@ public class MasterManager {
                 resourceMap.remove(child);
             }
         }
-        String workerGroup = groupPath.substring(groupPath.lastIndexOf("/") + 1);
-        WorkerGroupRequest param = new WorkerGroupRequest();
-        param.setGroupName(workerGroup);
-        param.setStatus(WorkerStatus.REMOVED);
-        param.setWorkers(disconnectedChildren);
-        WorkerManager.updateWorkersStatusByGroup(param);
+//        String workerGroup = groupPath.substring(groupPath.lastIndexOf("/") + 1);
+//        WorkerGroupRequest param = new WorkerGroupRequest();
+//        param.setGroupName(workerGroup);
+//        param.setStatus(WorkerStatus.REMOVED);
+//        param.setWorkers(disconnectedChildren);
+//        WorkerManager.updateWorkersStatusByGroup(param);
     }
 
     /**
@@ -329,7 +329,7 @@ public class MasterManager {
                         String udpatedPath = pathChildrenCacheEvent.getData().getPath();
                         byte[] bytes = CuratorHelper.getData(curatorFramework, udpatedPath);
                         WorkerRequest request = (WorkerRequest) ByteUtils.byteArrayToObject(bytes);
-                        WorkerManager.insertOrUpdateWorker(request);
+//                        WorkerManager.insertOrUpdateWorker(request);
                         updateResource(request);
                     default:
                         break;
@@ -380,7 +380,7 @@ public class MasterManager {
      * @throws Exception 
      */
     public synchronized WorkerResponse getIdleWorker(String groupName, String... lastFailedWorkers) throws Exception {
-        String workerStrategy = WorkerManager.getGroupStrategy(groupName).getGroupStrategy();
+        String workerStrategy = GroupStrategyManager.getGroupStrategy(groupName).getGroupStrategy();
 //        String workerStrategy = WorkerGroupStrategy.getGroupStrategy(groupName);
         WorkerSelectStrategy workerSelectStrategy = ResourceStrategy
                 .getStrategy(JobStrategy.getJobStrategyByName(workerStrategy));

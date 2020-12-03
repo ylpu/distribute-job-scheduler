@@ -3,7 +3,7 @@ package com.ylpu.thales.scheduler.worker;
 import com.ylpu.thales.scheduler.core.config.Configuration;
 import com.ylpu.thales.scheduler.core.constants.GlobalConstants;
 import com.ylpu.thales.scheduler.core.curator.CuratorHelper;
-import com.ylpu.thales.scheduler.core.rest.WorkerManager;
+import com.ylpu.thales.scheduler.core.rest.GroupStrategyManager;
 import com.ylpu.thales.scheduler.core.rpc.entity.WorkerRequestRpc;
 import com.ylpu.thales.scheduler.core.utils.ByteUtils;
 import com.ylpu.thales.scheduler.core.utils.MetricsUtils;
@@ -14,7 +14,6 @@ import com.ylpu.thales.scheduler.executor.rpc.client.WorkerGrpcClient;
 import com.ylpu.thales.scheduler.executor.rpc.server.WorkerRpcServer;
 import com.ylpu.thales.scheduler.request.WorkerRequest;
 import com.ylpu.thales.scheduler.response.GroupStrategyResponse;
-
 import org.I0Itec.zkclient.ZkClient;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.logging.Log;
@@ -118,7 +117,7 @@ public class WorkerServer {
     }
     
     private boolean isValidateGroup(String groupName) throws Exception {
-        GroupStrategyResponse groupStrategy = WorkerManager.getGroupStrategy(groupName);
+        GroupStrategyResponse groupStrategy = GroupStrategyManager.getGroupStrategy(groupName);
         if(groupStrategy == null) {
             return false;
         }

@@ -13,4 +13,6 @@ public class GlobalConstants {
     public static final String CONFIG_FILE = "config.properties";
 
     public static final String MASTER_GROUP = "/thales/masters";
+    
+    public static final String WORKER_GROUP = "/thales/workers";
 }
