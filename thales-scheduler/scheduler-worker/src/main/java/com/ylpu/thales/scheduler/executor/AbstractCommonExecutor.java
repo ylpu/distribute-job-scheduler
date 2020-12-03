@@ -114,12 +114,11 @@ public abstract class AbstractCommonExecutor {
         builder.setData(ByteString.copyFrom(ByteUtils.objectToByteArray(request)));
         return builder.build();
     }
-
+    
     public int transitJobStatusToRunning(JobStatusRequestRpc request) {
         WorkerGrpcClient client = null;
         int returnCode = 200;
         String master = "";
-        //确保master连上active的master，如果master在切换中，需要一直等待
         while(true) {
             try {
                 master = CuratorHelper.getActiveMaster(); 
