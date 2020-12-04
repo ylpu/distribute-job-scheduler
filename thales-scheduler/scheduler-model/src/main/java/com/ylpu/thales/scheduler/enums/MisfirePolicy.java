@@ -2,14 +2,14 @@ package com.ylpu.thales.scheduler.enums;
 
 public enum MisfirePolicy {
 
-    NOTHING, IGONRE, PROCEED;
+    NOTHING, IGNORE, PROCEED;
 
     public static MisfirePolicy getMisfirePolicy(String name) {
-        for (MisfirePolicy operator : MisfirePolicy.values()) {
-            if (operator.toString().equalsIgnoreCase(name)) {
-                return operator;
+        for (MisfirePolicy policy : MisfirePolicy.values()) {
+            if (policy.toString().equalsIgnoreCase(name)) {
+                return policy;
             }
         }
-        throw new IllegalArgumentException("unsupported sql operator " + name);
+        return IGNORE;
     }
 }

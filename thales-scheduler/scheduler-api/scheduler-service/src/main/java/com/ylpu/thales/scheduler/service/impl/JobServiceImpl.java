@@ -315,6 +315,8 @@ public class JobServiceImpl extends BaseServiceImpl<SchedulerJob, Integer> imple
         if (jobList != null && jobList.size() > 0) {
             for (SchedulerJob job : jobList) {
                 jobResponse = new JobResponse();
+                List<SchedulerJobRelation> jobRelations = schedulerJobMapper.findParentJobsById(job.getId());
+                job.setRelations(jobRelations);
                 BeanUtils.copyProperties(job, jobResponse);
                 setJobResponse(job, jobResponse);
                 page.add(jobResponse);

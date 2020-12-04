@@ -1,7 +1,6 @@
 package com.ylpu.thales.scheduler.service;
 
 import java.util.List;
-
 import com.github.pagehelper.PageInfo;
 import com.ylpu.thales.scheduler.common.service.BaseService;
 import com.ylpu.thales.scheduler.entity.SchedulerJob;

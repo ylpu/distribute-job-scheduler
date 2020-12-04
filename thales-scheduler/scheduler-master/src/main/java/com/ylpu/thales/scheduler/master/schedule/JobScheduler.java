@@ -199,7 +199,7 @@ public class JobScheduler {
         Properties prop = Configuration.getConfig();
         String misfirePolicy = Configuration.getString(prop, "thales.scheduler.misfire.policy", "ignore");
         MisfirePolicy ms = MisfirePolicy.getMisfirePolicy(misfirePolicy);
-        if (ms == MisfirePolicy.IGONRE) {
+        if (ms == MisfirePolicy.IGNORE) {
             cb.withMisfireHandlingInstructionIgnoreMisfires();
         }else if(ms == MisfirePolicy.NOTHING) {
             cb.withMisfireHandlingInstructionDoNothing();

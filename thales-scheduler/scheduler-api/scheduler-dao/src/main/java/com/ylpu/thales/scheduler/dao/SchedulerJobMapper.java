@@ -7,6 +7,7 @@ import com.ylpu.thales.scheduler.common.dao.BaseDao;
 import com.ylpu.thales.scheduler.entity.JobDependency;
 import com.ylpu.thales.scheduler.entity.JobTree;
 import com.ylpu.thales.scheduler.entity.SchedulerJob;
+import com.ylpu.thales.scheduler.entity.SchedulerJobRelation;
 
 public interface SchedulerJobMapper extends BaseDao<SchedulerJob, Integer> {
     public List<SchedulerJob> getJobParentsByIds(List<Integer> ids);
@@ -22,5 +23,7 @@ public interface SchedulerJobMapper extends BaseDao<SchedulerJob, Integer> {
     public Integer getJobCountByName(@Param("jobName") String jobName);
 
     public List<JobDependency> getAllJobs();
+    
+    public List<SchedulerJobRelation> findParentJobsById(@Param("jobId") Integer jobId);
 
 }
