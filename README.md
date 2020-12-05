@@ -39,7 +39,7 @@ thales是一款自主研发的分布式任务调度系统，系统支持command,
 	    - rpc client --提交任务
 	- worker --任务执行
 	    - rpc server --接收任务请求
-	    - log --任务日志
+	    - log --日志服务器
 	    - executor-- 任务执行器
 	- core --核心实现
 # scheduler-master
