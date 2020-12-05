@@ -152,4 +152,4 @@ api作为接口层，主要有如下功能：
  * 实例图
    * 图表方式查看任务近30天的运行情况
  # 系统图
- ![image](https://github.com/ylpu/distribute-job-scheduler/tree/master/docs/summary.png)
+ ![image](https://github.com/ylpu/distribute-job-scheduler/raw/master/docs/summary.png)
