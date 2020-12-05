@@ -152,4 +152,15 @@ api作为接口层，主要有如下功能：
  * 实例图
    * 图表方式查看任务近30天的运行情况
  # 系统图
+ * 整体图
  ![image](https://github.com/ylpu/distribute-job-scheduler/raw/master/docs/summary.png)
+ * 任务管理
+ ![image](https://github.com/ylpu/distribute-job-scheduler/raw/master/docs/jobmanagement.png)
+ * 添加任务
+ ![image](https://github.com/ylpu/distribute-job-scheduler/raw/master/docs/addjob.png)
+ * 任务图
+ ![image](https://github.com/ylpu/distribute-job-scheduler/raw/master/docs/job.png)
+ * 任务实例管理
+ ![image](https://github.com/ylpu/distribute-job-scheduler/raw/master/docs/jobinstance.png)
+ * 任务实例图
+ ![image](https://github.com/ylpu/distribute-job-scheduler/raw/master/docs/jobinstancechart.png)
