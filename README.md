@@ -158,9 +158,9 @@ api作为接口层，主要有如下功能：
  ![image](https://github.com/ylpu/distribute-job-scheduler/raw/master/docs/jobmanagement.png)
  * 添加任务
  ![image](https://github.com/ylpu/distribute-job-scheduler/raw/master/docs/addjob.png)
- * 任务图
+ * 任务依赖图
  ![image](https://github.com/ylpu/distribute-job-scheduler/raw/master/docs/job.png)
  * 任务实例管理
  ![image](https://github.com/ylpu/distribute-job-scheduler/raw/master/docs/jobinstance.png)
- * 任务实例图
+ * 任务近30次运行时间图
  ![image](https://github.com/ylpu/distribute-job-scheduler/raw/master/docs/jobinstancechart.png)
