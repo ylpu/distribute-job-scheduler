@@ -151,3 +151,5 @@ api作为接口层，主要有如下功能：
    * 查看整个任务的依赖关系
  * 实例图
    * 图表方式查看任务近30天的运行情况
+ # 系统图
+ ![image](https://github.com/ylpu/distribute-job-scheduler/tree/master/docs/summary.png)
