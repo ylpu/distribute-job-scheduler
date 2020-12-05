@@ -2,7 +2,7 @@
 thales是一款自主研发的分布式任务调度系统，系统支持command,shell,hive,spark,python,http,sql,flink,clickhouse等各种类型任务的调用。
 
 # Architecture
-![image](https://github.com/ylpu/distribute-job-scheduler/tree/master/docs/thales-arch.png)
+![image](https://github.com/ylpu/distribute-job-scheduler/raw/master/docs/thales-arch.png)
 
 # Feature
 * 分布式部署
