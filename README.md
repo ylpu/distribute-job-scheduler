@@ -64,9 +64,8 @@ api作为接口层，主要有如下功能：
 * 和前端交互，负责任务调度，下线，重跑，看日志等。
 
 # 系统运行
-* 本地安装mysql,zookeeper,如非本地安装，需要修改controller,master,worker里config.properties,application.yml中的zookeeper和mysql地址和端口
-* 在mysql数据库中执行distribute-job-scheduler/thales-scheduler/sql/thales-scheduler.sql
 * git clone https://github.com/ylpu/distribute-job-scheduler.git ,将项目导入到intellij或eclipse中并安装lombok.
+* 本地安装mysql,zookeeper,如非本地安装，需要修改controller,master,worker里config.properties,application.yml中的zookeeper和mysql地址和端口
 * 在distribute-job-scheduler中执行mvn clean install -Dmaven.test.skip=true
 * 在mysql数据库中执行语句
   * distribute-job-scheduler/thales-scheduler/sql/thales-scheduler.sql
