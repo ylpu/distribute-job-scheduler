@@ -6,10 +6,9 @@ import org.apache.commons.logging.LogFactory;
 import com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc;
 import com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc;
 import com.ylpu.thales.scheduler.core.rpc.service.GrpcJobServiceGrpc;
-import com.ylpu.thales.scheduler.enums.TaskState;
+//import com.ylpu.thales.scheduler.enums.TaskState;
 import com.ylpu.thales.scheduler.master.schedule.JobStatusChecker;
-import com.ylpu.thales.scheduler.master.schedule.JobSubmission;
-
+//import com.ylpu.thales.scheduler.master.schedule.JobSubmission;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 
@@ -30,20 +29,14 @@ public class JobGrpcBlockingClient extends AbstractJobGrpcClient {
     }
 
     @Override
-    public void submitJob(JobInstanceRequestRpc rpcRequest) throws Exception {
+    public void submitJob(JobInstanceRequestRpc rpcRequest){
 
     }
 
-    public void kill(JobInstanceRequestRpc rpcRequest) throws Exception {
-        JobInstanceResponseRpc responseRpc = null;
-        try {
-            responseRpc = blockStub.kill(rpcRequest);
-            LOG.info("task " + rpcRequest.getRequestId() + " return code is " + responseRpc.getErrorCode() + " ,return message "
-                    + responseRpc.getErrorMsg());
-        } catch (Exception e) {
-            LOG.error(e.getMessage());
-            responseRpc = JobSubmission.buildResponse(rpcRequest.getRequestId(), TaskState.RUNNING.getCode());
-        }
+    public void kill(JobInstanceRequestRpc rpcRequest){
+        JobInstanceResponseRpc responseRpc =  blockStub.kill(rpcRequest);
+        LOG.info("task " + rpcRequest.getRequestId() + " return code is " + responseRpc.getErrorCode() + " ,return message "
+                + responseRpc.getErrorMsg());
         JobStatusChecker.addResponse(responseRpc);
         //remove request after kill
         JobStatusChecker.getJobInstanceRequestMap().remove(rpcRequest.getRequestId());

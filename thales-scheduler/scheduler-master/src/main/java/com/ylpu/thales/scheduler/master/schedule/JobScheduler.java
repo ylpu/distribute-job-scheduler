@@ -58,7 +58,8 @@ public class JobScheduler {
             // 触发器
             TriggerBuilder<Trigger> triggerBuilder = TriggerBuilder.newTrigger();
             // 触发器名,触发器组
-            triggerBuilder.withIdentity(scheduleInfo.getTriggerName(), scheduleInfo.getTriggerGroupName());
+            triggerBuilder.withIdentity(scheduleInfo.getTriggerName(), scheduleInfo.getTriggerGroupName())
+            .withPriority(scheduleInfo.getJobPriority() * 5);
             triggerBuilder.startNow();
             // 触发器时间设定
             CronScheduleBuilder cb = CronScheduleBuilder.cronSchedule(scheduleInfo.getCron());
@@ -95,7 +96,8 @@ public class JobScheduler {
             // 触发器
             TriggerBuilder<Trigger> triggerBuilder = TriggerBuilder.newTrigger();
             // 触发器名,触发器组
-            triggerBuilder.withIdentity(scheduleInfo.getTriggerName(), scheduleInfo.getTriggerGroupName());
+            triggerBuilder.withIdentity(scheduleInfo.getTriggerName(), scheduleInfo.getTriggerGroupName())
+            .withPriority(scheduleInfo.getJobPriority() * 5);
             triggerBuilder.startNow();
             
             CronScheduleBuilder cb = CronScheduleBuilder.cronSchedule(scheduleInfo.getCron());

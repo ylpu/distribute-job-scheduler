@@ -3,17 +3,16 @@ package com.ylpu.thales.scheduler.master.server;
 import com.ylpu.thales.scheduler.core.config.Configuration;
 import com.ylpu.thales.scheduler.core.constants.GlobalConstants;
 import com.ylpu.thales.scheduler.core.curator.CuratorHelper;
-import com.ylpu.thales.scheduler.core.rest.GroupStrategyManager;
 import com.ylpu.thales.scheduler.core.rest.JobManager;
 import com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc;
 import com.ylpu.thales.scheduler.core.utils.ByteUtils;
 import com.ylpu.thales.scheduler.core.utils.DateUtils;
 import com.ylpu.thales.scheduler.core.utils.MetricsUtils;
 import com.ylpu.thales.scheduler.core.utils.SSHUtils;
-import com.ylpu.thales.scheduler.enums.TaskState;
+//import com.ylpu.thales.scheduler.enums.TaskState;
 import com.ylpu.thales.scheduler.enums.WorkerStatus;
 import com.ylpu.thales.scheduler.master.api.server.MasterApiServer;
-import com.ylpu.thales.scheduler.master.api.service.SchedulerService;
+//import com.ylpu.thales.scheduler.master.api.service.SchedulerService;
 import com.ylpu.thales.scheduler.master.jmx.MasterJmxServer;
 import com.ylpu.thales.scheduler.master.rpc.server.MasterRpcServer;
 import com.ylpu.thales.scheduler.master.schedule.JobStatusChecker;
@@ -21,9 +20,7 @@ import com.ylpu.thales.scheduler.master.schedule.JobScheduler;
 import com.ylpu.thales.scheduler.master.strategy.JobStrategy;
 import com.ylpu.thales.scheduler.master.strategy.ResourceStrategy;
 import com.ylpu.thales.scheduler.master.strategy.ResourceStrategyContext;
-import com.ylpu.thales.scheduler.master.strategy.WorkerGroupStrategy;
 import com.ylpu.thales.scheduler.master.strategy.WorkerSelectStrategy;
-import com.ylpu.thales.scheduler.request.WorkerGroupRequest;
 import com.ylpu.thales.scheduler.request.WorkerRequest;
 import com.ylpu.thales.scheduler.response.JobInstanceStateResponse;
 import com.ylpu.thales.scheduler.response.WorkerResponse;
@@ -53,6 +50,8 @@ public class MasterManager {
 
     // key is hostname,value is host info
     private Map<String, WorkerResponse> resourceMap = new HashMap<String, WorkerResponse>();
+    
+    private Map<String, String> groupStrategyMap = new HashMap<String, String>();
 
     // key is hostname,value is tasknumbers
     private Map<String, Integer> taskMap = new HashMap<String, Integer>();
@@ -139,12 +138,12 @@ public class MasterManager {
                 }
             }
 
+            
             init(GlobalConstants.WORKER_GROUP, prop);
             int masterServerPort = Configuration.getInt(prop, "thales.master.server.port", DEFAULT_MASTER_SERVER_PORT);
             // 启动master rpc服务
             server = new MasterRpcServer(masterServerPort);
             server.start();
-            
             //当前节点竞选成为active节点
             activeMaster = MetricsUtils.getHostName() + ":" + masterServerPort;
             String masterPath = GlobalConstants.MASTER_GROUP + "/" + activeMaster;
@@ -170,14 +169,27 @@ public class MasterManager {
                 addNodeChangeListener(client, groupPath);
             }
         }
+        
+        CuratorFramework strategyClient = CuratorHelper.getCuratorClient(quorum, sessionTimeout, connectionTimeout);
+        List<String> strategyList = CuratorHelper.getChildren(client, GlobalConstants.STRATEGY_GROUP);
+        if (strategyList != null && strategyList.size() > 0) {
+            for (String groupName : strategyList) {
+                byte[] bytes = CuratorHelper.getData(strategyClient, GlobalConstants.STRATEGY_GROUP + "/" + groupName);
+                groupStrategyMap.put(groupName, new String(bytes));
+            }
+            addStrategyChangeListener(client, GlobalConstants.STRATEGY_GROUP);
+        }
         //设置所有的worker为removed
 //        WorkerGroupRequest param = new WorkerGroupRequest();
 //        param.setStatus(WorkerStatus.REMOVED);
 //        WorkerManager.updateWorkersStatus(param);
-//        WorkerGroupStrategy.init();
+//        恢复任务状态，比较耗时
+//        restoreTaskState();
         // 启动任务状态检查线程
         JobStatusChecker.start();
-        // 恢复任务状态，比较耗时
+        // 标识以前的任务状态为失败
+        JobManager.markStatus();
+        // 加载任务实例状态，比较耗时
         restoreTaskState();
         // 启动master服务
         jettyServer = new MasterApiServer(prop);
@@ -189,6 +201,7 @@ public class MasterManager {
         // 启动jmx服务
         agent = new MasterJmxServer(Configuration.getInt(prop, "thales.master.jmx.port", DEFAULT_JMX_PORT));
         agent.start();
+
     }
 
     private void initGroup(String groupPath) throws Exception {
@@ -217,30 +230,43 @@ public class MasterManager {
      * 
      * @throws Exception
      */
-    private void restoreTaskState(){
-        try {
-            JobInstanceResponseRpc responseRpc = null;
-            SchedulerService schedulerService = new SchedulerService();
-            List<JobInstanceStateResponse> list = JobManager.getAllJobStatus();
-            if (list != null && list.size() > 0) {
-                for (JobInstanceStateResponse response : list) {
-                    if(response.getTaskState() == TaskState.SUBMIT.getCode() || response.getTaskState() == TaskState.SCHEDULED.getCode()
-                            || response.getTaskState() == TaskState.WAITING_DEPENDENCY.getCode() || response.getTaskState() == TaskState.QUEUED.getCode()
-                            || response.getTaskState() == TaskState.WAITING_RESOURCE.getCode()) {
-                        schedulerService.rerun(response.getId());
-                    }else {
-                        String responseId = response.getJobId() + "-"
-                                + DateUtils.getDateAsString(response.getScheduleTime(), DateUtils.MINUTE_TIME_FORMAT);
-                        responseRpc = JobInstanceResponseRpc.newBuilder().setId(response.getId()).setResponseId(responseId)
-                                .setTaskState(response.getTaskState()).build();
-                        JobStatusChecker.addResponse(responseRpc);
-                    }
-                }
-                
+//    private void restoreTaskState(){
+//        try {
+//            JobInstanceResponseRpc responseRpc = null;
+//            SchedulerService schedulerService = new SchedulerService();
+//            List<JobInstanceStateResponse> list = JobManager.getAllJobStatus();
+//            if (list != null && list.size() > 0) {
+//                for (JobInstanceStateResponse response : list) {
+//                    if(response.getTaskState() == TaskState.SUBMIT.getCode() || response.getTaskState() == TaskState.SCHEDULED.getCode()
+//                            || response.getTaskState() == TaskState.WAITING_DEPENDENCY.getCode() || response.getTaskState() == TaskState.QUEUED.getCode()
+//                            || response.getTaskState() == TaskState.WAITING_RESOURCE.getCode()) {
+//                        schedulerService.rerun(response.getId());
+//                    }else {
+//                        String responseId = response.getJobId() + "-"
+//                                + DateUtils.getDateAsString(response.getScheduleTime(), DateUtils.MINUTE_TIME_FORMAT);
+//                        responseRpc = JobInstanceResponseRpc.newBuilder().setId(response.getId()).setResponseId(responseId)
+//                                .setTaskState(response.getTaskState()).build();
+//                        JobStatusChecker.addResponse(responseRpc);
+//                    }
+//                }
+//                
+//            }
+//        }catch(Exception e) {
+//            LOG.error(e);
+//        }
+//    }
+    
+    private void restoreTaskState() throws Exception {
+        JobInstanceResponseRpc responseRpc = null;
+        List<JobInstanceStateResponse> list = JobManager.getAllJobStatus();
+        if (list != null && list.size() > 0) {
+            for (JobInstanceStateResponse response : list) {
+                String responseId = response.getJobId() + "-"
+                        + DateUtils.getDateAsString(response.getScheduleTime(), DateUtils.MINUTE_TIME_FORMAT);
+                responseRpc = JobInstanceResponseRpc.newBuilder().setId(response.getId()).setResponseId(responseId)
+                        .setTaskState(response.getTaskState()).build();
+                JobStatusChecker.addResponse(responseRpc);
             }
-        }catch(Exception e) {
-            LOG.error(e);
-//            System.exit(1);
         }
     }
 
@@ -250,12 +276,6 @@ public class MasterManager {
                 resourceMap.remove(child);
             }
         }
-//        String workerGroup = groupPath.substring(groupPath.lastIndexOf("/") + 1);
-//        WorkerGroupRequest param = new WorkerGroupRequest();
-//        param.setGroupName(workerGroup);
-//        param.setStatus(WorkerStatus.REMOVED);
-//        param.setWorkers(disconnectedChildren);
-//        WorkerManager.updateWorkersStatusByGroup(param);
     }
 
     /**
@@ -340,6 +360,44 @@ public class MasterManager {
             LOG.error(e);
         }
     }
+    
+    @SuppressWarnings({ "resource", "deprecation" })
+    private void addStrategyChangeListener(CuratorFramework client, final String groupPath) {
+        PathChildrenCache pcCache = new PathChildrenCache(client, groupPath, true);
+        try {
+            pcCache.start(PathChildrenCache.StartMode.POST_INITIALIZED_EVENT);
+            pcCache.getListenable().addListener(new PathChildrenCacheListener() {
+                public void childEvent(CuratorFramework curatorFramework, PathChildrenCacheEvent pathChildrenCacheEvent)
+                        throws Exception {
+                    switch (pathChildrenCacheEvent.getType()) {
+                    case CHILD_ADDED:
+                        String addedPath = pathChildrenCacheEvent.getData().getPath();
+                        byte[] addedBytes = CuratorHelper.getData(client, addedPath);
+                        String addedValue = new String(addedBytes);
+                        String addGroupName = addedPath.substring(addedPath.lastIndexOf("/") + 1);
+                        groupStrategyMap.put(addGroupName, addedValue);
+                        break;
+                    case CHILD_REMOVED:
+                        String removedPath = pathChildrenCacheEvent.getData().getPath();
+                        LOG.info("removed node" + removedPath);
+                        String removeGroupName = removedPath.substring(removedPath.lastIndexOf("/") + 1);
+                        groupStrategyMap.remove(removeGroupName);
+                        break;
+                    case CHILD_UPDATED:
+                        String udpatedPath = pathChildrenCacheEvent.getData().getPath();
+                        byte[] updateBytes = CuratorHelper.getData(curatorFramework, udpatedPath);
+                        String updateValue = new String(updateBytes);
+                        String updateGroupName = udpatedPath.substring(udpatedPath.lastIndexOf("/") + 1);
+                        groupStrategyMap.put(updateGroupName, new String(updateValue));
+                    default:
+                        break;
+                    }
+                }
+            });
+        } catch (Exception e) {
+            LOG.error(e);
+        }
+    }
 
     /**
      * 开始处理任务
@@ -380,8 +438,8 @@ public class MasterManager {
      * @throws Exception 
      */
     public synchronized WorkerResponse getIdleWorker(String groupName, String... lastFailedWorkers) throws Exception {
-        String workerStrategy = GroupStrategyManager.getGroupStrategy(groupName).getGroupStrategy();
-//        String workerStrategy = WorkerGroupStrategy.getGroupStrategy(groupName);
+//        String workerStrategy = GroupStrategyManager.getGroupStrategy(groupName).getGroupStrategy();
+        String workerStrategy = groupStrategyMap.get(groupName);
         WorkerSelectStrategy workerSelectStrategy = ResourceStrategy
                 .getStrategy(JobStrategy.getJobStrategyByName(workerStrategy));
         return new ResourceStrategyContext(workerSelectStrategy).select(this, groupName, lastFailedWorkers);

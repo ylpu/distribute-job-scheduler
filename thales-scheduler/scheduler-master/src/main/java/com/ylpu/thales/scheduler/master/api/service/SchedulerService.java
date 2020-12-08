@@ -3,7 +3,7 @@ package com.ylpu.thales.scheduler.master.api.service;
 import com.ylpu.thales.scheduler.core.constants.GlobalConstants;
 import com.ylpu.thales.scheduler.core.rest.JobManager;
 import com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc;
-import com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc;
+//import com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc;
 import com.ylpu.thales.scheduler.core.utils.CronUtils;
 import com.ylpu.thales.scheduler.core.utils.DateUtils;
 import com.ylpu.thales.scheduler.enums.TaskState;
@@ -100,40 +100,46 @@ public class SchedulerService {
     }
     
     private void cleanExistingTask(JobInstanceResponse jobInstanceResponse,String responseId) throws Exception {
-        
-        if (jobInstanceResponse.getTaskState() == TaskState.RUNNING) {
-            killJob(jobInstanceResponse.getId());
-        }
-        //remove rpc request from request map
-        else if(jobInstanceResponse.getTaskState() == TaskState.WAITING_DEPENDENCY) {
-            removeRequestRpc(jobInstanceResponse,responseId);
-        }else if(jobInstanceResponse.getTaskState() == TaskState.QUEUED) {
+
+        if(jobInstanceResponse.getTaskState() == TaskState.SCHEDULED || jobInstanceResponse.getTaskState() == TaskState.SUBMIT) {
+            removeJobDependency(jobInstanceResponse,responseId);
             JobInstanceRequestRpc request = JobStatusChecker.getJobInstanceRequestMap().remove(responseId);
             if(request != null) {
                 JobSubmission.getGroupQueue(request.getJob().getWorkerGroupname()).remove(new TaskCall(request));
             }
-        }else if(jobInstanceResponse.getTaskState() == TaskState.WAITING_RESOURCE) {
+        }
+        //remove rpc request from request map
+//        else if(jobInstanceResponse.getTaskState() == TaskState.WAITING_DEPENDENCY) {
+//            removeRequestRpc(jobInstanceResponse,responseId);
+//        }else if(jobInstanceResponse.getTaskState() == TaskState.QUEUED) {
+//            JobInstanceRequestRpc request = JobStatusChecker.getJobInstanceRequestMap().remove(responseId);
+//            if(request != null) {
+//                JobSubmission.getGroupQueue(request.getJob().getWorkerGroupname()).remove(new TaskCall(request));
+//            }
+//        }
+        else if(jobInstanceResponse.getTaskState() == TaskState.WAITING_RESOURCE) {
 //          cancel waiting
             JobSubmission.getWaitingResourceMap().put(jobInstanceResponse.getJobConf().getWorkerGroupname(), false);
-            JobStatusChecker.getJobInstanceRequestMap().remove(responseId);
+        }else if (jobInstanceResponse.getTaskState() == TaskState.RUNNING) {
+            killJob(jobInstanceResponse.getId());
         }else if(jobInstanceResponse.getTaskState() == TaskState.FAIL || jobInstanceResponse.getTaskState() == TaskState.SUCCESS
                 || jobInstanceResponse.getTaskState() == TaskState.KILL) {
             JobStatusChecker.getResponses().remove(responseId);
         }
     }
     
-    private JobInstanceRequestRpc removeRequestRpc(JobInstanceResponse jobInstanceResponse,String jobRequestId) {
-        JobInstanceRequestRpc requestRpc = null;
+    private void removeJobDependency(JobInstanceResponse jobInstanceResponse,String jobRequestId) {
         Map<List<JobDependency>, String> dependsMap = JobStatusChecker.getDepends();
-        for (Entry<List<JobDependency>, String> entry : dependsMap.entrySet()) {
-             String dependenciesAsString = getDependenciesAsString(entry.getKey());
-             if(getDependenciesAsString(jobInstanceResponse).equalsIgnoreCase(dependenciesAsString) &&
-                     entry.getValue().equalsIgnoreCase(jobRequestId)) {
-                 String requestId = JobStatusChecker.getDepends().remove(entry.getKey());
-                 requestRpc = JobStatusChecker.getJobInstanceRequestMap().remove(requestId);
-             }
+        if(dependsMap != null && dependsMap.size() > 0) {
+            for (Entry<List<JobDependency>, String> entry : dependsMap.entrySet()) {
+                String dependenciesAsString = getDependenciesAsString(entry.getKey());
+                if(getDependenciesAsString(jobInstanceResponse).equalsIgnoreCase(dependenciesAsString) &&
+                        entry.getValue().equalsIgnoreCase(jobRequestId)) {
+                    JobStatusChecker.getDepends().remove(entry.getKey());
+//                    requestRpc = JobStatusChecker.getJobInstanceRequestMap().remove(requestId);
+                }
+           }
         }
-        return requestRpc;
     }
     
     private String getDependenciesAsString(JobInstanceResponse jobInstanceResponse) {
@@ -269,15 +275,9 @@ public class SchedulerService {
             DateUtils.getDateAsString(DateUtils.getDateFromString(jobInstanceResponse.getScheduleTime(), 
                     DateUtils.DATE_TIME_FORMAT), DateUtils.MINUTE_TIME_FORMAT);
             
-            if (jobInstanceResponse.getTaskState() == TaskState.SUBMIT
-                    || jobInstanceResponse.getTaskState() == TaskState.SCHEDULED
-                    || jobInstanceResponse.getTaskState() == TaskState.WAITING_DEPENDENCY
-                    || jobInstanceResponse.getTaskState() == TaskState.QUEUED
-                    || jobInstanceResponse.getTaskState() == TaskState.WAITING_RESOURCE
-                    || jobInstanceResponse.getTaskState() == TaskState.RUNNING) {
-                LOG.warn("job " + id +  " has already exist,will clean it at first");
-                cleanExistingTask(jobInstanceResponse,responseId);
-            } 
+            LOG.warn("job " + id +  " has already exist,will clean it at first");
+            cleanExistingTask(jobInstanceResponse,responseId);
+            
             JobInstanceRequest request = new JobInstanceRequest();
             request.setParameters(jobInstanceResponse.getParameters());
             try {
@@ -290,35 +290,19 @@ public class SchedulerService {
                 request.setStartTime(new Date());
                 request.setCreateTime(new Date());
                 //transit task status to submit
-                JobManager.updateJobInstanceByKey(request);
-
-                JobStatusChecker.addResponse(JobSubmission.buildResponse(responseId,TaskState.SUBMIT.getCode()));
-
-            }catch(Exception e) {
-                LOG.error("failed to submit task " + request.getId() , e);
-            }
-            try {
+                JobManager.updateJobInstanceByKey(request);                
                 rpcRequest = JobSubmission.initJobInstanceRequestRpc(request, jobInstanceResponse.getJobConf());
-//                caculate dependency and add to request
+//              caculate dependency and add to request
                 JobSubmission.addRpcRequest(rpcRequest);
-            } catch (Exception e) {
-                LOG.error("fail to update job " + rpcRequest.getId() + " status with exception " + e.getMessage());
-                scheduleFailed(request);
-                JobInstanceResponseRpc responseRpc = JobSubmission.buildResponse(rpcRequest.getRequestId(), TaskState.FAIL.getCode());
-                JobStatusChecker.addResponse(responseRpc);
+            }catch(Exception e) {
+                
+                LOG.error("failed to submit task " + request.getId() , e);
+                request.setTaskState(TaskState.FAIL.getCode());
+                request.setEndTime(new Date());
+                request.setElapseTime(DateUtils.getElapseTime(request.getStartTime(), request.getEndTime()));
+                JobManager.updateJobInstanceSelective(request);
             }
         } 
-    }
-    
-    private void scheduleFailed(JobInstanceRequest request) {
-        request.setTaskState(TaskState.FAIL.getCode());
-        request.setEndTime(new Date());
-        request.setElapseTime(DateUtils.getElapseTime(request.getStartTime(), request.getEndTime()));
-        try {
-            JobManager.updateJobInstanceSelective(request);
-        } catch (Exception e) {
-            LOG.error(e);
-        }
     }
 
     /**

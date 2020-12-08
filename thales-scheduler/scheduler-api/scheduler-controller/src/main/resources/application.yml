@@ -13,6 +13,7 @@ jdbc:
     prepStmtsSize: 250
     prepStmtsCacheSqlLimit: 2048
     userServerPrepStmts: true
+    maximumPoolSize: 20
 
 # SPRING PROFILES
 spring:       

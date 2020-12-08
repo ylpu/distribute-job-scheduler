@@ -2,29 +2,34 @@ package com.ylpu.thales.scheduler.service.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 import javax.transaction.Transactional;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.curator.framework.CuratorFramework;
+import org.apache.zookeeper.CreateMode;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.ylpu.thales.scheduler.common.config.Configuration;
+import com.ylpu.thales.scheduler.common.constants.GlobalConstants;
 import com.ylpu.thales.scheduler.common.curator.CuratorHelper;
 import com.ylpu.thales.scheduler.common.dao.BaseDao;
-import com.ylpu.thales.scheduler.common.rest.GroupStrategyManager;
 import com.ylpu.thales.scheduler.common.service.impl.BaseServiceImpl;
 import com.ylpu.thales.scheduler.dao.GroupStrategyMapper;
 import com.ylpu.thales.scheduler.entity.GroupStrategy;
 import com.ylpu.thales.scheduler.request.GroupStrategyRequest;
 import com.ylpu.thales.scheduler.response.GroupStrategyResponse;
 import com.ylpu.thales.scheduler.service.GroupStrategyService;
-import com.ylpu.thales.scheduler.service.exception.ThalesRuntimeException;
 
 @Service
 @Transactional
 public class GroupStrategyServiceImpl extends BaseServiceImpl<GroupStrategy, Integer> implements GroupStrategyService {
+    
+    private static final Log LOG = LogFactory.getLog(GroupStrategyServiceImpl.class);
 
     @Autowired
     private GroupStrategyMapper groupStrategyMapper;
@@ -44,16 +49,29 @@ public class GroupStrategyServiceImpl extends BaseServiceImpl<GroupStrategy, Int
         GroupStrategy record = new GroupStrategy();
         BeanUtils.copyProperties(groupStrategryRequest, record);
         groupStrategyMapper.insertSelective(record);
-//        
-//        String masterUrl = CuratorHelper.getMasterServiceUri();
-//        if (StringUtils.isNotBlank(masterUrl)) {
-//            int status = GroupStrategyManager.addGroupStrategy(masterUrl, groupStrategryRequest);
-//            if (status != HttpStatus.NO_CONTENT.value()) {
-//                 throw new ThalesRuntimeException("failed to add group strategy job " + groupStrategryRequest.getGroupName());
-//            }
-//        } else {
-//            throw new ThalesRuntimeException("调度服务不可用");
-//        }
+        
+        Properties prop = Configuration.getConfig();
+        String quorum = prop.getProperty("thales.zookeeper.quorum");
+        int sessionTimeout = Configuration.getInt(prop, "thales.zookeeper.sessionTimeout",
+                GlobalConstants.ZOOKEEPER_SESSION_TIMEOUT);
+        int connectionTimeout = Configuration.getInt(prop, "thales.zookeeper.connectionTimeout",
+                GlobalConstants.ZOOKEEPER_CONNECTION_TIMEOUT);
+        
+        CuratorFramework client = CuratorHelper.getCuratorClient(quorum, sessionTimeout, connectionTimeout);
+        try {
+            CuratorHelper.createNodeIfNotExist(client, GlobalConstants.ROOT_GROUP, CreateMode.PERSISTENT, null);
+            CuratorHelper.createNodeIfNotExist(client, GlobalConstants.STRATEGY_GROUP, CreateMode.PERSISTENT, null);
+            CuratorHelper.createNodeIfNotExist(client, GlobalConstants.STRATEGY_GROUP + "/" + groupStrategryRequest.getGroupName(),
+                    CreateMode.PERSISTENT, groupStrategryRequest.getGroupStrategy().getBytes());
+            
+        } catch (Exception e) {
+            LOG.error(e);
+        }finally {
+            if(client != null) {
+                CuratorHelper.close(client);
+            }
+        }
+        
     }
 
     @Override
@@ -62,16 +80,25 @@ public class GroupStrategyServiceImpl extends BaseServiceImpl<GroupStrategy, Int
         GroupStrategy record = new GroupStrategy();
         BeanUtils.copyProperties(groupStrategryRequest, record);
         groupStrategyMapper.updateByPrimaryKeySelective(record);
-        
-//        String masterUrl = CuratorHelper.getMasterServiceUri();
-//        if (StringUtils.isNotBlank(masterUrl)) {
-//            int status = GroupStrategyManager.updateGroupStrategy(masterUrl, groupStrategryRequest);
-//            if (status != HttpStatus.NO_CONTENT.value()) {
-//                 throw new ThalesRuntimeException("failed to update group strategy job " + groupStrategryRequest.getGroupName());
-//            }
-//        } else {
-//            throw new ThalesRuntimeException("调度服务不可用");
-//        }
+
+        Properties prop = Configuration.getConfig();
+        String quorum = prop.getProperty("thales.zookeeper.quorum");
+        int sessionTimeout = Configuration.getInt(prop, "thales.zookeeper.sessionTimeout",
+                GlobalConstants.ZOOKEEPER_SESSION_TIMEOUT);
+        int connectionTimeout = Configuration.getInt(prop, "thales.zookeeper.connectionTimeout",
+                GlobalConstants.ZOOKEEPER_CONNECTION_TIMEOUT);
+        CuratorFramework client = CuratorHelper.getCuratorClient(quorum, sessionTimeout, connectionTimeout);
+        try {
+            CuratorHelper.setData(client, GlobalConstants.STRATEGY_GROUP + "/" + groupStrategryRequest.getGroupName(), 
+                    groupStrategryRequest.getGroupStrategy().getBytes());
+            
+        } catch (Exception e) {
+            LOG.error(e);
+        }finally {
+            if(client != null) {
+                CuratorHelper.close(client);
+            }
+        }
     }
 
     @Override

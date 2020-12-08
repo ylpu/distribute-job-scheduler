@@ -25,19 +25,17 @@ import com.ylpu.thales.scheduler.master.rpc.client.JobGrpcBlockingClient;
 import com.ylpu.thales.scheduler.master.rpc.client.JobGrpcNonBlockingClient;
 import com.ylpu.thales.scheduler.master.server.MasterManager;
 import com.ylpu.thales.scheduler.request.JobInstanceRequest;
-import com.ylpu.thales.scheduler.request.JobStatusRequest;
+//import com.ylpu.thales.scheduler.request.JobStatusRequest;
 import com.ylpu.thales.scheduler.response.JobInstanceResponse;
 import com.ylpu.thales.scheduler.response.JobResponse;
 import com.ylpu.thales.scheduler.response.WorkerResponse;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.eclipse.jetty.util.StringUtil;
-
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
-import java.util.Arrays;
+//import java.util.Arrays;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -130,11 +128,11 @@ public class JobSubmission {
         return jobDependencies;
     }
 
-    public static void addTimeoutTask(TaskCall taskCall) {
+    public static void addTimeoutQueue(TaskCall taskCall) {
         timeoutQueue.add(taskCall);
     }
     
-    public static void addWaitingTask(TaskCall taskCall) {
+    public static void addWaitingQueue(TaskCall taskCall) {
         String workerGroupName = taskCall.getRpcRequest().getJob().getWorkerGroupname();
         PriorityBlockingQueue<TaskCall> taskQueue = workerGroupQueue.get(workerGroupName);
         if(taskQueue == null) {
@@ -163,17 +161,11 @@ public class JobSubmission {
                     try {
                         WorkerResponse worker = getAvailableWorker(taskCall.getRpcRequest());
                         if(worker != null) {
-                            try {
-                                client = getClient(worker,taskCall.getGrpcType());
-                                client.submitJob(taskCall.getRpcRequest());
-                            } catch (Exception e) {
-                                LOG.error(e);
-                                processException(taskCall.getRpcRequest());
-                            }
+                            client = getClient(worker,taskCall.getGrpcType());
+                            client.submitJob(taskCall.getRpcRequest());
                         }
                     } catch(Exception e) {
                         LOG.error(e);
-                        processException(taskCall.getRpcRequest());
                     }finally {
                         // 同步rpc直接关闭，异步rpc需要内部关闭
                         if (taskCall.getGrpcType() == GrpcType.SYNC) {
@@ -198,9 +190,6 @@ public class JobSubmission {
                 }
                 //transit job status to waiting resource
                 transitTaskStatusToWaitingResource(rpcRequest);
-                JobInstanceResponseRpc responseRpc = JobSubmission.buildResponse(
-                        rpcRequest.getRequestId(), TaskState.WAITING_RESOURCE.getCode());
-                JobStatusChecker.addResponse(responseRpc);
                 try {
                     Thread.sleep(RESOURCE_CHECK_INTERVAL);
                 } catch (InterruptedException e) {
@@ -231,23 +220,6 @@ public class JobSubmission {
                 client = new JobGrpcNonBlockingClient(worker.getHost(), worker.getPort());
             }
             return client;
-        }
-        
-        private void processException(JobInstanceRequestRpc request) {
-            JobStatusRequest jobStatusRequest = new JobStatusRequest();
-            jobStatusRequest.setIds(Arrays.asList(request.getId()));
-            jobStatusRequest.setStatus(TaskState.FAIL);
-            try {
-                JobManager.updateJobStatus(jobStatusRequest);
-                String responseId = request.getJob().getId() + "-" + DateUtils
-                        .getDateAsString(DateUtils.getDatetime(request.getScheduleTime()), DateUtils.MINUTE_TIME_FORMAT);
-                JobInstanceResponseRpc response = JobInstanceResponseRpc.newBuilder().setResponseId(responseId)
-                        .setErrorCode(500).setTaskState(TaskState.FAIL.getCode()).setErrorMsg("failed to execute job")
-                        .build();
-                JobStatusChecker.addResponse(response);
-            } catch (Exception e) {
-                LOG.error(e);
-            }
         }
     }
     
@@ -333,7 +305,7 @@ public class JobSubmission {
                 .setScheduleTime(DateUtils.getProtobufTime(request.getScheduleTime()))
                 .setStartTime(DateUtils.getProtobufTime(request.getStartTime())).setElapseTime(request.getElapseTime())
                 .setLogPath(request.getLogPath()).setLogUrl(request.getLogUrl()).setPid(request.getPid())
-                .setRetryTimes(request.getRetryTimes()).setTaskState(TaskState.SUBMIT.getCode()).setWorker("")
+                .setRetryTimes(request.getRetryTimes()).setTaskState(request.getTaskState()).setWorker("")
                 .setId(request.getId())
                 .setRequestId(request.getJobId() + "-"
                         + DateUtils.getDateAsString(request.getScheduleTime(), DateUtils.MINUTE_TIME_FORMAT))

@@ -2,7 +2,7 @@ package com.ylpu.thales.scheduler.master.schedule;
 
 import com.ylpu.thales.scheduler.core.config.Configuration;
 import com.ylpu.thales.scheduler.core.constants.GlobalConstants;
-import com.ylpu.thales.scheduler.core.rest.JobManager;
+//import com.ylpu.thales.scheduler.core.rest.JobManager;
 import com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc;
 import com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc;
 import com.ylpu.thales.scheduler.core.utils.DateUtils;
@@ -10,9 +10,9 @@ import com.ylpu.thales.scheduler.enums.GrpcType;
 import com.ylpu.thales.scheduler.enums.TaskState;
 import com.ylpu.thales.scheduler.master.schedule.JobSubmission;
 import com.ylpu.thales.scheduler.master.schedule.TaskCall;
-import com.ylpu.thales.scheduler.request.JobInstanceRequest;
-
+//import com.ylpu.thales.scheduler.request.JobInstanceRequest;
 import java.util.Date;
+//import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -29,8 +29,15 @@ public class JobStatusChecker {
     private static volatile boolean stop = false;
     // key是任务id,value是待执行的任务
     private static Map<String, JobInstanceRequestRpc> jobInstanceRequestMap = new ConcurrentHashMap<String, JobInstanceRequestRpc>();
-    // 任务的返回列表,有内存泄露风险，后续要改
+    // lru以防内存溢出
     private static Map<String, JobInstanceResponseRpc> responses = new ConcurrentHashMap<String, JobInstanceResponseRpc>();
+//    {
+//        private static final long serialVersionUID = 1L;
+//        int cacheSize = 100000000;
+//        protected boolean removeEldestEntry(Map.Entry<String, JobInstanceResponseRpc> eldest) {
+//            return size() > cacheSize;
+//        }
+//    };
     // key是所依赖的任务,value是任务id
     private static Map<List<JobDependency>, String> dependsMap = new ConcurrentHashMap<List<JobDependency>, String>();
 
@@ -96,24 +103,24 @@ public class JobStatusChecker {
                             }
                         }
                     }
-                    JobInstanceResponseRpc responseRpc = null;
+//                    JobInstanceResponseRpc responseRpc = null;
                     String requestId = dependsMap.get(entry.getKey());
                     JobInstanceRequestRpc rpcRequest = jobInstanceRequestMap.get(requestId);
                     if (successfulJobs == list.size() || isRootJob(list)) {
                          requestId = dependsMap.remove(entry.getKey());
 //                         rpcRequest = jobInstanceRequestMap.remove(requestId);
                          LOG.info("parent job " + entry.getKey() + " has finished, will add job " + requestId + " to queue");
-                       //transit task status to queue
-                         transitTaskStatus(rpcRequest.getId(),TaskState.QUEUED);
-                         responseRpc = JobSubmission.buildResponse(requestId, TaskState.QUEUED.getCode());
-                         JobSubmission.addWaitingTask(new TaskCall(rpcRequest, GrpcType.ASYNC));
+//                       transit task status to queue，bad performance if there are too many jobs running at some time
+//                       transitTaskStatus(rpcRequest.getId(),TaskState.QUEUED);
+//                       responseRpc = JobSubmission.buildResponse(requestId, TaskState.QUEUED.getCode());
+//                       JobStatusChecker.addResponse(responseRpc);
+                         JobSubmission.addWaitingQueue(new TaskCall(rpcRequest, GrpcType.ASYNC));
                     }else {
                         LOG.info("job " + requestId + " is waiting for dependency jobs to finish" + entry.getKey());
-                        //transit task status to waiting dependency
-                        transitTaskStatus(rpcRequest.getId(),TaskState.WAITING_DEPENDENCY);
-                        responseRpc = JobSubmission.buildResponse(requestId, TaskState.WAITING_DEPENDENCY.getCode());
+//                        transit task status to waiting dependency,bad performance if there are too many long waiting dependency jobs
+//                        transitTaskStatus(rpcRequest.getId(),TaskState.WAITING_DEPENDENCY);
+//                        responseRpc = JobSubmission.buildResponse(requestId, TaskState.WAITING_DEPENDENCY.getCode());
                     }
-                    JobStatusChecker.addResponse(responseRpc);
                 }
                 try {
                     Thread.sleep(interval);
@@ -134,16 +141,16 @@ public class JobStatusChecker {
         }
     }
     
-    private static void transitTaskStatus(Integer taskId,TaskState taskState) {
-        JobInstanceRequest request = new JobInstanceRequest();
-        request.setId(taskId);
-        request.setTaskState(taskState.getCode());
-        try {
-            JobManager.updateJobInstanceSelective(request);
-        } catch (Exception e) {
-            LOG.error(e);
-        }
-    }
+//    private static void transitTaskStatus(Integer taskId,TaskState taskState) {
+//        JobInstanceRequest request = new JobInstanceRequest();
+//        request.setId(taskId);
+//        request.setTaskState(taskState.getCode());
+//        try {
+//            JobManager.updateJobInstanceSelective(request);
+//        } catch (Exception e) {
+//            LOG.error(e);
+//        }
+//    }
 
     private static class TimeoutThread extends Thread {
         public void run() {
@@ -155,8 +162,8 @@ public class JobStatusChecker {
                         Date startTime = DateUtils.getDatetime(entry.getValue().getStartTime());
                         int elapseTime = DateUtils.getElapseTime(startTime, new Date());
                         if (entry.getValue().getJob().getExecutionTimeout() > 0) {
-                            if (elapseTime > entry.getValue().getJob().getExecutionTimeout()) {
-                                JobSubmission.addTimeoutTask(new TaskCall(entry.getValue(), GrpcType.SYNC));
+                            if (elapseTime / 60 > entry.getValue().getJob().getExecutionTimeout()) {
+                                JobSubmission.addTimeoutQueue(new TaskCall(entry.getValue(), GrpcType.SYNC));
                             }
                         }
                     }

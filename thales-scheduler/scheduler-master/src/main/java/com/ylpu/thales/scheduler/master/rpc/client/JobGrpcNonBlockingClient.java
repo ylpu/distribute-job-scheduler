@@ -55,27 +55,11 @@ public class JobGrpcNonBlockingClient extends AbstractJobGrpcClient {
         }
     }
 
-    public void submitJob(JobInstanceRequestRpc rpcRequest) throws Exception {
+    public void submitJob(JobInstanceRequestRpc rpcRequest){
         LOG.info("prepare to submit task " + rpcRequest.getRequestId() + " to host  " + host + ":" + port);
-        try {
-            ListenableFuture<JobInstanceResponseRpc> future = futureStub.submit(rpcRequest);
-            // async callback
-            addCallBack(future, executorService, rpcRequest);
-        } catch (Exception e) {
-            LOG.error("failed to submit task " + rpcRequest.getRequestId() + " to " + host, e);
-            try {
-                transitTaskStatus(rpcRequest, TaskState.FAIL.getCode());
-                JobInstanceResponseRpc responseRpc = JobSubmission.buildResponse(rpcRequest.getRequestId(), TaskState.FAIL.getCode());
-                JobStatusChecker.addResponse(responseRpc);
-            } catch (Exception e1) {
-                LOG.error(e1);
-            } finally {
-                //remove request after execute successful
-                JobStatusChecker.getJobInstanceRequestMap().remove(rpcRequest.getRequestId()); 
-            }
-            shutdown();
-            rerunIfNeeded(rpcRequest);
-        }
+        ListenableFuture<JobInstanceResponseRpc> future = futureStub.submit(rpcRequest);
+        // async callback
+        addCallBack(future, executorService, rpcRequest);
     }
 
     private void addCallBack(ListenableFuture<JobInstanceResponseRpc> future, ListeningExecutorService executorService,

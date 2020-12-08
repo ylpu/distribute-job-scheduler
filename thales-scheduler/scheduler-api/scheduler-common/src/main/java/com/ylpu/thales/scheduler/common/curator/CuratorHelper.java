@@ -21,7 +21,7 @@ import com.ylpu.thales.scheduler.common.utils.ByteUtils;
 import com.ylpu.thales.scheduler.request.WorkerRequest;
 
 public class CuratorHelper {
-
+    
     private static final Log LOG = LogFactory.getLog(CuratorHelper.class);
 
     private static final String DEFAULT_ZKSERVERS = "127.0.0.1:2181";
@@ -35,20 +35,35 @@ public class CuratorHelper {
     }
 
     public static CuratorFramework getCuratorClient(String zkServers, int sessionTimeout, int connectionTimeout) {
-        RetryPolicy retryPolicy = new ExponentialBackoffRetry(1000, 1);
+        RetryPolicy retryPolicy = new ExponentialBackoffRetry(1000, 3);
         CuratorFramework client = CuratorFrameworkFactory.newClient(zkServers, sessionTimeout, connectionTimeout,
                 retryPolicy);
         client.start();
+
         return client;
     }
 
-    public static void createNode(CuratorFramework client, String path, CreateMode createMode, byte[] bytes)
+    public static boolean nodeExist(CuratorFramework client, String path) throws Exception {
+        Stat stat = client.checkExists().forPath(path);
+        if (stat == null) {
+            return false;
+        }
+        return true;
+    }
+
+    public static void createNodeIfNotExist(CuratorFramework client, String path, CreateMode createMode, byte[] bytes)
             throws Exception {
-        client.create().withMode(createMode).forPath(path, bytes);
+        if (!nodeExist(client, path)) {
+            client.create().withMode(createMode).forPath(path, bytes);
+        }
     }
 
     public static void delete(CuratorFramework client, String path) throws Exception {
         client.delete().forPath(path);
+    }
+
+    public static void deleteChildren(CuratorFramework client, String path) throws Exception {
+        client.delete().deletingChildrenIfNeeded().forPath(path);
     }
 
     public static void creatingParentContainersIfNeeded(CuratorFramework client, String path, CreateMode createMode,

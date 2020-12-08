@@ -9,10 +9,10 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import com.ylpu.thales.scheduler.core.rest.JobManager;
 import com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc;
-import com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc;
+//import com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc;
 import com.ylpu.thales.scheduler.core.utils.DateUtils;
 import com.ylpu.thales.scheduler.enums.TaskState;
-import com.ylpu.thales.scheduler.master.schedule.JobStatusChecker;
+//import com.ylpu.thales.scheduler.master.schedule.JobStatusChecker;
 import com.ylpu.thales.scheduler.master.schedule.JobSubmission;
 import com.ylpu.thales.scheduler.request.JobInstanceRequest;
 import com.ylpu.thales.scheduler.response.JobResponse;
@@ -34,29 +34,18 @@ public class SchedulerJob implements Job {
                 LOG.info("job " + jobResponse.getId() + " schedule time is " + context.getScheduledFireTime());
                 request.setScheduleTime(context.getScheduledFireTime());
                 request.setStartTime(new Date());
+                request.setTaskState(TaskState.SCHEDULED.getCode());
                 request.setId(addJobInstance(request,jobId));
+                
                 rpcRequest = JobSubmission.initJobInstanceRequestRpc(request, jobResponse);
-              //transit task status to scheduled
-                transitTaskStatusToScheduled(rpcRequest.getId(),TaskState.SCHEDULED.getCode());
-                JobInstanceResponseRpc responseRpc = JobSubmission.buildResponse(rpcRequest.getRequestId(), TaskState.SCHEDULED.getCode());
-                JobStatusChecker.addResponse(responseRpc);
               //caculate dependency and add to request
                 JobSubmission.addRpcRequest(rpcRequest);
             } catch (Exception e) {
                 LOG.error(
-                        "fail to update job " + rpcRequest.getId(),e);
+                        "fail to schedule job " + rpcRequest.getId(),e);
                 scheduleFailed(request);
-                JobInstanceResponseRpc responseRpc = JobSubmission.buildResponse(rpcRequest.getRequestId(), TaskState.FAIL.getCode());
-                JobStatusChecker.addResponse(responseRpc);
             } 
         }
-    }
-    
-    private void transitTaskStatusToScheduled(Integer taskId, Integer statusCode) throws Exception {
-        JobInstanceRequest request = new JobInstanceRequest();
-        request.setId(taskId);
-        request.setTaskState(statusCode);
-        JobManager.updateJobInstanceSelective(request);
     }
     
     private void scheduleFailed(JobInstanceRequest request) {
