@@ -29,7 +29,7 @@ public class CommandExecutor extends AbstractCommonExecutor {
      */
     public String[] buildCommand(String configFile) throws Exception {
         CommandConfig config = JsonUtils.jsonToBean(configFile, CommandConfig.class);
-        String commandLine = config.getCommandLine();
+        String commandLine = config.getCommand();
         if (StringUtils.isBlank(commandLine)) {
             throw new RuntimeException("commandLine can not empty");
         }

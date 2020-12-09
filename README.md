@@ -93,7 +93,7 @@ api作为接口层，主要有如下功能：
   * 超时时间：超过多少分钟任务将会被杀死。
   * 任务描述：任务的详细信息
   * 任务配置：根据类型不同有不同的配置（以下为简单例子）：
-    * command: {"commandLine" :"pwd;cat /tmp/log/scheduler-worker/info.log","parameters" : {"param1":"test"}}
+    * command: {"command" :"pwd;cat /tmp/log/scheduler-worker/info.log","parameters" : {"param1":"test"}}
     * shell: {"fileName" : "/tmp/shell/test.sh","parameters" : {"param1":"test"}}
     * python: {"fileName" : "/tmp/python/test.py","parameters" : {"param1":"test"}}
     * hive: {"fileName" : "/tmp/shell/test.hql","config" : "","parameters":{"dt":"20191205","hm":"1000"}

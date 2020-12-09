@@ -4,15 +4,15 @@ import java.util.Map;
 
 public class CommandConfig {
 
-    private String commandLine;
+    private String command;
     private Map<String, Object> parameters;
 
-    public String getCommandLine() {
-        return commandLine;
+    public String getCommand() {
+        return command;
     }
 
-    public void setCommandLine(String commandLine) {
-        this.commandLine = commandLine;
+    public void setCommand(String command) {
+        this.command = command;
     }
 
     public Map<String, Object> getParameters() {
