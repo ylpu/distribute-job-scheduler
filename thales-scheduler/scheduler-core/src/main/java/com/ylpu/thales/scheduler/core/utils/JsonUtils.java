@@ -7,15 +7,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
-
 import org.apache.commons.lang3.StringUtils;
-
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
@@ -144,7 +141,7 @@ public class JsonUtils {
                 for(Entry<String,Object> entry : parameters.entrySet()) {
                     String placeHolderKey = entry.getValue().toString().replace("&", "").toLowerCase();
                     if(placeHolder.containsKey(placeHolderKey)) {
-                        json = json.replace(entry.getValue().toString(), "\"" + placeHolder.get(placeHolderKey) + "\"");
+                        json = json.replace(entry.getValue().toString(), placeHolder.get(placeHolderKey).toString());
                     }
                 }
             }
