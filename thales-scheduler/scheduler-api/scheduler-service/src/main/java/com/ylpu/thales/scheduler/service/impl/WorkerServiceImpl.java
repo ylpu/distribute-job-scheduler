@@ -1,18 +1,29 @@
 package com.ylpu.thales.scheduler.service.impl;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.curator.framework.CuratorFramework;
 import org.springframework.beans.BeanUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageInfo;
+import com.ylpu.thales.scheduler.common.config.Configuration;
+import com.ylpu.thales.scheduler.common.constants.GlobalConstants;
 import com.ylpu.thales.scheduler.common.curator.CuratorHelper;
+import com.ylpu.thales.scheduler.common.dao.BaseDao;
 import com.ylpu.thales.scheduler.common.rest.ScheduleManager;
+import com.ylpu.thales.scheduler.common.service.impl.BaseServiceImpl;
+import com.ylpu.thales.scheduler.common.utils.ByteUtils;
 import com.ylpu.thales.scheduler.common.utils.DateUtils;
+import com.ylpu.thales.scheduler.entity.BaseEntity;
 import com.ylpu.thales.scheduler.enums.RoleTypes;
 import com.ylpu.thales.scheduler.enums.WorkerStatus;
 import com.ylpu.thales.scheduler.request.WorkerRequest;
@@ -24,13 +35,15 @@ import com.ylpu.thales.scheduler.service.exception.ThalesRuntimeException;
 
 @Service
 @Transactional
-public class WorkerServiceImpl implements WorkerService {
+public class WorkerServiceImpl extends BaseServiceImpl<BaseEntity, Serializable> implements WorkerService {
+    
+    private static final Log LOG = LogFactory.getLog(WorkerServiceImpl.class);
 
     @Override
     public PageInfo<WorkerResponse> findAll(String workerGroup, String worker, int pageNo, int pageSize) {
 
         Page<WorkerResponse> page = new Page<WorkerResponse>();
-        List<WorkerRequest> allWorkerList = CuratorHelper.getAllWorkers();
+        List<WorkerRequest> allWorkerList = getAllWorkers();
         if(StringUtils.isNoneBlank(workerGroup)) {
             allWorkerList = allWorkerList.stream().filter(request -> request.getWorkerGroup().equalsIgnoreCase(workerGroup)).collect(Collectors.toList());
         }
@@ -65,17 +78,66 @@ public class WorkerServiceImpl implements WorkerService {
         }
         return total;
     }
+    
+    
+    public List<WorkerRequest> getAllWorkers(){
+        List<WorkerRequest> list = new ArrayList<WorkerRequest>();
+        Properties prop = Configuration.getConfig(GlobalConstants.CONFIG_FILE);
+        String quorum = prop.getProperty("thales.zookeeper.quorum");
+        int sessionTimeout = Configuration.getInt(prop, "thales.zookeeper.sessionTimeout",
+                GlobalConstants.ZOOKEEPER_SESSION_TIMEOUT);
+        int connectionTimeout = Configuration.getInt(prop, "thales.zookeeper.connectionTimeout",
+                GlobalConstants.ZOOKEEPER_CONNECTION_TIMEOUT);
+        CuratorFramework client  = CuratorHelper.getCuratorClient(quorum, sessionTimeout, connectionTimeout);
+        List<String> groupList;
+        try {
+            groupList = CuratorHelper.getChildren(client, GlobalConstants.WORKER_GROUP);
+            if(groupList != null && groupList.size() > 0) {
+                for(String group : groupList) {
+                    List<String> workerList = CuratorHelper.getChildren(client, GlobalConstants.WORKER_GROUP + "/" + group);
+                    if(workerList != null && workerList.size() > 0) {
+                        for(String worker : workerList) {
+                            byte[] bytes = CuratorHelper.getData(client, GlobalConstants.WORKER_GROUP + "/" + group + "/" + worker);
+                            WorkerRequest request = (WorkerRequest) ByteUtils.byteArrayToObject(bytes);
+                            list.add(request);
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            LOG.error(e);
+        }finally {
+            CuratorHelper.close(client);
+        }
+        return list;
+    }
 
     @Override
     public List<String> getWorkerGroups() {
-        return CuratorHelper.getWorkerGroups();
+        
+        Properties prop = Configuration.getConfig(GlobalConstants.CONFIG_FILE);
+        String quorum = prop.getProperty("thales.zookeeper.quorum");
+        int sessionTimeout = Configuration.getInt(prop, "thales.zookeeper.sessionTimeout",
+                GlobalConstants.ZOOKEEPER_SESSION_TIMEOUT);
+        int connectionTimeout = Configuration.getInt(prop, "thales.zookeeper.connectionTimeout",
+                GlobalConstants.ZOOKEEPER_CONNECTION_TIMEOUT);
+        CuratorFramework client  = CuratorHelper.getCuratorClient(quorum, sessionTimeout, connectionTimeout);
+        List<String> groupList = null;
+        try {
+            groupList = CuratorHelper.getChildren(client, GlobalConstants.WORKER_GROUP);
+        } catch (Exception e) {
+            LOG.error(e);
+        }finally {
+            CuratorHelper.close(client);
+        }
+        return groupList;
     }
 
     @Override
     public List<WorkerUsageResponse> getWorkerCpuUsage() {
         List<WorkerUsageResponse> responses = new ArrayList<WorkerUsageResponse>();
         WorkerUsageResponse response = null;
-        List<WorkerRequest> list = CuratorHelper.getAllWorkers();
+        List<WorkerRequest> list = getAllWorkers();
         
         if (list != null && list.size() > 0) {
             for (WorkerRequest workerUsage : list) {
@@ -92,7 +154,7 @@ public class WorkerServiceImpl implements WorkerService {
     public List<WorkerUsageResponse> getWorkerMemoryUsage() {
         List<WorkerUsageResponse> responses = new ArrayList<WorkerUsageResponse>();
         WorkerUsageResponse response = null;
-        List<WorkerRequest> list = CuratorHelper.getAllWorkers();
+        List<WorkerRequest> list = getAllWorkers();
         if (list != null && list.size() > 0) {
             for (WorkerRequest workerUsage : list) {
                 response = new WorkerUsageResponse();
@@ -112,9 +174,9 @@ public class WorkerServiceImpl implements WorkerService {
         if(request.getCurrentWorkerStatus().equalsIgnoreCase(WorkerStatus.REMOVED.toString())) {
             throw new ThalesRuntimeException("节点 " + request.getHost() + " 已经下线");
         }
-        String masterUrl = CuratorHelper.getMasterServiceUri();
+        String masterUrl = getMasterServiceUri();
         if (StringUtils.isNotBlank(masterUrl)) {
-            int status = ScheduleManager.markDown(CuratorHelper.getMasterServiceUri(), request);
+            int status = ScheduleManager.markDown(getMasterServiceUri(), request);
             // 204-执行成功，但无内容返回
             if (status != HttpStatus.NO_CONTENT.value()) {
                 throw new ThalesRuntimeException("failed to down executor " + request.getHost() + ":" + request.getPort());
@@ -134,5 +196,11 @@ public class WorkerServiceImpl implements WorkerService {
         } else {
             return false;
         }
+    }
+
+    @Override
+    protected BaseDao<BaseEntity, Serializable> getDao() {
+        // TODO Auto-generated method stub
+        return null;
     }
 }

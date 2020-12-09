@@ -88,7 +88,11 @@ public class MasterRpcServiceImpl extends GrpcWorkerServiceGrpc.GrpcWorkerServic
                 
                 JobInstanceRequest jobInstanceRequest = (JobInstanceRequest) obj;
                 JobManager.updateJobInstanceSelective(jobInstanceRequest);
-                JobInstanceResponseRpc responseRpc = setJobStatus(request);
+                JobInstanceResponseRpc responseRpc = JobInstanceResponseRpc.newBuilder()
+                        .setResponseId(request.getRequestId())
+                        .setErrorCode(200)
+                        .setTaskState(request.getTaskState())
+                        .setErrorMsg("").build();
                 JobStatusChecker.addResponse(responseRpc);
                 builder.setErrorCode(200);
                 builder.setErrorMsg("");
@@ -105,11 +109,6 @@ public class MasterRpcServiceImpl extends GrpcWorkerServiceGrpc.GrpcWorkerServic
             responseObserver.onNext(builder.build());
             responseObserver.onCompleted();
         }
-    }
-
-    private JobInstanceResponseRpc setJobStatus(JobStatusRequestRpc requestRpc) {
-        return JobInstanceResponseRpc.newBuilder().setResponseId(requestRpc.getRequestId()).setErrorCode(200)
-                .setTaskState(requestRpc.getTaskState()).setErrorMsg("").build();
     }
     
     public void rerunIfNeeded(Integer taskId) {

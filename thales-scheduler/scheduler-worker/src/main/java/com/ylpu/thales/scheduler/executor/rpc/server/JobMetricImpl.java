@@ -1,10 +1,16 @@
 package com.ylpu.thales.scheduler.executor.rpc.server;
 
+import java.util.List;
+import java.util.Properties;
+
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.curator.framework.CuratorFramework;
 
+import com.ylpu.thales.scheduler.core.config.Configuration;
+import com.ylpu.thales.scheduler.core.constants.GlobalConstants;
 import com.ylpu.thales.scheduler.core.curator.CuratorHelper;
 import com.ylpu.thales.scheduler.core.rpc.entity.WorkerParameter;
 import com.ylpu.thales.scheduler.core.utils.MetricsUtils;
@@ -21,7 +27,7 @@ public class JobMetricImpl implements IJobMetric {
     public void increaseTask() {
         WorkerGrpcClient client = null;
         try {
-            String master = CuratorHelper.getActiveMaster();
+            String master = getActiveMaster();
             if (StringUtils.isNoneBlank(master)) {
                 String[] hostAndPort = master.split(":");
                 WorkerParameter parameter = WorkerParameter.newBuilder().setHostname(MetricsUtils.getHostName())
@@ -45,7 +51,7 @@ public class JobMetricImpl implements IJobMetric {
     public void decreaseTask() {
         WorkerGrpcClient client = null;
         try {
-            String master = CuratorHelper.getActiveMaster();
+            String master = getActiveMaster();
             if (StringUtils.isNoneBlank(master)) {
                 String[] hostAndPort = master.split(":");
                 WorkerParameter parameter = WorkerParameter.newBuilder().setHostname(MetricsUtils.getHostName())
@@ -64,5 +70,26 @@ public class JobMetricImpl implements IJobMetric {
                 }
             }
         }
+    }
+    
+    private String getActiveMaster() throws Exception {
+        Properties prop = Configuration.getConfig();
+        String quorum = prop.getProperty("thales.zookeeper.quorum");
+        int sessionTimeout = Configuration.getInt(prop, "thales.zookeeper.sessionTimeout",
+                GlobalConstants.ZOOKEEPER_SESSION_TIMEOUT);
+        int connectionTimeout = Configuration.getInt(prop, "thales.zookeeper.connectionTimeout",
+                GlobalConstants.ZOOKEEPER_CONNECTION_TIMEOUT);
+        CuratorFramework client = null;
+        List<String> masters = null;
+        try {
+            client = CuratorHelper.getCuratorClient(quorum, sessionTimeout, connectionTimeout);
+            masters = CuratorHelper.getChildren(client, GlobalConstants.MASTER_GROUP);
+            if (masters == null || masters.size() == 0) {
+                throw new RuntimeException("can not get active master");
+            }
+        } finally {
+            CuratorHelper.close(client);
+        }
+        return masters.get(0);
     }
 }

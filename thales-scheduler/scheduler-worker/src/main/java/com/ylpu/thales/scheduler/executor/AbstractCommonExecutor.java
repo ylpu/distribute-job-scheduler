@@ -2,6 +2,7 @@ package com.ylpu.thales.scheduler.executor;
 
 import com.google.protobuf.ByteString;
 import com.ylpu.thales.scheduler.core.config.Configuration;
+import com.ylpu.thales.scheduler.core.constants.GlobalConstants;
 import com.ylpu.thales.scheduler.core.curator.CuratorHelper;
 import com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc;
 import com.ylpu.thales.scheduler.core.rpc.entity.JobStatusRequestRpc;
@@ -15,6 +16,7 @@ import com.ylpu.thales.scheduler.executor.rpc.client.WorkerGrpcClient;
 import com.ylpu.thales.scheduler.request.JobInstanceRequest;
 
 import java.io.File;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Map.Entry;
@@ -22,6 +24,7 @@ import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.curator.framework.CuratorFramework;
 
 public abstract class AbstractCommonExecutor {
 
@@ -121,7 +124,7 @@ public abstract class AbstractCommonExecutor {
         String master = "";
         while(true) {
             try {
-                master = CuratorHelper.getActiveMaster(); 
+                master = getActiveMaster(); 
                 if(StringUtils.isNoneBlank(master)) {
                     String[] hostAndPort = master.split(":");
                     client = new WorkerGrpcClient(hostAndPort[0], NumberUtils.toInt(hostAndPort[1]));
@@ -147,6 +150,27 @@ public abstract class AbstractCommonExecutor {
             }
         }
         return returnCode;
+    }
+    
+    private String getActiveMaster() throws Exception {
+        Properties prop = Configuration.getConfig();
+        String quorum = prop.getProperty("thales.zookeeper.quorum");
+        int sessionTimeout = Configuration.getInt(prop, "thales.zookeeper.sessionTimeout",
+                GlobalConstants.ZOOKEEPER_SESSION_TIMEOUT);
+        int connectionTimeout = Configuration.getInt(prop, "thales.zookeeper.connectionTimeout",
+                GlobalConstants.ZOOKEEPER_CONNECTION_TIMEOUT);
+        CuratorFramework client = null;
+        List<String> masters = null;
+        try {
+            client = CuratorHelper.getCuratorClient(quorum, sessionTimeout, connectionTimeout);
+            masters = CuratorHelper.getChildren(client, GlobalConstants.MASTER_GROUP);
+            if (masters == null || masters.size() == 0) {
+                throw new RuntimeException("can not get active master");
+            }
+        } finally {
+            CuratorHelper.close(client);
+        }
+        return masters.get(0);
     }
     
     public String replaceParameters(Map<String, Object> parameters, String fileContent) {

@@ -51,46 +51,42 @@ public class SchedulerService {
     }
     
     public void killJob(Integer id) throws Exception{
-        try {
-            JobInstanceResponse response = JobManager.getJobInstanceById(id);
-            if (response.getTaskState() != TaskState.RUNNING) {
-                throw new RuntimeException("can not kill job " + id + " because job is not running ");
-            }
-            String worker = response.getWorker();
-            if (StringUtils.isNotBlank(worker)) {
-                JobInstanceRequestRpc rpcJobInstanceRequest = setRequest(response);
-                String[] hostAndPort = worker.split(":");
-                AbstractJobGrpcClient client = null;
-                try {
-                    client = new JobGrpcBlockingClient(hostAndPort[0], NumberUtils.toInt(hostAndPort[1]));
-                    client.kill(rpcJobInstanceRequest);
-                } finally {
-                    if (client != null) {
-                        client.shutdown();
-                    }
+        JobInstanceResponse response = JobManager.getJobInstanceById(id);
+        if (response.getTaskState() != TaskState.RUNNING) {
+            throw new RuntimeException("can not kill job " + id + " because job is not running ");
+        }
+        String worker = response.getWorker();
+        if (StringUtils.isNotBlank(worker)) {
+            JobInstanceRequestRpc rpcJobInstanceRequest = setRequest(response);
+            String[] hostAndPort = worker.split(":");
+            AbstractJobGrpcClient client = null;
+            try {
+                client = new JobGrpcBlockingClient(hostAndPort[0], NumberUtils.toInt(hostAndPort[1]));
+                client.kill(rpcJobInstanceRequest);
+            }catch(Exception e) {
+                LOG.error(e);
+                throw e;
+            }finally {
+                if (client != null) {
+                    client.shutdown();
                 }
             }
-        } catch (Exception e) {
-            LOG.error(e);
-            throw e;
         }
     }
 
     public void markStatus(ScheduleRequest scheduleRequest, TaskState toState) throws Exception {
         JobInstanceResponse jobInstanceResponse = JobManager.getJobInstanceById(scheduleRequest.getId());
-//        JobInstanceResponseRpc responseRpc = JobChecker.getResponse(jobRequestId);
-        String responseId = jobInstanceResponse.getJobConf().getId() + "-" + 
-        DateUtils.getDateAsString(DateUtils.getDateFromString(jobInstanceResponse.getScheduleTime(), 
-                DateUtils.DATE_TIME_FORMAT), DateUtils.MINUTE_TIME_FORMAT);
-        
         if(jobInstanceResponse != null) {
             try {
+                String responseId = jobInstanceResponse.getJobConf().getId() + "-" + 
+                        DateUtils.getDateAsString(DateUtils.getDateFromString(jobInstanceResponse.getScheduleTime(), 
+                                DateUtils.DATE_TIME_FORMAT), DateUtils.MINUTE_TIME_FORMAT);
+                
                 cleanExistingTask(jobInstanceResponse,responseId);
                 JobStatusRequest jr = new JobStatusRequest();
                 jr.setIds(Arrays.asList(scheduleRequest.getId()));
                 jr.setStatus(toState);
                 JobManager.updateJobStatus(jr);
-                
                 JobStatusChecker.addResponse(JobSubmission.buildResponse(responseId,toState.getCode()));
             } catch (Exception e) {
                 LOG.error(e);

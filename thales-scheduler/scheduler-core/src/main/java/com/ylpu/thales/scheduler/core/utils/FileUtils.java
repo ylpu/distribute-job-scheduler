@@ -212,12 +212,4 @@ public final class FileUtils {
         }
         return false;
     }
-
-    public static void main(String[] args) {
-        try {
-            System.out.println(readFile("/tmp/log/worker/36-322-20190930102000.out"));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
 }

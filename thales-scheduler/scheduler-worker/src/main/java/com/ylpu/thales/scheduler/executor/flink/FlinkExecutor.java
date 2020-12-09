@@ -28,7 +28,7 @@ public class FlinkExecutor extends AbstractCommonExecutor {
         killProcess();
         Properties prop = Configuration.getConfig();
         String hadoopHome = Configuration.getString(prop, "hadoop.home", "");
-        TaskProcessUtils.execCommand("./src/script/killSpark.sh", "/tmp/pid/" + requestRpc.getPid() + ".out",
+        TaskProcessUtils.execCommand("./src/script/killFlink.sh", "/tmp/pid/" + requestRpc.getPid() + ".out",
                 "/tmp/pid/" + requestRpc.getPid() + ".error", getJobName(), hadoopHome);
     }
 

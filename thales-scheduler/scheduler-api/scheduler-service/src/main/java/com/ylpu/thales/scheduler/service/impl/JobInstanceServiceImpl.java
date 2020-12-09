@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import com.ylpu.thales.scheduler.common.curator.CuratorHelper;
 import com.ylpu.thales.scheduler.common.dao.BaseDao;
 import com.ylpu.thales.scheduler.common.rest.ScheduleManager;
 import com.ylpu.thales.scheduler.common.service.impl.BaseServiceImpl;
@@ -175,7 +174,7 @@ public class JobInstanceServiceImpl extends BaseServiceImpl<SchedulerJobInstance
         if (!isJobOwner(request, object)) {
             throw new ThalesRuntimeException("非任务所有人不能杀任务");
         }
-        String masterUrl = CuratorHelper.getMasterServiceUri();
+        String masterUrl = getMasterServiceUri();
         if (StringUtils.isNotBlank(masterUrl)) {
             int status = ScheduleManager.killJob(masterUrl, request);
             if (status != HttpStatus.NO_CONTENT.value()) {
@@ -191,7 +190,7 @@ public class JobInstanceServiceImpl extends BaseServiceImpl<SchedulerJobInstance
         if (!isJobOwner(request, object)) {
             throw new ThalesRuntimeException("非任务所有人不能重跑任务");
         }
-        String masterUrl = CuratorHelper.getMasterServiceUri();
+        String masterUrl = getMasterServiceUri();
         if (StringUtils.isNotBlank(masterUrl)) {
             int status = ScheduleManager.rerun(masterUrl, request);
             // 204-执行成功，但无内容返回
@@ -208,9 +207,9 @@ public class JobInstanceServiceImpl extends BaseServiceImpl<SchedulerJobInstance
         if (!isJobOwner(request, object)) {
             throw new ThalesRuntimeException("非任务所有人不能重跑所有任务");
         }
-        String masterUrl = CuratorHelper.getMasterServiceUri();
+        String masterUrl = getMasterServiceUri();
         if (StringUtils.isNotBlank(masterUrl)) {
-            int status = ScheduleManager.rerunAll(CuratorHelper.getMasterServiceUri(), request);
+            int status = ScheduleManager.rerunAll(getMasterServiceUri(), request);
             // 204-执行成功，但无内容返回
             if (status != HttpStatus.NO_CONTENT.value()) {
                 throw new ThalesRuntimeException("failed to rerun all job " + request.getId());
@@ -333,9 +332,9 @@ public class JobInstanceServiceImpl extends BaseServiceImpl<SchedulerJobInstance
         if (!isJobOwner(request, object)) {
             throw new ThalesRuntimeException("非任务所有人不能标识成功任务");
         }
-        String masterUrl = CuratorHelper.getMasterServiceUri();
+        String masterUrl = getMasterServiceUri();
         if (StringUtils.isNotBlank(masterUrl)) {
-            int status = ScheduleManager.markSuccess(CuratorHelper.getMasterServiceUri(), request);
+            int status = ScheduleManager.markSuccess(getMasterServiceUri(), request);
             // 204-执行成功，但无内容返回
             if (status != HttpStatus.NO_CONTENT.value()) {
                 throw new ThalesRuntimeException("failed to mark job " + request.getId() + " as success");
@@ -365,9 +364,9 @@ public class JobInstanceServiceImpl extends BaseServiceImpl<SchedulerJobInstance
         if (!isJobOwner(request, object)) {
             throw new ThalesRuntimeException("非任务所有人不能标识失败任务");
         }
-        String masterUrl = CuratorHelper.getMasterServiceUri();
+        String masterUrl = getMasterServiceUri();
         if (StringUtils.isNotBlank(masterUrl)) {
-            int status = ScheduleManager.markFail(CuratorHelper.getMasterServiceUri(), request);
+            int status = ScheduleManager.markFail(getMasterServiceUri(), request);
             // 204-执行成功，但无内容返回
             if (status != HttpStatus.NO_CONTENT.value()) {
                 throw new ThalesRuntimeException("failed to mark job " + request.getId() + " as fail");

@@ -117,7 +117,4 @@ public class MetricsUtils {
 //        }
 //        return ip;
 //    }
-
-    public static void main(String[] args) {
-    }
 }

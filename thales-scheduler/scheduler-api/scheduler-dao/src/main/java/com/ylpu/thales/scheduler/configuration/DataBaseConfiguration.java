@@ -50,7 +50,8 @@ public class DataBaseConfiguration implements EnvironmentAware {
         }
         config.setUsername(propertyResolver.getProperty("username"));
         config.setPassword(propertyResolver.getProperty("password"));
-        config.setMaximumPoolSize(propertyResolver.getProperty("maximumPoolSize") == null ? 10 : NumberUtils.toInt(propertyResolver.getProperty("maximumPoolSize")));
+        config.setMaximumPoolSize(propertyResolver.getProperty("maximumPoolSize") == null ? 10 : 
+            NumberUtils.toInt(propertyResolver.getProperty("maximumPoolSize")));
         if ("com.mysql.jdbc.jdbc2.optional.MysqlDataSource".equals(propertyResolver.getProperty("dataSourceName"))) {
             config.addDataSourceProperty("cachePrepStmts", propertyResolver.getProperty("cachePrepStmts"));
             config.addDataSourceProperty("prepStmtCacheSize", propertyResolver.getProperty("prepStmtsCacheSize"));

@@ -56,6 +56,7 @@ public class DateUtils {
     public static Date getTime(Date date, int cycle, int step) {
 
         Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
         JobCycle jobCycle = JobCycle.getJobCycle(cycle);
 
         switch (jobCycle) {

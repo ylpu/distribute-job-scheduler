@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import com.ylpu.thales.scheduler.common.curator.CuratorHelper;
 import com.ylpu.thales.scheduler.common.dao.BaseDao;
 import com.ylpu.thales.scheduler.common.rest.ScheduleManager;
 import com.ylpu.thales.scheduler.common.service.impl.BaseServiceImpl;
@@ -258,7 +257,7 @@ public class JobServiceImpl extends BaseServiceImpl<SchedulerJob, Integer> imple
 
     @Override
     public void scheduleJob(ScheduleRequest request) {
-        String masterUrl = CuratorHelper.getMasterServiceUri();
+        String masterUrl = getMasterServiceUri();
         if (StringUtils.isNotBlank(masterUrl)) {
             int status = ScheduleManager.scheduleJob(masterUrl, request);
             if (status != HttpStatus.NO_CONTENT.value()) {
@@ -272,7 +271,7 @@ public class JobServiceImpl extends BaseServiceImpl<SchedulerJob, Integer> imple
 
     @Override
     public void rescheduleJob(ScheduleRequest request) {
-        String masterUrl = CuratorHelper.getMasterServiceUri();
+        String masterUrl = getMasterServiceUri();
         if (StringUtils.isNotBlank(masterUrl)) {
             int status = ScheduleManager.rescheduleJob(masterUrl, request);
             if (status != HttpStatus.NO_CONTENT.value()) {
@@ -294,7 +293,7 @@ public class JobServiceImpl extends BaseServiceImpl<SchedulerJob, Integer> imple
         schedulerJob.setJobReleasestate(JobReleaseState.OFFLINE.getCode());
         schedulerJob.setUpdateTime(new Date());
         updateByPrimaryKeySelective(schedulerJob);
-        String masterUrl = CuratorHelper.getMasterServiceUri();
+        String masterUrl = getMasterServiceUri();
         if (StringUtils.isNotBlank(masterUrl)) {
             int status = ScheduleManager.downJob(masterUrl, request);
             if (status != HttpStatus.NO_CONTENT.value()) {

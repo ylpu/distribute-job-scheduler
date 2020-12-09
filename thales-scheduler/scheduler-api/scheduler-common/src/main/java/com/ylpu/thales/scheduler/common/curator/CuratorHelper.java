@@ -1,12 +1,6 @@
 package com.ylpu.thales.scheduler.common.curator;
 
-import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.curator.RetryPolicy;
@@ -15,10 +9,6 @@ import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.data.Stat;
-import com.ylpu.thales.scheduler.common.config.Configuration;
-import com.ylpu.thales.scheduler.common.constants.GlobalConstants;
-import com.ylpu.thales.scheduler.common.utils.ByteUtils;
-import com.ylpu.thales.scheduler.request.WorkerRequest;
 
 public class CuratorHelper {
     
@@ -90,129 +80,5 @@ public class CuratorHelper {
         if (client != null) {
             client.close();
         }
-    }
-    
-    public static List<String> getWorkerGroups(){
-        List<WorkerRequest> list = new ArrayList<WorkerRequest>();
-        Properties prop = Configuration.getConfig(GlobalConstants.CONFIG_FILE);
-        String quorum = prop.getProperty("thales.zookeeper.quorum");
-        int sessionTimeout = Configuration.getInt(prop, "thales.zookeeper.sessionTimeout",
-                GlobalConstants.ZOOKEEPER_SESSION_TIMEOUT);
-        int connectionTimeout = Configuration.getInt(prop, "thales.zookeeper.connectionTimeout",
-                GlobalConstants.ZOOKEEPER_CONNECTION_TIMEOUT);
-        CuratorFramework client  = CuratorHelper.getCuratorClient(quorum, sessionTimeout, connectionTimeout);
-        List<String> groupList = null;
-        try {
-            groupList = CuratorHelper.getChildren(client, GlobalConstants.WORKER_GROUP);
-        } catch (Exception e) {
-            LOG.error(e);
-        }finally {
-            CuratorHelper.close(client);
-        }
-        return groupList;
-    }
-    
-    public static List<WorkerRequest> getAllWorkers(){
-        List<WorkerRequest> list = new ArrayList<WorkerRequest>();
-        Properties prop = Configuration.getConfig(GlobalConstants.CONFIG_FILE);
-        String quorum = prop.getProperty("thales.zookeeper.quorum");
-        int sessionTimeout = Configuration.getInt(prop, "thales.zookeeper.sessionTimeout",
-                GlobalConstants.ZOOKEEPER_SESSION_TIMEOUT);
-        int connectionTimeout = Configuration.getInt(prop, "thales.zookeeper.connectionTimeout",
-                GlobalConstants.ZOOKEEPER_CONNECTION_TIMEOUT);
-        CuratorFramework client  = CuratorHelper.getCuratorClient(quorum, sessionTimeout, connectionTimeout);
-        List<String> groupList;
-        try {
-            groupList = CuratorHelper.getChildren(client, GlobalConstants.WORKER_GROUP);
-            if(groupList != null && groupList.size() > 0) {
-                for(String group : groupList) {
-                    List<String> workerList = CuratorHelper.getChildren(client, GlobalConstants.WORKER_GROUP + "/" + group);
-                    if(workerList != null && workerList.size() > 0) {
-                        for(String worker : workerList) {
-                            byte[] bytes = CuratorHelper.getData(client, GlobalConstants.WORKER_GROUP + "/" + group + "/" + worker);
-                            WorkerRequest request = (WorkerRequest) ByteUtils.byteArrayToObject(bytes);
-                            list.add(request);
-                        }
-                    }
-                }
-            }
-        } catch (Exception e) {
-            LOG.error(e);
-        }finally {
-            CuratorHelper.close(client);
-        }
-        return list;
-    }
-
-    public static String getMasterServiceUri() {
-        Properties prop = Configuration.getConfig(GlobalConstants.CONFIG_FILE);
-        String quorum = prop.getProperty("thales.zookeeper.quorum");
-        int sessionTimeout = Configuration.getInt(prop, "thales.zookeeper.sessionTimeout",
-                GlobalConstants.ZOOKEEPER_SESSION_TIMEOUT);
-        int connectionTimeout = Configuration.getInt(prop, "thales.zookeeper.connectionTimeout",
-                GlobalConstants.ZOOKEEPER_CONNECTION_TIMEOUT);
-        int masterRetryInterval = Configuration.getInt(prop, "thales.master.retry.interval", 1000);
-        CuratorFramework client = null;
-        List<String> masters = null;
-        int i = 1;
-        while (true) {
-            try {
-                client = CuratorHelper.getCuratorClient(quorum, sessionTimeout, connectionTimeout);
-                masters = CuratorHelper.getChildren(client, GlobalConstants.MASTER_GROUP);
-                if (masters != null && masters.size() > 0) {
-                    StringBuilder sb = new StringBuilder("http://");
-                    sb.append(masters.get(0).split(":")[0]);
-                    sb.append(":");
-                    sb.append(Configuration.getInt(prop, "thales.master.service.port", 9090));
-                    if (isMasterAlive(sb.toString())) {
-                        return sb.append("/api/").toString();
-                    } else {
-                        try {
-                            Thread.sleep(masterRetryInterval);
-                        } catch (InterruptedException e) {
-                            LOG.error(e);
-                        }
-                    }
-                } else {
-                    try {
-                        Thread.sleep(masterRetryInterval);
-                    } catch (InterruptedException e) {
-                        LOG.error(e);
-                    }
-                }
-                i++;
-                if (i > 3) {
-                    return null;
-                }
-            } catch (Exception e) {
-                LOG.error(e);
-                return null;
-            } finally {
-                CuratorHelper.close(client);
-            }
-        }
-    }
-
-    private static boolean isMasterAlive(String url) {
-        boolean isAlive = true;
-        HttpURLConnection conn = null;
-        try {
-            URL theURL = new URL(url);
-            conn = (HttpURLConnection) theURL.openConnection();
-            conn.setConnectTimeout(20000);
-            conn.connect();
-            int code = conn.getResponseCode();
-            boolean success = (code >= 200) && (code < 300);
-            if (!success) {
-                isAlive = false;
-            }
-        } catch (MalformedURLException e) {
-            isAlive = false;
-        } catch (IOException e) {
-            isAlive = false;
-        } catch (Exception e) {
-            isAlive = false;
-        }
-        return isAlive;
     }
 }

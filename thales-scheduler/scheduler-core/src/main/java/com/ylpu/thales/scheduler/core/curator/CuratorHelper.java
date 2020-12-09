@@ -1,15 +1,12 @@
 package com.ylpu.thales.scheduler.core.curator;
 
 import java.util.List;
-import java.util.Properties;
 import org.apache.curator.RetryPolicy;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.data.Stat;
-import com.ylpu.thales.scheduler.core.config.Configuration;
-import com.ylpu.thales.scheduler.core.constants.GlobalConstants;
 
 public class CuratorHelper {
 
@@ -79,26 +76,5 @@ public class CuratorHelper {
         if (client != null) {
             client.close();
         }
-    }
-
-    public static String getActiveMaster() throws Exception {
-        Properties prop = Configuration.getConfig();
-        String quorum = prop.getProperty("thales.zookeeper.quorum");
-        int sessionTimeout = Configuration.getInt(prop, "thales.zookeeper.sessionTimeout",
-                GlobalConstants.ZOOKEEPER_SESSION_TIMEOUT);
-        int connectionTimeout = Configuration.getInt(prop, "thales.zookeeper.connectionTimeout",
-                GlobalConstants.ZOOKEEPER_CONNECTION_TIMEOUT);
-        CuratorFramework client = null;
-        List<String> masters = null;
-        try {
-            client = getCuratorClient(quorum, sessionTimeout, connectionTimeout);
-            masters = getChildren(client, GlobalConstants.MASTER_GROUP);
-            if (masters == null || masters.size() == 0) {
-                throw new RuntimeException("can not get active master");
-            }
-        } finally {
-            close(client);
-        }
-        return masters.get(0);
     }
 }

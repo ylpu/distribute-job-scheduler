@@ -126,12 +126,16 @@ public class WorkerRpcServiceImpl extends GrpcJobServiceGrpc.GrpcJobServiceImplB
             }
             transitTaskStatus(request,TaskState.KILL);
             FileUtils.writeFile("sucessful kill job " + requestRpc.getId(), requestRpc.getLogPath());
-            builder.setTaskState(TaskState.KILL.getCode()).setErrorCode(200).setErrorMsg("");
+            builder.setTaskState(TaskState.KILL.getCode())
+            .setErrorCode(200)
+            .setErrorMsg("");
             // decrease task number
             jobMetric.decreaseTask();
         } catch (Exception e) {
             LOG.error(e);
-            builder.setTaskState(TaskState.RUNNING.getCode()).setErrorCode(500).setErrorMsg("failed to kill task" + requestRpc.getId());
+            builder.setTaskState(TaskState.RUNNING.getCode())
+            .setErrorCode(500)
+            .setErrorMsg("failed to kill task" + requestRpc.getId());
             FileUtils.writeFile("failed to kill job " + requestRpc.getId(), requestRpc.getLogPath());
         } finally {
             processResponse(responseObserver,builder);

@@ -21,6 +21,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.zookeeper.CreateMode;
 import java.util.Date;
+import java.util.List;
 import java.util.Properties;
 
 public class WorkerServer {
@@ -95,7 +96,7 @@ public class WorkerServer {
         String master;
         WorkerGrpcClient client = null;
         try {
-            master = CuratorHelper.getActiveMaster();
+            master = getActiveMaster();
             String[] masters = master.split(":");
             client = new WorkerGrpcClient(masters[0], NumberUtils.toInt(masters[1]));
             WorkerRequestRpc request = WorkerRequestRpc.newBuilder().setWorkerGroup(workerGroup).build();
@@ -109,11 +110,30 @@ public class WorkerServer {
             }
         }
     }
+    
+    private String getActiveMaster() throws Exception {
+        Properties prop = Configuration.getConfig();
+        String quorum = prop.getProperty("thales.zookeeper.quorum");
+        int sessionTimeout = Configuration.getInt(prop, "thales.zookeeper.sessionTimeout",
+                GlobalConstants.ZOOKEEPER_SESSION_TIMEOUT);
+        int connectionTimeout = Configuration.getInt(prop, "thales.zookeeper.connectionTimeout",
+                GlobalConstants.ZOOKEEPER_CONNECTION_TIMEOUT);
+        CuratorFramework client = null;
+        List<String> masters = null;
+        try {
+            client = CuratorHelper.getCuratorClient(quorum, sessionTimeout, connectionTimeout);
+            masters = CuratorHelper.getChildren(client, GlobalConstants.MASTER_GROUP);
+            if (masters == null || masters.size() == 0) {
+                throw new RuntimeException("can not get active master");
+            }
+        } finally {
+            CuratorHelper.close(client);
+        }
+        return masters.get(0);
+    }
 
     public void stopHeartBeat() {
-        if (stop == false) {
-            stop = true;
-        }
+        stop = true;
     }
     
     private boolean isValidateGroup(String groupName) throws Exception {

@@ -2,13 +2,9 @@ package com.ylpu.thales.scheduler.core.rest;
 
 import com.ylpu.thales.scheduler.core.config.Configuration;
 import com.ylpu.thales.scheduler.core.constants.GlobalConstants;
-import com.ylpu.thales.scheduler.request.WorkerGroupRequest;
-import com.ylpu.thales.scheduler.request.WorkerRequest;
 import com.ylpu.thales.scheduler.response.GroupStrategyResponse;
 import com.ylpu.thales.scheduler.response.SchedulerResponse;
-
 import org.springframework.core.ParameterizedTypeReference;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;

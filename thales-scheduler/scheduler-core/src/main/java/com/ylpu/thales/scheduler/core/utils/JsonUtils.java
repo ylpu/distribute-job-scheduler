@@ -191,9 +191,4 @@ public class JsonUtils {
             return content;
         }
     }
-    
-    public static void main(String[] args) {
-        String command = "{\"commandLine\" :\"cat /tmp/log/scheduler-worker/info.log\"}}";
-        System.out.println(JSONObject.fromObject(command));
-    }
 }

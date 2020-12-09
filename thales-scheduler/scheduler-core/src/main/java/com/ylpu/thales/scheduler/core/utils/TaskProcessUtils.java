@@ -1,19 +1,15 @@
 package com.ylpu.thales.scheduler.core.utils;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
-
 import org.apache.commons.lang3.StringUtils;
-
 import com.sun.jna.Pointer;
 import com.sun.jna.platform.win32.Kernel32;
 import com.sun.jna.platform.win32.WinNT;
@@ -143,27 +139,5 @@ public class TaskProcessUtils {
             }
         }
         return rspList;
-    }
-
-    public static void main(String[] args) {
-        // String fileName = "/tmp/script/test.sh";
-        // Runtime rt = Runtime.getRuntime();
-        // Process process = rt.exec("sh " + fileName);
-        // IOUtils.writeFile(process.getInputStream(),"/tmp/stdout.txt");
-        // IOUtils.writeFile(process.getErrorStream(),"/tmp/stderror.txt");
-        // System.out.println(process.waitFor());
-        try {
-            // killLinuxProcess(3l);
-            int pid = 65633;
-            TaskProcessUtils.execCommand("/Users/admin/thales/thales-scheduler/scheduler-worker/src/script/kill.sh",
-                    "/tmp/pid/" + pid + ".out", "/tmp/pid/" + pid + ".error", String.valueOf(pid));
-            
-            List<String> list = execCommandToList("head -100 /tmp/log/autoel-api/spring.log | tail -10");
-            System.out.println(list.size());
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
     }
 }
