@@ -185,15 +185,15 @@ public class MasterManager {
 //        WorkerManager.updateWorkersStatus(param);
 //        恢复任务状态，比较耗时
 //        restoreTaskState();
+//      启动master http service
+        jettyServer = new MasterApiServer(prop);
+        jettyServer.startJettyServer();
         // 启动任务状态检查线程
         JobStatusChecker.start();
         // 标识以前的任务状态为失败
         JobManager.markStatus();
         // 加载任务实例状态，比较耗时
         restoreTaskState();
-        // 启动master服务
-        jettyServer = new MasterApiServer(prop);
-        jettyServer.startJettyServer();
         // 调度所有任务
         JobScheduler.startJobs();
         // 初始化每台机器运行的任务个数,供监控使用
@@ -255,7 +255,10 @@ public class MasterManager {
 //            LOG.error(e);
 //        }
 //    }
-    
+    /**
+     * 加载历史任务状态（最近1个月的），比较耗时，后面改成分页方式加载
+     * @throws Exception
+     */
     private void restoreTaskState() throws Exception {
         JobInstanceResponseRpc responseRpc = null;
         List<JobInstanceStateResponse> list = JobManager.getAllJobStatus();

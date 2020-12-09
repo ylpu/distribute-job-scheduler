@@ -2,6 +2,7 @@ package com.ylpu.thales.scheduler.service.impl;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -150,15 +151,15 @@ public class JobInstanceServiceImpl extends BaseServiceImpl<SchedulerJobInstance
         List<JobInstanceStateResponse> responseList = new ArrayList<JobInstanceStateResponse>();
         JobInstanceStateResponse stateResponse = null;
 
-        // Calendar startTime = Calendar.getInstance();
-        // startTime.setTime(new Date());
-        // startTime.add(Calendar.MONTH, -1);
-        //
-        // Calendar endTime = Calendar.getInstance();
-        // endTime.setTime(new Date());
-        // endTime.add(Calendar.MONTH, 1);
+         Calendar startTime = Calendar.getInstance();
+         startTime.setTime(new Date());
+         startTime.add(Calendar.MONTH, -1);
+        
+         Calendar endTime = Calendar.getInstance();
+         endTime.setTime(new Date());
+         endTime.add(Calendar.DAY_OF_MONTH, 1);
 
-        List<JobInstanceState> list = schedulerJobInstanceMapper.getAllJobStatus();
+        List<JobInstanceState> list = schedulerJobInstanceMapper.getAllJobStatus(startTime.getTime(),endTime.getTime());
         if (list != null && list.size() > 0) {
             for (JobInstanceState state : list) {
                 stateResponse = new JobInstanceStateResponse();
