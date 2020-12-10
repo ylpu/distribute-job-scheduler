@@ -26,11 +26,13 @@ public class JobMetricImpl implements IJobMetric {
 
     public void increaseTask() {
         WorkerGrpcClient client = null;
+        Properties prop = Configuration.getConfig();
+        int workerServerPort = Configuration.getInt(prop, "thales.worker.server.port", 8090);
         try {
             String master = getActiveMaster();
             if (StringUtils.isNoneBlank(master)) {
                 String[] hostAndPort = master.split(":");
-                WorkerParameter parameter = WorkerParameter.newBuilder().setHostname(MetricsUtils.getHostName())
+                WorkerParameter parameter = WorkerParameter.newBuilder().setHostname(MetricsUtils.getHostName() + ":" + workerServerPort)
                         .build();
                 client = new WorkerGrpcClient(hostAndPort[0], NumberUtils.toInt(hostAndPort[1]));
                 client.incTask(parameter);
@@ -50,11 +52,13 @@ public class JobMetricImpl implements IJobMetric {
 
     public void decreaseTask() {
         WorkerGrpcClient client = null;
+        Properties prop = Configuration.getConfig();
+        int workerServerPort = Configuration.getInt(prop, "thales.worker.server.port", 8090);
         try {
             String master = getActiveMaster();
             if (StringUtils.isNoneBlank(master)) {
                 String[] hostAndPort = master.split(":");
-                WorkerParameter parameter = WorkerParameter.newBuilder().setHostname(MetricsUtils.getHostName())
+                WorkerParameter parameter = WorkerParameter.newBuilder().setHostname(MetricsUtils.getHostName() + ":" + workerServerPort)
                         .build();
                 client = new WorkerGrpcClient(hostAndPort[0], NumberUtils.toInt(hostAndPort[1]));
                 client.decTask(parameter);

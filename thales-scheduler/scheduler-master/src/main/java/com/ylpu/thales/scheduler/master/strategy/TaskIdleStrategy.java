@@ -48,7 +48,7 @@ public class TaskIdleStrategy implements WorkerSelectStrategy {
                     .filter(entry -> !Arrays.asList(lastFailedHosts).contains(entry.getKey()))
                     .collect(Collectors.toList());
             if (runningServers != null && runningServers.size() > 0) {
-                return resourceMap.get(runningServers.get(runningServers.size() - 1).getKey());
+                return resourceMap.get(runningServers.get(0).getKey());
             } else {
                 throw new RuntimeException("找不到可用的worker执行任务 ");
             }

@@ -218,7 +218,7 @@ public class MasterManager {
             for (Map<String, Object> map : list) {
                 Object worker = map.get("worker");
                 if (worker != null) {
-                    taskMap.put(map.get("worker").toString().split(":")[0],
+                    taskMap.put(map.get("worker").toString(),
                             NumberUtils.toInt(String.valueOf(map.get("cnt"))));
                 }
             }
@@ -292,7 +292,7 @@ public class MasterManager {
             WorkerResponse workerInfo = resourceMap.get(request.getHost());
             if (workerInfo == null) {
                 workerInfo = new WorkerResponse();
-                resourceMap.put(request.getHost(), workerInfo);
+                resourceMap.put(request.getHost() + ":" + request.getPort(), workerInfo);
             }
             workerInfo.setHost(request.getHost());
             workerInfo.setCpuUsage(request.getCpuUsage());
@@ -338,15 +338,17 @@ public class MasterManager {
                     case CHILD_ADDED:
                         String addedPath = pathChildrenCacheEvent.getData().getPath();
                         LOG.info("added node" + addedPath);
-                        String addedIp = addedPath.substring(addedPath.lastIndexOf("/") + 1);
-                        groups.get(groupPath).add(addedIp);
+                        String addedHost = addedPath.substring(addedPath.lastIndexOf("/") + 1);
+                        groups.get(groupPath).add(addedHost);
+                        taskMap.put(addedHost, 0);
                         break;
                     case CHILD_REMOVED:
                         String removedPath = pathChildrenCacheEvent.getData().getPath();
                         LOG.info("removed node" + removedPath);
-                        String removedIp = removedPath.substring(removedPath.lastIndexOf("/") + 1);
-                        groups.get(groupPath).remove(removedIp);
-                        releaseResource(groupPath, Arrays.asList(removedIp));
+                        String removedHost = removedPath.substring(removedPath.lastIndexOf("/") + 1);
+                        groups.get(groupPath).remove(removedHost);
+                        taskMap.remove(removedHost);
+                        releaseResource(groupPath, Arrays.asList(removedHost));
                         break;
                     case CHILD_UPDATED:
                         String udpatedPath = pathChildrenCacheEvent.getData().getPath();

@@ -57,7 +57,7 @@ public class WorkerServer {
                         GlobalConstants.ZOOKEEPER_SESSION_TIMEOUT);
                 int connectionTimeout = Configuration.getInt(prop, "thales.zookeeper.connectionTimeout",
                         GlobalConstants.ZOOKEEPER_CONNECTION_TIMEOUT);
-                String workerPath = regist(quorum,sessionTimeout,connectionTimeout,workerGroup);
+                String workerPath = regist(quorum,sessionTimeout,connectionTimeout,workerGroup,workerServerPort);
                 // 启动心跳线程
                 WorkerHeartBeatThread heartBeatThread = new WorkerHeartBeatThread(workerPath, workerServerPort,
                         heartBeatInterval);
@@ -78,7 +78,7 @@ public class WorkerServer {
     }
 
 
-    private String regist(String quorum, int sessionTimeout, int connectionTimeout,String workerGroup) throws Exception {
+    private String regist(String quorum, int sessionTimeout, int connectionTimeout,String workerGroup,int workerServerPort) throws Exception {
 
         CuratorFramework client = CuratorHelper.getCuratorClient(quorum, sessionTimeout, connectionTimeout);
         CuratorHelper.createNodeIfNotExist(client, GlobalConstants.ROOT_GROUP, CreateMode.PERSISTENT, null);
@@ -87,7 +87,7 @@ public class WorkerServer {
         insertOrUpdateGroup(workerGroup);
 
         String hostname = MetricsUtils.getHostName();
-        String workerPath = GlobalConstants.WORKER_GROUP + "/" + workerGroup + "/" + hostname;
+        String workerPath = GlobalConstants.WORKER_GROUP + "/" + workerGroup + "/" + hostname + ":" + workerServerPort;
         CuratorHelper.createNodeIfNotExist(client, workerPath, CreateMode.EPHEMERAL, null);
         return workerPath;
     }

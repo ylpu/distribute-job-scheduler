@@ -60,6 +60,7 @@ public class WorkerServiceImpl extends BaseServiceImpl<BaseEntity, Serializable>
             for (WorkerRequest wokerRequest : pageWorkerList) {
                 workerResponse = new WorkerResponse();
                 BeanUtils.copyProperties(wokerRequest, workerResponse);
+                workerResponse.setHost(wokerRequest.getHost());
                 workerResponse.setWorkerStatus(WorkerStatus.getWorkerStatus(wokerRequest.getWorkerStatus()));
                 workerResponse.setLastHeartbeatTime(
                         DateUtils.getDateAsString(wokerRequest.getLastHeartbeatTime(), DateUtils.DATE_TIME_FORMAT));
