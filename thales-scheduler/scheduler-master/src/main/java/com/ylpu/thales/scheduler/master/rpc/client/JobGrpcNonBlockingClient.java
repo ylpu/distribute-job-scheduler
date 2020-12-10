@@ -56,48 +56,59 @@ public class JobGrpcNonBlockingClient extends AbstractJobGrpcClient {
     }
 
     public void submitJob(JobInstanceRequestRpc rpcRequest){
-        LOG.info("prepare to submit task " + rpcRequest.getRequestId() + " to host  " + host + ":" + port);
-        ListenableFuture<JobInstanceResponseRpc> future = futureStub.submit(rpcRequest);
-        // async callback
-        addCallBack(future, executorService, rpcRequest);
+        try {
+            LOG.info("prepare to submit task " + rpcRequest.getRequestId() + " to host  " + host + ":" + port);
+            ListenableFuture<JobInstanceResponseRpc> future = futureStub.submit(rpcRequest);
+            // async callback
+            addCallBack(future, executorService, rpcRequest);
+        }catch(Exception e) {
+            try {
+                transitTaskStatus(rpcRequest, TaskState.FAIL.getCode());
+                JobInstanceResponseRpc responseRpc = JobSubmission.buildResponse(rpcRequest.getRequestId(), TaskState.FAIL.getCode());
+                JobStatusChecker.addResponse(responseRpc);
+            } catch (Exception e1) {
+                LOG.error(e); 
+            }
+            shutdown();
+            rerunIfNeeded(rpcRequest);
+        }
     }
 
     private void addCallBack(ListenableFuture<JobInstanceResponseRpc> future, ListeningExecutorService executorService,
-            JobInstanceRequestRpc requestRpc) {
+            JobInstanceRequestRpc rpcRequest) {
         Futures.addCallback(future, new FutureCallback<JobInstanceResponseRpc>() {
             @Override
             public void onSuccess(JobInstanceResponseRpc result) {
-                LOG.info("task " + requestRpc.getRequestId() + " execute successful");
+                LOG.info("task " + rpcRequest.getRequestId() + " execute successful");
                 JobStatusChecker.addResponse(result);
                 //remove request after execute successful
-                JobStatusChecker.getJobInstanceRequestMap().remove(requestRpc.getRequestId()); 
+                JobStatusChecker.getJobInstanceRequestMap().remove(rpcRequest.getRequestId()); 
                 shutdown();
                 if(result.getErrorCode() == 500) {
-                    rerunIfNeeded(requestRpc);
+                    rerunIfNeeded(rpcRequest);
                 }
             }
             //worker网络异常或其它未知异常
             @Override
             public void onFailure(Throwable t) {
-                LOG.error("failed to execute task " + requestRpc.getRequestId(),t);
+                LOG.error("failed to execute task " + rpcRequest.getRequestId(),t);
                 try {
-                    transitTaskStatus(requestRpc, TaskState.FAIL.getCode());
-                    JobInstanceResponseRpc responseRpc = JobSubmission.buildResponse(requestRpc.getRequestId(), TaskState.FAIL.getCode());
-                    JobStatusChecker.addResponse(responseRpc);
+                    transitTaskStatus(rpcRequest, TaskState.FAIL.getCode());
+                    JobInstanceResponseRpc rpcResponse = JobSubmission.buildResponse(rpcRequest.getRequestId(), TaskState.FAIL.getCode());
+                    JobStatusChecker.addResponse(rpcResponse);
                 } catch (Exception e) {
-                    LOG.error("failed to update task " + requestRpc.getRequestId() + " status to fail after callback",e);
-                }finally {
-                    //remove request after execute fail
-                    JobStatusChecker.getJobInstanceRequestMap().remove(requestRpc.getRequestId());
+                    LOG.error("failed to update task " + rpcRequest.getRequestId() + " status to fail after callback",e);
                 }
+                //remove request after execute fail
+                JobStatusChecker.getJobInstanceRequestMap().remove(rpcRequest.getRequestId());
                 shutdown();
-                rerunIfNeeded(requestRpc);
+                rerunIfNeeded(rpcRequest);
             }
         }, executorService);
     }
 
     @Override
-    public void kill(JobInstanceRequestRpc requestRpc) {
+    public void kill(JobInstanceRequestRpc rpcRequest) {
 
     }
 }

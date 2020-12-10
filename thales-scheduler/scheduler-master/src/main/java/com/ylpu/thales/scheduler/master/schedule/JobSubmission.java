@@ -164,8 +164,6 @@ public class JobSubmission {
                             client = getClient(worker,taskCall.getGrpcType());
                             client.submitJob(taskCall.getRpcRequest());
                         }
-                    } catch(Exception e) {
-                        LOG.error(e);
                     }finally {
                         // 同步rpc直接关闭，异步rpc需要内部关闭
                         if (taskCall.getGrpcType() == GrpcType.SYNC) {

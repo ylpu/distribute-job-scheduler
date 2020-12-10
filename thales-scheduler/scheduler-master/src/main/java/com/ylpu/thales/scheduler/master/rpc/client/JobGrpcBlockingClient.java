@@ -34,13 +34,13 @@ public class JobGrpcBlockingClient extends AbstractJobGrpcClient {
     }
 
     public void kill(JobInstanceRequestRpc rpcRequest){
-        JobInstanceResponseRpc responseRpc =  blockStub.kill(rpcRequest);
-        LOG.info("task " + rpcRequest.getRequestId() + " return code is " + responseRpc.getErrorCode() + " ,return message "
-                + responseRpc.getErrorMsg());
-        JobStatusChecker.addResponse(responseRpc);
+        JobInstanceResponseRpc rpcResponse =  blockStub.kill(rpcRequest);
+        LOG.info("task " + rpcRequest.getRequestId() + " return code is " + rpcResponse.getErrorCode() + " ,return message "
+                + rpcResponse.getErrorMsg());
+        JobStatusChecker.addResponse(rpcResponse);
         //remove request after kill
         JobStatusChecker.getJobInstanceRequestMap().remove(rpcRequest.getRequestId());
-        if (responseRpc.getErrorCode() != 200) {
+        if (rpcResponse.getErrorCode() != 200) {
             throw new RuntimeException("failed to kill task " + rpcRequest.getRequestId());
         }
     }
