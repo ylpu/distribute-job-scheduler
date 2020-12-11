@@ -95,7 +95,8 @@ public class MasterManager {
         CuratorHelper.createNodeIfNotExist(client, GlobalConstants.ROOT_GROUP, CreateMode.PERSISTENT, null);
         CuratorHelper.createNodeIfNotExist(client, GlobalConstants.MASTER_GROUP, CreateMode.PERSISTENT, null);
         CuratorHelper.createNodeIfNotExist(client, GlobalConstants.WORKER_GROUP, CreateMode.PERSISTENT, null);
-
+        CuratorHelper.createNodeIfNotExist(client, GlobalConstants.STRATEGY_GROUP, CreateMode.PERSISTENT, null);
+        
         new MyLeaderSelectorListenerAdapter(client, GlobalConstants.MASTER_LOCK, prop).start();
     }
 
@@ -188,12 +189,12 @@ public class MasterManager {
 //      启动master http service
         jettyServer = new MasterApiServer(prop);
         jettyServer.startJettyServer();
-        // 启动任务状态检查线程
-        JobStatusChecker.start();
         // 标识以前的任务状态为失败
         JobManager.markStatus();
         // 加载任务实例状态，比较耗时
         restoreTaskState();
+        // 启动任务状态检查线程
+        JobStatusChecker.start();
         // 调度所有任务
         JobScheduler.startJobs();
         // 初始化每台机器运行的任务个数,供监控使用

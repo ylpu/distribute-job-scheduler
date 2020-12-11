@@ -50,7 +50,7 @@ public class ZookeeperLeaderTest {
 
         client.start();
 
-        addNodeChangeListener(client, "/thales/workers");
+//        addNodeChangeListener(client, "/thales/workers");
 
         new MyLeaderSelectorListenerAdapter(client, PATH, "Client #" + 1);
 
