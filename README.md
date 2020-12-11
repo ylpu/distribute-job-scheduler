@@ -24,24 +24,25 @@ thales是一款自主研发的分布式任务调度系统，系统支持command,
 
 ## 1. Project structure 
 
-- scheduler
-	- alert --任务告警
-	- api --对外接口
-		- controller --任务控制层
-		- dao --任务数据层
-		- service --任务服务层
-		- common --通用帮助类
-		--model --对外接口模型
-	- master --任务调度
+- thales-scheduler
+	- scheduler-alert --任务告警
+	- scheduler-api --对外接口
+		- scheduler-controller --任务控制层
+		- scheduler-dao --任务数据层
+		- scheduler-service --任务服务层
+		- scheduler-common --通用帮助类
+	- scheduler-master --任务调度
 	    - quartz --任务调度
 	    - master manager --任务资源管理
 	    - task status management --任务状态管理
 	    - rpc client --提交任务
-	- worker --任务执行
+	- scheduler-worker --任务执行
 	    - rpc server --接收任务请求
 	    - log --日志服务器
 	    - executor-- 任务执行器
-	- core --核心实现
+	- scheduler-core --核心实现
+	- scheduler-model --对外服务接口模型
+	- sql --系统使用表ddl
 # scheduler-master
 master作为调度的核心，主要有如下功能：
 * 初始化任务实例状态
