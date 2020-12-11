@@ -3,7 +3,6 @@ package com.ylpu.thales.scheduler.executor.rpc.server;
 import com.google.common.eventbus.AsyncEventBus;
 import com.ylpu.thales.scheduler.alert.EventListener;
 import com.ylpu.thales.scheduler.core.alert.entity.Event;
-import com.ylpu.thales.scheduler.core.config.Configuration;
 import com.ylpu.thales.scheduler.core.rest.JobManager;
 import com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc;
 import com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc;

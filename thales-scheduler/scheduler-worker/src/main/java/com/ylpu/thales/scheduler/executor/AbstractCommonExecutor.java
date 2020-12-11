@@ -80,33 +80,26 @@ public abstract class AbstractCommonExecutor {
         String logOutPath = logPath + ".out";
         String logUrl = "http://" + MetricsUtils.getHostName() + ":" + LogServer.logServerPort + "/api/log/viewLog/"
                 + requestRpc.getId();
-        try {
-            
-            request.setLogPath(logOutPath);
-            request.setLogUrl(logUrl);
-            
-            String[] command = buildCommand(requestRpc.getJob().getJobConfiguration());
-            Process process = Runtime.getRuntime().exec(command);
-            FileUtils.writeOuput(process.getInputStream(), logOutPath);
-            FileUtils.writeOuput(process.getErrorStream(), logOutPath);
-            Long pid = TaskProcessUtils.getLinuxPid(process);
+        request.setLogPath(logOutPath);
+        request.setLogUrl(logUrl);
+        
+        String[] command = buildCommand(requestRpc.getJob().getJobConfiguration());
+        Process process = Runtime.getRuntime().exec(command);
+        FileUtils.writeOuput(process.getInputStream(), logOutPath);
+        FileUtils.writeOuput(process.getErrorStream(), logOutPath);
+        Long pid = TaskProcessUtils.getLinuxPid(process);
 
-            request.setPid(pid.intValue());
-            request.setTaskState(TaskState.RUNNING.getCode());
+        request.setPid(pid.intValue());
+        request.setTaskState(TaskState.RUNNING.getCode());
 
-            // 修改任务状态
-            JobStatusRequestRpc jobStatusRequestRpc = buildJobStatusRequestRpc(requestRpc.getRequestId(), TaskState.RUNNING,
-                    request);
-            transitJobStatusToRunning(jobStatusRequestRpc);
+        // 修改任务状态
+        JobStatusRequestRpc jobStatusRequestRpc = buildJobStatusRequestRpc(requestRpc.getRequestId(), TaskState.RUNNING,
+                request);
+        transitJobStatusToRunning(jobStatusRequestRpc);
 
-            int c = process.waitFor();
-            if (c != 0) {
-                throw new RuntimeException("failed to execute task " + requestRpc.getId());
-            }
-        } catch (Exception e) {
-            // execute exception
-            FileUtils.writeFile("failed to execute task " + request.getId() + " with exception " + e.getMessage(),logOutPath);
-            throw new RuntimeException(e);
+        int c = process.waitFor();
+        if (c != 0) {
+            throw new RuntimeException("failed to execute task " + requestRpc.getId());
         }
     }
 
