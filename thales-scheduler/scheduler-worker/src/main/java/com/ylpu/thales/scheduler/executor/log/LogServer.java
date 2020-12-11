@@ -10,10 +10,9 @@ import org.eclipse.jetty.server.handler.HandlerList;
 import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
-import org.eclipse.jetty.xml.XmlConfiguration;
-
 import com.sun.jersey.spi.container.servlet.ServletContainer;
 import com.ylpu.thales.scheduler.core.config.Configuration;
+import com.ylpu.thales.scheduler.core.utils.MetricsUtils;
 
 public class LogServer {
 
@@ -22,9 +21,11 @@ public class LogServer {
     private static final int LOG_SERVER_PORT = 9098;
 
     private Server server = null;
+    
+    public static int logServerPort;
 
     public LogServer(Properties prop) {
-        int logServerPort = Configuration.getInt(prop, "thales.log.server.port", LOG_SERVER_PORT);
+        logServerPort = MetricsUtils.getAvailablePort(Configuration.getInt(prop, "thales.log.server.port", LOG_SERVER_PORT));
         server = new Server(logServerPort);
     }
 

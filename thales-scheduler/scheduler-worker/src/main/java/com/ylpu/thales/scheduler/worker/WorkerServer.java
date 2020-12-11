@@ -41,10 +41,12 @@ public class WorkerServer {
     public static final long WORKER_HEARTBEAT_INTERVAL = 3000;
 
     private static volatile boolean stop = false;
+    
+    public static int workerServerPort;
 
     public void start() {
         Properties prop = Configuration.getConfig();
-        int workerServerPort = Configuration.getInt(prop, "thales.worker.server.port", DEFAULT_WORKER_SERVER_PORT);
+        workerServerPort = MetricsUtils.getAvailablePort(Configuration.getInt(prop, "thales.worker.server.port", DEFAULT_WORKER_SERVER_PORT));
         long heartBeatInterval = Configuration.getLong(prop, "thales.worker.heartbeat.interval",
                 WORKER_HEARTBEAT_INTERVAL);
         try {

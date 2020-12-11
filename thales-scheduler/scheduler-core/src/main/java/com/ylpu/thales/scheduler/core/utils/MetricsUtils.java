@@ -4,9 +4,9 @@ import oshi.json.SystemInfo;
 import oshi.json.hardware.CentralProcessor;
 import oshi.json.hardware.GlobalMemory;
 import oshi.json.hardware.HardwareAbstractionLayer;
-
 import java.math.BigDecimal;
 import java.net.InetAddress;
+import java.net.ServerSocket;
 
 public class MetricsUtils {
 
@@ -117,4 +117,20 @@ public class MetricsUtils {
 //        }
 //        return ip;
 //    }
+    
+    public static int getAvailablePort(int minPort) {
+        int port;
+        try{
+            while (true){
+                ServerSocket serverSocket =  new ServerSocket(minPort);
+                port = serverSocket.getLocalPort();
+                serverSocket.close();
+                break;
+            }
+        }catch (Exception e){
+            minPort++;
+            port = getAvailablePort(minPort);
+        }
+        return port;
+    }
 }

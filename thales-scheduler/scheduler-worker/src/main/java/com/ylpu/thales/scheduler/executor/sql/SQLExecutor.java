@@ -10,6 +10,7 @@ import com.ylpu.thales.scheduler.core.utils.MetricsUtils;
 import com.ylpu.thales.scheduler.enums.SQLOperator;
 import com.ylpu.thales.scheduler.enums.TaskState;
 import com.ylpu.thales.scheduler.executor.AbstractCommonExecutor;
+import com.ylpu.thales.scheduler.executor.log.LogServer;
 import com.ylpu.thales.scheduler.request.JobInstanceRequest;
 import java.io.File;
 import java.sql.Connection;
@@ -36,14 +37,13 @@ public class SQLExecutor extends AbstractCommonExecutor {
     @Override
     public void execute() throws Exception {
         Properties prop = Configuration.getConfig();
-        int logServerPort = Configuration.getInt(prop, "thales.log.server.port", LOG_SERVER_PORT);
-
+        
         String logDir = Configuration.getString(prop, "thales.worker.log.path", DEFAULT_LOG_DIR);
         String logPath = logDir + File.separator + requestRpc.getJob().getId() + "-" + requestRpc.getId() + "-"
                 + DateUtils.getDateAsString(request.getStartTime(), DateUtils.TIME_FORMAT);
         String logOutPath = logPath + ".out";
         request.setLogPath(logOutPath);
-        request.setLogUrl("http://" + MetricsUtils.getHostName() + ":" + logServerPort + "/api/log/viewLog/"
+        request.setLogUrl("http://" + MetricsUtils.getHostName() + ":" + LogServer.logServerPort + "/api/log/viewLog/"
                 + requestRpc.getId());
         request.setTaskState(TaskState.RUNNING.getCode());
 
