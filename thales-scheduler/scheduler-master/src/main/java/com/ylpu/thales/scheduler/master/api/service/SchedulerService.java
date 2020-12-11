@@ -115,6 +115,7 @@ public class SchedulerService {
 //        }
         else if(jobInstanceResponse.getTaskState() == TaskState.WAITING_RESOURCE) {
 //          cancel waiting
+            JobStatusChecker.getJobInstanceRequestMap().remove(responseId);
             JobSubmission.getWaitingResourceMap().put(jobInstanceResponse.getJobConf().getWorkerGroupname(), false);
         }else if (jobInstanceResponse.getTaskState() == TaskState.RUNNING) {
             killJob(jobInstanceResponse.getId());
