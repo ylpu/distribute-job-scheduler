@@ -9,7 +9,6 @@ import com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc;
 import com.ylpu.thales.scheduler.core.rpc.entity.JobRequestRpc;
 import com.ylpu.thales.scheduler.core.rpc.service.GrpcJobServiceGrpc;
 import com.ylpu.thales.scheduler.core.utils.DateUtils;
-import com.ylpu.thales.scheduler.core.utils.FileUtils;
 import com.ylpu.thales.scheduler.core.utils.MetricsUtils;
 import com.ylpu.thales.scheduler.enums.AlertType;
 import com.ylpu.thales.scheduler.enums.EventType;
@@ -25,7 +24,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import java.util.Date;
-import java.util.Properties;
 import java.util.concurrent.Executors;
 
 public class WorkerRpcServiceImpl extends GrpcJobServiceGrpc.GrpcJobServiceImplBase {
@@ -103,7 +101,7 @@ public class WorkerRpcServiceImpl extends GrpcJobServiceGrpc.GrpcJobServiceImplB
         event.setEventType(EventType.FAIL);
     }
 
-    //sync kill
+//    sync kill
     public void kill(JobInstanceRequestRpc requestRpc, StreamObserver<JobInstanceResponseRpc> responseObserver) {
         JobInstanceResponseRpc.Builder builder = JobInstanceResponseRpc.newBuilder();
         builder.setResponseId(requestRpc.getRequestId());
@@ -124,18 +122,16 @@ public class WorkerRpcServiceImpl extends GrpcJobServiceGrpc.GrpcJobServiceImplB
                 i++;
             }
             transitTaskStatus(request,TaskState.KILL);
-            FileUtils.writeFile("sucessful kill job " + requestRpc.getId(), requestRpc.getLogPath());
             builder.setTaskState(TaskState.KILL.getCode())
             .setErrorCode(200)
             .setErrorMsg("");
             // decrease task number
             jobMetric.decreaseTask();
         } catch (Exception e) {
-            LOG.error(e);
+            LOG.error("fail to kill task " + requestRpc.getId() + " with exception "+ e);
             builder.setTaskState(TaskState.RUNNING.getCode())
             .setErrorCode(500)
             .setErrorMsg("failed to kill task" + requestRpc.getId());
-            FileUtils.writeFile("failed to kill job " + requestRpc.getId(), requestRpc.getLogPath());
         } finally {
             processResponse(responseObserver,builder);
         }

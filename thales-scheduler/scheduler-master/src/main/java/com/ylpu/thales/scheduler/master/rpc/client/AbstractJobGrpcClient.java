@@ -36,7 +36,7 @@ public abstract class AbstractJobGrpcClient {
         int retryInterval = Configuration.getInt(prop, "thales.scheduler.job.retry.interval", 1);
         try {
             JobInstanceResponse jobInstance = JobManager.getJobInstanceById(rpcRequest.getId());
-            if (jobInstance.getRetryTimes() < jobInstance.getJobConf().getMaxRetrytimes()) {
+            if (jobInstance.getRetryTimes() < rpcRequest.getJob().getMaxRetrytimes()) {
                 Thread.sleep(retryInterval * 1000 * 60);
                 new SchedulerService().rerun(rpcRequest.getId());
             }
