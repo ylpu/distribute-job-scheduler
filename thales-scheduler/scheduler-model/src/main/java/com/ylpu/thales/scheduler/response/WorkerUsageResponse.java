@@ -6,6 +6,7 @@ import lombok.Data;
 public class WorkerUsageResponse {
 
     private String worker;
+    private int port;
     private double usage;
 
 }

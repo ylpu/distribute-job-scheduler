@@ -143,7 +143,7 @@ public class WorkerServiceImpl extends BaseServiceImpl<BaseEntity, Serializable>
         if (list != null && list.size() > 0) {
             for (WorkerRequest workerUsage : list) {
                 response = new WorkerUsageResponse();
-                response.setWorker(workerUsage.getHost());
+                response.setWorker(workerUsage.getHost() + ":" + workerUsage.getPort());
                 response.setUsage(workerUsage.getCpuUsage());
                 responses.add(response);
             }
@@ -159,7 +159,7 @@ public class WorkerServiceImpl extends BaseServiceImpl<BaseEntity, Serializable>
         if (list != null && list.size() > 0) {
             for (WorkerRequest workerUsage : list) {
                 response = new WorkerUsageResponse();
-                response.setWorker(workerUsage.getHost());
+                response.setWorker(workerUsage.getHost() + ":" + workerUsage.getPort());
                 response.setUsage(workerUsage.getMemoryUsage());
                 responses.add(response);
             }
