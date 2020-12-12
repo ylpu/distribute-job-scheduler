@@ -22,7 +22,7 @@ public class JobManager {
      * @param request
      * @return
      */
-    public static int updateJobInstanceSelective(JobInstanceRequest request) throws Exception {
+    public static int transitTaskStatus(JobInstanceRequest request) throws Exception {
         String apiUrl = Configuration.getString(Configuration.getConfig(), "thales.api.url",
                 GlobalConstants.DEFAULT_API_URL);
         @SuppressWarnings("rawtypes")

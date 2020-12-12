@@ -28,7 +28,7 @@ public abstract class AbstractJobGrpcClient {
         request.setEndTime(new Date());
         request.setElapseTime(DateUtils.getElapseTime(DateUtils.getDatetime(rpcRequest.getStartTime()), request.getEndTime()));
         request.setTaskState(code);
-        JobManager.updateJobInstanceSelective(request);
+        JobManager.transitTaskStatus(request);
     }
 
     public void rerunIfNeeded(JobInstanceRequestRpc rpcRequest) {

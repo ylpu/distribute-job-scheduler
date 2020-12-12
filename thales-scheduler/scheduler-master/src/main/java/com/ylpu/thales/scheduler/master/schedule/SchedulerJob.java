@@ -53,7 +53,7 @@ public class SchedulerJob implements Job {
         request.setEndTime(new Date());
         request.setElapseTime(DateUtils.getElapseTime(request.getStartTime(), request.getEndTime()));
         try {
-            JobManager.updateJobInstanceSelective(request);
+            JobManager.transitTaskStatus(request);
         } catch (Exception e1) {
             LOG.error(e1);
             throw new RuntimeException(e1);

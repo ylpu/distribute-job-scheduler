@@ -297,7 +297,7 @@ public class SchedulerService {
                 request.setTaskState(TaskState.FAIL.getCode());
                 request.setEndTime(new Date());
                 request.setElapseTime(DateUtils.getElapseTime(request.getStartTime(), request.getEndTime()));
-                JobManager.updateJobInstanceSelective(request);
+                JobManager.transitTaskStatus(request);
             }
         } 
     }

@@ -4,6 +4,7 @@ import com.google.protobuf.ByteString;
 import com.ylpu.thales.scheduler.core.config.Configuration;
 import com.ylpu.thales.scheduler.core.constants.GlobalConstants;
 import com.ylpu.thales.scheduler.core.curator.CuratorHelper;
+import com.ylpu.thales.scheduler.core.rest.JobManager;
 import com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc;
 import com.ylpu.thales.scheduler.core.rpc.entity.JobStatusRequestRpc;
 import com.ylpu.thales.scheduler.core.utils.ByteUtils;
@@ -93,9 +94,10 @@ public abstract class AbstractCommonExecutor {
         request.setTaskState(TaskState.RUNNING.getCode());
 
         // 修改任务状态
-        JobStatusRequestRpc jobStatusRequestRpc = buildJobStatusRequestRpc(requestRpc.getRequestId(), TaskState.RUNNING,
-                request);
-        transitJobStatusToRunning(jobStatusRequestRpc);
+//        JobStatusRequestRpc jobStatusRequestRpc = buildJobStatusRequestRpc(requestRpc.getRequestId(), TaskState.RUNNING,
+//                request);
+//        transitJobStatusToRunning(jobStatusRequestRpc);
+        JobManager.transitTaskStatus(request);
 
         int c = process.waitFor();
         if (c != 0) {
@@ -115,31 +117,23 @@ public abstract class AbstractCommonExecutor {
         WorkerGrpcClient client = null;
         int returnCode = 200;
         String master = "";
-        while(true) {
-            try {
-                master = getActiveMaster(); 
-                if(StringUtils.isNoneBlank(master)) {
-                    String[] hostAndPort = master.split(":");
-                    client = new WorkerGrpcClient(hostAndPort[0], NumberUtils.toInt(hostAndPort[1]));
-                    returnCode = client.updateJobStatus(request);
-                    break;  
-                }
-            }catch (Exception e) {
-                returnCode = 500;
-                LOG.error(e);
-            }finally {
-                if (client != null) {
-                    try {
-                        client.shutdown();
-                    } catch (InterruptedException e) {
-                        LOG.error(e);
-                    }
-                }
+        try {
+            master = getActiveMaster(); 
+            if(StringUtils.isNoneBlank(master)) {
+                String[] hostAndPort = master.split(":");
+                client = new WorkerGrpcClient(hostAndPort[0], NumberUtils.toInt(hostAndPort[1]));
+                returnCode = client.updateJobStatus(request);
             }
-            try {
-                Thread.sleep(10000);
-            } catch (InterruptedException e1) {
-                LOG.error(e1);
+        }catch (Exception e) {
+            returnCode = 500;
+            LOG.error(e);
+        }finally {
+            if (client != null) {
+                try {
+                    client.shutdown();
+                } catch (InterruptedException e) {
+                    LOG.error(e);
+                }
             }
         }
         return returnCode;

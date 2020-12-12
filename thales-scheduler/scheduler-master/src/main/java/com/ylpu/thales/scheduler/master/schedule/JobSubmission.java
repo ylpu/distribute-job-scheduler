@@ -204,7 +204,7 @@ public class JobSubmission {
             request.setId(requestRpc.getId());
             request.setTaskState(TaskState.WAITING_RESOURCE.getCode());
             try {
-                JobManager.updateJobInstanceSelective(request);
+                JobManager.transitTaskStatus(request);
             } catch (Exception e) {
                 LOG.error(e);
             }

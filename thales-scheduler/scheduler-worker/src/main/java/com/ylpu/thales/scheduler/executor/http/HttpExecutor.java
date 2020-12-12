@@ -13,9 +13,9 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.ResponseEntity;
 import com.ylpu.thales.scheduler.core.utils.FileUtils;
 import com.ylpu.thales.scheduler.core.config.Configuration;
+import com.ylpu.thales.scheduler.core.rest.JobManager;
 import com.ylpu.thales.scheduler.core.rest.RestClient;
 import com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc;
-import com.ylpu.thales.scheduler.core.rpc.entity.JobStatusRequestRpc;
 import com.ylpu.thales.scheduler.core.utils.DateUtils;
 import com.ylpu.thales.scheduler.core.utils.JsonUtils;
 import com.ylpu.thales.scheduler.core.utils.MetricsUtils;
@@ -54,14 +54,12 @@ public class HttpExecutor extends AbstractCommonExecutor {
                     + requestRpc.getId());
             request.setTaskState(TaskState.RUNNING.getCode());
 
-            // 修改任务状态
-            JobStatusRequestRpc jobStatusRequestRpc = buildJobStatusRequestRpc(requestRpc.getRequestId(), TaskState.RUNNING,
-                    request);
-            int returnCode = transitJobStatusToRunning(jobStatusRequestRpc);
-
-            if (returnCode != 200) {
-                throw new RuntimeException("failed to update task for " + requestRpc.getId());
-            }
+//            修改任务状态
+//            JobStatusRequestRpc jobStatusRequestRpc = buildJobStatusRequestRpc(requestRpc.getRequestId(), TaskState.RUNNING,
+//                    request);
+//            int returnCode = transitJobStatusToRunning(jobStatusRequestRpc);
+            JobManager.transitTaskStatus(request);
+            
             String jobConfig = requestRpc.getJob().getJobConfiguration();
             HttpParameters httpParameters = JsonUtils.jsonToBean(jobConfig, HttpParameters.class);
             HttpMethod httpMethod = HttpMethod.getMethodByName(httpParameters.getMethod());
@@ -77,9 +75,7 @@ public class HttpExecutor extends AbstractCommonExecutor {
             default:
             }
         } catch (Exception e) {
-            FileUtils.writeFile("failed to execute task " + request.getId() + " with exception " + e.getMessage(),
-                    logOutPath);
-            throw e;
+            throw new RuntimeException("failed to execute task " + request.getId() + " with exception " + e.getMessage());
         }
     }
 

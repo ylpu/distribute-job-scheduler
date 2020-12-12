@@ -86,8 +86,8 @@ public class MasterRpcServiceImpl extends GrpcWorkerServiceGrpc.GrpcWorkerServic
             Object obj = ByteUtils.byteArrayToObject(request.getData().toByteArray());
             if (obj instanceof JobInstanceRequest) {
                 
-                JobInstanceRequest jobInstanceRequest = (JobInstanceRequest) obj;
-                JobManager.updateJobInstanceSelective(jobInstanceRequest);
+//                JobInstanceRequest jobInstanceRequest = (JobInstanceRequest) obj;
+//                JobManager.updateJobInstanceSelective(jobInstanceRequest);
                 JobInstanceResponseRpc responseRpc = JobInstanceResponseRpc.newBuilder()
                         .setResponseId(request.getRequestId())
                         .setErrorCode(200)
@@ -96,10 +96,6 @@ public class MasterRpcServiceImpl extends GrpcWorkerServiceGrpc.GrpcWorkerServic
                 JobStatusChecker.addResponse(responseRpc);
                 builder.setErrorCode(200);
                 builder.setErrorMsg("");
-                
-                if(request.getTaskState() == TaskState.FAIL.getCode()) {
-                    rerunIfNeeded(jobInstanceRequest.getId());
-                }
             }
         } catch (Exception e) {
             LOG.error(e);
