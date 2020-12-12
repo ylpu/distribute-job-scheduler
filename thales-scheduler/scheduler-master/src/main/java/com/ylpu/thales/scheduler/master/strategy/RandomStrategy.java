@@ -12,7 +12,7 @@ import com.ylpu.thales.scheduler.response.WorkerResponse;
  */
 public class RandomStrategy implements WorkerSelectStrategy {
     @Override
-    public WorkerResponse getIdleWorker(MasterManager rm, String groupName, String... lastFailedHosts) {
+    public synchronized WorkerResponse getIdleWorker(MasterManager rm, String groupName, String... lastFailedHosts) {
         List<String> servers = rm.getGroups().get(GlobalConstants.WORKER_GROUP + "/" + groupName);
         WorkerResponse idleServer = null;
         if (servers != null && servers.size() > 0) {

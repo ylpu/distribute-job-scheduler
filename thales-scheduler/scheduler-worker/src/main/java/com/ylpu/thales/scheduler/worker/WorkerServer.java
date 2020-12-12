@@ -51,14 +51,16 @@ public class WorkerServer {
                 WORKER_HEARTBEAT_INTERVAL);
         try {
             String workerGroup = Configuration.getString(prop, "thales.worker.group", DEFAULT_WORKER_GROUP);
-            if(isValidateGroup(workerGroup)) {
+            
+            String quorum = prop.getProperty("thales.zookeeper.quorum");
+            int sessionTimeout = Configuration.getInt(prop, "thales.zookeeper.sessionTimeout",
+                    GlobalConstants.ZOOKEEPER_SESSION_TIMEOUT);
+            int connectionTimeout = Configuration.getInt(prop, "thales.zookeeper.connectionTimeout",
+                    GlobalConstants.ZOOKEEPER_CONNECTION_TIMEOUT);
+            
+            if(isValidateGroup(quorum,sessionTimeout,connectionTimeout,workerGroup)) {
                 Runtime.getRuntime().addShutdownHook(new ShutDownHookThread());
                 // 注册自己到zk
-                String quorum = prop.getProperty("thales.zookeeper.quorum");
-                int sessionTimeout = Configuration.getInt(prop, "thales.zookeeper.sessionTimeout",
-                        GlobalConstants.ZOOKEEPER_SESSION_TIMEOUT);
-                int connectionTimeout = Configuration.getInt(prop, "thales.zookeeper.connectionTimeout",
-                        GlobalConstants.ZOOKEEPER_CONNECTION_TIMEOUT);
                 String workerPath = regist(quorum,sessionTimeout,connectionTimeout,workerGroup,workerServerPort);
                 // 启动心跳线程
                 WorkerHeartBeatThread heartBeatThread = new WorkerHeartBeatThread(workerPath, workerServerPort,
@@ -138,12 +140,13 @@ public class WorkerServer {
         stop = true;
     }
     
-    private boolean isValidateGroup(String groupName) throws Exception {
-        GroupStrategyResponse groupStrategy = GroupStrategyManager.getGroupStrategy(groupName);
-        if(groupStrategy == null) {
-            return false;
+    private boolean isValidateGroup(String quorum,int sessionTimeout,int connectionTimeout,String groupName) throws Exception {
+        CuratorFramework client = CuratorHelper.getCuratorClient(quorum, sessionTimeout, connectionTimeout);
+        List<String> list = CuratorHelper.getChildren(client, GlobalConstants.STRATEGY_GROUP);
+        if(list != null && list.size() > 0 && list.contains(groupName)) {
+            return true;
         }
-        return true;
+        return false;
     }
 
     private static class WorkerHeartBeatThread extends Thread {

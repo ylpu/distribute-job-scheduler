@@ -18,7 +18,7 @@ import java.util.Comparator;
 public class MemoryFreeStrategy implements WorkerSelectStrategy {
 
     @Override
-    public WorkerResponse getIdleWorker(MasterManager rm, String groupName, String... lastFailedHosts) {
+    public synchronized WorkerResponse getIdleWorker(MasterManager rm, String groupName, String... lastFailedHosts) {
         List<String> servers = rm.getGroups().get(GlobalConstants.WORKER_GROUP + "/" + groupName);
         List<WorkerResponse> sortedServers = new ArrayList<WorkerResponse>();
         if (servers != null && servers.size() > 0) {

@@ -20,7 +20,7 @@ import com.ylpu.thales.scheduler.response.WorkerResponse;
 public class TaskIdleStrategy implements WorkerSelectStrategy {
 
     @Override
-    public WorkerResponse getIdleWorker(MasterManager rm, String groupName, String... lastFailedHosts) {
+    public synchronized WorkerResponse getIdleWorker(MasterManager rm, String groupName, String... lastFailedHosts) {
 
         List<String> poolServers = rm.getGroups().get(GlobalConstants.WORKER_GROUP + "/" + groupName);
         Map<String, Integer> poolServerTasks = new HashMap<String, Integer>();

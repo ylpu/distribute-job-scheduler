@@ -15,16 +15,13 @@ public class RoundRobinStrategy implements WorkerSelectStrategy {
     private static Integer pos = 0;
 
     @Override
-    public WorkerResponse getIdleWorker(MasterManager rm, String groupName, String... lastFailedHosts) {
+    public synchronized WorkerResponse getIdleWorker(MasterManager rm, String groupName, String... lastFailedHosts) {
         List<String> servers = rm.getGroups().get(GlobalConstants.WORKER_GROUP + "/" + groupName);
-        String server = null;
-        synchronized (pos) {
-            if (pos >= servers.size()) {
-                pos = 0;
-            }
-            server = servers.get(pos);
-            pos++;
+        if (pos >= servers.size()) {
+            pos = 0;
         }
+        String server = servers.get(pos);
+        pos++;
         return rm.getResourceMap().get(server);
     }
 }
