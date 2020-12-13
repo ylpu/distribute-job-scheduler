@@ -17,18 +17,20 @@ import com.ylpu.thales.scheduler.enums.TaskState;
 import com.ylpu.thales.scheduler.executor.AbstractCommonExecutor;
 import com.ylpu.thales.scheduler.executor.ExecutorManager;
 import com.ylpu.thales.scheduler.request.JobInstanceRequest;
-import com.ylpu.thales.scheduler.response.JobInstanceResponse;
 import com.ylpu.thales.scheduler.worker.WorkerServer;
 import io.grpc.stub.StreamObserver;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.Executors;
 
 public class WorkerRpcServiceImpl extends GrpcJobServiceGrpc.GrpcJobServiceImplBase {
 
     private static AsyncEventBus eventBus = new AsyncEventBus(Executors.newFixedThreadPool(1));
+    private static Map<String,TaskState> statusMap = new HashMap<String,TaskState>();
     
     static {
         eventBus.register(new EventListener());
@@ -72,23 +74,28 @@ public class WorkerRpcServiceImpl extends GrpcJobServiceGrpc.GrpcJobServiceImplB
             jobMetric.decreaseTask();
         } catch (Exception e) {
             LOG.error(e);
-            try {
-                transitTaskStatus(request,TaskState.FAIL);
-            } catch (Exception e1) {
-                LOG.error(e1);
-                throw new RuntimeException(e1);
+            if(statusMap.get(requestRpc.getRequestId()) != TaskState.KILL) {
+                try {
+                    transitTaskStatus(request,TaskState.FAIL);
+                } catch (Exception e1) {
+                    LOG.error(e1);
+                    throw new RuntimeException(e1);
+                }
+                builder.setTaskState(TaskState.FAIL.getCode())
+                .setErrorCode(500)
+                .setErrorMsg("failed to run task" + requestRpc.getId());
+                // task fail warning
+                Event event = new Event();
+                setAlertEvent(event, requestRpc.getJob(), request);
+                if(StringUtils.isNotBlank(requestRpc.getJob().getAlertUsers())) {
+                    eventBus.post(event);
+                }
             }
-            builder.setTaskState(TaskState.FAIL.getCode())
-            .setErrorCode(500)
-            .setErrorMsg("failed to run task" + requestRpc.getId());
-            // task fail warning
-            Event event = new Event();
-            setAlertEvent(event, requestRpc.getJob(), request);
-            if(StringUtils.isNotBlank(requestRpc.getJob().getAlertUsers())) {
-                eventBus.post(event);
-            }
+
         } finally {
-            processResponse(responseObserver,builder);
+            if(statusMap.get(requestRpc.getRequestId()) != TaskState.KILL) {
+                processResponse(responseObserver,builder);
+            }
         }
     }
     
@@ -103,6 +110,7 @@ public class WorkerRpcServiceImpl extends GrpcJobServiceGrpc.GrpcJobServiceImplB
 
 //    sync kill
     public void kill(JobInstanceRequestRpc requestRpc, StreamObserver<JobInstanceResponseRpc> responseObserver) {
+        statusMap.put(requestRpc.getRequestId(), TaskState.KILL);
         JobInstanceResponseRpc.Builder builder = JobInstanceResponseRpc.newBuilder();
         builder.setResponseId(requestRpc.getRequestId());
         JobInstanceRequest request = new JobInstanceRequest();
@@ -111,16 +119,6 @@ public class WorkerRpcServiceImpl extends GrpcJobServiceGrpc.GrpcJobServiceImplB
         try {
             AbstractCommonExecutor executor = getExecutor(requestRpc, request);
             executor.kill();
-            // wait for task to fail
-            int i = 0;
-            while (i < 3) {
-                JobInstanceResponse instanceResponse = JobManager.getJobInstanceById(requestRpc.getId());
-                if (instanceResponse.getTaskState() == TaskState.FAIL) {
-                    break;
-                }
-                Thread.sleep(1000);
-                i++;
-            }
             transitTaskStatus(request,TaskState.KILL);
             builder.setTaskState(TaskState.KILL.getCode())
             .setErrorCode(200)
@@ -133,6 +131,7 @@ public class WorkerRpcServiceImpl extends GrpcJobServiceGrpc.GrpcJobServiceImplB
             .setErrorCode(500)
             .setErrorMsg("failed to kill task" + requestRpc.getId());
         } finally {
+            statusMap.remove(requestRpc.getRequestId());
             processResponse(responseObserver,builder);
         }
     }
