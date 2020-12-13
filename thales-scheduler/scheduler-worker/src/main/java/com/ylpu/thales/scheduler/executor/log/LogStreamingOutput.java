@@ -16,7 +16,7 @@ public class LogStreamingOutput implements StreamingOutput {
 
     private static Log LOG = LogFactory.getLog(LogHandler.class);
 
-    private static final int LOG_LINES = 100000;
+    private static final int LOG_LINES = 1000;
 
     private String filePath = "";
 
@@ -37,7 +37,7 @@ public class LogStreamingOutput implements StreamingOutput {
             strs[2] = "tail -" + logLines + " " + filePath;
             Process process = Runtime.getRuntime().exec(strs);
             String str = null;
-            br = new BufferedReader(new InputStreamReader(process.getInputStream()), 81920);
+            br = new BufferedReader(new InputStreamReader(process.getInputStream()), 8092);
             while ((str = br.readLine()) != null) {
                 str = str + "<br>";
                 output.write(str.getBytes());

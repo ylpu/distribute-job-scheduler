@@ -28,7 +28,7 @@ public class StreamUtils {
         if (inputStream != null) {
             outputStream = response.getOutputStream();
             // 在http响应中输出流
-            byte[] cache = new byte[1024];
+            byte[] cache = new byte[8092];
             int nRead = 0;
             while ((nRead = inputStream.read(cache)) != -1) {
                 outputStream.write(cache, 0, nRead);
