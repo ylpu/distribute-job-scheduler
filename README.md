@@ -43,6 +43,11 @@ thales是一款自主研发的分布式任务调度系统，系统支持command,
 	- scheduler-core --核心实现
 	- scheduler-model --对外服务接口模型
 	- sql --系统使用表ddl
+
+# scheduler-api
+api作为接口层，主要有如下功能：
+* 和前端交互，负责任务调度，下线，重跑，看日志等。
+
 # scheduler-master
 master作为调度的核心，主要有如下功能：
 * 初始化任务实例状态
@@ -60,9 +65,11 @@ worker作为执行器，主要有如下功能：
 * 启动jetty server供查看任务日志，
 * 上报资源信息，发送心跳给master.
 
-# scheduler-api
-api作为接口层，主要有如下功能：
-* 和前端交互，负责任务调度，下线，重跑，看日志等。
+# scheduler-alert
+alert主要提供告警功能：
+* 任务失败时告警。
+* 任务超时告警。
+* 目前只支持email.
 
 # 系统运行
 * git clone https://github.com/ylpu/distribute-job-scheduler.git ,将项目导入到intellij或eclipse中并安装lombok.
@@ -87,7 +94,7 @@ api作为接口层，主要有如下功能：
   * 任务责任人：任务的所属人
   * 任务类型：目前command,shell,hive,spark,flink,clickhouse,http,sql,pyton 9种。
   * 任务告警人： 任务失败，超时的时候需要通知的人（邮箱格式）
-  * 告警类型：有sms,webchat,email三种，目前只支持emai
+  * 告警类型：有sms,webchat,email三种，目前只支持emai（请在thales-scheduler/scheduler-alert/src/main/resources/email.properties配置相应的邮件服务器信息）。
   * 调度时间：cron表达式
   * 任务周期：分钟，小时，天，周，月，年等
   * 重试次数：任务失败时最多重试的次数
