@@ -6,12 +6,12 @@ import com.ylpu.thales.scheduler.core.config.Configuration;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.server.handler.HandlerList;
 import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
-import org.eclipse.jetty.xml.XmlConfiguration;
 
 import java.util.Properties;
 
@@ -40,9 +40,11 @@ public class MasterApiServer {
 
         server = new Server(jettyServerPort);
 
-        XmlConfiguration config = new XmlConfiguration(
-                Thread.currentThread().getContextClassLoader().getResourceAsStream("jetty.xml"));
-        config.configure(server);
+//        XmlConfiguration config = new XmlConfiguration(
+//                Thread.currentThread().getContextClassLoader().getResourceAsStream("jetty.xml"));
+//        config.configure(server);
+        ServerConnector connector = new ServerConnector(server);
+        server.addConnector(connector);
 
         // static files handler
         ResourceHandler resource_handler = new ResourceHandler();
