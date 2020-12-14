@@ -43,7 +43,7 @@ public class GroupStrategyServiceImpl extends BaseServiceImpl<GroupStrategy, Int
     public void addGroupStrategy(GroupStrategyRequest groupStrategryRequest) {
         // TODO Auto-generated method stub
         List<GroupStrategy> list = groupStrategyMapper.getGroupStrategy(groupStrategryRequest.getGroupName());
-        if(list != null && list.size() > 1) {
+        if(list != null && list.size() >= 1) {
             throw new RuntimeException("group 已经存在");
         }
         GroupStrategy record = new GroupStrategy();
