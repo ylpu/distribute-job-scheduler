@@ -61,7 +61,7 @@ master作为调度的核心，主要有如下功能：
 
 # scheduler-worker
 worker作为执行器，主要有如下功能：
-* 负责任务的执行，目前可执行shell,hive,spark任务
+* 负责任务的执行，目前可执行shell,hive,spark等任务
 * 启动jetty server供查看任务日志，
 * 上报资源信息，发送心跳给master.
 
