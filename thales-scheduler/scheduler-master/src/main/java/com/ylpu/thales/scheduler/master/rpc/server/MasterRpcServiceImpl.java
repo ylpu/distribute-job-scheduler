@@ -1,11 +1,7 @@
 package com.ylpu.thales.scheduler.master.rpc.server;
 
-import java.util.Properties;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import com.ylpu.thales.scheduler.core.config.Configuration;
-import com.ylpu.thales.scheduler.core.rest.JobManager;
 import com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc;
 import com.ylpu.thales.scheduler.core.rpc.entity.JobStatusRequestRpc;
 import com.ylpu.thales.scheduler.core.rpc.entity.WorkerParameter;
@@ -13,13 +9,9 @@ import com.ylpu.thales.scheduler.core.rpc.entity.WorkerRequestRpc;
 import com.ylpu.thales.scheduler.core.rpc.entity.WorkerResponseRpc;
 import com.ylpu.thales.scheduler.core.rpc.service.GrpcWorkerServiceGrpc;
 import com.ylpu.thales.scheduler.core.utils.ByteUtils;
-import com.ylpu.thales.scheduler.enums.TaskState;
-import com.ylpu.thales.scheduler.master.api.service.SchedulerService;
 import com.ylpu.thales.scheduler.master.schedule.JobStatusChecker;
 import com.ylpu.thales.scheduler.master.server.MasterManager;
 import com.ylpu.thales.scheduler.request.JobInstanceRequest;
-import com.ylpu.thales.scheduler.response.JobInstanceResponse;
-
 import io.grpc.stub.StreamObserver;
 
 public class MasterRpcServiceImpl extends GrpcWorkerServiceGrpc.GrpcWorkerServiceImplBase {
@@ -104,26 +96,6 @@ public class MasterRpcServiceImpl extends GrpcWorkerServiceGrpc.GrpcWorkerServic
         } finally {
             responseObserver.onNext(builder.build());
             responseObserver.onCompleted();
-        }
-    }
-    
-    public void rerunIfNeeded(Integer taskId) {
-        Properties prop = Configuration.getConfig();
-        int retryInterval = Configuration.getInt(prop, "thales.scheduler.job.retry.interval", 1);
-        try {
-            JobInstanceResponse jobInstance = JobManager.getJobInstanceById(taskId);
-            if (jobInstance.getRetryTimes() < jobInstance.getJobConf().getMaxRetrytimes()) {
-                Thread.sleep(retryInterval * 1000 * 60);
-                new SchedulerService().rerun(taskId);
-            }
-        } catch (Exception e) {
-            LOG.error(e);
-            try {
-                Thread.sleep(retryInterval * 1000 * 60);
-            } catch (InterruptedException e1) {
-                LOG.error(e1);
-            }
-            rerunIfNeeded(taskId);
         }
     }
 }
