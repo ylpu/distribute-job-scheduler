@@ -2,6 +2,7 @@ package com.ylpu.thales.scheduler.master.schedule;
 
 import com.ylpu.thales.scheduler.core.config.Configuration;
 import com.ylpu.thales.scheduler.core.constants.GlobalConstants;
+import com.ylpu.thales.scheduler.core.rest.JobManager;
 import com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc;
 import com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc;
 import com.ylpu.thales.scheduler.core.utils.DateUtils;
@@ -9,7 +10,10 @@ import com.ylpu.thales.scheduler.enums.GrpcType;
 import com.ylpu.thales.scheduler.enums.TaskState;
 import com.ylpu.thales.scheduler.master.schedule.JobSubmission;
 import com.ylpu.thales.scheduler.master.schedule.TaskCall;
+import com.ylpu.thales.scheduler.request.JobInstanceRequest;
+
 import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -121,6 +125,7 @@ public class JobStatusChecker {
      *
      */
     private static class JobStatusCheckThread extends Thread {
+        private Map<String, String> jobDependStatusMap = new HashMap<String,String>();
         public void run() {
             long interval = Configuration.getLong(Configuration.getConfig(GlobalConstants.CONFIG_FILE),
                     "thales.scheduler.job.check.interval", JOB_DEPENDENCY_CHECK_INTERVAL);
@@ -144,12 +149,27 @@ public class JobStatusChecker {
 //                         rpcRequest = jobInstanceRequestMap.remove(requestId);
                          LOG.info("parent job " + entry.getKey() + " has finished, will add job " + requestId + " to queue");
 //                       transit task status to queue，bad performance if there are too many jobs running at some time
-//                       transitTaskStatus(rpcRequest.getId(),TaskState.QUEUED);
-                         JobSubmission.addWaitingQueue(new TaskCall(rpcRequest, GrpcType.ASYNC));
+                         try {
+                            transitTaskStatus(rpcRequest.getId(),TaskState.QUEUED);
+                            jobDependStatusMap.remove(requestId);
+                            JobSubmission.addWaitingQueue(new TaskCall(rpcRequest, GrpcType.ASYNC));
+                        } catch (Exception e) {
+                            LOG.error("failed to transit task " + rpcRequest.getId() + 
+                                    " to queue with exception"+ e.getMessage());
+                        }
+                         
                     }else {
                         LOG.info("job " + requestId + " is waiting for dependency jobs to finish" + entry.getKey());
 //                        transit task status to waiting dependency,bad performance if there are too many long waiting dependency jobs
-//                        transitTaskStatus(rpcRequest.getId(),TaskState.WAITING_DEPENDENCY);
+                        if(!jobDependStatusMap.containsKey(requestId)) {
+                            try {
+                                transitTaskStatus(rpcRequest.getId(),TaskState.WAITING_DEPENDENCY);
+                                jobDependStatusMap.put(requestId, requestId);
+                            } catch (Exception e) {
+                                LOG.error("failed to transit task " + rpcRequest.getId() + 
+                                        " to waiting dependency with exception"+ e.getMessage());
+                            } 
+                        }
                     }
                 }
                 try {
@@ -171,16 +191,12 @@ public class JobStatusChecker {
         }
     }
     
-//    private static void transitTaskStatus(Integer taskId,TaskState taskState) {
-//        JobInstanceRequest request = new JobInstanceRequest();
-//        request.setId(taskId);
-//        request.setTaskState(taskState.getCode());
-//        try {
-//            JobManager.updateJobInstanceSelective(request);
-//        } catch (Exception e) {
-//            LOG.error(e);
-//        }
-//    }
+    private static void transitTaskStatus(Integer taskId,TaskState taskState) throws Exception {
+        JobInstanceRequest request = new JobInstanceRequest();
+        request.setId(taskId);
+        request.setTaskState(taskState.getCode());
+        JobManager.transitTaskStatus(request);
+    }
 
     private static class TimeoutThread extends Thread {
         public void run() {

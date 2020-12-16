@@ -83,25 +83,30 @@ public abstract class AbstractCommonExecutor {
                 + requestRpc.getId();
         request.setLogPath(logOutPath);
         request.setLogUrl(logUrl);
+        Process process = null;
+        try {
+            String[] command = buildCommand(requestRpc.getJob().getJobConfiguration());
+            process = Runtime.getRuntime().exec(command);
+            FileUtils.writeOuput(process.getInputStream(), logOutPath);
+            FileUtils.writeOuput(process.getErrorStream(), logOutPath);
+        }catch(Exception e) {
+            throw new RuntimeException("failed to execute task " + requestRpc.getId() +
+                    " with exception" + e.getMessage());
+        }
         
-        String[] command = buildCommand(requestRpc.getJob().getJobConfiguration());
-        Process process = Runtime.getRuntime().exec(command);
-        FileUtils.writeOuput(process.getInputStream(), logOutPath);
-        FileUtils.writeOuput(process.getErrorStream(), logOutPath);
         Long pid = TaskProcessUtils.getLinuxPid(process);
-
         request.setPid(pid.intValue());
         request.setTaskState(TaskState.RUNNING.getCode());
 
-        // 修改任务状态
-//        JobStatusRequestRpc jobStatusRequestRpc = buildJobStatusRequestRpc(requestRpc.getRequestId(), TaskState.RUNNING,
-//                request);
-//        transitJobStatusToRunning(jobStatusRequestRpc);
-        JobManager.transitTaskStatus(request);
-
+        try {
+            JobManager.transitTaskStatus(request);
+        }catch(Exception e) {
+            throw new RuntimeException("fail to transit task " + requestRpc.getId() +  
+                    " to running with exception " + e.getMessage());
+        }
         int c = process.waitFor();
         if (c != 0) {
-            throw new RuntimeException("failed to execute task " + requestRpc.getId());
+            throw new RuntimeException("return code is none zero for task " + requestRpc.getId());
         }
     }
 

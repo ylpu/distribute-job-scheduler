@@ -46,11 +46,12 @@ public class SQLExecutor extends AbstractCommonExecutor {
         request.setLogUrl("http://" + MetricsUtils.getHostName() + ":" + LogServer.logServerPort + "/api/log/viewLog/"
                 + requestRpc.getId());
         request.setTaskState(TaskState.RUNNING.getCode());
-
-//        修改任务状态
-//        JobStatusRequestRpc jobStatusRequestRpc = buildJobStatusRequestRpc(requestRpc.getRequestId(), TaskState.RUNNING, request);
-//        int returnCode = transitJobStatusToRunning(request);
-        JobManager.transitTaskStatus(request);
+        try {
+            JobManager.transitTaskStatus(request);
+        }catch(Exception e) {
+            throw new RuntimeException("fail to transit task " + requestRpc.getId() +  
+                    " to running with exception " + e.getMessage());
+        }
 
         String jobConfig = requestRpc.getJob().getJobConfiguration();
         if (StringUtils.isNotBlank(jobConfig)) {
@@ -76,7 +77,8 @@ public class SQLExecutor extends AbstractCommonExecutor {
                 default:
                 }
             } catch (Exception e) {
-                throw new RuntimeException("failed to execute task " + request.getId() + " with exception " + e.getMessage());
+                throw new RuntimeException("failed to execute task " + request.getId() + 
+                        " with exception " + e.getMessage());
             } finally {
                 if (connection != null) {
                     connection.close();

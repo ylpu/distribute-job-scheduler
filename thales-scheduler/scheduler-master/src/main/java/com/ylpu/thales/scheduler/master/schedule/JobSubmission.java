@@ -161,7 +161,12 @@ public class JobSubmission {
                     try {
                         WorkerResponse worker = getAvailableWorker(taskCall.getRpcRequest());
                         if(worker != null) {
-                            client = getClient(worker,taskCall.getGrpcType());
+                            try {
+                                client = getClient(worker,taskCall.getGrpcType());
+                            } catch (Exception e) {
+                                LOG.error("fail to get rpc client for task " + taskCall.getRpcRequest().getId() + 
+                                        " with exception " + e.getMessage());
+                            }
                             client.submitJob(taskCall.getRpcRequest());
                         }
                     }finally {
@@ -184,10 +189,15 @@ public class JobSubmission {
                     worker = MasterManager.getInstance().getIdleWorker(rpcRequest.getJob().getWorkerGroupname(), "");
                     return worker;
                 } catch (Exception e) {
-                    LOG.error("can not get available resource to execute task " + rpcRequest.getId() + " with  " + i + " tries");
+                    LOG.error("can not get available resource to execute task " + 
+                    rpcRequest.getId() + " with  " + i + " tries");
                 }
                 //transit job status to waiting resource
-                transitTaskStatusToWaitingResource(rpcRequest);
+                try {
+                    transitTaskStatus(rpcRequest,TaskState.WAITING_RESOURCE);
+                } catch (Exception e1) {
+                    LOG.error("fail to transit task " + rpcRequest.getId() + " to waitting resource");
+                }
                 try {
                     Thread.sleep(RESOURCE_CHECK_INTERVAL);
                 } catch (InterruptedException e) {
@@ -199,18 +209,14 @@ public class JobSubmission {
             return null;
         }
         
-        private void transitTaskStatusToWaitingResource(JobInstanceRequestRpc requestRpc) {
+        private void transitTaskStatus(JobInstanceRequestRpc requestRpc,TaskState taskState) throws Exception{
             JobInstanceRequest request = new JobInstanceRequest();
             request.setId(requestRpc.getId());
-            request.setTaskState(TaskState.WAITING_RESOURCE.getCode());
-            try {
-                JobManager.transitTaskStatus(request);
-            } catch (Exception e) {
-                LOG.error(e);
-            }
+            request.setTaskState(taskState.getCode());
+            JobManager.transitTaskStatus(request);
         }
         
-        private AbstractJobGrpcClient getClient(WorkerResponse worker,GrpcType grpcType) {
+        private AbstractJobGrpcClient getClient(WorkerResponse worker,GrpcType grpcType) throws Exception{
             AbstractJobGrpcClient client = null;
             if (grpcType == GrpcType.SYNC) {
                 client = new JobGrpcBlockingClient(worker.getHost(), worker.getPort());

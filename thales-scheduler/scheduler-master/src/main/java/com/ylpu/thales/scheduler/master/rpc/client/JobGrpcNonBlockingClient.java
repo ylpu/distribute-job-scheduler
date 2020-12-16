@@ -62,6 +62,7 @@ public class JobGrpcNonBlockingClient extends AbstractJobGrpcClient {
             // async callback
             addCallBack(future, executorService, rpcRequest);
         }catch(Exception e) {
+            LOG.error("fail to submit task " + rpcRequest.getId() + " with exception " + e.getMessage());
             try {
                 transitTaskStatus(rpcRequest, TaskState.FAIL.getCode());
                 JobInstanceResponseRpc responseRpc = JobSubmission.buildResponse(rpcRequest.getRequestId(), TaskState.FAIL.getCode());

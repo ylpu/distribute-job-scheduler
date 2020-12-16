@@ -78,7 +78,7 @@ public class WorkerRpcServiceImpl extends GrpcJobServiceGrpc.GrpcJobServiceImplB
                 try {
                     transitTaskStatus(request,TaskState.FAIL);
                 } catch (Exception e1) {
-                    LOG.error(e1);
+                    LOG.error("fail to transit task " + request.getId() + " to fail with exception " + e1.getMessage());
                     throw new RuntimeException(e1);
                 }
                 builder.setTaskState(TaskState.FAIL.getCode())
@@ -126,10 +126,7 @@ public class WorkerRpcServiceImpl extends GrpcJobServiceGrpc.GrpcJobServiceImplB
             // decrease task number
             jobMetric.decreaseTask();
         } catch (Exception e) {
-            LOG.error("fail to kill task " + requestRpc.getId() + " with exception "+ e);
-            builder.setTaskState(TaskState.RUNNING.getCode())
-            .setErrorCode(500)
-            .setErrorMsg("failed to kill task" + requestRpc.getId());
+            LOG.error("fail to transit task " + requestRpc.getId() + " to kill with exception "+ e);
         } finally {
             statusMap.remove(requestRpc.getRequestId());
             processResponse(responseObserver,builder);

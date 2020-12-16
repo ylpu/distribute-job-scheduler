@@ -48,18 +48,18 @@ public class HttpExecutor extends AbstractCommonExecutor {
         String logPath = logDir + File.separator + requestRpc.getJob().getId() + "-" + requestRpc.getId() + "-"
                 + DateUtils.getDateAsString(request.getStartTime(), DateUtils.TIME_FORMAT);
         String logOutPath = logPath + ".out";
-        try {
-            request.setLogPath(logOutPath);
-            request.setLogUrl("http://" + MetricsUtils.getHostName() + ":" + LogServer.logServerPort + "/api/log/viewLog/"
-                    + requestRpc.getId());
-            request.setTaskState(TaskState.RUNNING.getCode());
+        request.setLogPath(logOutPath);
+        request.setLogUrl("http://" + MetricsUtils.getHostName() + ":" + LogServer.logServerPort + "/api/log/viewLog/"
+                + requestRpc.getId());
+        request.setTaskState(TaskState.RUNNING.getCode());
 
-//            修改任务状态
-//            JobStatusRequestRpc jobStatusRequestRpc = buildJobStatusRequestRpc(requestRpc.getRequestId(), TaskState.RUNNING,
-//                    request);
-//            int returnCode = transitJobStatusToRunning(jobStatusRequestRpc);
+        try {
             JobManager.transitTaskStatus(request);
-            
+        }catch(Exception e) {
+            throw new RuntimeException("fail to transit task " + requestRpc.getId() +  
+                    " to running with exception " + e.getMessage());
+        }
+        try {
             String jobConfig = requestRpc.getJob().getJobConfiguration();
             HttpParameters httpParameters = JsonUtils.jsonToBean(jobConfig, HttpParameters.class);
             HttpMethod httpMethod = HttpMethod.getMethodByName(httpParameters.getMethod());
@@ -73,9 +73,10 @@ public class HttpExecutor extends AbstractCommonExecutor {
             case PUT:
             case DELETE:
             default:
-            }
-        } catch (Exception e) {
-            throw new RuntimeException("failed to execute task " + request.getId() + " with exception " + e.getMessage());
+            }     
+        }catch(Exception e) {
+            throw new RuntimeException("failed to execute task " + request.getId() + 
+                    " with exception " + e.getMessage());
         }
     }
 
