@@ -9,10 +9,7 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import com.ylpu.thales.scheduler.core.rest.JobManager;
 import com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc;
-//import com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc;
-import com.ylpu.thales.scheduler.core.utils.DateUtils;
 import com.ylpu.thales.scheduler.enums.TaskState;
-//import com.ylpu.thales.scheduler.master.schedule.JobStatusChecker;
 import com.ylpu.thales.scheduler.master.schedule.JobSubmission;
 import com.ylpu.thales.scheduler.request.JobInstanceRequest;
 import com.ylpu.thales.scheduler.response.JobResponse;
@@ -41,22 +38,8 @@ public class SchedulerJob implements Job {
               //caculate dependency and add to request
                 JobSubmission.addRpcRequest(rpcRequest);
             } catch (Exception e) {
-                LOG.error(
-                        "fail to schedule job " + rpcRequest.getId(),e);
-                scheduleFailed(request);
+                LOG.error("fail to schedule job " + rpcRequest.getId(),e);
             } 
-        }
-    }
-    
-    private void scheduleFailed(JobInstanceRequest request) {
-        request.setTaskState(TaskState.FAIL.getCode());
-        request.setEndTime(new Date());
-        request.setElapseTime(DateUtils.getElapseTime(request.getStartTime(), request.getEndTime()));
-        try {
-            JobManager.transitTaskStatus(request);
-        } catch (Exception e1) {
-            LOG.error(e1);
-            throw new RuntimeException(e1);
         }
     }
     

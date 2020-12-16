@@ -164,7 +164,7 @@ public class JobSubmission {
                             try {
                                 client = getClient(worker,taskCall.getGrpcType());
                             } catch (Exception e) {
-                                LOG.error("fail to get rpc client for task " + taskCall.getRpcRequest().getId() + 
+                                LOG.error("fail to get rpc client to submit task " + taskCall.getRpcRequest().getId() + 
                                         " with exception " + e.getMessage());
                             }
                             client.submitJob(taskCall.getRpcRequest());

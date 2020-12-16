@@ -11,9 +11,7 @@ import com.ylpu.thales.scheduler.enums.TaskState;
 import com.ylpu.thales.scheduler.master.schedule.JobSubmission;
 import com.ylpu.thales.scheduler.master.schedule.TaskCall;
 import com.ylpu.thales.scheduler.request.JobInstanceRequest;
-
 import java.util.Date;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -77,6 +75,8 @@ public class JobStatusChecker {
     private static LRU<String, JobInstanceResponseRpc> lru = new LRU<String, JobInstanceResponseRpc>(5000000);
     // key是所依赖的任务,value是任务id
     private static Map<List<JobDependency>, String> dependsMap = new ConcurrentHashMap<List<JobDependency>, String>();
+    
+    private static Map<String, String> jobDependStatusMap = new ConcurrentHashMap<String,String>();
 
     private static final long JOB_DEPENDENCY_CHECK_INTERVAL = 1;
     
@@ -120,12 +120,15 @@ public class JobStatusChecker {
         return dependsMap;
     }
 
+    public static Map<String, String> getJobDependStatusMap() {
+        return jobDependStatusMap;
+    }
+
     /**
      * 检查依赖任务是否执行成功，只有依赖的任务id在任务的返回列表里并且依赖任务的状态为成功,当前任务才会被执行
      *
      */
     private static class JobStatusCheckThread extends Thread {
-        private Map<String, String> jobDependStatusMap = new HashMap<String,String>();
         public void run() {
             long interval = Configuration.getLong(Configuration.getConfig(GlobalConstants.CONFIG_FILE),
                     "thales.scheduler.job.check.interval", JOB_DEPENDENCY_CHECK_INTERVAL);
@@ -141,7 +144,6 @@ public class JobStatusChecker {
                             }
                         }
                     }
-//                    JobInstanceResponseRpc responseRpc = null;
                     String requestId = dependsMap.get(entry.getKey());
                     JobInstanceRequestRpc rpcRequest = jobInstanceRequestMap.get(requestId);
                     if (successfulJobs == list.size() || isRootJob(list)) {
@@ -155,7 +157,7 @@ public class JobStatusChecker {
                             JobSubmission.addWaitingQueue(new TaskCall(rpcRequest, GrpcType.ASYNC));
                         } catch (Exception e) {
                             LOG.error("failed to transit task " + rpcRequest.getId() + 
-                                    " to queue with exception"+ e.getMessage());
+                                    " to " + TaskState.QUEUED.toString() + " with exception "+ e.getMessage());
                         }
                          
                     }else {
@@ -167,7 +169,7 @@ public class JobStatusChecker {
                                 jobDependStatusMap.put(requestId, requestId);
                             } catch (Exception e) {
                                 LOG.error("failed to transit task " + rpcRequest.getId() + 
-                                        " to waiting dependency with exception"+ e.getMessage());
+                                        " to " +  TaskState.WAITING_DEPENDENCY.toString() + " with exception " + e.getMessage());
                             } 
                         }
                     }

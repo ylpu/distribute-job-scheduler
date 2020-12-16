@@ -64,7 +64,7 @@ public class SchedulerService {
                 client = new JobGrpcBlockingClient(hostAndPort[0], NumberUtils.toInt(hostAndPort[1]));
                 client.kill(rpcJobInstanceRequest);
             }catch(Exception e) {
-                LOG.error(e);
+                LOG.error("faile to kill task " + id + " with exception " + e.getMessage());
                 throw e;
             }finally {
                 if (client != null) {
@@ -89,7 +89,7 @@ public class SchedulerService {
                 JobManager.updateJobStatus(jr);
                 JobStatusChecker.addResponse(JobSubmission.buildResponse(responseId,toState.getCode()));
             } catch (Exception e) {
-                LOG.error(e);
+                LOG.error("failed to mark task " + scheduleRequest.getId() + " to " + toState.toString() , e);
                 throw e;
             }
         }
@@ -97,22 +97,21 @@ public class SchedulerService {
     
     private void cleanExistingTask(JobInstanceResponse jobInstanceResponse,String responseId) throws Exception {
 
-        if(jobInstanceResponse.getTaskState() == TaskState.SCHEDULED || jobInstanceResponse.getTaskState() == TaskState.SUBMIT) {
+        //remove rpc request from request map
+        if(jobInstanceResponse.getTaskState() == TaskState.SCHEDULED || 
+                jobInstanceResponse.getTaskState() == TaskState.SUBMIT) {
+            JobStatusChecker.getJobInstanceRequestMap().remove(responseId);
             removeJobDependency(jobInstanceResponse,responseId);
+        }else if(jobInstanceResponse.getTaskState() == TaskState.WAITING_DEPENDENCY) {
+            JobStatusChecker.getJobInstanceRequestMap().remove(responseId);
+            removeJobDependency(jobInstanceResponse,responseId);
+            JobStatusChecker.getJobDependStatusMap().remove(responseId);
+        }else if(jobInstanceResponse.getTaskState() == TaskState.QUEUED) {
             JobInstanceRequestRpc request = JobStatusChecker.getJobInstanceRequestMap().remove(responseId);
             if(request != null) {
                 JobSubmission.getGroupQueue(request.getJob().getWorkerGroupname()).remove(new TaskCall(request));
             }
         }
-        //remove rpc request from request map
-//        else if(jobInstanceResponse.getTaskState() == TaskState.WAITING_DEPENDENCY) {
-//            removeRequestRpc(jobInstanceResponse,responseId);
-//        }else if(jobInstanceResponse.getTaskState() == TaskState.QUEUED) {
-//            JobInstanceRequestRpc request = JobStatusChecker.getJobInstanceRequestMap().remove(responseId);
-//            if(request != null) {
-//                JobSubmission.getGroupQueue(request.getJob().getWorkerGroupname()).remove(new TaskCall(request));
-//            }
-//        }
         else if(jobInstanceResponse.getTaskState() == TaskState.WAITING_RESOURCE) {
 //          cancel waiting
             JobStatusChecker.getJobInstanceRequestMap().remove(responseId);
@@ -213,7 +212,7 @@ public class SchedulerService {
                 throw new RuntimeException("job " + jobResponse.getJobName() + " has scheduled");
             }
         } catch (Exception e) {
-            LOG.error(e);
+            LOG.error("failed to schedule job " + request.getId() , e);
             throw e;
         }
     }
@@ -231,7 +230,7 @@ public class SchedulerService {
             setScheduleInfo(response, scheduleInfo);
             JobScheduler.modifyJobTime(scheduleInfo);
         } catch (Exception e) {
-            LOG.error(e);
+            LOG.error("failed to reschedule job " + request.getId() , e);
             throw e;
         }
     }
@@ -249,7 +248,7 @@ public class SchedulerService {
             setScheduleInfo(response, scheduleInfo);
             JobScheduler.removeJob(scheduleInfo);
         } catch (Exception e) {
-            LOG.error(e);
+            LOG.error("failed to down job " + request.getId() , e);
             throw e;
         }
 
@@ -292,12 +291,8 @@ public class SchedulerService {
 //              caculate dependency and add to request
                 JobSubmission.addRpcRequest(rpcRequest);
             }catch(Exception e) {
-                
-                LOG.error("failed to submit task " + request.getId() , e);
-                request.setTaskState(TaskState.FAIL.getCode());
-                request.setEndTime(new Date());
-                request.setElapseTime(DateUtils.getElapseTime(request.getStartTime(), request.getEndTime()));
-                JobManager.transitTaskStatus(request);
+                LOG.error("failed to rerun task " + request.getId() , e);
+                throw new RuntimeException(e);
             }
         } 
     }
