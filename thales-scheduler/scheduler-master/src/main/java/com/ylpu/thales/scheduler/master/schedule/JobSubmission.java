@@ -240,6 +240,8 @@ public class JobSubmission {
                         setAlertEvent(event, jobInstanceResponse);
                         if(StringUtils.isNotBlank(jobInstanceResponse.getJobConf().getAlertUsers())) {
                             eventBus.post(event);
+                            JobStatusChecker.getMailMap().put(taskCall.getRpcRequest().getRequestId(), 
+                                    taskCall.getRpcRequest().getRequestId());
                         }
                     } catch (Exception e) {
                         LOG.error("failed to send alert for task " + taskCall.getRpcRequest().getId());

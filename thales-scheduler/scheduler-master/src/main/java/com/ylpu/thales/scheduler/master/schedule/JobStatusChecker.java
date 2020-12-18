@@ -12,57 +12,15 @@ import com.ylpu.thales.scheduler.master.schedule.JobSubmission;
 import com.ylpu.thales.scheduler.master.schedule.TaskCall;
 import com.ylpu.thales.scheduler.request.JobInstanceRequest;
 import java.util.Date;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-class LRU<K, V> {
-    
-    private final int MAX_CACHE_SIZE;
-    private final float DEFAULT_LOAD_FACTORY = 0.75f;
- 
-    LinkedHashMap<K, V> map;
- 
-    public LRU(int cacheSize) {
-        MAX_CACHE_SIZE = cacheSize;
-        int capacity = (int)Math.ceil(MAX_CACHE_SIZE / DEFAULT_LOAD_FACTORY) + 1;
-        /*
-         * 第三个参数设置为true，代表linkedlist按访问顺序排序，可作为LRU缓存
-         * 第三个参数设置为false，代表按插入顺序排序，可作为FIFO缓存
-         */
-        map = new LinkedHashMap<K, V>(capacity, DEFAULT_LOAD_FACTORY, false) {
-
-            private static final long serialVersionUID = 1L;
-
-            @Override
-            protected boolean removeEldestEntry(Map.Entry<K, V> eldest) {
-                return size() > MAX_CACHE_SIZE;
-            }
-        };
-    }
- 
-    public synchronized void put(K key, V value) {
-        map.put(key, value);
-    }
- 
-    public synchronized V get(K key) {
-        return map.get(key);
-    }
- 
-    public synchronized void remove(K key) {
-        map.remove(key);
-    }
- 
-    public LinkedHashMap<K, V> get() {
-        return map;
-    }
-}
 
 public class JobStatusChecker {
 
@@ -72,11 +30,13 @@ public class JobStatusChecker {
     // key是任务id,value是待执行的任务
     private static Map<String, JobInstanceRequestRpc> jobInstanceRequestMap = new ConcurrentHashMap<String, JobInstanceRequestRpc>();
 //    lru以防内存溢出
-    private static LRU<String, JobInstanceResponseRpc> lru = new LRU<String, JobInstanceResponseRpc>(5000000);
+    private static LRU<String, JobInstanceResponseRpc> responses = new LRU<String, JobInstanceResponseRpc>(5000000);
     // key是所依赖的任务,value是任务id
     private static Map<List<JobDependency>, String> dependsMap = new ConcurrentHashMap<List<JobDependency>, String>();
     
     private static Map<String, String> jobDependStatusMap = new ConcurrentHashMap<String,String>();
+    
+    private static LRU<String, String> mailLRU = new LRU<String,String>(1000000);
 
     private static final long JOB_DEPENDENCY_CHECK_INTERVAL = 1;
     
@@ -89,11 +49,11 @@ public class JobStatusChecker {
     }
 
     public static void addResponse(JobInstanceResponseRpc response) {
-        lru.put(response.getResponseId(), response);
+        responses.put(response.getResponseId(), response);
     }
 
     public static JobInstanceResponseRpc getResponse(String id) {
-        return lru.get(id);
+        return responses.get(id);
     }
 
     public static void addDepends(List<JobDependency> key, String value) {
@@ -112,8 +72,8 @@ public class JobStatusChecker {
         return jobInstanceRequestMap;
     }
 
-    public static Map<String, JobInstanceResponseRpc> getResponses() {
-        return lru.get();
+    public static LRU<String, JobInstanceResponseRpc> getResponses() {
+        return responses;
     }
 
     public static Map<List<JobDependency>, String> getDepends() {
@@ -122,6 +82,10 @@ public class JobStatusChecker {
 
     public static Map<String, String> getJobDependStatusMap() {
         return jobDependStatusMap;
+    }
+    
+    public static LRU<String,String> getMailMap() {
+        return mailLRU;
     }
 
     /**
@@ -137,8 +101,8 @@ public class JobStatusChecker {
                     int successfulJobs = 0;
                     List<JobDependency> list = entry.getKey();
                     for (JobDependency jobDependency : list) {
-                        if (lru.get().containsKey(jobDependency.toString())) {
-                            JobInstanceResponseRpc response = lru.get(jobDependency.toString());
+                        if (responses.get().containsKey(jobDependency.toString())) {
+                            JobInstanceResponseRpc response = responses.get(jobDependency.toString());
                             if (response.getTaskState() == TaskState.SUCCESS.getCode()) {
                                 successfulJobs++;
                             }
@@ -207,11 +171,14 @@ public class JobStatusChecker {
             while (true) {
                 for (Entry<String, JobInstanceRequestRpc> entry : jobInstanceRequestMap.entrySet()) {
                     if (entry.getValue() != null) {
-                        Date startTime = DateUtils.getDatetime(entry.getValue().getStartTime());
-                        int elapseTime = DateUtils.getElapseTime(startTime, new Date());
-                        if (entry.getValue().getJob().getExecutionTimeout() > 0) {
-                            if (elapseTime / 60 > entry.getValue().getJob().getExecutionTimeout()) {
-                                JobSubmission.addTimeoutQueue(new TaskCall(entry.getValue(), GrpcType.SYNC));
+//                      防止重复发送
+                        if(StringUtils.isBlank(mailLRU.get(entry.getKey()))) {
+                            Date startTime = DateUtils.getDatetime(entry.getValue().getStartTime());
+                            int elapseTime = DateUtils.getElapseTime(startTime, new Date());
+                            if (entry.getValue().getJob().getExecutionTimeout() > 0) {
+                                if (elapseTime / 60 > entry.getValue().getJob().getExecutionTimeout()) {
+                                    JobSubmission.addTimeoutQueue(new TaskCall(entry.getValue(), GrpcType.SYNC));
+                                }
                             }
                         }
                     }
