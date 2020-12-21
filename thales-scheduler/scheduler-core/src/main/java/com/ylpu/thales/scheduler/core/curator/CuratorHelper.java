@@ -12,9 +12,9 @@ public class CuratorHelper {
 
     private static final String DEFAULT_ZKSERVERS = "127.0.0.1:2181";
 
-    private static final int SESSION_TIMEOUT = 5000;
+    private static final int SESSION_TIMEOUT = 50000;
 
-    private static final int CONNECTION_TIMEOUT = 6000;
+    private static final int CONNECTION_TIMEOUT = 30000;
 
     public static CuratorFramework getCuratorClient() {
         return getCuratorClient(DEFAULT_ZKSERVERS, SESSION_TIMEOUT, CONNECTION_TIMEOUT);
