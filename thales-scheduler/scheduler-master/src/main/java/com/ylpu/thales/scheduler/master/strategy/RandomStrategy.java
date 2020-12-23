@@ -16,7 +16,7 @@ public class RandomStrategy implements WorkerSelectStrategy {
         List<String> servers = rm.getGroups().get(GlobalConstants.WORKER_GROUP + "/" + groupName);
         WorkerResponse idleServer = null;
         if (servers != null && servers.size() > 0) {
-            String[] keys = rm.getResourceMap().keySet().toArray(new String[0]);
+            String[] keys = servers.toArray(new String[0]);
             Random random = new Random();
             String randomServer = keys[random.nextInt(keys.length)];
             idleServer = rm.getResourceMap().get(randomServer);

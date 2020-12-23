@@ -236,10 +236,11 @@ public class JobSubmission {
                 if(taskCall != null) {
                     try {
                         JobInstanceResponse jobInstanceResponse = JobManager.getJobInstanceById(taskCall.getRpcRequest().getId());
-                        Event event = new Event();
-                        setAlertEvent(event, jobInstanceResponse);
                         if(StringUtils.isNotBlank(jobInstanceResponse.getJobConf().getAlertUsers())) {
+                            Event event = new Event();
+                            setAlertEvent(event, jobInstanceResponse);
                             eventBus.post(event);
+//                          防止重复发送
                             JobStatusChecker.getMailMap().put(taskCall.getRpcRequest().getRequestId(), 
                                     taskCall.getRpcRequest().getRequestId());
                         }
