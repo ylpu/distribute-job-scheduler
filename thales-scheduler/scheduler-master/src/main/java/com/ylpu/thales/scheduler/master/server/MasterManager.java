@@ -180,10 +180,7 @@ public class MasterManager {
             }
             addStrategyChangeListener(client, GlobalConstants.STRATEGY_GROUP);
         }
-        //设置所有的worker为removed
-//        WorkerGroupRequest param = new WorkerGroupRequest();
-//        param.setStatus(WorkerStatus.REMOVED);
-//        WorkerManager.updateWorkersStatus(param);
+
 //        恢复任务状态，比较耗时
 //        restoreTaskState();
 //      启动master http service
@@ -355,7 +352,6 @@ public class MasterManager {
                         String udpatedPath = pathChildrenCacheEvent.getData().getPath();
                         byte[] bytes = CuratorHelper.getData(curatorFramework, udpatedPath);
                         WorkerRequest request = (WorkerRequest) ByteUtils.byteArrayToObject(bytes);
-//                        WorkerManager.insertOrUpdateWorker(request);
                         updateResource(request);
                     default:
                         break;

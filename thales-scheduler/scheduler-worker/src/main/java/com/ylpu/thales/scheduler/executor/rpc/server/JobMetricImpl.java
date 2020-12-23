@@ -15,6 +15,7 @@ import com.ylpu.thales.scheduler.core.curator.CuratorHelper;
 import com.ylpu.thales.scheduler.core.rpc.entity.WorkerParameter;
 import com.ylpu.thales.scheduler.core.utils.MetricsUtils;
 import com.ylpu.thales.scheduler.executor.rpc.client.WorkerGrpcClient;
+import com.ylpu.thales.scheduler.worker.WorkerServer;
 
 /**
  * 增加或减少任务个数，用于监控
@@ -26,8 +27,7 @@ public class JobMetricImpl implements IJobMetric {
 
     public void increaseTask() {
         WorkerGrpcClient client = null;
-        Properties prop = Configuration.getConfig();
-        int workerServerPort = Configuration.getInt(prop, "thales.worker.server.port", 8090);
+        int workerServerPort = WorkerServer.workerServerPort;
         try {
             String master = getActiveMaster();
             if (StringUtils.isNoneBlank(master)) {
@@ -52,8 +52,7 @@ public class JobMetricImpl implements IJobMetric {
 
     public void decreaseTask() {
         WorkerGrpcClient client = null;
-        Properties prop = Configuration.getConfig();
-        int workerServerPort = Configuration.getInt(prop, "thales.worker.server.port", 8090);
+        int workerServerPort = WorkerServer.workerServerPort;
         try {
             String master = getActiveMaster();
             if (StringUtils.isNoneBlank(master)) {
