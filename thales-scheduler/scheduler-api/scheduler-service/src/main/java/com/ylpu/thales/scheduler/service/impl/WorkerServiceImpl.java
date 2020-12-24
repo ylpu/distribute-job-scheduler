@@ -125,7 +125,7 @@ public class WorkerServiceImpl extends BaseServiceImpl<BaseEntity, Serializable>
         CuratorFramework client  = CuratorHelper.getCuratorClient(quorum, sessionTimeout, connectionTimeout);
         List<String> groupList = null;
         try {
-            groupList = CuratorHelper.getChildren(client, GlobalConstants.WORKER_GROUP);
+            groupList = CuratorHelper.getChildren(client, GlobalConstants.STRATEGY_GROUP);
         } catch (Exception e) {
             LOG.error(e);
         }finally {
