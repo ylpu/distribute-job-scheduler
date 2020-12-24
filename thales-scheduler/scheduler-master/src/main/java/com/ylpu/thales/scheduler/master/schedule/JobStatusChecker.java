@@ -41,6 +41,10 @@ public class JobStatusChecker {
     private static final long JOB_DEPENDENCY_CHECK_INTERVAL = 1;
     
     private static final long TIMEOUT_CHECK_INTERVAL = 60;
+    
+    private static ExecutorService queueThreadPool = Executors.newFixedThreadPool(1);
+    
+    private static ExecutorService dependencyThreadPool = Executors.newFixedThreadPool(1);
 
     public static void start() {
         ExecutorService es = Executors.newFixedThreadPool(2);
@@ -111,31 +115,40 @@ public class JobStatusChecker {
                     String requestId = dependsMap.get(entry.getKey());
                     JobInstanceRequestRpc rpcRequest = jobInstanceRequestMap.get(requestId);
                     if (successfulJobs == list.size() || isRootJob(list)) {
-                         requestId = dependsMap.remove(entry.getKey());
+                         dependsMap.remove(entry.getKey());
 //                         rpcRequest = jobInstanceRequestMap.remove(requestId);
                          LOG.info("parent job " + entry.getKey() + " has finished, will add job " + requestId + " to queue");
 //                       transit task status to queue，bad performance if there are too many jobs running at some time
-                         try {
-                            transitTaskStatus(rpcRequest.getId(),TaskState.QUEUED);
-                            jobDependStatusMap.remove(requestId);
-                            JobSubmission.addWaitingQueue(new TaskCall(rpcRequest, GrpcType.ASYNC));
-                        } catch (Exception e) {
-                            LOG.error("failed to transit task " + rpcRequest.getId() + 
-                                    " to " + TaskState.QUEUED.toString() + " with exception "+ e.getMessage());
-                        }
-                         
+                         queueThreadPool.execute(new Runnable() {
+                             @Override
+                             public void run() {
+                                 try {
+                                    transitTaskStatus(rpcRequest.getId(),TaskState.QUEUED);
+                                    jobDependStatusMap.remove(requestId);
+                                    JobSubmission.addWaitingQueue(new TaskCall(rpcRequest, GrpcType.ASYNC));
+                                } catch (Exception e) {
+                                    LOG.error("failed to transit task " + rpcRequest.getId() + 
+                                            " to " + TaskState.QUEUED.toString() + " with exception "+ e.getMessage());
+                                }
+                             }
+                         });
                     }else {
                         LOG.info("job " + requestId + " is waiting for dependency jobs to finish" + entry.getKey());
 //                        transit task status to waiting dependency,bad performance if there are too many long waiting dependency jobs
-                        if(!jobDependStatusMap.containsKey(requestId)) {
-                            try {
-                                transitTaskStatus(rpcRequest.getId(),TaskState.WAITING_DEPENDENCY);
-                                jobDependStatusMap.put(requestId, requestId);
-                            } catch (Exception e) {
-                                LOG.error("failed to transit task " + rpcRequest.getId() + 
-                                        " to " +  TaskState.WAITING_DEPENDENCY.toString() + " with exception " + e.getMessage());
-                            } 
-                        }
+                        dependencyThreadPool.execute(new Runnable() {
+                            @Override
+                            public void run() {
+                                if(!jobDependStatusMap.containsKey(requestId)) {
+                                    try {
+                                        transitTaskStatus(rpcRequest.getId(),TaskState.WAITING_DEPENDENCY);
+                                        jobDependStatusMap.put(requestId, requestId);
+                                    } catch (Exception e) {
+                                        LOG.error("failed to transit task " + rpcRequest.getId() + 
+                                                " to " +  TaskState.WAITING_DEPENDENCY.toString() + " with exception " + e.getMessage());
+                                    } 
+                                }
+                            }
+                        });
                     }
                 }
                 try {

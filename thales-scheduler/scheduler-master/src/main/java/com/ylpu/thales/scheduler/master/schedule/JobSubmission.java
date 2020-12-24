@@ -132,7 +132,7 @@ public class JobSubmission {
         timeoutQueue.add(taskCall);
     }
     
-    public static void addWaitingQueue(TaskCall taskCall) {
+    public static synchronized void addWaitingQueue(TaskCall taskCall) {
         String workerGroupName = taskCall.getRpcRequest().getJob().getWorkerGroupname();
         PriorityBlockingQueue<TaskCall> taskQueue = workerGroupQueue.get(workerGroupName);
         if(taskQueue == null) {

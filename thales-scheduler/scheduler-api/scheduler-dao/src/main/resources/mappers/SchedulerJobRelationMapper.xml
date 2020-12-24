@@ -68,6 +68,11 @@
       </if>
     </trim>
   </insert>
+  
+  <select id="findAll" resultMap="BaseResultMap">
+     select * from t_thales_scheduler_job_relation
+  </select>
+  
   <update id="updateByPrimaryKeySelective" parameterType="com.ylpu.thales.scheduler.entity.SchedulerJobRelation" >
     update t_thales_scheduler_job_relation
     <set >

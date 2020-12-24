@@ -86,18 +86,23 @@ public class JobServiceImpl extends BaseServiceImpl<SchedulerJob, Integer> imple
 
     @Override
     public void updateJob(JobRequest job, Object object) {
+        
+        if (!isJobOwner(job.getOwnerIds(), object)) {
+            throw new ThalesRuntimeException("非任务owner不能修改任务");
+        }
         List<Integer> depencies = new ArrayList<Integer>();
         if (job.getDependIds() == null || job.getDependIds().size() == 0) {
             depencies = Arrays.asList(-1);
         } else {
             depencies = job.getDependIds();
         }
+        if(job.getDependIds().contains(job.getId())) {
+            throw new ThalesRuntimeException("任务 " + job.getId() + " 不能依赖自己");
+        }
         if (isCycleReference(job)) {
             throw new ThalesRuntimeException("任务 " + job.getId() + " 存在环形依赖");
         }
-        if (!isJobOwner(job.getOwnerIds(), object)) {
-            throw new ThalesRuntimeException("非任务owner不能修改任务");
-        }
+
         if (job != null) {
             SchedulerJob schedulerJob = new SchedulerJob();
             BeanUtils.copyProperties(job, schedulerJob);
@@ -167,40 +172,94 @@ public class JobServiceImpl extends BaseServiceImpl<SchedulerJob, Integer> imple
             }
         }
     }
-
+//    多次查询数据库，效率比较差
+//    public JobTree queryTreeById(Integer id) {
+//        JobTree targetTree = new JobTree();
+//        List<com.ylpu.thales.scheduler.entity.JobTree> treeList = schedulerJobMapper.queryTreeById(id);
+//        if (treeList != null && treeList.size() > 0) {
+//            if (treeList.get(0) != null) {
+//                setResponse(treeList.get(0), targetTree);
+//            }
+//        }
+//
+//        return targetTree;
+//    }
+    
     public JobTree queryTreeById(Integer id) {
-        JobTree targetTree = new JobTree();
-        List<com.ylpu.thales.scheduler.entity.JobTree> treeList = schedulerJobMapper.queryTreeById(id);
-        if (treeList != null && treeList.size() > 0) {
-            if (treeList.get(0) != null) {
-                setResponse(treeList.get(0), targetTree);
+        JobTree rootTree = new JobTree();
+        List<SchedulerJob> allJobList = schedulerJobMapper.findAll(null, "", "");
+        List<SchedulerJobRelation> allRelationList = schedulerJobRelationMapper.findAll();
+        SchedulerJob schedulerJob = allJobList.stream().filter(job -> job.getId() == id).collect(Collectors.toList()).get(0);
+        setJobTree(schedulerJob,rootTree);
+        setChildren(rootTree,allJobList,allRelationList);
+        return rootTree;
+    }
+    
+    private void setChildren(JobTree jobTree,List<SchedulerJob> allJobList,List<SchedulerJobRelation> allRelationList) {
+        
+        List<SchedulerJobRelation> relationJobList = new ArrayList<SchedulerJobRelation>();
+        if(allRelationList != null && allRelationList.size() > 0) {
+            for(SchedulerJobRelation jobRelation : allRelationList) {
+                if(jobRelation.getParentjobId() == jobTree.getJobId()) {
+                    relationJobList.add(jobRelation);
+                }
             }
         }
-
-        return targetTree;
-    }
-
-    private void setResponse(com.ylpu.thales.scheduler.entity.JobTree sourceTree, JobTree targetTree) {
-        List<JobTree> targetList = new ArrayList<JobTree>();
-        setTarget(sourceTree, targetTree);
-        targetTree.setChildren(targetList);
-
-        List<com.ylpu.thales.scheduler.entity.JobTree> sourceList = sourceTree.getChildren();
-        for (com.ylpu.thales.scheduler.entity.JobTree source : sourceList) {
-            JobTree target = new JobTree();
-            setTarget(source, target);
-            targetList.add(target);
-            setResponse(source, target);
+        List<JobTree> children = null;
+        List<Integer> relationIdList = relationJobList.stream().map(relation -> relation.getJobId()).collect(Collectors.toList());
+        if(relationIdList != null && relationIdList.size() > 0) {
+            children = new ArrayList<JobTree>();
+            JobTree tree = null;
+            for(Integer relationId : relationIdList) {
+                for(SchedulerJob childJob : allJobList) {
+                    if(childJob.getId() == relationId) {
+                        tree = new JobTree();
+                        setJobTree(childJob,tree);
+                        children.add(tree);
+                        break;
+                    }
+                }
+            }
+        }
+        if(children == null || children.size() == 0) {
+            return;
+        }else {
+            jobTree.setChildren(children);
+            for(JobTree child : children) {
+                setChildren(child,allJobList,allRelationList);
+            }
         }
     }
-
-    private void setTarget(com.ylpu.thales.scheduler.entity.JobTree source, JobTree target) {
-        target.setJobCycle(source.getJobCycle());
-        target.setScheduleCron(source.getScheduleCron());
-        target.setJobId(source.getJobId());
-        target.setParentJobId(source.getParentJobId());
-        target.setJobName(source.getJobName());
+    
+    private void setJobTree(SchedulerJob schedulerJob, JobTree jobTree) {
+        jobTree.setJobCycle(schedulerJob.getJobCycle());
+        jobTree.setScheduleCron(schedulerJob.getScheduleCron());
+        jobTree.setJobId(schedulerJob.getId());
+        jobTree.setJobName(schedulerJob.getJobName());
+        
     }
+
+//    private void setResponse(com.ylpu.thales.scheduler.entity.JobTree sourceTree, JobTree targetTree) {
+//        List<JobTree> targetList = new ArrayList<JobTree>();
+//        setTarget(sourceTree, targetTree);
+//        targetTree.setChildren(targetList);
+//
+//        List<com.ylpu.thales.scheduler.entity.JobTree> sourceList = sourceTree.getChildren();
+//        for (com.ylpu.thales.scheduler.entity.JobTree source : sourceList) {
+//            JobTree target = new JobTree();
+//            setTarget(source, target);
+//            targetList.add(target);
+//            setResponse(source, target);
+//        }
+//    }
+
+//    private void setTarget(com.ylpu.thales.scheduler.entity.JobTree source, JobTree target) {
+//        target.setJobCycle(source.getJobCycle());
+//        target.setScheduleCron(source.getScheduleCron());
+//        target.setJobId(source.getJobId());
+//        target.setParentJobId(source.getParentJobId());
+//        target.setJobName(source.getJobName());
+//    }
 
     @Override
     public JobResponse getJobAndRelationById(Integer id) {
