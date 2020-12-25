@@ -9,6 +9,7 @@ import com.ylpu.thales.scheduler.core.utils.ByteUtils;
 import com.ylpu.thales.scheduler.core.utils.DateUtils;
 import com.ylpu.thales.scheduler.core.utils.MetricsUtils;
 import com.ylpu.thales.scheduler.core.utils.SSHUtils;
+import com.ylpu.thales.scheduler.enums.NodeType;
 //import com.ylpu.thales.scheduler.enums.TaskState;
 import com.ylpu.thales.scheduler.enums.WorkerStatus;
 import com.ylpu.thales.scheduler.master.api.server.MasterApiServer;
@@ -95,7 +96,6 @@ public class MasterManager {
         CuratorHelper.createNodeIfNotExist(client, GlobalConstants.ROOT_GROUP, CreateMode.PERSISTENT, null);
         CuratorHelper.createNodeIfNotExist(client, GlobalConstants.MASTER_GROUP, CreateMode.PERSISTENT, null);
         CuratorHelper.createNodeIfNotExist(client, GlobalConstants.WORKER_GROUP, CreateMode.PERSISTENT, null);
-        CuratorHelper.createNodeIfNotExist(client, GlobalConstants.STRATEGY_GROUP, CreateMode.PERSISTENT, null);
         
         new MyLeaderSelectorListenerAdapter(client, GlobalConstants.MASTER_LOCK, prop).start();
     }
@@ -142,6 +142,7 @@ public class MasterManager {
             
             init(GlobalConstants.WORKER_GROUP, prop);
             int masterServerPort = Configuration.getInt(prop, "thales.master.server.port", DEFAULT_MASTER_SERVER_PORT);
+            long masterHeartBeatInterval = Configuration.getLong(prop, "thales.master.heartbeat.interval", 3000l);
             // 启动master rpc服务
             server = new MasterRpcServer(masterServerPort);
             server.start();
@@ -151,7 +152,55 @@ public class MasterManager {
             LOG.info("active master is " + activeMaster);
             CuratorHelper.createNodeIfNotExist(client, masterPath, CreateMode.PERSISTENT, null);
             
+            new MasterHeartBeatThread(masterPath,masterServerPort,masterHeartBeatInterval).start();
+            
             server.blockUntilShutdown();
+        }
+    }
+    
+    private static class MasterHeartBeatThread extends Thread {
+        private String masterPath;
+        private int masterPort;
+        private long heartBeatInterval;
+
+        public MasterHeartBeatThread(String masterPath, int masterPort, long heartBeatInterval) {
+            this.masterPath = masterPath;
+            this.masterPort = masterPort;
+            this.heartBeatInterval = heartBeatInterval;
+        }
+
+        public void run() {
+            CuratorFramework client = null;
+            Properties prop = Configuration.getConfig();
+            String quorum = prop.getProperty("thales.zookeeper.quorum");
+            int sessionTimeout = Configuration.getInt(prop, "thales.zookeeper.sessionTimeout",
+                    GlobalConstants.ZOOKEEPER_SESSION_TIMEOUT);
+            int connectionTimeout = Configuration.getInt(prop, "thales.zookeeper.connectionTimeout",
+                    GlobalConstants.ZOOKEEPER_CONNECTION_TIMEOUT);
+            while (true) {
+                try {
+                    client = CuratorHelper.getCuratorClient(quorum, sessionTimeout, connectionTimeout);
+                    WorkerRequest workerRequest = new WorkerRequest();
+                    workerRequest.setHost(MetricsUtils.getHostName());
+                    workerRequest.setCpuUsage(MetricsUtils.getCpuUsage());
+                    workerRequest.setMemoryUsage(MetricsUtils.getMemoryUsage());
+                    workerRequest.setWorkerStatus(WorkerStatus.UPDATED.getCode());
+                    workerRequest.setWorkerType(NodeType.MASTER.getCode());
+                    workerRequest.setPort(masterPort);
+                    workerRequest.setZkdirectory(masterPath);
+                    workerRequest.setLastHeartbeatTime(new Date());
+                    CuratorHelper.setData(client, masterPath, ByteUtils.objectToByteArray(workerRequest));
+                } catch (Exception e) {
+                    LOG.error(e);
+                } finally {
+                    CuratorHelper.close(client);
+                }
+                try {
+                    Thread.sleep(heartBeatInterval);
+                } catch (InterruptedException e) {
+                    LOG.error(e);
+                }
+            }
         }
     }
 
@@ -172,13 +221,13 @@ public class MasterManager {
         }
         
         CuratorFramework strategyClient = CuratorHelper.getCuratorClient(quorum, sessionTimeout, connectionTimeout);
-        List<String> strategyList = CuratorHelper.getChildren(client, GlobalConstants.STRATEGY_GROUP);
+        List<String> strategyList = CuratorHelper.getChildren(client, GlobalConstants.WORKER_GROUP);
         if (strategyList != null && strategyList.size() > 0) {
             for (String groupName : strategyList) {
-                byte[] bytes = CuratorHelper.getData(strategyClient, GlobalConstants.STRATEGY_GROUP + "/" + groupName);
+                byte[] bytes = CuratorHelper.getData(strategyClient, GlobalConstants.WORKER_GROUP + "/" + groupName);
                 groupStrategyMap.put(groupName, new String(bytes));
             }
-            addStrategyChangeListener(client, GlobalConstants.STRATEGY_GROUP);
+            addStrategyChangeListener(client, GlobalConstants.WORKER_GROUP);
         }
 
 //        恢复任务状态，比较耗时

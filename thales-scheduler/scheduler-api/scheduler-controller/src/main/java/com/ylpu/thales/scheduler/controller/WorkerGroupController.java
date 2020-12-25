@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
 @RequestMapping("/api/groupStrategy")
-public class GroupStategyController {
+public class WorkerGroupController {
 
     @Autowired
     private GroupStrategyService groupStategyService;

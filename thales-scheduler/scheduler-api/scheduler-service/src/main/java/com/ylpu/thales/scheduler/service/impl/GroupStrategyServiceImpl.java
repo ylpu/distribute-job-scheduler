@@ -60,8 +60,8 @@ public class GroupStrategyServiceImpl extends BaseServiceImpl<GroupStrategy, Int
         CuratorFramework client = CuratorHelper.getCuratorClient(quorum, sessionTimeout, connectionTimeout);
         try {
             CuratorHelper.createNodeIfNotExist(client, GlobalConstants.ROOT_GROUP, CreateMode.PERSISTENT, null);
-            CuratorHelper.createNodeIfNotExist(client, GlobalConstants.STRATEGY_GROUP, CreateMode.PERSISTENT, null);
-            CuratorHelper.createNodeIfNotExist(client, GlobalConstants.STRATEGY_GROUP + "/" + groupStrategryRequest.getGroupName(),
+            CuratorHelper.createNodeIfNotExist(client, GlobalConstants.WORKER_GROUP, CreateMode.PERSISTENT, null);
+            CuratorHelper.createNodeIfNotExist(client, GlobalConstants.WORKER_GROUP + "/" + groupStrategryRequest.getGroupName(),
                     CreateMode.PERSISTENT, groupStrategryRequest.getGroupStrategy().getBytes());
             
         } catch (Exception e) {
@@ -89,7 +89,7 @@ public class GroupStrategyServiceImpl extends BaseServiceImpl<GroupStrategy, Int
                 GlobalConstants.ZOOKEEPER_CONNECTION_TIMEOUT);
         CuratorFramework client = CuratorHelper.getCuratorClient(quorum, sessionTimeout, connectionTimeout);
         try {
-            CuratorHelper.setData(client, GlobalConstants.STRATEGY_GROUP + "/" + groupStrategryRequest.getGroupName(), 
+            CuratorHelper.setData(client, GlobalConstants.WORKER_GROUP + "/" + groupStrategryRequest.getGroupName(), 
                     groupStrategryRequest.getGroupStrategy().getBytes());
             
         } catch (Exception e) {

@@ -27,6 +27,7 @@ import com.ylpu.thales.scheduler.entity.BaseEntity;
 import com.ylpu.thales.scheduler.enums.RoleTypes;
 import com.ylpu.thales.scheduler.enums.WorkerStatus;
 import com.ylpu.thales.scheduler.request.WorkerRequest;
+import com.ylpu.thales.scheduler.response.MasterUsageResponse;
 import com.ylpu.thales.scheduler.response.UserResponse;
 import com.ylpu.thales.scheduler.response.WorkerResponse;
 import com.ylpu.thales.scheduler.response.WorkerUsageResponse;
@@ -125,7 +126,7 @@ public class WorkerServiceImpl extends BaseServiceImpl<BaseEntity, Serializable>
         CuratorFramework client  = CuratorHelper.getCuratorClient(quorum, sessionTimeout, connectionTimeout);
         List<String> groupList = null;
         try {
-            groupList = CuratorHelper.getChildren(client, GlobalConstants.STRATEGY_GROUP);
+            groupList = CuratorHelper.getChildren(client, GlobalConstants.WORKER_GROUP);
         } catch (Exception e) {
             LOG.error(e);
         }finally {
@@ -203,5 +204,72 @@ public class WorkerServiceImpl extends BaseServiceImpl<BaseEntity, Serializable>
     protected BaseDao<BaseEntity, Serializable> getDao() {
         // TODO Auto-generated method stub
         return null;
+    }
+
+    @Override
+    public List<MasterUsageResponse> getMasterCpuUsage() {
+        List<MasterUsageResponse> metricList = new ArrayList<MasterUsageResponse>();
+        Properties prop = Configuration.getConfig(GlobalConstants.CONFIG_FILE);
+        String quorum = prop.getProperty("thales.zookeeper.quorum");
+        int sessionTimeout = Configuration.getInt(prop, "thales.zookeeper.sessionTimeout",
+                GlobalConstants.ZOOKEEPER_SESSION_TIMEOUT);
+        int connectionTimeout = Configuration.getInt(prop, "thales.zookeeper.connectionTimeout",
+                GlobalConstants.ZOOKEEPER_CONNECTION_TIMEOUT);
+        CuratorFramework client  = CuratorHelper.getCuratorClient(quorum, sessionTimeout, connectionTimeout);
+        List<String> locks = null;
+        try {
+            locks = CuratorHelper.getChildren(client, GlobalConstants.MASTER_LOCK);
+            if(locks != null) {
+                List<String> masters = CuratorHelper.getChildren(client, GlobalConstants.MASTER_GROUP);
+                if(masters != null && masters.size() > 0) {
+                    MasterUsageResponse cpu = new MasterUsageResponse();
+                    byte[] bytes = CuratorHelper.getData(client, GlobalConstants.MASTER_GROUP + "/" + masters.get(0));
+                    WorkerRequest request = (WorkerRequest) ByteUtils.byteArrayToObject(bytes);
+                    cpu.setHostName(request.getHost() + ":" + request.getPort());
+                    cpu.setValue(request.getCpuUsage());
+                    metricList.add(cpu);
+                }
+            }
+        } catch (Exception e) {
+            LOG.error(e);
+        }finally {
+            CuratorHelper.close(client);
+        }
+        return metricList;
+    }
+    
+
+    @Override
+    public List<MasterUsageResponse> getMasterMemoryUsage() {
+        List<MasterUsageResponse> metricList = new ArrayList<MasterUsageResponse>();
+        Properties prop = Configuration.getConfig(GlobalConstants.CONFIG_FILE);
+        String quorum = prop.getProperty("thales.zookeeper.quorum");
+        int sessionTimeout = Configuration.getInt(prop, "thales.zookeeper.sessionTimeout",
+                GlobalConstants.ZOOKEEPER_SESSION_TIMEOUT);
+        int connectionTimeout = Configuration.getInt(prop, "thales.zookeeper.connectionTimeout",
+                GlobalConstants.ZOOKEEPER_CONNECTION_TIMEOUT);
+        CuratorFramework client  = CuratorHelper.getCuratorClient(quorum, sessionTimeout, connectionTimeout);
+        List<String> locks = null;
+        try {
+            locks = CuratorHelper.getChildren(client, GlobalConstants.MASTER_LOCK);
+            if(locks != null) {
+                List<String> masters = CuratorHelper.getChildren(client, GlobalConstants.MASTER_GROUP);
+                if(masters != null && masters.size() > 0) {
+                    MasterUsageResponse memory = new MasterUsageResponse();
+                    byte[] bytes = CuratorHelper.getData(client, GlobalConstants.MASTER_GROUP + "/" + masters.get(0));
+                    WorkerRequest request = (WorkerRequest) ByteUtils.byteArrayToObject(bytes);
+                    
+                    memory.setHostName(request.getHost() + ":" + request.getPort());
+                    memory.setValue(request.getMemoryUsage());
+
+                    metricList.add(memory);
+                }
+            }
+        } catch (Exception e) {
+            LOG.error(e);
+        }finally {
+            CuratorHelper.close(client);
+        }
+        return metricList;
     }
 }

@@ -16,7 +16,7 @@ public class GlobalConstants {
     
     public static final String WORKER_GROUP = "/thales/workers";
     
-    public static final String STRATEGY_GROUP = "/thales/strategy";
-    
+    public static final String MASTER_LOCK = "/thales/lock";
+        
     public static final String ROOT_GROUP = "/thales";
 }

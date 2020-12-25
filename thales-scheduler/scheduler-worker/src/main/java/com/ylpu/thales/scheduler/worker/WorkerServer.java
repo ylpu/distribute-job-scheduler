@@ -140,7 +140,7 @@ public class WorkerServer {
     
     private boolean isValidateGroup(String quorum,int sessionTimeout,int connectionTimeout,String groupName) throws Exception {
         CuratorFramework client = CuratorHelper.getCuratorClient(quorum, sessionTimeout, connectionTimeout);
-        List<String> list = CuratorHelper.getChildren(client, GlobalConstants.STRATEGY_GROUP);
+        List<String> list = CuratorHelper.getChildren(client, GlobalConstants.WORKER_GROUP);
         if(list != null && list.size() > 0 && list.contains(groupName)) {
             return true;
         }

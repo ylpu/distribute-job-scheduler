@@ -1,6 +1,7 @@
 package com.ylpu.thales.scheduler.controller;
 
 import com.ylpu.thales.scheduler.response.JobTypeSummaryResponse;
+import com.ylpu.thales.scheduler.response.MasterUsageResponse;
 import com.ylpu.thales.scheduler.response.SchedulerResponse;
 import com.ylpu.thales.scheduler.response.TaskSummaryResponse;
 import com.ylpu.thales.scheduler.response.WorkerSummaryResponse;
@@ -40,6 +41,18 @@ public class ChartController {
     @RequestMapping(value = "/getTaskSummary", method = RequestMethod.GET)
     public SchedulerResponse<List<TaskSummaryResponse>> getTaskSummary() {
         return new SchedulerResponse<List<TaskSummaryResponse>>(jobInstanceService.getTaskSummary());
+    }
+    
+    @ResponseBody
+    @RequestMapping(value = "/getMasterCpuUsage", method = RequestMethod.GET)
+    public SchedulerResponse<List<MasterUsageResponse>> getMasterCpuUsage() {
+        return new SchedulerResponse<List<MasterUsageResponse>>(workerService.getMasterCpuUsage());
+    }
+    
+    @ResponseBody
+    @RequestMapping(value = "/getMasterMemoryUsage", method = RequestMethod.GET)
+    public SchedulerResponse<List<MasterUsageResponse>> getMasterMemoryUsage() {
+        return new SchedulerResponse<List<MasterUsageResponse>>(workerService.getMasterMemoryUsage());
     }
     
     @ResponseBody

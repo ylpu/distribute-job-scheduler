@@ -3,6 +3,7 @@ package com.ylpu.thales.scheduler.service;
 import java.util.List;
 import com.github.pagehelper.PageInfo;
 import com.ylpu.thales.scheduler.request.WorkerRequest;
+import com.ylpu.thales.scheduler.response.MasterUsageResponse;
 import com.ylpu.thales.scheduler.response.WorkerResponse;
 import com.ylpu.thales.scheduler.response.WorkerUsageResponse;
 
@@ -17,5 +18,9 @@ public interface WorkerService {
     public List<WorkerUsageResponse> getWorkerMemoryUsage();
     
     public void markDown(WorkerRequest request, Object object);
+    
+    public List<MasterUsageResponse> getMasterCpuUsage();
+    
+    public List<MasterUsageResponse> getMasterMemoryUsage();
 
 }
