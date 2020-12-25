@@ -3,16 +3,16 @@ package com.ylpu.thales.scheduler.service.impl;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import java.util.stream.Collectors;
 import javax.transaction.Transactional;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.zookeeper.CreateMode;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.github.pagehelper.Page;
-import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.ylpu.thales.scheduler.common.config.Configuration;
 import com.ylpu.thales.scheduler.common.constants.GlobalConstants;
@@ -21,15 +21,15 @@ import com.ylpu.thales.scheduler.common.dao.BaseDao;
 import com.ylpu.thales.scheduler.common.service.impl.BaseServiceImpl;
 import com.ylpu.thales.scheduler.dao.GroupStrategyMapper;
 import com.ylpu.thales.scheduler.entity.GroupStrategy;
-import com.ylpu.thales.scheduler.request.GroupStrategyRequest;
-import com.ylpu.thales.scheduler.response.GroupStrategyResponse;
-import com.ylpu.thales.scheduler.service.GroupStrategyService;
+import com.ylpu.thales.scheduler.request.WorkerGroupRequest;
+import com.ylpu.thales.scheduler.response.WorkerGroupResponse;
+import com.ylpu.thales.scheduler.service.WorkerGroupService;
 
 @Service
 @Transactional
-public class GroupStrategyServiceImpl extends BaseServiceImpl<GroupStrategy, Integer> implements GroupStrategyService {
+public class WorkerGroupServiceImpl extends BaseServiceImpl<GroupStrategy, Integer> implements WorkerGroupService {
     
-    private static final Log LOG = LogFactory.getLog(GroupStrategyServiceImpl.class);
+    private static final Log LOG = LogFactory.getLog(WorkerGroupServiceImpl.class);
 
     @Autowired
     private GroupStrategyMapper groupStrategyMapper;
@@ -40,15 +40,15 @@ public class GroupStrategyServiceImpl extends BaseServiceImpl<GroupStrategy, Int
     }
 
     @Override
-    public void addGroupStrategy(GroupStrategyRequest groupStrategryRequest) {
-        // TODO Auto-generated method stub
-        List<GroupStrategy> list = groupStrategyMapper.getGroupStrategy(groupStrategryRequest.getGroupName());
-        if(list != null && list.size() >= 1) {
+    public void addGroupStrategy(WorkerGroupRequest groupStrategryRequest) {
+
+        List<WorkerGroupResponse> groupList = getAllGroups();
+        if(StringUtils.isNoneBlank(groupStrategryRequest.getGroupName())) {
+            groupList = groupList.stream().filter(request -> request.getGroupName().equalsIgnoreCase(groupStrategryRequest.getGroupName())).collect(Collectors.toList());
+        }
+        if(groupList != null && groupList.size() >= 1) {
             throw new RuntimeException("group 已经存在");
         }
-        GroupStrategy record = new GroupStrategy();
-        BeanUtils.copyProperties(groupStrategryRequest, record);
-        groupStrategyMapper.insertSelective(record);
         
         Properties prop = Configuration.getConfig();
         String quorum = prop.getProperty("thales.zookeeper.quorum");
@@ -75,11 +75,7 @@ public class GroupStrategyServiceImpl extends BaseServiceImpl<GroupStrategy, Int
     }
 
     @Override
-    public void updateGroupStrategy(GroupStrategyRequest groupStrategryRequest) {
-        // TODO Auto-generated method stub
-        GroupStrategy record = new GroupStrategy();
-        BeanUtils.copyProperties(groupStrategryRequest, record);
-        groupStrategyMapper.updateByPrimaryKeySelective(record);
+    public void updateGroupStrategy(WorkerGroupRequest groupStrategryRequest) {
 
         Properties prop = Configuration.getConfig();
         String quorum = prop.getProperty("thales.zookeeper.quorum");
@@ -100,48 +96,60 @@ public class GroupStrategyServiceImpl extends BaseServiceImpl<GroupStrategy, Int
             }
         }
     }
-
+    
     @Override
-    public GroupStrategyResponse getGroupStrategy(String groupName) {
-        // TODO Auto-generated method stub
-        GroupStrategyResponse response = new GroupStrategyResponse();
-        List<GroupStrategy> groupStrategies = groupStrategyMapper.getGroupStrategy(groupName);
-        if(groupStrategies == null || groupStrategies.size() == 0) {
-            return response;
+    public PageInfo<WorkerGroupResponse> findAll(String groupName,int pageNo, int pageSize) {
+
+        Page<WorkerGroupResponse> page = new Page<WorkerGroupResponse>();
+        List<WorkerGroupResponse> groupList = getAllGroups();
+        if(StringUtils.isNoneBlank(groupName)) {
+            groupList = groupList.stream().filter(request -> request.getGroupName().equalsIgnoreCase(groupName)).collect(Collectors.toList());
         }
-        BeanUtils.copyProperties(groupStrategies.get(0), response);
-        return response;
-    }
-
-    @Override
-    public PageInfo<GroupStrategyResponse> findAll(String groupName,int pageNo, int pageSize) {
-        PageHelper.startPage(pageNo, pageSize);
-        List<GroupStrategy> groupList = groupStrategyMapper.findAll(groupName);
-        GroupStrategyResponse groupStrategyResponse = null;
-        Page<GroupStrategyResponse> page = new Page<GroupStrategyResponse>();
+        int total = groupList.size();
         if (groupList != null && groupList.size() > 0) {
-            for (GroupStrategy group : groupList) {
-                groupStrategyResponse = new GroupStrategyResponse();
-                BeanUtils.copyProperties(group, groupStrategyResponse);
-                page.add(groupStrategyResponse);
+            for(int i = (pageNo-1) * pageSize; i< getEndIndex(pageNo,pageSize,total); i++) {
+                page.add(groupList.get(i));
             }
         }
-        page.setTotal(groupStrategyMapper.getGroupCount(groupName));
-        PageInfo<GroupStrategyResponse> pageInfo = new PageInfo<GroupStrategyResponse>(page);
+        page.setTotal(groupList.size());
+        PageInfo<WorkerGroupResponse> pageInfo = new PageInfo<WorkerGroupResponse>(page);
         return pageInfo;
     }
-
-    @Override
-    public List<GroupStrategyResponse> getAllGroupStrategy() {
-        List<GroupStrategy> groupList = groupStrategyMapper.findAll("");
-        GroupStrategyResponse groupStrategyResponse = null;
-        List<GroupStrategyResponse> list = new ArrayList<GroupStrategyResponse>();
-        if (groupList != null && groupList.size() > 0) {
-            for (GroupStrategy group : groupList) {
-                groupStrategyResponse = new GroupStrategyResponse();
-                BeanUtils.copyProperties(group, groupStrategyResponse);
-                list.add(groupStrategyResponse);
+    
+    private int getEndIndex(int pageNo, int pageSize, int total) {
+        int end = pageNo * pageSize;
+        if(end < total) {
+            return end;
+        }
+        return total;
+    }
+    
+    private List<WorkerGroupResponse> getAllGroups(){
+        WorkerGroupResponse groupStrategyResponse = new WorkerGroupResponse();
+        List<WorkerGroupResponse> list = new ArrayList<WorkerGroupResponse>();
+        Properties prop = Configuration.getConfig(GlobalConstants.CONFIG_FILE);
+        String quorum = prop.getProperty("thales.zookeeper.quorum");
+        int sessionTimeout = Configuration.getInt(prop, "thales.zookeeper.sessionTimeout",
+                GlobalConstants.ZOOKEEPER_SESSION_TIMEOUT);
+        int connectionTimeout = Configuration.getInt(prop, "thales.zookeeper.connectionTimeout",
+                GlobalConstants.ZOOKEEPER_CONNECTION_TIMEOUT);
+        CuratorFramework client  = CuratorHelper.getCuratorClient(quorum, sessionTimeout, connectionTimeout);
+        List<String> groupList;
+        try {
+            groupList = CuratorHelper.getChildren(client, GlobalConstants.WORKER_GROUP);
+            if(groupList != null && groupList.size() > 0) {
+                for(String group : groupList) {
+                    groupStrategyResponse = new WorkerGroupResponse();
+                    byte[] bytes = CuratorHelper.getData(client, GlobalConstants.WORKER_GROUP + "/" + group);
+                    groupStrategyResponse.setGroupName(group);
+                    groupStrategyResponse.setGroupStrategy(new String(bytes));
+                    list.add(groupStrategyResponse);
+                }
             }
+        } catch (Exception e) {
+            LOG.error(e);
+        }finally {
+            CuratorHelper.close(client);
         }
         return list;
     }

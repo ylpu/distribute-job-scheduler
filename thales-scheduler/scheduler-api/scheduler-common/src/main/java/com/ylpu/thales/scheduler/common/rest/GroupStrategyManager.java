@@ -1,7 +1,7 @@
 package com.ylpu.thales.scheduler.common.rest;
 
 import org.springframework.http.ResponseEntity;
-import com.ylpu.thales.scheduler.request.GroupStrategyRequest;
+import com.ylpu.thales.scheduler.request.WorkerGroupRequest;
 
 public class GroupStrategyManager {
 //
