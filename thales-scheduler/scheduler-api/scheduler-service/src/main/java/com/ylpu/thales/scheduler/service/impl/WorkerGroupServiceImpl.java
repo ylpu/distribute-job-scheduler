@@ -138,12 +138,15 @@ public class WorkerGroupServiceImpl extends BaseServiceImpl<GroupStrategy, Integ
         try {
             groupList = CuratorHelper.getChildren(client, GlobalConstants.WORKER_GROUP);
             if(groupList != null && groupList.size() > 0) {
+                int id = 1;
                 for(String group : groupList) {
                     groupStrategyResponse = new WorkerGroupResponse();
                     byte[] bytes = CuratorHelper.getData(client, GlobalConstants.WORKER_GROUP + "/" + group);
+                    groupStrategyResponse.setId(id);
                     groupStrategyResponse.setGroupName(group);
                     groupStrategyResponse.setGroupStrategy(new String(bytes));
                     list.add(groupStrategyResponse);
+                    id++;
                 }
             }
         } catch (Exception e) {
