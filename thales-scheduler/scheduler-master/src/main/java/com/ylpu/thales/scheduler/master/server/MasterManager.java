@@ -52,7 +52,7 @@ public class MasterManager {
     // key is hostname,value is host info
     private Map<String, WorkerResponse> resourceMap = new HashMap<String, WorkerResponse>();
     
-    private Map<String, String> groupStrategyMap = new HashMap<String, String>();
+    private Map<String, String> workerGroupMap = new HashMap<String, String>();
 
     // key is hostname,value is tasknumbers
     private Map<String, Integer> taskMap = new HashMap<String, Integer>();
@@ -225,9 +225,9 @@ public class MasterManager {
         if (strategyList != null && strategyList.size() > 0) {
             for (String groupName : strategyList) {
                 byte[] bytes = CuratorHelper.getData(strategyClient, GlobalConstants.WORKER_GROUP + "/" + groupName);
-                groupStrategyMap.put(groupName, new String(bytes));
+                workerGroupMap.put(groupName, new String(bytes));
             }
-            addStrategyChangeListener(client, GlobalConstants.WORKER_GROUP);
+            addGroupChangeListener(client, GlobalConstants.WORKER_GROUP);
         }
 
 //        恢复任务状态，比较耗时
@@ -240,7 +240,7 @@ public class MasterManager {
         // 加载任务实例状态，比较耗时
         restoreTaskState();
         // 启动任务状态检查线程
-        JobStatusChecker.start();
+        JobStatusChecker.init();
         // 调度所有任务
         JobScheduler.startJobs();
         // 初始化每台机器运行的任务个数,供监控使用
@@ -413,7 +413,7 @@ public class MasterManager {
     }
     
     @SuppressWarnings({ "resource", "deprecation" })
-    private void addStrategyChangeListener(CuratorFramework client, final String groupPath) {
+    private void addGroupChangeListener(CuratorFramework client, final String groupPath) {
         PathChildrenCache pcCache = new PathChildrenCache(client, groupPath, true);
         try {
             pcCache.start(PathChildrenCache.StartMode.POST_INITIALIZED_EVENT);
@@ -426,20 +426,20 @@ public class MasterManager {
                         byte[] addedBytes = CuratorHelper.getData(client, addedPath);
                         String addedValue = new String(addedBytes);
                         String addGroupName = addedPath.substring(addedPath.lastIndexOf("/") + 1);
-                        groupStrategyMap.put(addGroupName, addedValue);
+                        workerGroupMap.put(addGroupName, addedValue);
                         break;
                     case CHILD_REMOVED:
                         String removedPath = pathChildrenCacheEvent.getData().getPath();
                         LOG.info("removed node" + removedPath);
                         String removeGroupName = removedPath.substring(removedPath.lastIndexOf("/") + 1);
-                        groupStrategyMap.remove(removeGroupName);
+                        workerGroupMap.remove(removeGroupName);
                         break;
                     case CHILD_UPDATED:
                         String udpatedPath = pathChildrenCacheEvent.getData().getPath();
                         byte[] updateBytes = CuratorHelper.getData(curatorFramework, udpatedPath);
                         String updateValue = new String(updateBytes);
                         String updateGroupName = udpatedPath.substring(udpatedPath.lastIndexOf("/") + 1);
-                        groupStrategyMap.put(updateGroupName, new String(updateValue));
+                        workerGroupMap.put(updateGroupName, new String(updateValue));
                     default:
                         break;
                     }
@@ -490,9 +490,9 @@ public class MasterManager {
      */
     public synchronized WorkerResponse getIdleWorker(String groupName, String... lastFailedWorkers) throws Exception {
 //        String workerStrategy = GroupStrategyManager.getGroupStrategy(groupName).getGroupStrategy();
-        String workerStrategy = groupStrategyMap.get(groupName);
+        String groupStrategy = workerGroupMap.get(groupName);
         WorkerSelectStrategy workerSelectStrategy = ResourceStrategy
-                .getStrategy(JobStrategy.getJobStrategyByName(workerStrategy));
+                .getStrategy(JobStrategy.getJobStrategyByName(groupStrategy),groupName);
         return new ResourceStrategyContext(workerSelectStrategy).select(this, groupName, lastFailedWorkers);
 
     }

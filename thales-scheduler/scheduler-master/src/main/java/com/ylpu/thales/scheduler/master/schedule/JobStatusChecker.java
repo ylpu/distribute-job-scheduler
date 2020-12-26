@@ -42,11 +42,19 @@ public class JobStatusChecker {
     
     private static final long TIMEOUT_CHECK_INTERVAL = 60;
     
-    private static ExecutorService queueThreadPool = Executors.newFixedThreadPool(1);
+    private static ExecutorService queueThreadPool = null;
     
-    private static ExecutorService dependencyThreadPool = Executors.newFixedThreadPool(1);
+    private static ExecutorService dependencyThreadPool = null;
 
-    public static void start() {
+    public static void init() {
+        
+        int queueThreadPoolCount = Configuration.getInt(Configuration.getConfig(GlobalConstants.CONFIG_FILE),
+                "thales.master.status.queue.checker.threadpool", 1);
+        int dependencyThreadPoolCount = Configuration.getInt(Configuration.getConfig(GlobalConstants.CONFIG_FILE),
+                "thales.master.status.dependency.checker.threadpool", 1);
+        queueThreadPool = Executors.newFixedThreadPool(queueThreadPoolCount);
+        dependencyThreadPool = Executors.newFixedThreadPool(dependencyThreadPoolCount);
+        
         ExecutorService es = Executors.newFixedThreadPool(2);
         es.execute(new JobStatusCheckThread());
         es.execute(new TimeoutThread());

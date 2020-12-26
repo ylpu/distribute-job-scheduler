@@ -5,25 +5,24 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class ResourceStrategy {
 
-    private static Map<JobStrategy, WorkerSelectStrategy> strategyMap = new ConcurrentHashMap<JobStrategy, WorkerSelectStrategy>();
+    private static Map<JobStrategy, Class<? extends WorkerSelectStrategy>> strategyMap = new ConcurrentHashMap<JobStrategy, Class<? extends WorkerSelectStrategy>>();
+    
+    private static Map<String, WorkerSelectStrategy> groupStrategyMap = new ConcurrentHashMap<String, WorkerSelectStrategy>();
 
     static {
-        strategyMap.put(JobStrategy.MEMORY, new MemoryFreeStrategy());
-        strategyMap.put(JobStrategy.CPU, new CpuIdleStrategy());
-        strategyMap.put(JobStrategy.TASK, new TaskIdleStrategy());
-        strategyMap.put(JobStrategy.RANDOM, new RandomStrategy());
-        strategyMap.put(JobStrategy.ROBIN, new RoundRobinStrategy());
+        strategyMap.put(JobStrategy.MEMORY, MemoryFreeStrategy.class);
+        strategyMap.put(JobStrategy.CPU, CpuIdleStrategy.class);
+        strategyMap.put(JobStrategy.TASK, TaskIdleStrategy.class);
+        strategyMap.put(JobStrategy.RANDOM, RandomStrategy.class);
+        strategyMap.put(JobStrategy.ROBIN, RoundRobinStrategy.class);
     }
 
-    public static void addStrategy(JobStrategy key, WorkerSelectStrategy serverSelectStrategy) {
-        strategyMap.put(key, serverSelectStrategy);
-    }
-
-    public static WorkerSelectStrategy getStrategy(JobStrategy taskStrategy) {
-        WorkerSelectStrategy strategy = strategyMap.get(taskStrategy);
-        if (strategy == null) {
-            strategy = new MemoryFreeStrategy();
+    public static WorkerSelectStrategy getStrategy(JobStrategy jobStrategy,String groupName) throws InstantiationException, IllegalAccessException {
+        WorkerSelectStrategy strategy = groupStrategyMap.get(groupName);
+        if(strategy == null) {
+            WorkerSelectStrategy strategyInstance = (WorkerSelectStrategy)strategyMap.get(jobStrategy).newInstance();
+            groupStrategyMap.put(groupName, strategyInstance);
         }
-        return strategy;
+        return groupStrategyMap.get(groupName);
     }
 }
