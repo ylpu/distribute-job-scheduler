@@ -74,12 +74,12 @@ alert主要提供告警功能：
 # 系统运行
 * git clone https://github.com/ylpu/distribute-job-scheduler.git ,将项目导入到intellij或eclipse中并安装lombok.
 * 本地安装mysql,zookeeper,如非本地安装，需要修改controller,master,worker里config.properties,application.yml中的zookeeper和mysql地址和端口
-* 在distribute-job-scheduler中执行mvn clean install -Dmaven.test.skip=true
 * 在mysql数据库中执行语句
   * distribute-job-scheduler/thales-scheduler/sql/thales-scheduler.sql
   * insert into t_thales_scheduler_user(user_name,password,create_time,update_time) values ('test','test',CURRENT_TIMESTAMP,CURRENT_TIMESTAMP);
   * insert into t_thales_scheduler_role(role_name,create_time,update_time) values ('ROLE_ADMIN',CURRENT_TIMESTAMP,CURRENT_TIMESTAMP);
   * insert into t_thales_scheduler_user_role(user_id,role_id,create_time,update_time) values ($user_id,$role_id,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP);(其中$user_id,$role_id为上面插入语句的相应id)
+* 在distribute-job-scheduler中执行mvn clean install -Dmaven.test.skip=true
 * 依次执行如下脚本
   * scheduler-api/scheduler-controller/bin/start-api.sh start ,启动成功后可以通过http://localhost:8085/swagger-ui.html 查看接口文档
   * scheduler-master/bin/start-master.sh start,启动成功后可以通过 http://localhost:9095/ 查看master jmx信息
