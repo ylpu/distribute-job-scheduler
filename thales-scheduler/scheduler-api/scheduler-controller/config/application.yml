@@ -1,0 +1,36 @@
+# Server settings
+server:
+    port: 8085
+# DATASOURCE
+jdbc:
+    dataSourceClassName: com.mysql.jdbc.jdbc2.optional.MysqlDataSource
+    url: jdbc:mysql://localhost:3306/thales?allowMultiQueries=true&useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&useSSL=false
+    databaseName: thales
+    serverName: thales-dev
+    username: root
+    password: 12345678
+    cachePrepStmts: true
+    prepStmtsSize: 250
+    prepStmtsCacheSqlLimit: 2048
+    userServerPrepStmts: true
+    maximumPoolSize: 50
+    connectionTimeout: 300000
+
+# SPRING PROFILES
+spring:       
+    # HTTP ENCODING
+    http:
+        encoding.charset: UTF-8
+        encoding.enable: true
+        encoding.force: true
+
+# MyBatis
+mybatis:
+    typeAliasesPackage: com.ylpu.thales.scheduler.entity
+    mapperLocations: classpath:/mappers/*.xml
+    configLocation: classpath:/mybatis-config.xml
+
+# LOGGING
+logging:
+    level:
+       com.ylpu.thales.scheduler.dao:DEBUG

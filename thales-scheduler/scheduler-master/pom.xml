@@ -67,6 +67,59 @@
   </dependencies>
      <build>
         <plugins>
+             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-resources-1</id>
+                        <!-- 绑定到 maven 生命周期的哪一节段 -->
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <encoding>UTF-8</encoding>
+                            <!-- ${project.build.outputDirectory} 为构建过程输出目录，缺省为target/classes -->
+                            <outputDirectory>${project.build.directory}/../config</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <!-- 需要拷贝的资源文件位置 -->
+                                    <directory>src/main/resources</directory>
+                                    <includes>
+                                       <include>*.*</include>
+                                    </includes>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>copy-resources-2</id>
+                        <!-- 绑定到 maven 生命周期的哪一节段 -->
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <encoding>UTF-8</encoding>
+                            <!-- ${project.build.outputDirectory} 为构建过程输出目录，缺省为target/classes -->
+                            <outputDirectory>${project.build.directory}/../bin</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <!-- 需要拷贝的资源文件位置 -->
+                                    <directory>src/script</directory>
+                                    <includes>
+                                       <include>*.*</include>
+                                    </includes>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+                <configuration>
+                    <encoding>UTF-8</encoding>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
