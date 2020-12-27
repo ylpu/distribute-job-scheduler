@@ -66,7 +66,7 @@ public abstract class AbstractCommonExecutor {
     public void killProcess() throws Exception {
         Integer pid = requestRpc.getPid();
         if (pid != null) {
-            TaskProcessUtils.execCommand("./src/script/killProcess.sh", "/tmp/pid/" + pid + ".out",
+            TaskProcessUtils.execCommand("./bin/killProcess.sh", "/tmp/pid/" + pid + ".out",
                     "/tmp/pid/" + pid + ".error", pid);
         }
     }
