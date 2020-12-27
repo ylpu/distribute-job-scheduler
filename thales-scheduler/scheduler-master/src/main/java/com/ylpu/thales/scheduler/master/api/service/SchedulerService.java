@@ -122,6 +122,7 @@ public class SchedulerService {
                 || jobInstanceResponse.getTaskState() == TaskState.KILL) {
             JobStatusChecker.getResponses().remove(responseId);
         }
+        JobStatusChecker.getMailMap().remove(responseId);
     }
     
     private void removeJobDependency(JobInstanceResponse jobInstanceResponse,String jobRequestId) {
