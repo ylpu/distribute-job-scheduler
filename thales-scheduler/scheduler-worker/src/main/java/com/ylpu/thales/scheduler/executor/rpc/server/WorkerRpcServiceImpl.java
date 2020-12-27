@@ -127,6 +127,9 @@ public class WorkerRpcServiceImpl extends GrpcJobServiceGrpc.GrpcJobServiceImplB
             jobMetric.decreaseTask();
         } catch (Exception e) {
             LOG.error("fail to transit task " + requestRpc.getId() + " to kill with exception "+ e);
+            builder.setTaskState(TaskState.RUNNING.getCode())
+            .setErrorCode(500)
+            .setErrorMsg("");
         } finally {
             statusMap.remove(requestRpc.getRequestId());
             processResponse(responseObserver,builder);

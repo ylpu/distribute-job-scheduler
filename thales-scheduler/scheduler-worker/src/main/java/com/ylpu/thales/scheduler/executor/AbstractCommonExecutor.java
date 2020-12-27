@@ -66,8 +66,13 @@ public abstract class AbstractCommonExecutor {
     public void killProcess() throws Exception {
         Integer pid = requestRpc.getPid();
         if (pid != null) {
-            TaskProcessUtils.execCommand("./bin/killProcess.sh", "/tmp/pid/" + pid + ".out",
+            String classpath = System.getProperty("java.class.path");
+            String binDir = classpath.substring(0,classpath.indexOf("target"));
+            int returnCode = TaskProcessUtils.execCommand(binDir + "/bin/killProcess.sh", "/tmp/pid/" + pid + ".out",
                     "/tmp/pid/" + pid + ".error", pid);
+            if(returnCode != 0) {
+                throw new RuntimeException("failed to kill task " + requestRpc.getId());
+            }
         }
     }
 
@@ -178,5 +183,10 @@ public abstract class AbstractCommonExecutor {
             }
         }
         return fileContent;
+    }
+    
+    public static void main(String[] args) {
+        String relativelyPath=System.getProperty("user.dir"); 
+        System.out.println(relativelyPath);
     }
 }

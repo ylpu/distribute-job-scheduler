@@ -30,8 +30,13 @@ public class HiveExecutor extends AbstractCommonExecutor {
         killProcess();
         Properties prop = Configuration.getConfig();
         String hadoopHome = Configuration.getString(prop, "hadoop.home", "");
-        TaskProcessUtils.execCommand("./bin/killMR.sh", "/tmp/pid/" + requestRpc.getPid() + ".out",
+        String classpath = System.getProperty("java.class.path");
+        String binDir = classpath.substring(0,classpath.indexOf("target"));
+        int returnCode = TaskProcessUtils.execCommand(binDir + "/bin/script/killMR.sh", "/tmp/pid/" + requestRpc.getPid() + ".out",
                 "/tmp/pid/" + requestRpc.getPid() + ".error", getJobName(), hadoopHome);
+        if(returnCode != 0) {
+            throw new RuntimeException("failed to kill task " + requestRpc.getId());
+        }
     }
 
     @Override
