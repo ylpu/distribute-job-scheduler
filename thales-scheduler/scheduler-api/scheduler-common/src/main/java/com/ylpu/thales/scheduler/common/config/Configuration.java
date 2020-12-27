@@ -39,15 +39,6 @@ public class Configuration {
                 () -> Configuration.class.getClassLoader().getResourceAsStream(GlobalConstants.CONFIG_FILE));
     }
 
-    public static Properties getConfig(String propFileName) {
-        String config = System.getProperty("config.file");
-        if(StringUtils.isNoneBlank(config)) {
-            propFileName = config;
-        }
-        return getConfig(propFileName,
-                () -> Configuration.class.getClassLoader().getResourceAsStream(GlobalConstants.CONFIG_FILE));
-    }
-
     private static Properties getConfig(String propFileName, Supplier<InputStream> supplier) {
         Properties config = configMap.get(propFileName);
         if (config == null) {

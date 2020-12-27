@@ -84,8 +84,8 @@ public class WorkerServiceImpl extends BaseServiceImpl<BaseEntity, Serializable>
     
     public List<WorkerRequest> getAllWorkers(){
         List<WorkerRequest> list = new ArrayList<WorkerRequest>();
-        Properties prop = Configuration.getConfig(GlobalConstants.CONFIG_FILE);
-        String quorum = prop.getProperty("thales.zookeeper.quorum");
+        Properties prop = Configuration.getConfig();
+        String quorum =  Configuration.getString(prop, "thales.zookeeper.quorum", "");
         int sessionTimeout = Configuration.getInt(prop, "thales.zookeeper.sessionTimeout",
                 GlobalConstants.ZOOKEEPER_SESSION_TIMEOUT);
         int connectionTimeout = Configuration.getInt(prop, "thales.zookeeper.connectionTimeout",
@@ -117,8 +117,8 @@ public class WorkerServiceImpl extends BaseServiceImpl<BaseEntity, Serializable>
     @Override
     public List<String> getWorkerGroups() {
         
-        Properties prop = Configuration.getConfig(GlobalConstants.CONFIG_FILE);
-        String quorum = prop.getProperty("thales.zookeeper.quorum");
+        Properties prop = Configuration.getConfig();
+        String quorum =  Configuration.getString(prop, "thales.zookeeper.quorum", "");
         int sessionTimeout = Configuration.getInt(prop, "thales.zookeeper.sessionTimeout",
                 GlobalConstants.ZOOKEEPER_SESSION_TIMEOUT);
         int connectionTimeout = Configuration.getInt(prop, "thales.zookeeper.connectionTimeout",
@@ -209,8 +209,8 @@ public class WorkerServiceImpl extends BaseServiceImpl<BaseEntity, Serializable>
     @Override
     public List<MasterUsageResponse> getMasterCpuUsage() {
         List<MasterUsageResponse> metricList = new ArrayList<MasterUsageResponse>();
-        Properties prop = Configuration.getConfig(GlobalConstants.CONFIG_FILE);
-        String quorum = prop.getProperty("thales.zookeeper.quorum");
+        Properties prop = Configuration.getConfig();
+        String quorum =  Configuration.getString(prop, "thales.zookeeper.quorum", "");
         int sessionTimeout = Configuration.getInt(prop, "thales.zookeeper.sessionTimeout",
                 GlobalConstants.ZOOKEEPER_SESSION_TIMEOUT);
         int connectionTimeout = Configuration.getInt(prop, "thales.zookeeper.connectionTimeout",
@@ -242,8 +242,8 @@ public class WorkerServiceImpl extends BaseServiceImpl<BaseEntity, Serializable>
     @Override
     public List<MasterUsageResponse> getMasterMemoryUsage() {
         List<MasterUsageResponse> metricList = new ArrayList<MasterUsageResponse>();
-        Properties prop = Configuration.getConfig(GlobalConstants.CONFIG_FILE);
-        String quorum = prop.getProperty("thales.zookeeper.quorum");
+        Properties prop = Configuration.getConfig();
+        String quorum =  Configuration.getString(prop, "thales.zookeeper.quorum", "");
         int sessionTimeout = Configuration.getInt(prop, "thales.zookeeper.sessionTimeout",
                 GlobalConstants.ZOOKEEPER_SESSION_TIMEOUT);
         int connectionTimeout = Configuration.getInt(prop, "thales.zookeeper.connectionTimeout",

@@ -66,8 +66,8 @@ public abstract class BaseServiceImpl<T extends BaseEntity, D extends Serializab
     }
     
     public static String getMasterServiceUri() {
-        Properties prop = Configuration.getConfig(GlobalConstants.CONFIG_FILE);
-        String quorum = prop.getProperty("thales.zookeeper.quorum");
+        Properties prop = Configuration.getConfig();
+        String quorum =  Configuration.getString(prop, "thales.zookeeper.quorum", "");
         int sessionTimeout = Configuration.getInt(prop, "thales.zookeeper.sessionTimeout",
                 GlobalConstants.ZOOKEEPER_SESSION_TIMEOUT);
         int connectionTimeout = Configuration.getInt(prop, "thales.zookeeper.connectionTimeout",

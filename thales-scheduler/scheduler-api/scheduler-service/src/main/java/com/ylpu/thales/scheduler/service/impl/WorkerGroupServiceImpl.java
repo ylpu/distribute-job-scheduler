@@ -127,8 +127,8 @@ public class WorkerGroupServiceImpl extends BaseServiceImpl<GroupStrategy, Integ
     private List<WorkerGroupResponse> getAllGroups(){
         WorkerGroupResponse groupStrategyResponse = new WorkerGroupResponse();
         List<WorkerGroupResponse> list = new ArrayList<WorkerGroupResponse>();
-        Properties prop = Configuration.getConfig(GlobalConstants.CONFIG_FILE);
-        String quorum = prop.getProperty("thales.zookeeper.quorum");
+        Properties prop = Configuration.getConfig();
+        String quorum =  Configuration.getString(prop, "thales.zookeeper.quorum", "");
         int sessionTimeout = Configuration.getInt(prop, "thales.zookeeper.sessionTimeout",
                 GlobalConstants.ZOOKEEPER_SESSION_TIMEOUT);
         int connectionTimeout = Configuration.getInt(prop, "thales.zookeeper.connectionTimeout",

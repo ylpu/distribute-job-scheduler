@@ -14,6 +14,7 @@ import com.ylpu.thales.scheduler.request.JobInstanceRequest;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
@@ -48,9 +49,10 @@ public class JobStatusChecker {
 
     public static void init() {
         
-        int queueThreadPoolCount = Configuration.getInt(Configuration.getConfig(GlobalConstants.CONFIG_FILE),
+        Properties prop = Configuration.getConfig();
+        int queueThreadPoolCount = Configuration.getInt(prop,
                 "thales.master.status.queue.checker.threadpool", 1);
-        int dependencyThreadPoolCount = Configuration.getInt(Configuration.getConfig(GlobalConstants.CONFIG_FILE),
+        int dependencyThreadPoolCount = Configuration.getInt(prop,
                 "thales.master.status.dependency.checker.threadpool", 1);
         queueThreadPool = Executors.newFixedThreadPool(queueThreadPoolCount);
         dependencyThreadPool = Executors.newFixedThreadPool(dependencyThreadPoolCount);
@@ -106,7 +108,8 @@ public class JobStatusChecker {
      */
     private static class JobStatusCheckThread extends Thread {
         public void run() {
-            long interval = Configuration.getLong(Configuration.getConfig(GlobalConstants.CONFIG_FILE),
+            Properties prop = Configuration.getConfig();
+            long interval = Configuration.getLong(prop,
                     "thales.scheduler.job.check.interval", JOB_DEPENDENCY_CHECK_INTERVAL);
             while (!stop) {
                 for (Entry<List<JobDependency>, String> entry : dependsMap.entrySet()) {
@@ -187,7 +190,8 @@ public class JobStatusChecker {
 
     private static class TimeoutThread extends Thread {
         public void run() {
-            long interval = Configuration.getLong(Configuration.getConfig(GlobalConstants.CONFIG_FILE),
+            Properties prop = Configuration.getConfig();
+            long interval = Configuration.getLong(prop,
                     "thales.scheduler.timeout.check.interval", TIMEOUT_CHECK_INTERVAL);
             while (true) {
                 for (Entry<String, JobInstanceRequestRpc> entry : jobInstanceRequestMap.entrySet()) {
