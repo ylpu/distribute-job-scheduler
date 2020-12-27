@@ -2,6 +2,7 @@ package com.ylpu.thales.scheduler.master.schedule;
 
 import java.util.Properties;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.quartz.CronScheduleBuilder;
@@ -26,7 +27,7 @@ public class JobScheduler {
 
     private static SchedulerFactory schedulerFactory = null;
 
-    private static final String QUARTZ_PROPERTIES_PATH = "quartz.properties";
+    private static String QUARTZ_PROPERTIES_PATH = "quartz.properties";
 
     static {
         init();
@@ -34,6 +35,11 @@ public class JobScheduler {
 
     private static void init() {
         try {
+            String quartzConfig = System.getProperty("quartz.configurationFile");
+            if(StringUtils.isNoneBlank(quartzConfig)) {
+                QUARTZ_PROPERTIES_PATH = quartzConfig;
+            }
+            LOG.info("start to load quartz config " + QUARTZ_PROPERTIES_PATH);
             schedulerFactory = new StdSchedulerFactory(QUARTZ_PROPERTIES_PATH);
         } catch (SchedulerException e) {
             LOG.error(e);

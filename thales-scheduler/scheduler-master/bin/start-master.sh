@@ -10,7 +10,7 @@ if [ "$#" -ne 1 ]
 fi
 
 function start(){
-    nohup java -Dconfig.file=$parent_dir/config/config.properties -jar $parent_dir/target/scheduler-master-1.0.0-release.jar &
+    nohup java -Dconfig.file=$parent_dir/config/config.properties -Dlog4j.configurationFile=$parent_dir/config/log4j2.xml -Dquartz.configurationFile=$parent_dir/config/quartz.properties -jar $parent_dir/target/scheduler-master-1.0.0-release.jar &
     code=$?
 
   if [ $code -eq 0 ]
