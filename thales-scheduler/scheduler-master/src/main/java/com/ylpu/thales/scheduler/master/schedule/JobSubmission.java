@@ -233,19 +233,24 @@ public class JobSubmission {
         public void run() {
             while (true) {
                 TaskCall taskCall = timeoutQueue.poll();
+                JobInstanceResponse jobInstanceResponse = null;
                 if(taskCall != null) {
                     try {
-                        JobInstanceResponse jobInstanceResponse = JobManager.getJobInstanceById(taskCall.getRpcRequest().getId());
-                        if(StringUtils.isNotBlank(jobInstanceResponse.getJobConf().getAlertUsers())) {
-                            Event event = new Event();
-                            setAlertEvent(event, jobInstanceResponse);
+                        jobInstanceResponse = JobManager.getJobInstanceById(taskCall.getRpcRequest().getId());
+                    }catch(Exception e) {
+                        LOG.error("failed to get task " + taskCall.getRpcRequest().getId() + " with exception " + e.getMessage());
+                    }
+                    if(StringUtils.isNotBlank(jobInstanceResponse.getJobConf().getAlertUsers())) {
+                        Event event = new Event();
+                        setAlertEvent(event, jobInstanceResponse);
+                        try {
                             eventBus.post(event);
 //                          防止重复发送
                             JobStatusChecker.getMailMap().put(taskCall.getRpcRequest().getRequestId(), 
-                                    taskCall.getRpcRequest().getRequestId());
+                                    taskCall.getRpcRequest().getRequestId()); 
+                        }catch(Exception e) {
+                            LOG.error("fail to send email for task " + taskCall.getRpcRequest().getId() + " with exception " + e.getMessage());
                         }
-                    } catch (Exception e) {
-                        LOG.error("failed to send alert for task " + taskCall.getRpcRequest().getId());
                     }
                 }
             }

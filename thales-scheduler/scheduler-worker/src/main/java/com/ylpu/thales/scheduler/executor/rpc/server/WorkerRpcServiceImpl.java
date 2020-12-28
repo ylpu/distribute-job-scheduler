@@ -88,7 +88,11 @@ public class WorkerRpcServiceImpl extends GrpcJobServiceGrpc.GrpcJobServiceImplB
                 Event event = new Event();
                 setAlertEvent(event, requestRpc.getJob(), request);
                 if(StringUtils.isNotBlank(requestRpc.getJob().getAlertUsers())) {
-                    eventBus.post(event);
+                    try {
+                        eventBus.post(event);
+                    }catch(Exception e1) {
+                        LOG.error("failed to send email for task " + requestRpc.getId() + " with exception " + e1.getMessage());
+                    }
                 }
             }
 
