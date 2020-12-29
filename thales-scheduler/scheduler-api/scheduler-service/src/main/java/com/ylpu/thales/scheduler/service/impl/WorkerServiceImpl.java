@@ -219,7 +219,7 @@ public class WorkerServiceImpl extends BaseServiceImpl<BaseEntity, Serializable>
         List<String> locks = null;
         try {
             locks = CuratorHelper.getChildren(client, GlobalConstants.MASTER_LOCK);
-            if(locks != null) {
+            if(locks != null && locks.size() > 0) {
                 List<String> masters = CuratorHelper.getChildren(client, GlobalConstants.MASTER_GROUP);
                 if(masters != null && masters.size() > 0) {
                     MasterUsageResponse cpu = new MasterUsageResponse();
@@ -252,7 +252,7 @@ public class WorkerServiceImpl extends BaseServiceImpl<BaseEntity, Serializable>
         List<String> locks = null;
         try {
             locks = CuratorHelper.getChildren(client, GlobalConstants.MASTER_LOCK);
-            if(locks != null) {
+            if(locks != null && locks.size() > 0) {
                 List<String> masters = CuratorHelper.getChildren(client, GlobalConstants.MASTER_GROUP);
                 if(masters != null && masters.size() > 0) {
                     MasterUsageResponse memory = new MasterUsageResponse();
