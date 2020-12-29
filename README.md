@@ -84,7 +84,7 @@ alert主要提供告警功能：
   * scheduler-api/scheduler-controller/bin/start-api.sh start ,启动成功后可以通过http://localhost:8085/swagger-ui.html 查看接口文档
   * scheduler-master/bin/start-master.sh start,启动成功后可以通过 http://localhost:9095/ 查看master jmx信息
   * scheduler-worker/bin/start-worker.sh start，启动后可以通过查看10001端口判断logserver是否成功(启动worker前确保通过页面执行组管理添加相应的执行器组）
-* 运行distribute-job-scheduler-frontend项目并以如上用户名，密码登陆
+* 运行distribute-job-scheduler-frontend(https://github.com/ylpu/distribute-job-scheduler-frontend) 项目并以如上用户名，密码登陆
 # 系统使用
 * 创建任务（创建任务后点击调度）
   * 任务名称 ： 任务名称，必须唯一
