@@ -58,6 +58,12 @@ public class WorkerServer {
             
             if(isValidateGroup(quorum,sessionTimeout,connectionTimeout,workerGroup)) {
                 Runtime.getRuntime().addShutdownHook(new ShutDownHookThread());
+                // 启动日志服务
+                logServer = new LogServer(prop);
+                logServer.startLogServer();
+                // 启动rpc服务
+                rpcServer = new WorkerRpcServer(workerServerPort);
+                rpcServer.startServer();
                 // 注册自己到zk
                 String workerPath = regist(quorum,sessionTimeout,connectionTimeout,workerGroup,workerServerPort);
                 // 启动心跳线程
@@ -65,12 +71,7 @@ public class WorkerServer {
                         heartBeatInterval);
                 heartBeatThread.setDaemon(true);
                 heartBeatThread.start();
-                // 启动日志服务
-                logServer = new LogServer(prop);
-                logServer.startLogServer();
-                // 启动rpc服务
-                rpcServer = new WorkerRpcServer(workerServerPort);
-                rpcServer.startServer();
+                
                 rpcServer.blockUntilShutdown();
             }
         } catch (Exception e) {
