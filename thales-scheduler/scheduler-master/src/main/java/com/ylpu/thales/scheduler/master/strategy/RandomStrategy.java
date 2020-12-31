@@ -24,6 +24,6 @@ public class RandomStrategy implements WorkerSelectStrategy {
         if (idleServer != null) {
             return idleServer;
         }
-        throw new RuntimeException("找不到可用的worker执行任务 ");
+        throw new RuntimeException("can not get avalilable resource");
     }
 }

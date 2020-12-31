@@ -4,7 +4,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Properties;
 import java.util.stream.Collectors;
+import com.ylpu.thales.scheduler.core.config.Configuration;
 import com.ylpu.thales.scheduler.core.constants.GlobalConstants;
 import com.ylpu.thales.scheduler.master.server.MasterManager;
 import com.ylpu.thales.scheduler.response.WorkerResponse;
@@ -16,7 +18,7 @@ import java.util.Comparator;
  *
  */
 public class CpuIdleStrategy implements WorkerSelectStrategy {
-
+    
     @Override
     public synchronized WorkerResponse getIdleWorker(MasterManager rm, String groupName, String... lastFailedHosts) {
         List<String> servers = rm.getGroups().get(GlobalConstants.WORKER_GROUP + "/" + groupName);
@@ -43,24 +45,25 @@ public class CpuIdleStrategy implements WorkerSelectStrategy {
                 if (lastFailedHosts == null || lastFailedHosts.length == 0) {
                     return sortedServers.get(0);
                 } else {
-                    // 任务重试会选择没有失败并且cpu使用率最小的server,如果没有可用server就抛出异常
                     List<WorkerResponse> runningServers = sortedServers.stream()
                             .filter(hostInfo -> !Arrays.asList(lastFailedHosts).contains(hostInfo.getHost()))
                             .collect(Collectors.toList());
                     if (runningServers != null && runningServers.size() > 0) {
                         WorkerResponse worker = runningServers.get(0);
-                        if (worker.getCpuUsage() > 95) {
+                        Properties prop = Configuration.getConfig();
+                        int cpuUsageLimit = Configuration.getInt(prop, "thales.schedule.cpu.limit", 95);
+                        if (worker.getCpuUsage() > cpuUsageLimit) {
                             throw new RuntimeException(
-                                    "worker " + worker.getHost() + " cpu使用率大于95%，为 " + worker.getCpuUsage());
+                                    "worker " + worker.getHost() + " cpu usage exceed " + cpuUsageLimit + "，the number is " + worker.getCpuUsage());
                         }
                         return runningServers.get(0);
                     } else {
-                        throw new RuntimeException("找不到可用的worker执行任务 ");
+                        throw new RuntimeException("can not get avalilable resource");
                     }
                 }
 
             }
         }
-        throw new RuntimeException("找不到可用的worker执行任务 ");
+        throw new RuntimeException("can not get avalilable resource");
     }
 }

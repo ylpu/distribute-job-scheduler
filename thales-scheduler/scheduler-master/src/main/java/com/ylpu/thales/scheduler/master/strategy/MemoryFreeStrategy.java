@@ -4,7 +4,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Properties;
 import java.util.stream.Collectors;
+
+import com.ylpu.thales.scheduler.core.config.Configuration;
 import com.ylpu.thales.scheduler.core.constants.GlobalConstants;
 import com.ylpu.thales.scheduler.master.server.MasterManager;
 import com.ylpu.thales.scheduler.response.WorkerResponse;
@@ -43,24 +46,25 @@ public class MemoryFreeStrategy implements WorkerSelectStrategy {
                 if (lastFailedHosts == null || lastFailedHosts.length == 0) {
                     return sortedServers.get(0);
                 } else {
-                    // 任务重试会选择没有失败并且资源最多的server,如果没有可用server就抛出异常
                     List<WorkerResponse> runningServers = sortedServers.stream()
                             .filter(hostInfo -> !Arrays.asList(lastFailedHosts).contains(hostInfo.getHost()))
                             .collect(Collectors.toList());
                     if (runningServers != null && runningServers.size() > 0) {
                         WorkerResponse worker = runningServers.get(0);
-                        if (worker.getMemoryUsage() > 95) {
+                        Properties prop = Configuration.getConfig();
+                        int memoryUsageLimit = Configuration.getInt(prop, "thales.schedule.memory.limit", 95);
+                        if (worker.getMemoryUsage() > memoryUsageLimit) {
                             throw new RuntimeException(
-                                    "worker " + worker.getHost() + " 内存使用率大于95%，为 " + worker.getMemoryUsage());
+                                    "worker " + worker.getHost() + " memory usage exceed " + memoryUsageLimit + "，number is " + worker.getMemoryUsage());
                         }
                         return runningServers.get(0);
                     } else {
-                        throw new RuntimeException("找不到可用的worker执行任务");
+                        throw new RuntimeException("can not get avalilable resource");
                     }
                 }
 
             }
         }
-        throw new RuntimeException("找不到可用的worker执行任务 ");
+        throw new RuntimeException("can not get avalilable resource");
     }
 }

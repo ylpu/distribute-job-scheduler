@@ -7,8 +7,11 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
+
+import com.ylpu.thales.scheduler.core.config.Configuration;
 import com.ylpu.thales.scheduler.core.constants.GlobalConstants;
 import com.ylpu.thales.scheduler.master.server.MasterManager;
 import com.ylpu.thales.scheduler.response.WorkerResponse;
@@ -48,11 +51,16 @@ public class TaskIdleStrategy implements WorkerSelectStrategy {
                     .filter(entry -> !Arrays.asList(lastFailedHosts).contains(entry.getKey()))
                     .collect(Collectors.toList());
             if (runningServers != null && runningServers.size() > 0) {
+                Properties prop = Configuration.getConfig();
+                int taskLimit = Configuration.getInt(prop, "thales.schedule.task.limit", 500);
+                if(runningServers.get(0).getValue() > taskLimit) {
+                    throw new RuntimeException("worker " + runningServers.get(0).getKey() + " running task number exceed " + taskLimit + ", can not get avalilable resource");
+                }
                 return resourceMap.get(runningServers.get(0).getKey());
             } else {
-                throw new RuntimeException("找不到可用的worker执行任务 ");
+                throw new RuntimeException("can not get avalilable resource");
             }
         }
-        throw new RuntimeException("找不到可用的worker执行任务 ");
+        throw new RuntimeException("can not get avalilable resource");
     }
 }
