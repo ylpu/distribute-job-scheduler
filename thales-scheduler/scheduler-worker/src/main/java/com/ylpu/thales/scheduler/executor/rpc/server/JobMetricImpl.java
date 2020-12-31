@@ -18,7 +18,7 @@ import com.ylpu.thales.scheduler.executor.rpc.client.WorkerGrpcClient;
 import com.ylpu.thales.scheduler.worker.WorkerServer;
 
 /**
- * 增加或减少任务个数，用于监控
+ * 增加或减少任务个数，用于worker选择策略
  *
  */
 public class JobMetricImpl implements IJobMetric {

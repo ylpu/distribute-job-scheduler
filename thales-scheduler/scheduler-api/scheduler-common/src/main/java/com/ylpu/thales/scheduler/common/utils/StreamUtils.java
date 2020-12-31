@@ -27,7 +27,6 @@ public class StreamUtils {
         inputStream = getInputStream(logUrl);
         if (inputStream != null) {
             outputStream = response.getOutputStream();
-            // 在http响应中输出流
             byte[] cache = new byte[8092];
             int nRead = 0;
             while ((nRead = inputStream.read(cache)) != -1) {

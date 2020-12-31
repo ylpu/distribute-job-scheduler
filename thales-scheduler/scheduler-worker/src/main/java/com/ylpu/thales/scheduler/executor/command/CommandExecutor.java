@@ -12,9 +12,6 @@ public class CommandExecutor extends AbstractCommonExecutor {
         super(requestRpc, request);
     }
 
-    /**
-     * 从日志中获取相关applicationid
-     */
     @Override
     public void kill() throws Exception {
         killProcess();

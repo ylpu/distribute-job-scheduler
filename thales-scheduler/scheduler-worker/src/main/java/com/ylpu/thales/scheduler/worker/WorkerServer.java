@@ -58,15 +58,15 @@ public class WorkerServer {
             
             if(isValidateGroup(quorum,sessionTimeout,connectionTimeout,workerGroup)) {
                 Runtime.getRuntime().addShutdownHook(new ShutDownHookThread());
-                // 启动日志服务
+                // start log server
                 logServer = new LogServer(prop);
                 logServer.startLogServer();
-                // 启动rpc服务
+                // start rpc service
                 rpcServer = new WorkerRpcServer(workerServerPort);
                 rpcServer.startServer();
-                // 注册自己到zk
+                // register to zk
                 String workerPath = regist(quorum,sessionTimeout,connectionTimeout,workerGroup,workerServerPort);
-                // 启动心跳线程
+                // start heartbeat thread
                 WorkerHeartBeatThread heartBeatThread = new WorkerHeartBeatThread(workerPath, workerServerPort,
                         heartBeatInterval);
                 heartBeatThread.setDaemon(true);

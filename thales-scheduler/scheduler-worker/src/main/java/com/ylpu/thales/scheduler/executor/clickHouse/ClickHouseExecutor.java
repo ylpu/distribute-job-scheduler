@@ -35,7 +35,7 @@ public class ClickHouseExecutor extends AbstractCommonExecutor {
 
         Config config = clickHouseConfig.getConfig();
         if (config == null) {
-            throw new RuntimeException("clickhouse任务参数不能为空");
+            throw new RuntimeException("task parameter can not emtpy");
         }
         ConnectionResponse cr = JobManager.getConnection(clickHouseConfig.getDsName());
         

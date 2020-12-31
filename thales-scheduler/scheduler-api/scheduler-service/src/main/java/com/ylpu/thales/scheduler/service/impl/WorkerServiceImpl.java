@@ -171,27 +171,24 @@ public class WorkerServiceImpl extends BaseServiceImpl<BaseEntity, Serializable>
     @Override
     public void markDown(WorkerRequest request, Object object) {
         if (!isAdmin(object)) {
-            throw new ThalesRuntimeException("非admin不能下线executor");
+            throw new ThalesRuntimeException("none admin can not down executor");
         }
         if(request.getCurrentWorkerStatus().equalsIgnoreCase(WorkerStatus.REMOVED.toString())) {
-            throw new ThalesRuntimeException("节点 " + request.getHost() + " 已经下线");
+            throw new ThalesRuntimeException("worker" + request.getHost() + " has down");
         }
         String masterUrl = getMasterServiceUri();
         if (StringUtils.isNotBlank(masterUrl)) {
             int status = ScheduleManager.markDown(getMasterServiceUri(), request);
-            // 204-执行成功，但无内容返回
+            // 204-success
             if (status != HttpStatus.NO_CONTENT.value()) {
                 throw new ThalesRuntimeException("failed to down executor " + request.getHost() + ":" + request.getPort());
             }
         } else {
-            throw new ThalesRuntimeException("服务不可用");
+            throw new ThalesRuntimeException("schedule service is not available");
         }
     }
     
     private boolean isAdmin(Object object) {
-        if (object == null) {
-            throw new ThalesRuntimeException("请重新登陆");
-        }
         UserResponse user = (UserResponse) object;
         if (user.getRoleNames().contains(RoleTypes.ROLE_ADMIN.toString())) {
             return true;

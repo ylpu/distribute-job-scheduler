@@ -7,7 +7,7 @@ import com.ylpu.thales.scheduler.master.server.MasterManager;
 import com.ylpu.thales.scheduler.response.WorkerResponse;
 
 /**
- * round robin的方式选择一台机器提交任务
+ * round robin to choose task from worker group to submit task
  *
  */
 public class RoundRobinStrategy implements WorkerSelectStrategy {

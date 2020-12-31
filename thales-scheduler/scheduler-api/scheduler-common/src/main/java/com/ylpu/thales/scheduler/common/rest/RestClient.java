@@ -32,7 +32,6 @@ public class RestClient {
      * 
      * @param url--http://localhost:8080/list?id=1&name=test
      * @param typeRef
-     *            -- 范型返回
      * @param map
      * @return
      */

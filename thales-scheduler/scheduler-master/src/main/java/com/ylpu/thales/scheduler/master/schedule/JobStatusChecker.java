@@ -28,11 +28,11 @@ public class JobStatusChecker {
     private static Log LOG = LogFactory.getLog(JobStatusChecker.class);
 
     private static volatile boolean stop = false;
-    // key是任务id,value是待执行的任务
+    // key is task id,value task information
     private static Map<String, JobInstanceRequestRpc> jobInstanceRequestMap = new ConcurrentHashMap<String, JobInstanceRequestRpc>();
-//    lru以防内存溢出
+//    lru avoid out of memory
     private static LRU<String, JobInstanceResponseRpc> responses = new LRU<String, JobInstanceResponseRpc>(5000000);
-    // key是所依赖的任务,value是任务id
+    // key is dependency task list,value is task id
     private static Map<List<JobDependency>, String> dependsMap = new ConcurrentHashMap<List<JobDependency>, String>();
     
     private static Map<String, String> jobDependStatusMap = new ConcurrentHashMap<String,String>();
@@ -103,8 +103,7 @@ public class JobStatusChecker {
     }
 
     /**
-     * 检查依赖任务是否执行成功，只有依赖的任务id在任务的返回列表里并且依赖任务的状态为成功,当前任务才会被执行
-     *
+     * check dependency job are successful or not, if dependency jobs are successful, then the downstream job can be execute.
      */
     private static class JobStatusCheckThread extends Thread {
         public void run() {
@@ -196,7 +195,7 @@ public class JobStatusChecker {
             while (true) {
                 for (Entry<String, JobInstanceRequestRpc> entry : jobInstanceRequestMap.entrySet()) {
                     if (entry.getValue() != null) {
-//                      防止重复发送
+//                      avoid duplicate send
                         if(StringUtils.isBlank(mailLRU.get(entry.getKey()))) {
                             Date startTime = DateUtils.getDatetime(entry.getValue().getStartTime());
                             int elapseTime = DateUtils.getElapseTime(startTime, new Date());

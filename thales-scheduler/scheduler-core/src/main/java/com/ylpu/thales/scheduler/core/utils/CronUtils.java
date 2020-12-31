@@ -17,7 +17,6 @@ public class CronUtils {
         try {
             CronTriggerImpl cronTriggerImpl = new CronTriggerImpl();
             cronTriggerImpl.setCronExpression(cron);
-            // 这里的时间是根据corn表达式算出来的值
             List<Date> dates = TriggerUtils.computeFireTimesBetween(cronTriggerImpl, null, from, to);
             Date date = dates.get(dates.size() - 1);
             dateStr = DateUtils.getDateAsString(date, DateUtils.MINUTE_TIME_FORMAT);
@@ -43,7 +42,6 @@ public class CronUtils {
         try {
             CronTriggerImpl cronTriggerImpl = new CronTriggerImpl();
             cronTriggerImpl.setCronExpression(cron);
-            // 这里的时间是根据corn表达式算出来的值
             List<Date> dates = TriggerUtils.computeFireTimesBetween(cronTriggerImpl, null, from, to);
             date = dates.get(0);
         } catch (ParseException e) {

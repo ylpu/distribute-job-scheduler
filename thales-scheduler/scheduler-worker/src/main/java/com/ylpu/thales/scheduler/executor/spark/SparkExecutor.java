@@ -51,11 +51,11 @@ public class SparkExecutor extends AbstractCommonExecutor {
         SparkConfig sparkConfig = JsonUtils.jsonToBean(configFile, SparkConfig.class);
         String fileName = String.valueOf(sparkConfig.getFileName());
         if (!FileUtils.exist(new File(fileName)) || !fileName.endsWith(".sql")) {
-            throw new RuntimeException("请输入合法的sql文件" + fileName);
+            throw new RuntimeException("please input legal sql file " + fileName);
         }
         Config config = sparkConfig.getConfig();
         if (config == null) {
-            throw new RuntimeException("spark任务参数不能为空");
+            throw new RuntimeException("spark parameter can not empty");
         }
 
         Properties prop = Configuration.getConfig();

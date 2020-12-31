@@ -34,7 +34,7 @@ public class MasterRpcServiceImpl extends GrpcWorkerServiceGrpc.GrpcWorkerServic
     }
 
     /**
-     * 增加worker任务个数
+     * increase task number of worker
      */
     public void incTask(WorkerParameter parameter, StreamObserver<WorkerResponseRpc> responseObserver) {
         WorkerResponseRpc.Builder builder = WorkerResponseRpc.newBuilder();
@@ -52,7 +52,7 @@ public class MasterRpcServiceImpl extends GrpcWorkerServiceGrpc.GrpcWorkerServic
     }
 
     /**
-     * 减少worker任务个数
+     * decrease task number of worker
      */
     public void decTask(WorkerParameter parameter, StreamObserver<WorkerResponseRpc> responseObserver) {
         WorkerResponseRpc.Builder builder = WorkerResponseRpc.newBuilder();
@@ -70,7 +70,7 @@ public class MasterRpcServiceImpl extends GrpcWorkerServiceGrpc.GrpcWorkerServic
     }
 
     /**
-     * 更新任务状态
+     * udpate job status
      */
     public void updateJobStatus(JobStatusRequestRpc request, StreamObserver<WorkerResponseRpc> responseObserver) {
         WorkerResponseRpc.Builder builder = WorkerResponseRpc.newBuilder();

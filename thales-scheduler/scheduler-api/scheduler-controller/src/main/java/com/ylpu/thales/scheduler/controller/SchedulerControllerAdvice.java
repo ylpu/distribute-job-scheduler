@@ -27,7 +27,7 @@ public class SchedulerControllerAdvice {
             ThalesRuntimeException exception = (ThalesRuntimeException) e;
             return new SchedulerResponse<>(501, exception.getMessage());
         }
-        return new SchedulerResponse<>(500, "系统内部错误");
+        return new SchedulerResponse<>(500, "system internal error");
     }
 
     @ExceptionHandler(value = MethodArgumentNotValidException.class)

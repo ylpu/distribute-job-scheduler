@@ -14,7 +14,7 @@ import com.ylpu.thales.scheduler.master.server.MasterManager;
 import com.ylpu.thales.scheduler.response.WorkerResponse;
 
 /**
- * 从pool中选择任务最少的一台机器提交任务
+ * choose most task idle worker from worker group to submit task
  *
  */
 public class TaskIdleStrategy implements WorkerSelectStrategy {

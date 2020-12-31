@@ -32,7 +32,7 @@ public class UserServiceImpl extends BaseServiceImpl<SchedulerUser, Integer> imp
     public void insertOrUpdate(UserRequest userRequest) {
         SchedulerUser user = new SchedulerUser();
         if (!userRequest.getPassword().equals(userRequest.getConfirmPass())) {
-            throw new ThalesRuntimeException("密码与确认密码不一致");
+            throw new ThalesRuntimeException("pasword is different with confirm password");
         }
         if (userRequest.getId() != null) {
             BeanUtils.copyProperties(userRequest, user);
@@ -40,7 +40,7 @@ public class UserServiceImpl extends BaseServiceImpl<SchedulerUser, Integer> imp
         } else {
             UserResponse reponse = findByUserName(userRequest.getUserName());
             if (reponse != null) {
-                throw new ThalesRuntimeException("用户名已经存在");
+                throw new ThalesRuntimeException("username has exist");
             } else {
                 BeanUtils.copyProperties(userRequest, user);
                 userMapper.insertSelective(user);
@@ -65,10 +65,10 @@ public class UserServiceImpl extends BaseServiceImpl<SchedulerUser, Integer> imp
     public UserResponse findByUserName(String userName, String password) {
         SchedulerUser user = userMapper.findByUserName(userName);
         if (user == null) {
-            throw new ThalesRuntimeException("用户名不存在！");
+            throw new ThalesRuntimeException("username is not exist");
         }
         if (!Objects.equals(user.getPassword(), password)) {
-            throw new ThalesRuntimeException("密码不正确!");
+            throw new ThalesRuntimeException("password is not correct");
         }
         UserResponse response = new UserResponse();
         BeanUtils.copyProperties(user, response);

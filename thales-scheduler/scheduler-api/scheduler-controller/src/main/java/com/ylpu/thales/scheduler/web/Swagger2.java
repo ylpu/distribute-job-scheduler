@@ -16,18 +16,14 @@ public class Swagger2 {
     @Bean
     public Docket createRestApi() {
         return new Docket(DocumentationType.SWAGGER_2).apiInfo(apiInfo()).select()
-                // 为当前包路径
                 .apis(RequestHandlerSelectors.basePackage("com.ylpu.thales.scheduler.controller"))
                 .paths(PathSelectors.any()).build();
     }
 
     private ApiInfo apiInfo() {
         return new ApiInfoBuilder()
-                // 页面标题
                 .title("thales scheduler restful api")
-                // 版本号
                 .version("1.0")
-                // 描述
                 .description("thales调度系统  API 描述").build();
     }
 }

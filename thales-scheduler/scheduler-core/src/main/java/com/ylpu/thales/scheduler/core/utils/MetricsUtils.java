@@ -13,9 +13,8 @@ public class MetricsUtils {
     private static SystemInfo systemInfo = new SystemInfo();
 
     /**
-     * 获得内存信息
+     * get memrory
      * 
-     * @return 内存信息
      */
     public static GlobalMemory getMemory() {
         HardwareAbstractionLayer hal = systemInfo.getHardware();
@@ -23,7 +22,7 @@ public class MetricsUtils {
     }
 
     /**
-     * 获得处理器(cpu)信息
+     * get cpu
      */
     public static CentralProcessor getProcessor() {
         HardwareAbstractionLayer hal = systemInfo.getHardware();
@@ -31,32 +30,27 @@ public class MetricsUtils {
     }
 
     /**
-     * 获得内存总量
+     * get total memory
      * 
      * @param memory
-     *            GlobalMemory对象
-     * @return 内存总量
      */
     public static double getMemoryTotal(GlobalMemory memory) {
         return memory.getTotal();
     }
 
     /**
-     * 获得内存使用量
+     * get availabe memory
      * 
      * @param memory
-     *            GlobalMemory对象
-     * @return 内存使用量
      */
     public static double getMemoryAvailable(GlobalMemory memory) {
         return memory.getAvailable();
     }
 
     /**
-     * 获取内存的使用率
+     * get memory usage
      * 
      * @param memory
-     *            GlobalMemory对象
      */
     public static double getMemoryUsage(GlobalMemory memory) {
         double available = getMemoryAvailable(memory);
@@ -66,16 +60,15 @@ public class MetricsUtils {
     }
 
     /**
-     * 获取内存的使用率
+     * get memory usage
      * 
-     * @return 内存使用率
      */
     public static double getMemoryUsage() {
         return getMemoryUsage(getMemory());
     }
 
     /**
-     * 获取CPU的使用率
+     * get cpu usage
      */
     public static double getCpuUsage() {
         CentralProcessor processor = getProcessor();
@@ -85,7 +78,7 @@ public class MetricsUtils {
     }
 
     /**
-     * 获取主机名称
+     * get host name
      * 
      * @return
      */
@@ -94,7 +87,7 @@ public class MetricsUtils {
         String hostName;
         try {
             addr = InetAddress.getLocalHost();
-            hostName = addr.getHostName(); // 获得机器名称
+            hostName = addr.getHostName();
         } catch (Exception e) {
             throw new RuntimeException("can not find host name");
         }
@@ -102,7 +95,7 @@ public class MetricsUtils {
     }
 
     /**
-     * 获取主机ip地址
+     * get ip address
      * 
      * @return
      */
@@ -111,7 +104,7 @@ public class MetricsUtils {
 //        String ip;
 //        try {
 //            addr = InetAddress.getLocalHost();
-//            ip = addr.getHostAddress(); // 获得机器IP
+//            ip = addr.getHostAddress();
 //        } catch (Exception e) {
 //            throw new RuntimeException("can not find ip address");
 //        }

@@ -173,7 +173,7 @@ public class JobInstanceServiceImpl extends BaseServiceImpl<SchedulerJobInstance
     @Override
     public void killJob(ScheduleRequest request, Object object) {
         if (!isJobOwner(request, object)) {
-            throw new ThalesRuntimeException("非任务所有人不能杀任务");
+            throw new ThalesRuntimeException("not job owner can not kill job");
         }
         String masterUrl = getMasterServiceUri();
         if (StringUtils.isNotBlank(masterUrl)) {
@@ -182,41 +182,41 @@ public class JobInstanceServiceImpl extends BaseServiceImpl<SchedulerJobInstance
                 throw new ThalesRuntimeException("failed to kill job " + request.getId());
             }
         } else {
-            throw new ThalesRuntimeException("调度服务不可用");
+            throw new ThalesRuntimeException("scheduler service is not available");
         }
     }
 
     @Override
     public void rerun(ScheduleRequest request, Object object) {
         if (!isJobOwner(request, object)) {
-            throw new ThalesRuntimeException("非任务所有人不能重跑任务");
+            throw new ThalesRuntimeException("not job owner can not rerun job");
         }
         String masterUrl = getMasterServiceUri();
         if (StringUtils.isNotBlank(masterUrl)) {
             int status = ScheduleManager.rerun(masterUrl, request);
-            // 204-执行成功，但无内容返回
+            // 204-run success
             if (status != HttpStatus.NO_CONTENT.value()) {
                 throw new ThalesRuntimeException("failed to rerun job " + request.getId());
             }
         } else {
-            throw new ThalesRuntimeException("调度服务不可用");
+            throw new ThalesRuntimeException("scheduler service is not available");
         }
     }
 
     @Override
     public void rerunAll(ScheduleRequest request, Object object) {
         if (!isJobOwner(request, object)) {
-            throw new ThalesRuntimeException("非任务所有人不能重跑所有任务");
+            throw new ThalesRuntimeException("not job owner can not rerun all job");
         }
         String masterUrl = getMasterServiceUri();
         if (StringUtils.isNotBlank(masterUrl)) {
             int status = ScheduleManager.rerunAll(getMasterServiceUri(), request);
-            // 204-执行成功，但无内容返回
+            // 204-run success
             if (status != HttpStatus.NO_CONTENT.value()) {
                 throw new ThalesRuntimeException("failed to rerun all job " + request.getId());
             }
         } else {
-            throw new ThalesRuntimeException("调度服务不可用");
+            throw new ThalesRuntimeException("scheduler service is not available");
         }
     }
 
@@ -331,25 +331,22 @@ public class JobInstanceServiceImpl extends BaseServiceImpl<SchedulerJobInstance
     @Override
     public void markSuccess(ScheduleRequest request, Object object) {
         if (!isJobOwner(request, object)) {
-            throw new ThalesRuntimeException("非任务所有人不能标识成功任务");
+            throw new ThalesRuntimeException("not job owner can not mark job to success");
         }
         String masterUrl = getMasterServiceUri();
         if (StringUtils.isNotBlank(masterUrl)) {
             int status = ScheduleManager.markSuccess(getMasterServiceUri(), request);
-            // 204-执行成功，但无内容返回
+            // 204-run success
             if (status != HttpStatus.NO_CONTENT.value()) {
                 throw new ThalesRuntimeException("failed to mark job " + request.getId() + " as success");
             }
         } else {
-            throw new ThalesRuntimeException("调度服务不可用");
+            throw new ThalesRuntimeException("scheduler service is not available");
         }
 
     }
 
     private boolean isJobOwner(ScheduleRequest request, Object object) {
-        if (object == null) {
-            throw new ThalesRuntimeException("请重新登陆");
-        }
         JobInstanceResponse instanceResponse = getJobInstanceById(request.getId());
         UserResponse user = (UserResponse) object;
         List<String> owners = Arrays.asList(instanceResponse.getJobConf().getOwnerIds().split(","));
@@ -363,17 +360,17 @@ public class JobInstanceServiceImpl extends BaseServiceImpl<SchedulerJobInstance
     @Override
     public void markFail(ScheduleRequest request, Object object) {
         if (!isJobOwner(request, object)) {
-            throw new ThalesRuntimeException("非任务所有人不能标识失败任务");
+            throw new ThalesRuntimeException("not job owner can not mark job to fail");
         }
         String masterUrl = getMasterServiceUri();
         if (StringUtils.isNotBlank(masterUrl)) {
             int status = ScheduleManager.markFail(getMasterServiceUri(), request);
-            // 204-执行成功，但无内容返回
+            // 204-run success
             if (status != HttpStatus.NO_CONTENT.value()) {
                 throw new ThalesRuntimeException("failed to mark job " + request.getId() + " as fail");
             }
         } else {
-            throw new ThalesRuntimeException("调度服务不可用");
+            throw new ThalesRuntimeException("scheduler service is not available");
         }
     }
 }

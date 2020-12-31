@@ -12,7 +12,7 @@ import com.ylpu.thales.scheduler.response.WorkerResponse;
 import java.util.Comparator;
 
 /**
- * 从group中选择cpu使用率最小的一台机器提交任务
+ * choose most cpu idle worker to submit task
  *
  */
 public class CpuIdleStrategy implements WorkerSelectStrategy {

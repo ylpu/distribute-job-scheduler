@@ -18,11 +18,8 @@ import net.sf.json.JSONObject;
 
 public class JsonUtils {
     /**
-     * 对象转换成JSON字符串
+     * convert object to json
      * 
-     * @param obj
-     *            需要转换的对象
-     * @return 对象的string字符
      */
     public static String objToJson(Object obj) {
         JSONObject jSONObject = JSONObject.fromObject(obj);
@@ -32,13 +29,9 @@ public class JsonUtils {
     }
 
     /**
-     * JSON字符串转换成对象
+     * convert object to json
      * 
      * @param jsonString
-     *            需要转换的字符串
-     * @param type
-     *            需要转换的对象类型
-     * @return 对象
      */
     public static <T> T jsonToBean(String jsonString, Class<T> type) {
         JSONObject jsonObject = JSONObject.fromObject(jsonString);
@@ -46,7 +39,7 @@ public class JsonUtils {
     }
 
     /**
-     * jsonObject 转换为javabean
+     * convert jsonObject to javabean
      * 
      * @param jsonObject
      * @param type
@@ -80,7 +73,7 @@ public class JsonUtils {
     }
 
     /**
-     * 将JSONArray对象转换成list集合
+     * convert jsonarry to list
      * 
      * @param jsonArr
      * @return
@@ -100,7 +93,7 @@ public class JsonUtils {
     }
 
     /**
-     * 将json字符串转换成map对象
+     * convert json to map
      * 
      * @param json
      * @return
@@ -111,7 +104,7 @@ public class JsonUtils {
     }
 
     /**
-     * 将JSONObject转换成map对象
+     * convert JSONObject to map
      * 
      * @param json
      * @return

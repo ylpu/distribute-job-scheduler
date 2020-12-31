@@ -45,7 +45,7 @@ public class ByteUtils {
     }
 
     /**
-     * Byte数组转对象
+     * convert byte arry to object
      * 
      * @param bytes
      * @return

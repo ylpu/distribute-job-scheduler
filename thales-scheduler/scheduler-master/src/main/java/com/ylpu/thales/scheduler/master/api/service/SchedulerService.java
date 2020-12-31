@@ -41,7 +41,7 @@ public class SchedulerService {
     private static Log LOG = LogFactory.getLog(SchedulerService.class);
 
     /**
-     * 杀任务
+     * kill task
      * 
      * @param response
      * @throws Exception
@@ -196,7 +196,7 @@ public class SchedulerService {
     }
 
     /**
-     * 任务调度
+     * schedule job
      * 
      * @param response
      * @throws Exception
@@ -219,7 +219,7 @@ public class SchedulerService {
     }
 
     /**
-     * 任务时间修改后重新调度
+     * reschedule job
      * 
      * @param response
      * @throws Exception
@@ -237,7 +237,7 @@ public class SchedulerService {
     }
 
     /**
-     * 任务下线
+     * down job
      * 
      * @param response
      * @throws Exception
@@ -256,7 +256,7 @@ public class SchedulerService {
     }
 
     /**
-     * 重跑当前任务
+     * return job
      * 
      * @param response
      * @throws Exception
@@ -299,7 +299,7 @@ public class SchedulerService {
     }
 
     /**
-     * 重跑当前任务以及下游所有任务
+     * rerun current job and child jobs
      * 
      * @param scheduleRequest
      * @throws Exception
@@ -323,7 +323,7 @@ public class SchedulerService {
     }
 
     /**
-     * 重跑子任务
+     * rerun child job
      * 
      * @param startScheduleTime
      * @param jobTree
@@ -347,7 +347,7 @@ public class SchedulerService {
     }
 
     /**
-     * 计算子任务的schedule time
+     * caculate task schedule time
      * 
      * @param startScheduleTime
      * @param currentScheduleCron

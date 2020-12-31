@@ -47,7 +47,7 @@ public class WorkerGroupServiceImpl extends BaseServiceImpl<GroupStrategy, Integ
             groupList = groupList.stream().filter(request -> request.getGroupName().equalsIgnoreCase(groupStrategryRequest.getGroupName())).collect(Collectors.toList());
         }
         if(groupList != null && groupList.size() >= 1) {
-            throw new RuntimeException("group 已经存在");
+            throw new RuntimeException("groupname has exist");
         }
         
         Properties prop = Configuration.getConfig();

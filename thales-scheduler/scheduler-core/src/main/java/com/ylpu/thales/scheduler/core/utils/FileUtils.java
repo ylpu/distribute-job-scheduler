@@ -109,8 +109,6 @@ public final class FileUtils {
             BufferedReader reader = null;
             try {
                 InputStream in = new FileInputStream(new File(fileName));
-                // 使用BoundedInputStream防止内存溢出
-                // 限制流的大小为100M,根据实际文件大小可调整
                 BoundedInputStream bis = new BoundedInputStream(in, 100 * 1024 * 1024);
                 InputStreamReader isr = new InputStreamReader(bis);
                 reader = new BufferedReader(isr);
@@ -136,15 +134,13 @@ public final class FileUtils {
     }
 
     /**
-     * 读log文件获取applicationId
+     * get applicationId from log
      */
     public static List<String> getApplicationIdFromLog(String fileName) throws Exception {
         BufferedReader br = null;
         Set<String> applicationList = new HashSet<>();
         try {
             InputStream in = new FileInputStream(new File(fileName));
-            // 使用BoundedInputStream防止内存溢出
-            // 限制流的大小为100M,根据实际文件大小可调整
             BoundedInputStream bis = new BoundedInputStream(in, 100 * 1024 * 1024);
             InputStreamReader reader = new InputStreamReader(bis);
             br = new BufferedReader(reader);

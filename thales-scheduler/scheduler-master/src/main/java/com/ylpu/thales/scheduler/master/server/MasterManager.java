@@ -72,9 +72,7 @@ public class MasterManager {
         return resourceManager;
     }
 
-    /**
-     * 竞选节点为active resource manager
-     */
+
     public void init() throws Exception {
         Properties prop = new Properties();
         prop.put("thales.zookeeper.quorum", GlobalConstants.DEFAULT_ZKQUORUM);
@@ -83,9 +81,6 @@ public class MasterManager {
         init(prop);
     }
 
-    /**
-     * 竞选节点为active master
-     */
     public void init(Properties prop) throws Exception {
         String quorum = prop.getProperty("thales.zookeeper.quorum");
         int sessionTimeout = Configuration.getInt(prop, "thales.zookeeper.sessionTimeout",
@@ -116,14 +111,12 @@ public class MasterManager {
 
         public void start() {
 
-            // 保证在此实例释放领导权之后还可能获得领导权。
             leaderSelector.autoRequeue();
 
             leaderSelector.start();
         }
 
         public void takeLeadership(CuratorFramework client) throws Exception {
-            // 另外一个master有可能出现假死的情况，首先删除节点，其次强制杀掉进程
             List<String> masterList = CuratorHelper.getChildren(client, GlobalConstants.MASTER_GROUP);
             if (masterList != null && masterList.size() > 0) {
                 for (String master : masterList) {
@@ -143,10 +136,10 @@ public class MasterManager {
             init(GlobalConstants.WORKER_GROUP, prop);
             int masterServerPort = Configuration.getInt(prop, "thales.master.server.port", DEFAULT_MASTER_SERVER_PORT);
             long masterHeartBeatInterval = Configuration.getLong(prop, "thales.master.heartbeat.interval", 3000l);
-            // 启动master rpc服务
+            // start rpc service
             server = new MasterRpcServer(masterServerPort);
             server.start();
-            //当前节点竞选成为active节点
+            //elect as master and regist to zookeeper
             activeMaster = MetricsUtils.getHostName() + ":" + masterServerPort;
             String masterPath = GlobalConstants.MASTER_GROUP + "/" + activeMaster;
             LOG.info("active master is " + activeMaster);
@@ -230,22 +223,22 @@ public class MasterManager {
             addGroupChangeListener(client, GlobalConstants.WORKER_GROUP);
         }
 
-//        恢复任务状态，比较耗时
+//        restore task state
 //        restoreTaskState();
-//      启动master http service
+//      start master http service
         jettyServer = new MasterApiServer(prop);
         jettyServer.startJettyServer();
-        // 标识以前的任务状态为失败
+        // mark status to fail if status in (1,2,3,4,5,6)
         JobManager.markStatus();
-        // 加载任务实例状态，比较耗时
+        // restore task state
         restoreTaskState();
-        // 启动任务状态检查线程
+        // start job status check thread
         JobStatusChecker.init();
-        // 调度所有任务
+        // start to schedule all jobs
         JobScheduler.startJobs();
-        // 初始化每台机器运行的任务个数,供监控使用
+        // init task count of work
         initTaskCount();
-        // 启动jmx服务
+        // start jmx service
         agent = new MasterJmxServer(Configuration.getInt(prop, "thales.master.jmx.port", DEFAULT_JMX_PORT));
         agent.start();
 
@@ -273,7 +266,6 @@ public class MasterManager {
     }
 
     /**
-     * 目前任务状态都保存在mysql中，master在启动的时候需要从mysql中恢复任务状态, 对于非最终状态和非running状态的任务需要再次提交。
      * 
      * @throws Exception
      */
@@ -303,7 +295,7 @@ public class MasterManager {
 //        }
 //    }
     /**
-     * 加载历史任务状态（最近1个月的），比较耗时，后面改成分页方式加载
+     * load history task status(latest one month)
      * @throws Exception
      */
     private void restoreTaskState() throws Exception {
@@ -329,7 +321,7 @@ public class MasterManager {
     }
 
     /**
-     * 根据心跳更新资源信息
+     * update worker information according to heartbeat
      * 
      * @param serverName
      * @param resourceParams
@@ -451,7 +443,7 @@ public class MasterManager {
     }
 
     /**
-     * 开始处理任务
+     * increase task number of worker
      * 
      * @param serverName
      * @param taskMap
@@ -467,7 +459,7 @@ public class MasterManager {
     }
 
     /**
-     * 处理完任务
+     * decrease task number of worker
      * 
      * @param serverName
      * @param taskMap
@@ -481,7 +473,7 @@ public class MasterManager {
     }
 
     /**
-     * 根据策略获取worker group中的空闲机器
+     * choose idle worker from worker group according to strategy
      * 
      * @param input
      * @param lastFailedHosts

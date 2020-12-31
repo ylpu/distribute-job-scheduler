@@ -12,10 +12,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * 脚本执行类 优点：使用apache帮助类，简单，方便 缺点：无法获取process类，因而无法得到执行任务的进程id
- */
-
 class CollectingLogOutputStream extends LogOutputStream {
 
     private final List<String> lines = new ArrayList<String>();
@@ -59,9 +55,7 @@ public class ScriptUtils {
     }
 
     /**
-     * 日志文件输出方式
-     * <p>
-     * 优点：支持将目标数据实时输出到指定日志文件中去
+     * execute command and write output to file
      * 
      * @param command
      * @param scriptFile
@@ -94,7 +88,7 @@ public class ScriptUtils {
     }
 
     /**
-     * 实时处理每一行输出
+     * execute command and return execute code
      * 
      * @param command
      * @param scriptFile
@@ -123,7 +117,7 @@ public class ScriptUtils {
     }
 
     /**
-     * 把输出写入流中
+     * write stream to list
      * 
      * @param command
      * @param scriptFile

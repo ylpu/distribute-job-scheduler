@@ -43,11 +43,11 @@ public class MasterServer {
 
         @Override
         public void run() {
-            // 删除zk master节点
+            // delete zk master node
             removeMaster();
-            // 关掉任务调度
+            // stop jobs scheduler
             JobScheduler.shutdownJobs();
-            // 关掉等待线程池
+            // stop job thread pool
             ExecutorService es = JobSubmission.getTaskEs();
             if(es != null) {
                 es.shutdown();
@@ -55,7 +55,7 @@ public class MasterServer {
         }
 
         /**
-         * master在意外退出时删除zk节点
+         * delete master node from zookeeper
          */
         private void removeMaster() {
             String masterGroup = GlobalConstants.MASTER_GROUP;

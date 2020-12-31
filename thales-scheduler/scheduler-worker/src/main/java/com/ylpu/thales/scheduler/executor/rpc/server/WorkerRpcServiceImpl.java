@@ -146,7 +146,7 @@ public class WorkerRpcServiceImpl extends GrpcJobServiceGrpc.GrpcJobServiceImplB
         request.setTaskState(taskState.getCode());
         JobManager.transitTaskStatus(request);
     }
-    //rpc出现网路异常会导致数据库和master端任务状态不一致，这时可以通过页面标记成功或标记失败
+
     private void processResponse(StreamObserver<JobInstanceResponseRpc> responseObserver,
             JobInstanceResponseRpc.Builder builder) {
         responseObserver.onNext(builder.build());

@@ -47,7 +47,7 @@ public class JobScheduler {
     }
 
     /**
-     * 动态添加任务
+     * add job
      * 
      * @param scheduleInfo
      * @param jobClass
@@ -56,26 +56,19 @@ public class JobScheduler {
     public static void addJob(JobScheduleInfo scheduleInfo, Class jobClass) {
         try {
             Scheduler sched = schedulerFactory.getScheduler();
-            // 任务名，任务组，任务执行类
             JobDetail jobDetail = JobBuilder.newJob(jobClass)
                     .withIdentity(scheduleInfo.getJobName(), scheduleInfo.getJobGroupName()).build();
             jobDetail.getJobDataMap().put("id", scheduleInfo.getId());
 //            jobDetail.getJobDataMap().put("data", scheduleInfo.getData());
-            // 触发器
             TriggerBuilder<Trigger> triggerBuilder = TriggerBuilder.newTrigger();
-            // 触发器名,触发器组
             triggerBuilder.withIdentity(scheduleInfo.getTriggerName(), scheduleInfo.getTriggerGroupName())
             .withPriority(scheduleInfo.getJobPriority() * 5);
             triggerBuilder.startNow();
-            // 触发器时间设定
             CronScheduleBuilder cb = CronScheduleBuilder.cronSchedule(scheduleInfo.getCron());
             setMisfirePolicy(cb);
             triggerBuilder.withSchedule(cb);
-            // 创建Trigger对象
             CronTrigger trigger = (CronTrigger) triggerBuilder.build();
-            // 调度容器设置JobDetail和Trigger
             sched.scheduleJob(jobDetail, trigger);
-            // 启动
             if (!sched.isShutdown()) {
                 sched.start();
             }
@@ -86,7 +79,7 @@ public class JobScheduler {
     }
     
     /**
-     * 动态修改任务时间
+     * modify schedule time
      * 
      * @param scheduleInfo
      */
@@ -99,18 +92,14 @@ public class JobScheduler {
             if (trigger == null) {
                 return;
             }
-            // 触发器
             TriggerBuilder<Trigger> triggerBuilder = TriggerBuilder.newTrigger();
-            // 触发器名,触发器组
             triggerBuilder.withIdentity(scheduleInfo.getTriggerName(), scheduleInfo.getTriggerGroupName())
             .withPriority(scheduleInfo.getJobPriority() * 5);
             triggerBuilder.startNow();
             
             CronScheduleBuilder cb = CronScheduleBuilder.cronSchedule(scheduleInfo.getCron());
             setMisfirePolicy(cb);
-            // 触发器时间设定
             triggerBuilder.withSchedule(cb);
-            // 创建Trigger对象
             trigger = (CronTrigger) triggerBuilder.build();
             sched.rescheduleJob(triggerKey, trigger);
 
@@ -121,7 +110,7 @@ public class JobScheduler {
     }
 
     /**
-     * 动态删除任务
+     * remove job
      * 
      * @param scheduleInfo
      */
@@ -132,9 +121,9 @@ public class JobScheduler {
             TriggerKey triggerKey = TriggerKey.triggerKey(scheduleInfo.getTriggerName(),
                     scheduleInfo.getTriggerGroupName());
 
-            sched.pauseTrigger(triggerKey);// 停止触发器
-            sched.unscheduleJob(triggerKey);// 移除触发器
-            sched.deleteJob(JobKey.jobKey(scheduleInfo.getJobName(), scheduleInfo.getJobGroupName()));// 删除任务
+            sched.pauseTrigger(triggerKey);
+            sched.unscheduleJob(triggerKey);
+            sched.deleteJob(JobKey.jobKey(scheduleInfo.getJobName(), scheduleInfo.getJobGroupName()));
         } catch (Exception e) {
             LOG.error(e);
             throw new RuntimeException(e);
@@ -142,7 +131,7 @@ public class JobScheduler {
     }
     
     /**
-     * 判断任务
+     * check jobs is exist or not
      * 
      * @param scheduleInfo
      */
@@ -168,8 +157,8 @@ public class JobScheduler {
             TriggerKey triggerKey = TriggerKey.triggerKey(scheduleInfo.getTriggerName(),
                     scheduleInfo.getTriggerGroupName());
 
-            sched.pauseTrigger(triggerKey);// 停止触发器
-            sched.unscheduleJob(triggerKey);// 移除触发器
+            sched.pauseTrigger(triggerKey);
+            sched.unscheduleJob(triggerKey); 
         } catch (Exception e) {
             LOG.error(e);
             throw new RuntimeException(e);
@@ -177,7 +166,7 @@ public class JobScheduler {
     }
 
     /**
-     * @Description:启动所有定时任务
+     * @Description:start scheduler
      */
     public static void startJobs() {
         try {
@@ -190,7 +179,7 @@ public class JobScheduler {
     }
 
     /**
-     * @Description:关闭所有定时任务
+     * @Description:shutdown scheduler
      */
     public static void shutdownJobs() {
         try {

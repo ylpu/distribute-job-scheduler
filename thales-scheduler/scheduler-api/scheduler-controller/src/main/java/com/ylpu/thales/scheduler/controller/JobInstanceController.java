@@ -90,22 +90,12 @@ public class JobInstanceController {
         return new SchedulerResponse<JobInstanceResponse>(jobInstanceService.getJobInstanceByTime(jobId, scheduleTime));
     }
 
-    /**
-     * master启动时获取每台机器运行中的任务个数，供监控使用
-     * 
-     * @return
-     */
     @ResponseBody
     @RequestMapping(value = "/getRunningJobCount", method = RequestMethod.GET)
     public SchedulerResponse<List<Map<String, Object>>> getRunningJobCount() {
         return new SchedulerResponse<List<Map<String, Object>>>(jobInstanceService.getRunningJobCount());
     }
 
-    /**
-     * master启动时加载最近一个月任务实例状态(可以根据实际情况调整)
-     * 
-     * @return
-     */
     @ResponseBody
     @RequestMapping(value = "/getAllJobStatus", method = RequestMethod.GET)
     public SchedulerResponse<List<JobInstanceStateResponse>> getAllJobStatus() {
@@ -151,7 +141,7 @@ public class JobInstanceController {
     }
 
     /**
-     * 杀任务
+     * kill task
      * 
      * @param request
      */
@@ -164,7 +154,7 @@ public class JobInstanceController {
     }
 
     /**
-     * 重跑当前任务实例
+     * rerun task
      * 
      * @param request
      */
@@ -177,7 +167,7 @@ public class JobInstanceController {
     }
 
     /**
-     * 重跑当前及下游所有任务实例
+     * rerun current and child tasks
      * 
      * @param request
      */
@@ -189,12 +179,6 @@ public class JobInstanceController {
         return SchedulerResponse.success();
     }
 
-    /**
-     * master意外down掉时使用
-     * 
-     * @param request
-     * @return
-     */
     @ResponseBody
     @RequestMapping(value = "/markStatus", method = RequestMethod.POST)
     public SchedulerResponse<Void> markStatus() {

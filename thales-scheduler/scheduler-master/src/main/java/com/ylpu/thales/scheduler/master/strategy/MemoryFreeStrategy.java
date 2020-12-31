@@ -12,7 +12,7 @@ import com.ylpu.thales.scheduler.response.WorkerResponse;
 import java.util.Comparator;
 
 /**
- * 从group中选择内存使用最小的一台机器提交任务
+ * choose most memory free worker from worker group to submit task
  *
  */
 public class MemoryFreeStrategy implements WorkerSelectStrategy {

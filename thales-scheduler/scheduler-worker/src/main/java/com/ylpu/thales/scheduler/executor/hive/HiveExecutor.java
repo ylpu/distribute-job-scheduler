@@ -23,7 +23,7 @@ public class HiveExecutor extends AbstractCommonExecutor {
     }
 
     /**
-     * 从日志中获取相关applicationid
+     * first kill process, then kill running job on yarn
      */
     @Override
     public void kill() throws Exception {

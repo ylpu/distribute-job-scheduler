@@ -30,7 +30,7 @@ public class LogServer {
     }
 
     /**
-     * 启动jetty服务器供客户端获取job的log信息
+     * start jetty server used for getting task log
      * 
      * @param port
      * @throws Exception

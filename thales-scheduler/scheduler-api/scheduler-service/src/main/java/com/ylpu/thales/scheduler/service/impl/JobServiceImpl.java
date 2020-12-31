@@ -56,7 +56,7 @@ public class JobServiceImpl extends BaseServiceImpl<SchedulerJob, Integer> imple
     public void addJob(JobRequest job, Object object) {
         List<Integer> depencies = new ArrayList<Integer>();
         if (schedulerJobMapper.getJobCountByName(job.getJobName()) >= 1) {
-            throw new ThalesRuntimeException("任务名称已经存在");
+            throw new ThalesRuntimeException("job name has exist");
         }
         if (job.getDependIds() == null || job.getDependIds().size() == 0) {
             depencies = Arrays.asList(-1);
@@ -88,7 +88,7 @@ public class JobServiceImpl extends BaseServiceImpl<SchedulerJob, Integer> imple
     public void updateJob(JobRequest job, Object object) {
         
         if (!isJobOwner(job.getOwnerIds(), object)) {
-            throw new ThalesRuntimeException("非任务owner不能修改任务");
+            throw new ThalesRuntimeException("not job owner can not change job");
         }
         List<Integer> depencies = new ArrayList<Integer>();
         if (job.getDependIds() == null || job.getDependIds().size() == 0) {
@@ -97,10 +97,10 @@ public class JobServiceImpl extends BaseServiceImpl<SchedulerJob, Integer> imple
             depencies = job.getDependIds();
         }
         if(job.getDependIds().contains(job.getId())) {
-            throw new ThalesRuntimeException("任务 " + job.getId() + " 不能依赖自己");
+            throw new ThalesRuntimeException("job " + job.getId() + " can not depend itself");
         }
         if (isCycleReference(job)) {
-            throw new ThalesRuntimeException("任务 " + job.getId() + " 存在环形依赖");
+            throw new ThalesRuntimeException("job " + job.getId() + " has cycle reference");
         }
 
         if (job != null) {
@@ -136,9 +136,6 @@ public class JobServiceImpl extends BaseServiceImpl<SchedulerJob, Integer> imple
     }
 
     private boolean isJobOwner(String ownerId, Object object) {
-        if (object == null) {
-            throw new ThalesRuntimeException("请重新登陆");
-        }
         UserResponse user = (UserResponse) object;
         List<String> owners = Arrays.asList(ownerId.split(","));
         if (owners.contains(user.getUserName()) || user.getRoleNames().contains(RoleTypes.ROLE_ADMIN.toString())) {
@@ -172,7 +169,6 @@ public class JobServiceImpl extends BaseServiceImpl<SchedulerJob, Integer> imple
             }
         }
     }
-//    多次查询数据库，效率比较差
 //    public JobTree queryTreeById(Integer id) {
 //        JobTree targetTree = new JobTree();
 //        List<com.ylpu.thales.scheduler.entity.JobTree> treeList = schedulerJobMapper.queryTreeById(id);
@@ -323,7 +319,7 @@ public class JobServiceImpl extends BaseServiceImpl<SchedulerJob, Integer> imple
                 throw new ThalesRuntimeException("failed to schedule job " + request.getId());
             }
         } else {
-            throw new ThalesRuntimeException("调度服务不可用");
+            throw new ThalesRuntimeException("schedule service is not available");
         }
 
     }
@@ -337,7 +333,7 @@ public class JobServiceImpl extends BaseServiceImpl<SchedulerJob, Integer> imple
                 throw new ThalesRuntimeException("failed to reschedule job " + request.getId());
             }
         } else {
-            throw new ThalesRuntimeException("调度服务不可用");
+            throw new ThalesRuntimeException("scheduler service is not available");
         }
     }
 
@@ -345,7 +341,7 @@ public class JobServiceImpl extends BaseServiceImpl<SchedulerJob, Integer> imple
     public void downJob(ScheduleRequest request, UserResponse user) {
         JobResponse jobResponse = getJobAndRelationById(request.getId());
         if (!isJobOwner(jobResponse.getOwnerIds(), user)) {
-            throw new ThalesRuntimeException("非任务owner不能修改任务");
+            throw new ThalesRuntimeException("not job owner can not down job");
         }
         SchedulerJob schedulerJob = new SchedulerJob();
         schedulerJob.setId(request.getId());
@@ -359,7 +355,7 @@ public class JobServiceImpl extends BaseServiceImpl<SchedulerJob, Integer> imple
                 throw new ThalesRuntimeException("failed to down job " + request.getId());
             }
         } else {
-            throw new ThalesRuntimeException("调度服务不可用");
+            throw new ThalesRuntimeException("scheduler service is not available");
         }
 
     }

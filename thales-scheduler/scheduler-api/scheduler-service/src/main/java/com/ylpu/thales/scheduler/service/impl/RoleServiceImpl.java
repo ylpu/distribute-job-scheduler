@@ -76,7 +76,7 @@ public class RoleServiceImpl extends BaseServiceImpl<SchedulerRole, Integer> imp
         } else {
             List<SchedulerRole> list = schedulerRoleMapper.findAll(request.getRoleName());
             if (list != null && list.size() >= 1) {
-                throw new ThalesRuntimeException("角色已经存在");
+                throw new ThalesRuntimeException("role has exist");
             }
             BeanUtils.copyProperties(request, role);
             schedulerRoleMapper.insertSelective(role);

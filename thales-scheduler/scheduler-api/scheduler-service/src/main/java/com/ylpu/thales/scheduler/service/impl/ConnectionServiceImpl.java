@@ -72,7 +72,7 @@ public class ConnectionServiceImpl extends BaseServiceImpl<SchedulerConnection, 
     public void addConnection(ConnectionRequest request) {
         List<SchedulerConnection> list = schedulerConnectionMapper.findAll(request.getConnectionId());
         if (list != null && list.size() > 0) {
-            throw new ThalesRuntimeException("连接已经存在");
+            throw new ThalesRuntimeException("connection is exist");
         } else {
             if (request != null) {
                 SchedulerConnection connection = new SchedulerConnection();
