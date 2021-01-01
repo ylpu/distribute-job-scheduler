@@ -24,7 +24,6 @@ public class Configuration {
 
     public static Properties getConfig() {
         final String config = System.getProperty("config.file");
-        LOG.info("start to read config file " + config);
         if (StringUtils.isNotBlank(config)) {
             return getConfig(config, () -> {
                 try {
