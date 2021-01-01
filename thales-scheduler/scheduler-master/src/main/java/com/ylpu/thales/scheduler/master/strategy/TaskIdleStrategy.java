@@ -1,5 +1,6 @@
 package com.ylpu.thales.scheduler.master.strategy;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -21,6 +22,8 @@ import com.ylpu.thales.scheduler.response.WorkerResponse;
  *
  */
 public class TaskIdleStrategy implements WorkerSelectStrategy {
+    
+    private static String TASK_LIMTI = "thales.schedule.{0}.task.limit";
 
     @Override
     public synchronized WorkerResponse getIdleWorker(MasterManager rm, String groupName, String... lastFailedHosts) {
@@ -52,7 +55,8 @@ public class TaskIdleStrategy implements WorkerSelectStrategy {
                     .collect(Collectors.toList());
             if (runningServers != null && runningServers.size() > 0) {
                 Properties prop = Configuration.getConfig();
-                int taskLimit = Configuration.getInt(prop, "thales.schedule.task.limit", 500);
+                String key = MessageFormat.format(TASK_LIMTI, groupName.toLowerCase());
+                int taskLimit = Configuration.getInt(prop, key, 500);
                 if(runningServers.get(0).getValue() > taskLimit) {
                     throw new RuntimeException("worker " + runningServers.get(0).getKey() + " running task number exceed " + taskLimit + ", can not get avalilable resource");
                 }

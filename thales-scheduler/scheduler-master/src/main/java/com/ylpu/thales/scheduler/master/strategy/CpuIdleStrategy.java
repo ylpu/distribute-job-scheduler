@@ -1,5 +1,6 @@
 package com.ylpu.thales.scheduler.master.strategy;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -18,6 +19,8 @@ import java.util.Comparator;
  *
  */
 public class CpuIdleStrategy implements WorkerSelectStrategy {
+    
+    private static String CPU_LIMTI = "thales.schedule.{0}.cpu.limit";
     
     @Override
     public synchronized WorkerResponse getIdleWorker(MasterManager rm, String groupName, String... lastFailedHosts) {
@@ -51,7 +54,8 @@ public class CpuIdleStrategy implements WorkerSelectStrategy {
                     if (runningServers != null && runningServers.size() > 0) {
                         WorkerResponse worker = runningServers.get(0);
                         Properties prop = Configuration.getConfig();
-                        int cpuUsageLimit = Configuration.getInt(prop, "thales.schedule.cpu.limit", 95);
+                        String key = MessageFormat.format(CPU_LIMTI, groupName.toLowerCase());
+                        int cpuUsageLimit = Configuration.getInt(prop, key, 95);
                         if (worker.getCpuUsage() > cpuUsageLimit) {
                             throw new RuntimeException(
                                     "worker " + worker.getHost() + " cpu usage exceed " + cpuUsageLimit + "，the number is " + worker.getCpuUsage());
