@@ -20,12 +20,10 @@ public class Configuration {
 
     private static Log LOG = LogFactory.getLog(Configuration.class);
 
-    private static Map<String, Properties> configMap = new HashMap<String, Properties>();
-
     public static Properties getConfig() {
         final String config = System.getProperty("config.file");
         if (StringUtils.isNotBlank(config)) {
-            return getConfig(config, () -> {
+            return getConfig(() -> {
                 try {
                     return new FileInputStream(config);
                 } catch (FileNotFoundException e) {
@@ -35,23 +33,17 @@ public class Configuration {
             });
         }
 
-        return getConfig(GlobalConstants.CONFIG_FILE,
-                () -> Configuration.class.getClassLoader().getResourceAsStream(GlobalConstants.CONFIG_FILE));
+        return getConfig(() -> Configuration.class.getClassLoader().getResourceAsStream(GlobalConstants.CONFIG_FILE));
     }
 
-    private static Properties getConfig(String propFileName, Supplier<InputStream> supplier) {
-        Properties config = configMap.get(propFileName);
-        if (config == null) {
-            Properties prop = new Properties();
-            try {
-                prop.load(supplier.get());
-            } catch (IOException e) {
-                LOG.error(e);
-            }
-            config = prop;
-            configMap.put(propFileName, prop);
+    private static Properties getConfig(Supplier<InputStream> supplier) {
+        Properties prop = new Properties();
+        try {
+            prop.load(supplier.get());
+        } catch (IOException e) {
+            LOG.error(e);
         }
-        return config;
+        return prop;
     }
 
     public static int getInt(Properties prop, String key, int defaultValue) {
