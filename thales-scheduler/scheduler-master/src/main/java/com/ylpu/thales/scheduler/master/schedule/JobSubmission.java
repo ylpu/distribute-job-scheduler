@@ -139,7 +139,8 @@ public class JobSubmission {
             waitingResourceMap.put(workerGroupName, true);
             workerGroupQueue.put(workerGroupName, new PriorityBlockingQueue<TaskCall>());
             workerGroupQueue.get(workerGroupName).add(taskCall);
-            taskEs.submit(new TaskWaitingThread(workerGroupQueue.get(workerGroupName)));
+//            taskEs.submit(new TaskWaitingThread(workerGroupQueue.get(workerGroupName)));
+            new Thread(new TaskWaitingThread(workerGroupQueue.get(workerGroupName))).start();
         }else {
             taskQueue.add(taskCall);
         }

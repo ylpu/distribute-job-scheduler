@@ -79,7 +79,6 @@ public class WorkerRpcServiceImpl extends GrpcJobServiceGrpc.GrpcJobServiceImplB
                     transitTaskStatus(request,TaskState.FAIL);
                 } catch (Exception e1) {
                     LOG.error("fail to transit task " + request.getId() + " to fail with exception " + e1.getMessage());
-                    throw new RuntimeException(e1);
                 }
                 builder.setTaskState(TaskState.FAIL.getCode())
                 .setErrorCode(500)
