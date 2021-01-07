@@ -160,15 +160,19 @@ public class JobSubmission {
                 if (taskCall != null) {
                     AbstractJobGrpcClient client = null;
                     try {
+                        LOG.info("job " + taskCall.getRpcRequest().getId() + " start to get worker at " + DateUtils.getDateAsString(new Date(),DateUtils.TIME_FORMAT));
                         WorkerResponse worker = getAvailableWorker(taskCall.getRpcRequest());
                         if(worker != null) {
                             try {
+                                LOG.info("job " + taskCall.getRpcRequest().getId() + " start to get rpc client at " + DateUtils.getDateAsString(new Date(),DateUtils.TIME_FORMAT));
                                 client = getClient(worker,taskCall.getGrpcType());
                             } catch (Exception e) {
                                 LOG.error("fail to get rpc client to submit task " + taskCall.getRpcRequest().getId() + 
                                         " with exception " + e.getMessage());
                             }
+                            LOG.info("job " + taskCall.getRpcRequest().getId() + " start to submit to worker at " + DateUtils.getDateAsString(new Date(),DateUtils.TIME_FORMAT));
                             client.submitJob(taskCall.getRpcRequest());
+                            LOG.info("job " + taskCall.getRpcRequest().getId() + " finish submit to worker at " + DateUtils.getDateAsString(new Date(),DateUtils.TIME_FORMAT));
                         }
                     }finally {
                         // 同步rpc直接关闭，异步rpc需要内部关闭

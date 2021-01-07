@@ -136,6 +136,7 @@ public class JobStatusChecker {
                                     transitTaskStatus(rpcRequest.getId(),TaskState.QUEUED);
                                     jobDependStatusMap.remove(requestId);
                                     JobSubmission.addWaitingQueue(new TaskCall(rpcRequest, GrpcType.ASYNC));
+                                    LOG.info("job " + rpcRequest.getId() + " queue at " + DateUtils.getDateAsString(new Date(),DateUtils.TIME_FORMAT));
                                 } catch (Exception e) {
                                     LOG.error("failed to transit task " + rpcRequest.getId() + 
                                             " to " + TaskState.QUEUED.toString() + " with exception "+ e.getMessage());
@@ -152,6 +153,7 @@ public class JobStatusChecker {
                                     try {
                                         transitTaskStatus(rpcRequest.getId(),TaskState.WAITING_DEPENDENCY);
                                         jobDependStatusMap.put(requestId, requestId);
+                                        LOG.info("job " + rpcRequest.getId() + " waiting dependency at " + DateUtils.getDateAsString(new Date(),DateUtils.TIME_FORMAT));
                                     } catch (Exception e) {
                                         LOG.error("failed to transit task " + rpcRequest.getId() + 
                                                 " to " +  TaskState.WAITING_DEPENDENCY.toString() + " with exception " + e.getMessage());

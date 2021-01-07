@@ -291,6 +291,7 @@ public class SchedulerService {
                 rpcRequest = JobSubmission.initJobInstanceRequestRpc(request, jobInstanceResponse.getJobConf());
 //              caculate dependency and add to request
                 JobSubmission.addRpcRequest(rpcRequest);
+                LOG.info("job " + jobInstanceResponse.getId() + " submit at " + DateUtils.getDateAsString(new Date(),DateUtils.TIME_FORMAT));
             }catch(Exception e) {
                 LOG.error("failed to rerun task " + request.getId() , e);
                 throw new RuntimeException(e);
