@@ -96,7 +96,8 @@ public class JobServiceImpl extends BaseServiceImpl<SchedulerJob, Integer> imple
         } else {
             depencies = job.getDependIds();
         }
-        if(job.getDependIds().contains(job.getId())) {
+        if(job.getDependIds() != null && job.getDependIds().size() > 0 && 
+        		job.getDependIds().contains(job.getId())) {
             throw new ThalesRuntimeException("job " + job.getId() + " can not depend itself");
         }
         if (isCycleReference(job)) {

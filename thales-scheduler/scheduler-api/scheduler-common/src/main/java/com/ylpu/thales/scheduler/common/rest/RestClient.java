@@ -40,9 +40,9 @@ public class RestClient {
     
     private static final int CONNECT_REQUEST_TIMEOUT = 50000;
 
-    private static final int MAX_TOTAL = 200;
+    private static final int MAX_TOTAL = 20;
 
-    private static final int MAX_PER_ROUTE = 200;
+    private static final int MAX_PER_ROUTE = 20;
     
     private static HttpComponentsClientHttpRequestFactory factory;
     
