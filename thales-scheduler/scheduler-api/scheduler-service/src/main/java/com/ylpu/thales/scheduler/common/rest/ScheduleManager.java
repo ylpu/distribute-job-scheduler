@@ -3,7 +3,7 @@ package com.ylpu.thales.scheduler.common.rest;
 import org.springframework.http.ResponseEntity;
 
 import com.ylpu.thales.scheduler.request.ScheduleRequest;
-import com.ylpu.thales.scheduler.request.WorkerRequest;
+import com.ylpu.thales.scheduler.request.NodeRequest;
 
 public class ScheduleManager {
 
@@ -79,7 +79,7 @@ public class ScheduleManager {
         }
     }
     
-    public static int markDown(String url,WorkerRequest request) {
+    public static int markDown(String url,NodeRequest request) {
         try {
             ResponseEntity<Object> response = RestClient.post(url + "worker/down", request);
             return response.getStatusCode().value();

@@ -22,9 +22,9 @@ import com.ylpu.thales.scheduler.master.strategy.JobStrategy;
 import com.ylpu.thales.scheduler.master.strategy.ResourceStrategy;
 import com.ylpu.thales.scheduler.master.strategy.ResourceStrategyContext;
 import com.ylpu.thales.scheduler.master.strategy.WorkerSelectStrategy;
-import com.ylpu.thales.scheduler.request.WorkerRequest;
+import com.ylpu.thales.scheduler.request.NodeRequest;
 import com.ylpu.thales.scheduler.response.JobInstanceStateResponse;
-import com.ylpu.thales.scheduler.response.WorkerResponse;
+import com.ylpu.thales.scheduler.response.NodeResponse;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -50,7 +50,7 @@ public class MasterManager {
     private Map<String, List<String>> groups = new HashMap<String, List<String>>();
 
     // key is hostname,value is host info
-    private Map<String, WorkerResponse> resourceMap = new HashMap<String, WorkerResponse>();
+    private Map<String, NodeResponse> resourceMap = new HashMap<String, NodeResponse>();
     
     private Map<String, String> workerGroupMap = new HashMap<String, String>();
 
@@ -173,16 +173,17 @@ public class MasterManager {
             while (true) {
                 try {
                     client = CuratorHelper.getCuratorClient(quorum, sessionTimeout, connectionTimeout);
-                    WorkerRequest workerRequest = new WorkerRequest();
-                    workerRequest.setHost(MetricsUtils.getHostName());
-                    workerRequest.setCpuUsage(MetricsUtils.getCpuUsage());
-                    workerRequest.setMemoryUsage(MetricsUtils.getMemoryUsage());
-                    workerRequest.setWorkerStatus(WorkerStatus.UPDATED.getCode());
-                    workerRequest.setWorkerType(NodeType.MASTER.getCode());
-                    workerRequest.setPort(masterPort);
-                    workerRequest.setZkdirectory(masterPath);
-                    workerRequest.setLastHeartbeatTime(new Date());
-                    CuratorHelper.setData(client, masterPath, ByteUtils.objectToByteArray(workerRequest));
+                    NodeRequest nodeRequest = new NodeRequest();
+                    nodeRequest.setHost(MetricsUtils.getHostName());
+                    nodeRequest.setWorkerGroup(NodeType.MASTER.toString().toLowerCase());
+                    nodeRequest.setCpuUsage(MetricsUtils.getCpuUsage());
+                    nodeRequest.setMemoryUsage(MetricsUtils.getMemoryUsage());
+                    nodeRequest.setWorkerStatus(WorkerStatus.UPDATED.getCode());
+                    nodeRequest.setWorkerType(NodeType.MASTER.getCode());
+                    nodeRequest.setPort(masterPort);
+                    nodeRequest.setZkdirectory(masterPath);
+                    nodeRequest.setLastHeartbeatTime(new Date());
+                    CuratorHelper.setData(client, masterPath, ByteUtils.objectToByteArray(nodeRequest));
                 } catch (Exception e) {
                     LOG.error(e);
                 } finally {
@@ -326,23 +327,23 @@ public class MasterManager {
      * @param serverName
      * @param resourceParams
      */
-    public void updateResource(WorkerRequest request) {
+    public void updateResource(NodeRequest request) {
         synchronized (resourceMap) {
-            WorkerResponse workerInfo = resourceMap.get(request.getHost());
-            if (workerInfo == null) {
-                workerInfo = new WorkerResponse();
-                resourceMap.put(request.getHost() + ":" + request.getPort(), workerInfo);
+            NodeResponse nodeResponse = resourceMap.get(request.getHost());
+            if (nodeResponse == null) {
+            	nodeResponse = new NodeResponse();
+                resourceMap.put(request.getHost() + ":" + request.getPort(), nodeResponse);
             }
-            workerInfo.setHost(request.getHost());
-            workerInfo.setCpuUsage(request.getCpuUsage());
-            workerInfo.setMemoryUsage(request.getMemoryUsage());
-            workerInfo.setWorkerStatus(WorkerStatus.getWorkerStatus(request.getWorkerStatus()));
-            workerInfo.setWorkerGroup(request.getWorkerGroup());
-            workerInfo.setLastHeartbeatTime(
+            nodeResponse.setHost(request.getHost());
+            nodeResponse.setCpuUsage(request.getCpuUsage());
+            nodeResponse.setMemoryUsage(request.getMemoryUsage());
+            nodeResponse.setWorkerStatus(WorkerStatus.getWorkerStatus(request.getWorkerStatus()));
+            nodeResponse.setWorkerGroup(request.getWorkerGroup());
+            nodeResponse.setLastHeartbeatTime(
                     DateUtils.getDateAsString(request.getLastHeartbeatTime(), DateUtils.DATE_TIME_FORMAT));
-            workerInfo.setPort(request.getPort());
-            workerInfo.setZkdirectory(request.getZkdirectory());
-            workerInfo.setWorkerType(request.getWorkerType());
+            nodeResponse.setPort(request.getPort());
+            nodeResponse.setZkdirectory(request.getZkdirectory());
+            nodeResponse.setWorkerType(NodeType.getNodeType(request.getWorkerType()).toString());
         }
     }
 
@@ -392,7 +393,7 @@ public class MasterManager {
                     case CHILD_UPDATED:
                         String udpatedPath = pathChildrenCacheEvent.getData().getPath();
                         byte[] bytes = CuratorHelper.getData(curatorFramework, udpatedPath);
-                        WorkerRequest request = (WorkerRequest) ByteUtils.byteArrayToObject(bytes);
+                        NodeRequest request = (NodeRequest) ByteUtils.byteArrayToObject(bytes);
                         updateResource(request);
                     default:
                         break;
@@ -480,7 +481,7 @@ public class MasterManager {
      * @return
      * @throws Exception 
      */
-    public synchronized WorkerResponse getIdleWorker(String groupName, String... lastFailedWorkers) throws Exception {
+    public synchronized NodeResponse getIdleWorker(String groupName, String... lastFailedWorkers) throws Exception {
 //        String workerStrategy = GroupStrategyManager.getGroupStrategy(groupName).getGroupStrategy();
         String groupStrategy = workerGroupMap.get(groupName);
         WorkerSelectStrategy workerSelectStrategy = ResourceStrategy
@@ -501,11 +502,11 @@ public class MasterManager {
         this.groups = groups;
     }
 
-    public Map<String, WorkerResponse> getResourceMap() {
+    public Map<String, NodeResponse> getResourceMap() {
         return resourceMap;
     }
 
-    public void setResourceMap(Map<String, WorkerResponse> resourceMap) {
+    public void setResourceMap(Map<String, NodeResponse> resourceMap) {
         this.resourceMap = resourceMap;
     }
 

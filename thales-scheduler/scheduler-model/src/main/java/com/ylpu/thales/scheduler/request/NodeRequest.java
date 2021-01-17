@@ -5,7 +5,7 @@ import java.util.Date;
 import lombok.Data;
 
 @Data
-public class WorkerRequest implements Serializable {
+public class NodeRequest implements Serializable {
 
     private Integer id;
 

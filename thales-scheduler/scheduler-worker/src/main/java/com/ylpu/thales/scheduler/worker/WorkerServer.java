@@ -11,7 +11,7 @@ import com.ylpu.thales.scheduler.enums.WorkerStatus;
 import com.ylpu.thales.scheduler.executor.log.LogServer;
 import com.ylpu.thales.scheduler.executor.rpc.client.WorkerGrpcClient;
 import com.ylpu.thales.scheduler.executor.rpc.server.WorkerRpcServer;
-import com.ylpu.thales.scheduler.request.WorkerRequest;
+import com.ylpu.thales.scheduler.request.NodeRequest;
 import org.I0Itec.zkclient.ZkClient;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.logging.Log;
@@ -180,17 +180,17 @@ public class WorkerServer {
                         nodeStatus = WorkerStatus.UPDATED.getCode();
                     }
                     client = CuratorHelper.getCuratorClient(quorum, sessionTimeout, connectionTimeout);
-                    WorkerRequest workerRequest = new WorkerRequest();
-                    workerRequest.setHost(MetricsUtils.getHostName());
-                    workerRequest.setCpuUsage(MetricsUtils.getCpuUsage());
-                    workerRequest.setMemoryUsage(MetricsUtils.getMemoryUsage());
-                    workerRequest.setWorkerGroup(workerGroup);
-                    workerRequest.setWorkerStatus(nodeStatus);
-                    workerRequest.setWorkerType(NodeType.WORKER.getCode());
-                    workerRequest.setPort(workerPort);
-                    workerRequest.setZkdirectory(workerPath);
-                    workerRequest.setLastHeartbeatTime(new Date());
-                    CuratorHelper.setData(client, workerPath, ByteUtils.objectToByteArray(workerRequest));
+                    NodeRequest nodeRequest = new NodeRequest();
+                    nodeRequest.setHost(MetricsUtils.getHostName());
+                    nodeRequest.setCpuUsage(MetricsUtils.getCpuUsage());
+                    nodeRequest.setMemoryUsage(MetricsUtils.getMemoryUsage());
+                    nodeRequest.setWorkerGroup(workerGroup);
+                    nodeRequest.setWorkerStatus(nodeStatus);
+                    nodeRequest.setWorkerType(NodeType.WORKER.getCode());
+                    nodeRequest.setPort(workerPort);
+                    nodeRequest.setZkdirectory(workerPath);
+                    nodeRequest.setLastHeartbeatTime(new Date());
+                    CuratorHelper.setData(client, workerPath, ByteUtils.objectToByteArray(nodeRequest));
                 } catch (Exception e) {
                     LOG.error(e);
                 } finally {

@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 import com.ylpu.thales.scheduler.core.config.Configuration;
 import com.ylpu.thales.scheduler.core.constants.GlobalConstants;
 import com.ylpu.thales.scheduler.master.server.MasterManager;
-import com.ylpu.thales.scheduler.response.WorkerResponse;
+import com.ylpu.thales.scheduler.response.NodeResponse;
 
 import java.util.Comparator;
 
@@ -23,18 +23,18 @@ public class CpuIdleStrategy implements WorkerSelectStrategy {
     private static String CPU_LIMTI = "thales.schedule.{0}.cpu.limit";
     
     @Override
-    public synchronized WorkerResponse getIdleWorker(MasterManager rm, String groupName, String... lastFailedHosts) {
+    public synchronized NodeResponse getIdleWorker(MasterManager rm, String groupName, String... lastFailedHosts) {
         List<String> servers = rm.getGroups().get(GlobalConstants.WORKER_GROUP + "/" + groupName);
-        List<WorkerResponse> sortedServers = new ArrayList<WorkerResponse>();
+        List<NodeResponse> sortedServers = new ArrayList<NodeResponse>();
         if (servers != null && servers.size() > 0) {
             for (String server : servers) {
                 if (rm.getResourceMap().get(server) != null) {
                     sortedServers.add(rm.getResourceMap().get(server));
                 }
             }
-            Collections.sort(sortedServers, new Comparator<WorkerResponse>() {
+            Collections.sort(sortedServers, new Comparator<NodeResponse>() {
                 @Override
-                public int compare(WorkerResponse n1, WorkerResponse n2) {
+                public int compare(NodeResponse n1, NodeResponse n2) {
                     if (n1.getCpuUsage() > n2.getCpuUsage()) {
                         return 1;
                     } else if (n1.getCpuUsage() < n2.getCpuUsage()) {
@@ -48,11 +48,11 @@ public class CpuIdleStrategy implements WorkerSelectStrategy {
                 if (lastFailedHosts == null || lastFailedHosts.length == 0) {
                     return sortedServers.get(0);
                 } else {
-                    List<WorkerResponse> runningServers = sortedServers.stream()
+                    List<NodeResponse> runningServers = sortedServers.stream()
                             .filter(hostInfo -> !Arrays.asList(lastFailedHosts).contains(hostInfo.getHost()))
                             .collect(Collectors.toList());
                     if (runningServers != null && runningServers.size() > 0) {
-                        WorkerResponse worker = runningServers.get(0);
+                        NodeResponse worker = runningServers.get(0);
                         Properties prop = Configuration.getConfig();
                         String key = MessageFormat.format(CPU_LIMTI, groupName.toLowerCase());
                         int cpuUsageLimit = Configuration.getInt(prop, key, 95);

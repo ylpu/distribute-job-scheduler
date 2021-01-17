@@ -28,7 +28,7 @@ import com.ylpu.thales.scheduler.request.JobInstanceRequest;
 //import com.ylpu.thales.scheduler.request.JobStatusRequest;
 import com.ylpu.thales.scheduler.response.JobInstanceResponse;
 import com.ylpu.thales.scheduler.response.JobResponse;
-import com.ylpu.thales.scheduler.response.WorkerResponse;
+import com.ylpu.thales.scheduler.response.NodeResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -161,7 +161,7 @@ public class JobSubmission {
                     AbstractJobGrpcClient client = null;
                     try {
                         LOG.info("job " + taskCall.getRpcRequest().getId() + " start to get worker at " + DateUtils.getDateAsString(new Date(),DateUtils.TIME_FORMAT));
-                        WorkerResponse worker = getAvailableWorker(taskCall.getRpcRequest());
+                        NodeResponse worker = getAvailableWorker(taskCall.getRpcRequest());
                         if(worker != null) {
                             try {
                                 LOG.info("job " + taskCall.getRpcRequest().getId() + " start to get rpc client at " + DateUtils.getDateAsString(new Date(),DateUtils.TIME_FORMAT));
@@ -186,8 +186,8 @@ public class JobSubmission {
             }
         }
         
-        private WorkerResponse getAvailableWorker(JobInstanceRequestRpc rpcRequest) {
-            WorkerResponse worker = null;
+        private NodeResponse getAvailableWorker(JobInstanceRequestRpc rpcRequest) {
+            NodeResponse worker = null;
             int i = 1;
             while (waitingResourceMap.get(rpcRequest.getJob().getWorkerGroupname())) {
                 try {
@@ -221,7 +221,7 @@ public class JobSubmission {
             JobManager.transitTaskStatus(request);
         }
         
-        private AbstractJobGrpcClient getClient(WorkerResponse worker,GrpcType grpcType) throws Exception{
+        private AbstractJobGrpcClient getClient(NodeResponse worker,GrpcType grpcType) throws Exception{
             AbstractJobGrpcClient client = null;
             if (grpcType == GrpcType.SYNC) {
                 client = new JobGrpcBlockingClient(worker.getHost(), worker.getPort());

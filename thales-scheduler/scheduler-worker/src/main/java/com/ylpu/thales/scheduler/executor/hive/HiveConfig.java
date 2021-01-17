@@ -2,8 +2,6 @@ package com.ylpu.thales.scheduler.executor.hive;
 
 import java.util.Map;
 
-import com.ylpu.thales.scheduler.executor.hive.Config;
-
 public class HiveConfig {
 
     private String fileName;

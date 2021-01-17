@@ -5,11 +5,11 @@ import com.ylpu.thales.scheduler.enums.WorkerStatus;
 import lombok.Data;
 
 @Data
-public class WorkerResponse implements Serializable {
+public class NodeResponse implements Serializable {
 
     private Integer id;
 
-    private Integer workerType;
+    private String workerType;
 
     private String host;
 

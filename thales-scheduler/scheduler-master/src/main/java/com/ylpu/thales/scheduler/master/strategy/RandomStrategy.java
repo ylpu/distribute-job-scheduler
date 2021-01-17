@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Random;
 import com.ylpu.thales.scheduler.core.constants.GlobalConstants;
 import com.ylpu.thales.scheduler.master.server.MasterManager;
-import com.ylpu.thales.scheduler.response.WorkerResponse;
+import com.ylpu.thales.scheduler.response.NodeResponse;
 
 /**
  * 从group中随机选一台机器去提交任务
@@ -12,9 +12,9 @@ import com.ylpu.thales.scheduler.response.WorkerResponse;
  */
 public class RandomStrategy implements WorkerSelectStrategy {
     @Override
-    public synchronized WorkerResponse getIdleWorker(MasterManager rm, String groupName, String... lastFailedHosts) {
+    public synchronized NodeResponse getIdleWorker(MasterManager rm, String groupName, String... lastFailedHosts) {
         List<String> servers = rm.getGroups().get(GlobalConstants.WORKER_GROUP + "/" + groupName);
-        WorkerResponse idleServer = null;
+        NodeResponse idleServer = null;
         if (servers != null && servers.size() > 0) {
             String[] keys = servers.toArray(new String[0]);
             Random random = new Random();

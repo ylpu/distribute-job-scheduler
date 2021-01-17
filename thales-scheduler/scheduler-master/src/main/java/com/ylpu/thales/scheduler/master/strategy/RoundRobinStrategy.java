@@ -4,7 +4,7 @@ import java.util.List;
 
 import com.ylpu.thales.scheduler.core.constants.GlobalConstants;
 import com.ylpu.thales.scheduler.master.server.MasterManager;
-import com.ylpu.thales.scheduler.response.WorkerResponse;
+import com.ylpu.thales.scheduler.response.NodeResponse;
 
 /**
  * round robin to choose task from worker group to submit task
@@ -15,7 +15,7 @@ public class RoundRobinStrategy implements WorkerSelectStrategy {
     private static Integer pos = 0;
 
     @Override
-    public synchronized WorkerResponse getIdleWorker(MasterManager rm, String groupName, String... lastFailedHosts) {
+    public synchronized NodeResponse getIdleWorker(MasterManager rm, String groupName, String... lastFailedHosts) {
         List<String> servers = rm.getGroups().get(GlobalConstants.WORKER_GROUP + "/" + groupName);
         if (pos >= servers.size()) {
             pos = 0;

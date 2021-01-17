@@ -8,8 +8,6 @@ import com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc;
 import com.ylpu.thales.scheduler.core.utils.DateUtils;
 import com.ylpu.thales.scheduler.enums.GrpcType;
 import com.ylpu.thales.scheduler.enums.TaskState;
-import com.ylpu.thales.scheduler.master.schedule.JobSubmission;
-import com.ylpu.thales.scheduler.master.schedule.TaskCall;
 import com.ylpu.thales.scheduler.request.JobInstanceRequest;
 import java.util.Date;
 import java.util.List;

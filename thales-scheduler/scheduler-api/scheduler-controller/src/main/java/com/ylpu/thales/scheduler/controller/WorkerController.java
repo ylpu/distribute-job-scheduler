@@ -1,9 +1,9 @@
 package com.ylpu.thales.scheduler.controller;
 
 import com.github.pagehelper.PageInfo;
-import com.ylpu.thales.scheduler.request.WorkerRequest;
+import com.ylpu.thales.scheduler.request.NodeRequest;
 import com.ylpu.thales.scheduler.response.SchedulerResponse;
-import com.ylpu.thales.scheduler.response.WorkerResponse;
+import com.ylpu.thales.scheduler.response.NodeResponse;
 import com.ylpu.thales.scheduler.service.WorkerService;
 import java.util.List;
 import javax.servlet.http.HttpSession;
@@ -32,18 +32,18 @@ public class WorkerController {
 
     @ResponseBody
     @RequestMapping(value = "/paging", method = RequestMethod.GET)
-    public SchedulerResponse<PageInfo<WorkerResponse>> paging(
+    public SchedulerResponse<PageInfo<NodeResponse>> paging(
             @RequestParam(value = "pageNo", required = false, defaultValue = "1") Integer pageNo,
             @RequestParam(value = "pageSize", required = false, defaultValue = "10") Integer pageSize,
             @RequestParam(value = "workerGroup", required = false) String workerGroup,
             @RequestParam(value = "worker", required = false) String worker) {
-        return new SchedulerResponse<PageInfo<WorkerResponse>>(
+        return new SchedulerResponse<PageInfo<NodeResponse>>(
                 workerService.findAll(workerGroup, worker, pageNo, pageSize));
     }
      
     @ResponseBody
     @RequestMapping(value = "/markDown", method = RequestMethod.POST)
-    public SchedulerResponse<Void> markDown(@Validated @RequestBody WorkerRequest request, HttpSession session) {
+    public SchedulerResponse<Void> markDown(@Validated @RequestBody NodeRequest request, HttpSession session) {
         Object object = session.getAttribute("user");
         workerService.markDown(request, object);
         return SchedulerResponse.success();

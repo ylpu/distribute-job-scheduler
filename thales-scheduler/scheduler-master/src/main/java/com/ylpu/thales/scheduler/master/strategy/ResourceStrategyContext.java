@@ -1,7 +1,7 @@
 package com.ylpu.thales.scheduler.master.strategy;
 
 import com.ylpu.thales.scheduler.master.server.MasterManager;
-import com.ylpu.thales.scheduler.response.WorkerResponse;
+import com.ylpu.thales.scheduler.response.NodeResponse;
 
 public class ResourceStrategyContext {
 
@@ -11,7 +11,7 @@ public class ResourceStrategyContext {
         this.strategy = strategy;
     }
 
-    public WorkerResponse select(MasterManager rm, String groupName, String... lastFailedHosts) {
+    public NodeResponse select(MasterManager rm, String groupName, String... lastFailedHosts) {
         return strategy.getIdleWorker(rm, groupName, lastFailedHosts);
     }
 }

@@ -24,12 +24,13 @@ import com.ylpu.thales.scheduler.common.service.impl.BaseServiceImpl;
 import com.ylpu.thales.scheduler.common.utils.ByteUtils;
 import com.ylpu.thales.scheduler.common.utils.DateUtils;
 import com.ylpu.thales.scheduler.entity.BaseEntity;
+import com.ylpu.thales.scheduler.enums.NodeType;
 import com.ylpu.thales.scheduler.enums.RoleTypes;
 import com.ylpu.thales.scheduler.enums.WorkerStatus;
-import com.ylpu.thales.scheduler.request.WorkerRequest;
+import com.ylpu.thales.scheduler.request.NodeRequest;
 import com.ylpu.thales.scheduler.response.MasterUsageResponse;
 import com.ylpu.thales.scheduler.response.UserResponse;
-import com.ylpu.thales.scheduler.response.WorkerResponse;
+import com.ylpu.thales.scheduler.response.NodeResponse;
 import com.ylpu.thales.scheduler.response.WorkerUsageResponse;
 import com.ylpu.thales.scheduler.service.WorkerService;
 import com.ylpu.thales.scheduler.service.exception.ThalesRuntimeException;
@@ -41,35 +42,41 @@ public class WorkerServiceImpl extends BaseServiceImpl<BaseEntity, Serializable>
     private static final Log LOG = LogFactory.getLog(WorkerServiceImpl.class);
 
     @Override
-    public PageInfo<WorkerResponse> findAll(String workerGroup, String worker, int pageNo, int pageSize) {
+    public PageInfo<NodeResponse> findAll(String workerGroup, String worker, int pageNo, int pageSize) {
 
-        Page<WorkerResponse> page = new Page<WorkerResponse>();
-        List<WorkerRequest> allWorkerList = getAllWorkers();
+        Page<NodeResponse> page = new Page<NodeResponse>();
+        List<NodeRequest> allWorkerList = getAllWorkers();
         if(StringUtils.isNoneBlank(workerGroup)) {
             allWorkerList = allWorkerList.stream().filter(request -> request.getWorkerGroup().equalsIgnoreCase(workerGroup)).collect(Collectors.toList());
         }
         if(StringUtils.isNoneBlank(worker)) {
             allWorkerList = allWorkerList.stream().filter(request -> request.getHost().equalsIgnoreCase(worker)).collect(Collectors.toList());
         }
+        List<NodeRequest> masters = getMasters();
+        if(masters != null & masters.size() > 0) {
+        	allWorkerList.addAll(masters);
+        }
+        
         int total = allWorkerList.size();
         if (allWorkerList != null && allWorkerList.size() > 0) {
-            List<WorkerRequest> pageWorkerList = new ArrayList<WorkerRequest>();
+            List<NodeRequest> pageWorkerList = new ArrayList<NodeRequest>();
             for(int i = (pageNo-1) * pageSize; i< getEndIndex(pageNo,pageSize,total); i++) {
                 pageWorkerList.add(allWorkerList.get(i));
             }
-            WorkerResponse workerResponse = null;
-            for (WorkerRequest wokerRequest : pageWorkerList) {
-                workerResponse = new WorkerResponse();
-                BeanUtils.copyProperties(wokerRequest, workerResponse);
-                workerResponse.setHost(wokerRequest.getHost());
-                workerResponse.setWorkerStatus(WorkerStatus.getWorkerStatus(wokerRequest.getWorkerStatus()));
-                workerResponse.setLastHeartbeatTime(
-                        DateUtils.getDateAsString(wokerRequest.getLastHeartbeatTime(), DateUtils.DATE_TIME_FORMAT));
-                page.add(workerResponse);
+            NodeResponse nodeResponse = null;
+            for (NodeRequest nodeRequest : pageWorkerList) {
+                nodeResponse = new NodeResponse();
+                BeanUtils.copyProperties(nodeRequest, nodeResponse);
+                nodeResponse.setHost(nodeRequest.getHost());
+                nodeResponse.setWorkerType(NodeType.getNodeType(nodeRequest.getWorkerType()).toString());
+                nodeResponse.setWorkerStatus(WorkerStatus.getWorkerStatus(nodeRequest.getWorkerStatus()));
+                nodeResponse.setLastHeartbeatTime(
+                        DateUtils.getDateAsString(nodeRequest.getLastHeartbeatTime(), DateUtils.DATE_TIME_FORMAT));
+                page.add(nodeResponse);
             }
         }
         page.setTotal(allWorkerList.size());
-        PageInfo<WorkerResponse> pageInfo = new PageInfo<WorkerResponse>(page);
+        PageInfo<NodeResponse> pageInfo = new PageInfo<NodeResponse>(page);
         return pageInfo;
     }
     
@@ -82,8 +89,8 @@ public class WorkerServiceImpl extends BaseServiceImpl<BaseEntity, Serializable>
     }
     
     
-    public List<WorkerRequest> getAllWorkers(){
-        List<WorkerRequest> list = new ArrayList<WorkerRequest>();
+    public List<NodeRequest> getAllWorkers(){
+        List<NodeRequest> list = new ArrayList<NodeRequest>();
         Properties prop = Configuration.getConfig();
         String quorum =  Configuration.getString(prop, "thales.zookeeper.quorum", "");
         int sessionTimeout = Configuration.getInt(prop, "thales.zookeeper.sessionTimeout",
@@ -100,10 +107,37 @@ public class WorkerServiceImpl extends BaseServiceImpl<BaseEntity, Serializable>
                     if(workerList != null && workerList.size() > 0) {
                         for(String worker : workerList) {
                             byte[] bytes = CuratorHelper.getData(client, GlobalConstants.WORKER_GROUP + "/" + group + "/" + worker);
-                            WorkerRequest request = (WorkerRequest) ByteUtils.byteArrayToObject(bytes);
+                            NodeRequest request = (NodeRequest) ByteUtils.byteArrayToObject(bytes);
                             list.add(request);
                         }
                     }
+                }
+            }
+        } catch (Exception e) {
+            LOG.error(e);
+        }finally {
+            CuratorHelper.close(client);
+        }
+        return list;
+    }
+    
+    public List<NodeRequest> getMasters(){
+        List<NodeRequest> list = new ArrayList<NodeRequest>();
+        Properties prop = Configuration.getConfig();
+        String quorum =  Configuration.getString(prop, "thales.zookeeper.quorum", "");
+        int sessionTimeout = Configuration.getInt(prop, "thales.zookeeper.sessionTimeout",
+                GlobalConstants.ZOOKEEPER_SESSION_TIMEOUT);
+        int connectionTimeout = Configuration.getInt(prop, "thales.zookeeper.connectionTimeout",
+                GlobalConstants.ZOOKEEPER_CONNECTION_TIMEOUT);
+        CuratorFramework client  = CuratorHelper.getCuratorClient(quorum, sessionTimeout, connectionTimeout);
+        List<String> masters;
+        try {
+        	masters = CuratorHelper.getChildren(client, GlobalConstants.MASTER_GROUP);
+            if(masters != null && masters.size() > 0) {
+                for(String master : masters) {
+                    byte[] bytes = CuratorHelper.getData(client, GlobalConstants.MASTER_GROUP + "/" + master);
+                    NodeRequest request = (NodeRequest) ByteUtils.byteArrayToObject(bytes);
+                    list.add(request);
                 }
             }
         } catch (Exception e) {
@@ -139,10 +173,10 @@ public class WorkerServiceImpl extends BaseServiceImpl<BaseEntity, Serializable>
     public List<WorkerUsageResponse> getWorkerCpuUsage() {
         List<WorkerUsageResponse> responses = new ArrayList<WorkerUsageResponse>();
         WorkerUsageResponse response = null;
-        List<WorkerRequest> list = getAllWorkers();
+        List<NodeRequest> list = getAllWorkers();
         
         if (list != null && list.size() > 0) {
-            for (WorkerRequest workerUsage : list) {
+            for (NodeRequest workerUsage : list) {
                 response = new WorkerUsageResponse();
                 response.setWorker(workerUsage.getHost() + ":" + workerUsage.getPort());
                 response.setUsage(workerUsage.getCpuUsage());
@@ -156,9 +190,9 @@ public class WorkerServiceImpl extends BaseServiceImpl<BaseEntity, Serializable>
     public List<WorkerUsageResponse> getWorkerMemoryUsage() {
         List<WorkerUsageResponse> responses = new ArrayList<WorkerUsageResponse>();
         WorkerUsageResponse response = null;
-        List<WorkerRequest> list = getAllWorkers();
+        List<NodeRequest> list = getAllWorkers();
         if (list != null && list.size() > 0) {
-            for (WorkerRequest workerUsage : list) {
+            for (NodeRequest workerUsage : list) {
                 response = new WorkerUsageResponse();
                 response.setWorker(workerUsage.getHost() + ":" + workerUsage.getPort());
                 response.setUsage(workerUsage.getMemoryUsage());
@@ -169,7 +203,7 @@ public class WorkerServiceImpl extends BaseServiceImpl<BaseEntity, Serializable>
     }
     
     @Override
-    public void markDown(WorkerRequest request, Object object) {
+    public void markDown(NodeRequest request, Object object) {
         if (!isAdmin(object)) {
             throw new ThalesRuntimeException("none admin can not down executor");
         }
@@ -221,7 +255,7 @@ public class WorkerServiceImpl extends BaseServiceImpl<BaseEntity, Serializable>
                 if(masters != null && masters.size() > 0) {
                     MasterUsageResponse cpu = new MasterUsageResponse();
                     byte[] bytes = CuratorHelper.getData(client, GlobalConstants.MASTER_GROUP + "/" + masters.get(0));
-                    WorkerRequest request = (WorkerRequest) ByteUtils.byteArrayToObject(bytes);
+                    NodeRequest request = (NodeRequest) ByteUtils.byteArrayToObject(bytes);
                     cpu.setHostName(request.getHost() + ":" + request.getPort());
                     cpu.setValue(request.getCpuUsage());
                     metricList.add(cpu);
@@ -254,7 +288,7 @@ public class WorkerServiceImpl extends BaseServiceImpl<BaseEntity, Serializable>
                 if(masters != null && masters.size() > 0) {
                     MasterUsageResponse memory = new MasterUsageResponse();
                     byte[] bytes = CuratorHelper.getData(client, GlobalConstants.MASTER_GROUP + "/" + masters.get(0));
-                    WorkerRequest request = (WorkerRequest) ByteUtils.byteArrayToObject(bytes);
+                    NodeRequest request = (NodeRequest) ByteUtils.byteArrayToObject(bytes);
                     
                     memory.setHostName(request.getHost() + ":" + request.getPort());
                     memory.setValue(request.getMemoryUsage());

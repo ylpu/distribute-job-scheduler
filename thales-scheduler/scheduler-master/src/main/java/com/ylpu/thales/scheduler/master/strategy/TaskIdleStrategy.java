@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 import com.ylpu.thales.scheduler.core.config.Configuration;
 import com.ylpu.thales.scheduler.core.constants.GlobalConstants;
 import com.ylpu.thales.scheduler.master.server.MasterManager;
-import com.ylpu.thales.scheduler.response.WorkerResponse;
+import com.ylpu.thales.scheduler.response.NodeResponse;
 
 /**
  * choose most task idle worker from worker group to submit task
@@ -26,12 +26,12 @@ public class TaskIdleStrategy implements WorkerSelectStrategy {
     private static String TASK_LIMTI = "thales.schedule.{0}.task.limit";
 
     @Override
-    public synchronized WorkerResponse getIdleWorker(MasterManager rm, String groupName, String... lastFailedHosts) {
+    public synchronized NodeResponse getIdleWorker(MasterManager rm, String groupName, String... lastFailedHosts) {
 
         List<String> poolServers = rm.getGroups().get(GlobalConstants.WORKER_GROUP + "/" + groupName);
         Map<String, Integer> poolServerTasks = new HashMap<String, Integer>();
 
-        Map<String, WorkerResponse> resourceMap = rm.getResourceMap();
+        Map<String, NodeResponse> resourceMap = rm.getResourceMap();
         Map<String, Integer> taskMap = rm.getTaskMap();
 
         if (poolServers != null && poolServers.size() > 0) {
