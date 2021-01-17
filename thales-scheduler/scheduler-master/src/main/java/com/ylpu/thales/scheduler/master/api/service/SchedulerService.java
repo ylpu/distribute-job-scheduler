@@ -97,7 +97,6 @@ public class SchedulerService {
     
     private void cleanExistingTask(JobInstanceResponse jobInstanceResponse,String responseId) throws Exception {
 
-        //remove rpc request from request map
         if(jobInstanceResponse.getTaskState() == TaskState.SCHEDULED || 
                 jobInstanceResponse.getTaskState() == TaskState.SUBMIT) {
             JobStatusChecker.getJobInstanceRequestMap().remove(responseId);
@@ -113,7 +112,6 @@ public class SchedulerService {
             }
         }
         else if(jobInstanceResponse.getTaskState() == TaskState.WAITING_RESOURCE) {
-//          cancel waiting
             JobStatusChecker.getJobInstanceRequestMap().remove(responseId);
             JobSubmission.getWaitingResourceMap().put(jobInstanceResponse.getJobConf().getWorkerGroupname(), false);
         }else if (jobInstanceResponse.getTaskState() == TaskState.RUNNING) {
@@ -122,7 +120,6 @@ public class SchedulerService {
                 || jobInstanceResponse.getTaskState() == TaskState.KILL) {
             JobStatusChecker.getResponses().remove(responseId);
         }
-        JobStatusChecker.getMailMap().remove(responseId);
     }
     
     private void removeJobDependency(JobInstanceResponse jobInstanceResponse,String jobRequestId) {
