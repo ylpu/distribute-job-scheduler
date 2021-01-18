@@ -175,7 +175,6 @@ public class JobSubmission {
                             LOG.info("job " + taskCall.getRpcRequest().getId() + " finish submit to worker at " + DateUtils.getDateAsString(new Date(),DateUtils.TIME_FORMAT));
                         }
                     }finally {
-                        // 同步rpc直接关闭，异步rpc需要内部关闭
                         if (taskCall.getGrpcType() == GrpcType.SYNC) {
                             if (client != null) {
                                 client.shutdown();
@@ -250,7 +249,7 @@ public class JobSubmission {
                         setAlertEvent(event, jobInstanceResponse);
                         try {
                             eventBus.post(event);
-//                          防止重复发送
+//                          avoid duplicate send
                             JobStatusChecker.getMailMap().put(taskCall.getRpcRequest().getRequestId(), 
                                     taskCall.getRpcRequest().getRequestId()); 
                         }catch(Exception e) {

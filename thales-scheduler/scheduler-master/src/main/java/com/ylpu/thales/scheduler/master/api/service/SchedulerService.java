@@ -275,7 +275,6 @@ public class SchedulerService {
             JobInstanceRequest request = new JobInstanceRequest();
             request.setParameters(jobInstanceResponse.getParameters());
             try {
-                // 初始化任务
                 JobSubmission.initJobInstance(request, jobInstanceResponse.getJobConf());
                 request.setId(jobInstanceResponse.getId());
                 request.setRetryTimes(jobInstanceResponse.getRetryTimes() + 1);

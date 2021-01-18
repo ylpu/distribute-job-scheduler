@@ -6,7 +6,12 @@ import lombok.Data;
 @Data
 public class RoleRequest implements Serializable {
 
-    private Integer id;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	private Integer id;
 
     private String roleName;
 
