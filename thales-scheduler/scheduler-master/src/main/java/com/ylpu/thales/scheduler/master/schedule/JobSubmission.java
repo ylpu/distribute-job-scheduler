@@ -137,7 +137,7 @@ public class JobSubmission {
         PriorityBlockingQueue<TaskCall> taskQueue = workerGroupQueue.get(workerGroupName);
         if(taskQueue == null) {
             waitingResourceMap.put(workerGroupName, true);
-            workerGroupQueue.put(workerGroupName, new PriorityBlockingQueue<TaskCall>());
+            workerGroupQueue.put(workerGroupName, new PriorityBlockingQueue<TaskCall>(10000));
             workerGroupQueue.get(workerGroupName).add(taskCall);
 //            taskEs.submit(new TaskWaitingThread(workerGroupQueue.get(workerGroupName)));
             new Thread(new TaskWaitingThread(workerGroupQueue.get(workerGroupName))).start();
@@ -156,6 +156,7 @@ public class JobSubmission {
         @Override
         public void run() {
             while (true) {
+                
                 TaskCall taskCall = taskQueue.poll();
                 if (taskCall != null) {
                     AbstractJobGrpcClient client = null;
@@ -169,10 +170,18 @@ public class JobSubmission {
                             } catch (Exception e) {
                                 LOG.error("fail to get rpc client to submit task " + taskCall.getRpcRequest().getId() + 
                                         " with exception " + e.getMessage());
+                                try {
+                                    transitTaskStatus(taskCall.getRpcRequest(),TaskState.FAIL);
+                                } catch (Exception e1) {
+                                    LOG.error("fail to transit task " + taskCall.getRpcRequest().getId() + 
+                                            " to fail with exception " + e.getMessage());
+                                }
                             }
-                            LOG.info("job " + taskCall.getRpcRequest().getId() + " start to submit to worker at " + DateUtils.getDateAsString(new Date(),DateUtils.TIME_FORMAT));
-                            client.submitJob(taskCall.getRpcRequest());
-                            LOG.info("job " + taskCall.getRpcRequest().getId() + " finish submit to worker at " + DateUtils.getDateAsString(new Date(),DateUtils.TIME_FORMAT));
+                            if(client != null) {
+                                LOG.info("job " + taskCall.getRpcRequest().getId() + " start to submit to worker at " + DateUtils.getDateAsString(new Date(),DateUtils.TIME_FORMAT));
+                                client.submitJob(taskCall.getRpcRequest());
+                                LOG.info("job " + taskCall.getRpcRequest().getId() + " finish submit to worker at " + DateUtils.getDateAsString(new Date(),DateUtils.TIME_FORMAT));
+                            }
                         }
                     }finally {
                         if (taskCall.getGrpcType() == GrpcType.SYNC) {
