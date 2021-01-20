@@ -156,32 +156,19 @@ public class JobSubmission {
         @Override
         public void run() {
             while (true) {
-                
                 TaskCall taskCall = taskQueue.poll();
                 if (taskCall != null) {
                     AbstractJobGrpcClient client = null;
                     try {
                         LOG.info("job " + taskCall.getRpcRequest().getId() + " start to get worker at " + DateUtils.getDateAsString(new Date(),DateUtils.TIME_FORMAT));
                         NodeResponse worker = getAvailableWorker(taskCall.getRpcRequest());
-                        if(worker != null) {
-                            try {
-                                LOG.info("job " + taskCall.getRpcRequest().getId() + " start to get rpc client at " + DateUtils.getDateAsString(new Date(),DateUtils.TIME_FORMAT));
-                                client = getClient(worker,taskCall.getGrpcType());
-                            } catch (Exception e) {
-                                LOG.error("fail to get rpc client to submit task " + taskCall.getRpcRequest().getId() + 
-                                        " with exception " + e.getMessage());
-                                try {
-                                    transitTaskStatus(taskCall.getRpcRequest(),TaskState.FAIL);
-                                } catch (Exception e1) {
-                                    LOG.error("fail to transit task " + taskCall.getRpcRequest().getId() + 
-                                            " to fail with exception " + e.getMessage());
-                                }
-                            }
-                            if(client != null) {
-                                LOG.info("job " + taskCall.getRpcRequest().getId() + " start to submit to worker at " + DateUtils.getDateAsString(new Date(),DateUtils.TIME_FORMAT));
-                                client.submitJob(taskCall.getRpcRequest());
-                                LOG.info("job " + taskCall.getRpcRequest().getId() + " finish submit to worker at " + DateUtils.getDateAsString(new Date(),DateUtils.TIME_FORMAT));
-                            }
+                        client = getClient(worker,taskCall.getGrpcType()); 
+                        try {
+                            LOG.info("job " + taskCall.getRpcRequest().getId() + " start to submit to worker at " + DateUtils.getDateAsString(new Date(),DateUtils.TIME_FORMAT));
+                            client.submitJob(taskCall.getRpcRequest());
+                            LOG.info("job " + taskCall.getRpcRequest().getId() + " finish submit to worker at " + DateUtils.getDateAsString(new Date(),DateUtils.TIME_FORMAT)); 
+                        }catch(Exception e) {
+                            LOG.error("fail to submit job " + taskCall.getRpcRequest().getId() + " with exception " + e);
                         }
                     }finally {
                         if (taskCall.getGrpcType() == GrpcType.SYNC) {
@@ -200,7 +187,9 @@ public class JobSubmission {
             while (waitingResourceMap.get(rpcRequest.getJob().getWorkerGroupname())) {
                 try {
                     worker = MasterManager.getInstance().getIdleWorker(rpcRequest.getJob().getWorkerGroupname(), "");
-                    return worker;
+                    if(worker.getHost() != null && worker.getPort() != null) {
+                        return worker;
+                    }
                 } catch (Exception e) {
                     LOG.error("can not get available resource to execute task " + 
                     rpcRequest.getId() + " with  " + i + " tries");
@@ -229,7 +218,7 @@ public class JobSubmission {
             JobManager.transitTaskStatus(request);
         }
         
-        private AbstractJobGrpcClient getClient(NodeResponse worker,GrpcType grpcType) throws Exception{
+        private AbstractJobGrpcClient getClient(NodeResponse worker,GrpcType grpcType){
             AbstractJobGrpcClient client = null;
             if (grpcType == GrpcType.SYNC) {
                 client = new JobGrpcBlockingClient(worker.getHost(), worker.getPort());

@@ -290,7 +290,6 @@ public class SchedulerService {
                 LOG.info("job " + jobInstanceResponse.getId() + " submit at " + DateUtils.getDateAsString(new Date(),DateUtils.TIME_FORMAT));
             }catch(Exception e) {
                 LOG.error("failed to rerun task " + request.getId() , e);
-                throw new RuntimeException(e);
             }
         } 
     }

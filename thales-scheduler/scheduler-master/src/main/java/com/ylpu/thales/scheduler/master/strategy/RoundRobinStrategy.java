@@ -17,6 +17,9 @@ public class RoundRobinStrategy implements WorkerSelectStrategy {
     @Override
     public synchronized NodeResponse getIdleWorker(MasterManager rm, String groupName, String... lastFailedHosts) {
         List<String> servers = rm.getGroups().get(GlobalConstants.WORKER_GROUP + "/" + groupName);
+        if(servers == null || servers.size() == 0) {
+            throw new RuntimeException("can not get available resource for group " + groupName);
+        }
         if (pos >= servers.size()) {
             pos = 0;
         }
