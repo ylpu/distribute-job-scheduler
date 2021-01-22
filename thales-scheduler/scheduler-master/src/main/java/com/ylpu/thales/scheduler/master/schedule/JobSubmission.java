@@ -191,8 +191,8 @@ public class JobSubmission {
                         return worker;
                     }
                 } catch (Exception e) {
-                    LOG.error("can not get available resource to execute task " + 
-                    rpcRequest.getId() + " with  " + i + " tries");
+                    LOG.error(Thread.currentThread().getName() + " for group " + rpcRequest.getJob().getWorkerGroupname() + " can not get available resource to execute task " + 
+                    rpcRequest.getId() + " with  " + i + " tries, exception is " + e.getMessage());
                 }
                 //transit job status to waiting resource
                 try {
