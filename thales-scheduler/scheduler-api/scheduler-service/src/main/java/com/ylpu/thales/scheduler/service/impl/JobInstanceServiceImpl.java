@@ -20,6 +20,7 @@ import com.ylpu.thales.scheduler.common.rest.ScheduleManager;
 import com.ylpu.thales.scheduler.common.service.impl.BaseServiceImpl;
 import com.ylpu.thales.scheduler.common.utils.DateUtils;
 import com.ylpu.thales.scheduler.dao.SchedulerJobInstanceMapper;
+import com.ylpu.thales.scheduler.entity.DateSummary;
 import com.ylpu.thales.scheduler.entity.JobInstanceState;
 import com.ylpu.thales.scheduler.entity.SchedulerJobInstance;
 import com.ylpu.thales.scheduler.entity.TaskElapseChart;
@@ -32,6 +33,7 @@ import com.ylpu.thales.scheduler.enums.RoleTypes;
 import com.ylpu.thales.scheduler.enums.TaskState;
 import com.ylpu.thales.scheduler.request.JobInstanceRequest;
 import com.ylpu.thales.scheduler.request.ScheduleRequest;
+import com.ylpu.thales.scheduler.response.DateSummaryResponse;
 import com.ylpu.thales.scheduler.response.JobInstanceResponse;
 import com.ylpu.thales.scheduler.response.JobInstanceStateResponse;
 import com.ylpu.thales.scheduler.response.JobResponse;
@@ -288,6 +290,21 @@ public class JobInstanceServiceImpl extends BaseServiceImpl<SchedulerJobInstance
                 response = new WorkerSummaryResponse();
                 response.setWorker(workerSummary.getWorkerName());
                 response.setTaskCount(workerSummary.getTaskCount());
+                responses.add(response);
+            }
+        }
+        return responses;
+    }
+    
+    public List<DateSummaryResponse> getDateSummary() {
+        List<DateSummaryResponse> responses = new ArrayList<DateSummaryResponse>();
+        DateSummaryResponse response = null;
+        List<DateSummary> list = schedulerJobInstanceMapper.getDateSummary();
+        if (list != null && list.size() > 0) {
+            for (DateSummary dateSummary : list) {
+                response = new DateSummaryResponse();
+                response.setDate(dateSummary.getDate());
+                response.setTaskCount(dateSummary.getTaskCount());
                 responses.add(response);
             }
         }

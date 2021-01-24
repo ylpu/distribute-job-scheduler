@@ -38,6 +38,10 @@
     <result column="worker" property="workerName" jdbcType="VARCHAR" />
     <result column="task_Count" property="taskCount" jdbcType="INTEGER" />
   </resultMap>
+  <resultMap id="dateSummaryMap" type="com.ylpu.thales.scheduler.entity.DateSummary" >
+    <result column="date" property="date" jdbcType="VARCHAR" />
+    <result column="task_Count" property="taskCount" jdbcType="INTEGER" />
+  </resultMap>
   <resultMap id="jobTypeSummaryMap" type="com.ylpu.thales.scheduler.entity.JobTypeSummary" >
     <result column="job_type" property="jobType" jdbcType="INTEGER" />
     <result column="task_Count" property="taskCount" jdbcType="INTEGER" />
@@ -64,6 +68,10 @@
   </select>
   <select id = "getWorkerSummary" resultMap="workerSummaryMap">
       select worker,count(*) as task_Count from t_thales_scheduler_job_instance where worker is not null group by worker
+  </select>
+  
+  <select id = "getDateSummary" resultMap="dateSummaryMap">
+      select DATE_FORMAT(start_time,"%Y-%m-%d") as date, count(id) as task_Count from t_thales_scheduler_job_instance where datediff(now(),start_time) &lt; 10 group by date order by date desc
   </select>
   
   <select id = "getJobTypeSummary" resultMap="jobTypeSummaryMap">

@@ -8,6 +8,7 @@ import com.ylpu.thales.scheduler.entity.SchedulerJobInstance;
 import com.ylpu.thales.scheduler.enums.TaskState;
 import com.ylpu.thales.scheduler.request.JobInstanceRequest;
 import com.ylpu.thales.scheduler.request.ScheduleRequest;
+import com.ylpu.thales.scheduler.response.DateSummaryResponse;
 import com.ylpu.thales.scheduler.response.JobInstanceResponse;
 import com.ylpu.thales.scheduler.response.JobInstanceStateResponse;
 import com.ylpu.thales.scheduler.response.TaskElapseChartResponse;
@@ -50,6 +51,8 @@ public interface JobInstanceService extends BaseService<SchedulerJobInstance, In
     public List<TaskSummaryResponse> getTaskSummary();
     
     public List<WorkerSummaryResponse> getWorkerSummary();
+    
+    public List<DateSummaryResponse> getDateSummary();
 
     public List<TaskElapseChartResponse> getTaskLineByJobId(Integer id);
     

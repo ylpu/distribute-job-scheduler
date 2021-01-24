@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import org.apache.ibatis.annotations.Param;
 import com.ylpu.thales.scheduler.common.dao.BaseDao;
+import com.ylpu.thales.scheduler.entity.DateSummary;
 import com.ylpu.thales.scheduler.entity.JobInstanceState;
 import com.ylpu.thales.scheduler.entity.SchedulerJobInstance;
 import com.ylpu.thales.scheduler.entity.TaskElapseChart;
@@ -35,6 +36,8 @@ public interface SchedulerJobInstanceMapper extends BaseDao<SchedulerJobInstance
     public List<TaskSummary> getTaskSummary();
     
     public List<WorkerSummary> getWorkerSummary();
+    
+    public List<DateSummary> getDateSummary();
     
     public List<JobTypeSummary> getJobTypeSummary();
 
