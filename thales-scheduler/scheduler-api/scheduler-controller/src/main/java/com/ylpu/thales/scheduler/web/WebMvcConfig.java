@@ -22,7 +22,7 @@ public class WebMvcConfig extends WebMvcConfigurerAdapter {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(securityInterceptor()).addPathPatterns("/**/paging", "/**/getTaskSummary","/**/getWorkerSummary","/**/getJobTypeSummary",
-                "/**/getMasterCpuUsage","/**/getMasterMemoryUsage")
+                "/**/getDateSummary")
                 .excludePathPatterns("/**/login", "/**/logout");
         super.addInterceptors(registry);
     }
