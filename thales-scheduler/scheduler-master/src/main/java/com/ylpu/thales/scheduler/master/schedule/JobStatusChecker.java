@@ -10,7 +10,6 @@ import com.ylpu.thales.scheduler.enums.GrpcType;
 import com.ylpu.thales.scheduler.enums.TaskState;
 import com.ylpu.thales.scheduler.request.JobInstanceRequest;
 import java.util.Date;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -28,11 +27,11 @@ public class JobStatusChecker {
 
     private static volatile boolean stop = false;
     // key is task id,value task information
-    private static Map<String, JobInstanceRequestRpc> jobInstanceRequestMap = new LinkedHashMap<String, JobInstanceRequestRpc>();
+    private static Map<String, JobInstanceRequestRpc> jobInstanceRequestMap = new ConcurrentHashMap<String, JobInstanceRequestRpc>();
 //    lru avoid out of memory
     private static LRU<String, JobInstanceResponseRpc> responses = new LRU<String, JobInstanceResponseRpc>(5000000);
     // key is dependency task list,value is task id
-    private static Map<List<JobDependency>, String> dependsMap = new LinkedHashMap<List<JobDependency>, String>();
+    private static Map<List<JobDependency>, String> dependsMap = new ConcurrentHashMap<List<JobDependency>, String>();
     
     private static Map<String, String> jobDependStatusMap = new ConcurrentHashMap<String,String>();
     

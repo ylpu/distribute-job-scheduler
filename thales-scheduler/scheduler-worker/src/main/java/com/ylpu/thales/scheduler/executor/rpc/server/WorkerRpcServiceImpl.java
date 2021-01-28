@@ -70,8 +70,6 @@ public class WorkerRpcServiceImpl extends GrpcJobServiceGrpc.GrpcJobServiceImplB
             builder.setTaskState(TaskState.SUCCESS.getCode())
             .setErrorCode(200)
             .setErrorMsg("");
-            // decrease task number
-            jobMetric.decreaseTask();
         } catch (Exception e) {
             LOG.error(e);
             if(statusMap.get(requestRpc.getRequestId()) != TaskState.KILL) {
@@ -96,6 +94,10 @@ public class WorkerRpcServiceImpl extends GrpcJobServiceGrpc.GrpcJobServiceImplB
             }
 
         } finally {
+            
+            // decrease task number
+            jobMetric.decreaseTask();
+            
             if(statusMap.get(requestRpc.getRequestId()) != TaskState.KILL) {
                 processResponse(responseObserver,builder);
             }
