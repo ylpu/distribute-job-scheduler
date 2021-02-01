@@ -1,33 +1,46 @@
 package com.ylpu.thales.scheduler.executor.rpc.server;
 
 import com.google.common.eventbus.AsyncEventBus;
+import com.google.protobuf.ByteString;
 import com.ylpu.thales.scheduler.alert.EventListener;
 import com.ylpu.thales.scheduler.core.alert.entity.Event;
+import com.ylpu.thales.scheduler.core.config.Configuration;
+import com.ylpu.thales.scheduler.core.constants.GlobalConstants;
+import com.ylpu.thales.scheduler.core.curator.CuratorHelper;
 import com.ylpu.thales.scheduler.core.rest.JobManager;
 import com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc;
 import com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc;
 import com.ylpu.thales.scheduler.core.rpc.entity.JobRequestRpc;
+import com.ylpu.thales.scheduler.core.rpc.entity.JobStatusRequestRpc;
 import com.ylpu.thales.scheduler.core.rpc.service.GrpcJobServiceGrpc;
-import com.ylpu.thales.scheduler.core.utils.DateUtils;
-import com.ylpu.thales.scheduler.core.utils.MetricsUtils;
+import com.ylpu.thales.scheduler.core.utils.*;
 import com.ylpu.thales.scheduler.enums.AlertType;
 import com.ylpu.thales.scheduler.enums.EventType;
 import com.ylpu.thales.scheduler.enums.JobType;
 import com.ylpu.thales.scheduler.enums.TaskState;
 import com.ylpu.thales.scheduler.executor.AbstractCommonExecutor;
 import com.ylpu.thales.scheduler.executor.ExecutorManager;
+import com.ylpu.thales.scheduler.executor.rpc.client.WorkerGrpcClient;
 import com.ylpu.thales.scheduler.request.JobInstanceRequest;
 import com.ylpu.thales.scheduler.worker.WorkerServer;
 import io.grpc.stub.StreamObserver;
+
+import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.curator.framework.CuratorFramework;
+
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.Executors;
 
 public class WorkerRpcServiceImpl extends GrpcJobServiceGrpc.GrpcJobServiceImplBase {
+    
+    private static long MASTER_FAILOVER_CHECK_INTERVAL = 60000L;
 
     private static AsyncEventBus eventBus = new AsyncEventBus(Executors.newFixedThreadPool(1));
     private static Map<String,TaskState> statusMap = new HashMap<String,TaskState>();
@@ -53,8 +66,10 @@ public class WorkerRpcServiceImpl extends GrpcJobServiceGrpc.GrpcJobServiceImplB
         builder.setResponseId(requestRpc.getRequestId());
         JobInstanceRequest request = new JobInstanceRequest();
         initJobInstanceRequest(requestRpc, request);
-        
+        JobStatusRequestRpc jobStatusRequestRpc = null;
+        String oldMaster = "";
         try {
+            oldMaster = getActiveMaster();
             // increase task number
             jobMetric.increaseTask();
             // run task
@@ -70,6 +85,8 @@ public class WorkerRpcServiceImpl extends GrpcJobServiceGrpc.GrpcJobServiceImplB
             builder.setTaskState(TaskState.SUCCESS.getCode())
             .setErrorCode(200)
             .setErrorMsg("");
+            jobStatusRequestRpc = buildJobStatusRequestRpc(requestRpc, TaskState.SUCCESS,
+                    request);
         } catch (Exception e) {
             LOG.error(e);
             if(statusMap.get(requestRpc.getRequestId()) != TaskState.KILL) {
@@ -81,6 +98,10 @@ public class WorkerRpcServiceImpl extends GrpcJobServiceGrpc.GrpcJobServiceImplB
                 builder.setTaskState(TaskState.FAIL.getCode())
                 .setErrorCode(500)
                 .setErrorMsg("failed to run task" + requestRpc.getId());
+                
+                jobStatusRequestRpc = buildJobStatusRequestRpc(requestRpc, TaskState.FAIL,
+                        request);
+                
                 // task fail warning
                 Event event = new Event();
                 setAlertEvent(event, requestRpc.getJob(), request);
@@ -94,12 +115,10 @@ public class WorkerRpcServiceImpl extends GrpcJobServiceGrpc.GrpcJobServiceImplB
             }
 
         } finally {
-            
             // decrease task number
             jobMetric.decreaseTask();
-            
             if(statusMap.get(requestRpc.getRequestId()) != TaskState.KILL) {
-                processResponse(responseObserver,builder);
+                processResponse(responseObserver,builder,jobStatusRequestRpc,oldMaster);
             }
         }
     }
@@ -120,14 +139,20 @@ public class WorkerRpcServiceImpl extends GrpcJobServiceGrpc.GrpcJobServiceImplB
         builder.setResponseId(requestRpc.getRequestId());
         JobInstanceRequest request = new JobInstanceRequest();
         initJobInstanceRequest(requestRpc, request);
+        JobStatusRequestRpc jobStatusRequestRpc = null;
+        String oldMaster = ""; 
         LOG.info("start to kill task " + requestRpc.getId());
         try {
+            oldMaster = getActiveMaster();
             AbstractCommonExecutor executor = getExecutor(requestRpc, request);
             executor.kill();
             transitTaskStatus(request,TaskState.KILL);
             builder.setTaskState(TaskState.KILL.getCode())
             .setErrorCode(200)
             .setErrorMsg("");
+            
+            jobStatusRequestRpc = buildJobStatusRequestRpc(requestRpc, TaskState.KILL,
+                    request);
             // decrease task number
             jobMetric.decreaseTask();
         } catch (Exception e) {
@@ -135,9 +160,12 @@ public class WorkerRpcServiceImpl extends GrpcJobServiceGrpc.GrpcJobServiceImplB
             builder.setTaskState(TaskState.RUNNING.getCode())
             .setErrorCode(500)
             .setErrorMsg("");
+            
+            jobStatusRequestRpc = buildJobStatusRequestRpc(requestRpc, TaskState.RUNNING,
+                    request);
         } finally {
             statusMap.remove(requestRpc.getRequestId());
-            processResponse(responseObserver,builder);
+            processResponse(responseObserver,builder,jobStatusRequestRpc,oldMaster);
         }
     }
     
@@ -149,10 +177,95 @@ public class WorkerRpcServiceImpl extends GrpcJobServiceGrpc.GrpcJobServiceImplB
     }
 
     private void processResponse(StreamObserver<JobInstanceResponseRpc> responseObserver,
-            JobInstanceResponseRpc.Builder builder) {
-        responseObserver.onNext(builder.build());
-        responseObserver.onCompleted();
+            JobInstanceResponseRpc.Builder builder,JobStatusRequestRpc jobStatusRequestRpc,String oldMaster) {
+        String currentMaster = "";
+        try {
+            currentMaster = getActiveMaster();
+        } catch (Exception e) {
+            LOG.error(e);
+        }
+        //master do not failover
+        if(currentMaster.equalsIgnoreCase(oldMaster) && StringUtils.isNoneBlank(oldMaster)) {
+            responseObserver.onNext(builder.build());
+            responseObserver.onCompleted();
+        }
+        //master failover
+        else {
+            waitForMasterFailover(jobStatusRequestRpc);
+        }
     }
+    
+    public JobStatusRequestRpc buildJobStatusRequestRpc(JobInstanceRequestRpc requestRpc, TaskState taskState, JobInstanceRequest request) {
+        JobStatusRequestRpc.Builder builder = JobStatusRequestRpc.newBuilder();
+        builder.setRequestId(requestRpc.getRequestId());
+        builder.setTaskState(taskState.getCode());
+        builder.setData(ByteString.copyFrom(ByteUtils.objectToByteArray(request)));
+        request.setEndTime(new Date());
+        request.setElapseTime(DateUtils.getElapseTime(DateUtils.getDatetime(requestRpc.getStartTime()), request.getEndTime()));
+        return builder.build();
+    }
+    
+    private void waitForMasterFailover(JobStatusRequestRpc request) {
+        Properties prop = Configuration.getConfig();
+        long masterCheckInterval = Configuration.getLong(prop, "thales.master.failover.check.interval",
+                MASTER_FAILOVER_CHECK_INTERVAL);
+        
+        WorkerGrpcClient client = null;
+        while(true) {
+            try {
+                String currentMaster = getActiveMaster(); 
+                if(StringUtils.isNoneBlank(currentMaster)) {
+                    String[] hostAndPort = currentMaster.split(":");
+                    client = new WorkerGrpcClient(hostAndPort[0], NumberUtils.toInt(hostAndPort[1]));
+                    client.updateJobStatus(request);
+                    break;
+                }else {
+                    try {
+                        Thread.sleep(masterCheckInterval);
+                    } catch (InterruptedException e1) {
+                        LOG.error(e1);
+                    }
+                }
+            }catch (Exception e) {
+                LOG.error(e);
+                try {
+                    Thread.sleep(masterCheckInterval);
+                } catch (InterruptedException e1) {
+                    LOG.error(e1);
+                }
+            }finally {
+                if (client != null) {
+                    try {
+                        client.shutdown();
+                    } catch (InterruptedException e) {
+                        LOG.error(e);
+                    }
+                }
+            }
+        }
+    }
+    
+    private String getActiveMaster() throws Exception {
+        Properties prop = Configuration.getConfig();
+        String quorum = prop.getProperty("thales.zookeeper.quorum");
+        int sessionTimeout = Configuration.getInt(prop, "thales.zookeeper.sessionTimeout",
+                GlobalConstants.ZOOKEEPER_SESSION_TIMEOUT);
+        int connectionTimeout = Configuration.getInt(prop, "thales.zookeeper.connectionTimeout",
+                GlobalConstants.ZOOKEEPER_CONNECTION_TIMEOUT);
+        CuratorFramework client = null;
+        List<String> masters = null;
+        try {
+            client = CuratorHelper.getCuratorClient(quorum, sessionTimeout, connectionTimeout);
+            masters = CuratorHelper.getChildren(client, GlobalConstants.MASTER_GROUP);
+            if (masters == null || masters.size() == 0) {
+                throw new RuntimeException("can not get active master");
+            }
+        } finally {
+            CuratorHelper.close(client);
+        }
+        return masters.get(0);
+    }
+
 
     private AbstractCommonExecutor getExecutor(JobInstanceRequestRpc requestRpc, JobInstanceRequest request)
             throws Exception {
