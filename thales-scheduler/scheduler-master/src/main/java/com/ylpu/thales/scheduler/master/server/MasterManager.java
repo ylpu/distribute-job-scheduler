@@ -135,12 +135,12 @@ public class MasterManager {
             }
 
             try {
-                init(GlobalConstants.WORKER_GROUP, prop);
+                
                 int masterServerPort = Configuration.getInt(prop, "thales.master.server.port", DEFAULT_MASTER_SERVER_PORT);
                 long masterHeartBeatInterval = Configuration.getLong(prop, "thales.master.heartbeat.interval", 3000l);
-                // start rpc service
-                server = new MasterRpcServer(masterServerPort);
-                server.start();
+                
+                init(GlobalConstants.WORKER_GROUP, prop);
+
                 //elect as master and regist to zookeeper
                 activeMaster = MetricsUtils.getHostName() + ":" + masterServerPort;
                 String masterPath = GlobalConstants.MASTER_GROUP + "/" + activeMaster;
@@ -211,6 +211,9 @@ public class MasterManager {
                 GlobalConstants.ZOOKEEPER_SESSION_TIMEOUT);
         int connectionTimeout = Configuration.getInt(prop, "thales.zookeeper.connectionTimeout",
                 GlobalConstants.ZOOKEEPER_CONNECTION_TIMEOUT);
+        
+        int masterServerPort = Configuration.getInt(prop, "thales.master.server.port", DEFAULT_MASTER_SERVER_PORT);
+        
         CuratorFramework client = CuratorHelper.getCuratorClient(quorum, sessionTimeout, connectionTimeout);
         List<String> list = CuratorHelper.getChildren(client, GlobalConstants.WORKER_GROUP);
         if (list != null && list.size() > 0) {
@@ -242,6 +245,9 @@ public class MasterManager {
 //      start master http service
         jettyServer = new MasterApiServer(prop);
         jettyServer.startJettyServer();
+//      start rpc service
+        server = new MasterRpcServer(masterServerPort);
+        server.start();
 //      start to schedule all jobs
         JobScheduler.startJobs();
 
