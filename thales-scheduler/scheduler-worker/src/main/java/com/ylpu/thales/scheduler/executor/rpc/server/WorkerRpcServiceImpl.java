@@ -215,11 +215,13 @@ public class WorkerRpcServiceImpl extends GrpcJobServiceGrpc.GrpcJobServiceImplB
             try {
                 String currentMaster = getActiveMaster(); 
                 if(StringUtils.isNoneBlank(currentMaster)) {
+                    LOG.warn("master has finished failover, submit request " + request.getRequestId() + " to new master " + currentMaster);
                     String[] hostAndPort = currentMaster.split(":");
                     client = new WorkerGrpcClient(hostAndPort[0], NumberUtils.toInt(hostAndPort[1]));
                     client.updateJobStatus(request);
                     break;
                 }else {
+                    LOG.warn("master is still failover, waitting for failover complete");
                     try {
                         Thread.sleep(masterCheckInterval);
                     } catch (InterruptedException e1) {

@@ -134,22 +134,27 @@ public class MasterManager {
                 }
             }
 
-            
-            init(GlobalConstants.WORKER_GROUP, prop);
-            int masterServerPort = Configuration.getInt(prop, "thales.master.server.port", DEFAULT_MASTER_SERVER_PORT);
-            long masterHeartBeatInterval = Configuration.getLong(prop, "thales.master.heartbeat.interval", 3000l);
-            // start rpc service
-            server = new MasterRpcServer(masterServerPort);
-            server.start();
-            //elect as master and regist to zookeeper
-            activeMaster = MetricsUtils.getHostName() + ":" + masterServerPort;
-            String masterPath = GlobalConstants.MASTER_GROUP + "/" + activeMaster;
-            LOG.info("active master is " + activeMaster);
-            CuratorHelper.createNodeIfNotExist(client, masterPath, CreateMode.PERSISTENT, null);
-            
-            new MasterHeartBeatThread(masterPath,masterServerPort,masterHeartBeatInterval).start();
-            
-            server.blockUntilShutdown();
+            try {
+                init(GlobalConstants.WORKER_GROUP, prop);
+                int masterServerPort = Configuration.getInt(prop, "thales.master.server.port", DEFAULT_MASTER_SERVER_PORT);
+                long masterHeartBeatInterval = Configuration.getLong(prop, "thales.master.heartbeat.interval", 3000l);
+                // start rpc service
+                server = new MasterRpcServer(masterServerPort);
+                server.start();
+                //elect as master and regist to zookeeper
+                activeMaster = MetricsUtils.getHostName() + ":" + masterServerPort;
+                String masterPath = GlobalConstants.MASTER_GROUP + "/" + activeMaster;
+                LOG.info("active master is " + activeMaster);
+                CuratorHelper.createNodeIfNotExist(client, masterPath, CreateMode.PERSISTENT, null);
+                
+                new MasterHeartBeatThread(masterPath,masterServerPort,masterHeartBeatInterval).start();
+                
+                server.blockUntilShutdown();  
+            }catch(Exception e) {
+                LOG.error(e);
+                System.exit(1);
+            }
+
         }
     }
     
@@ -228,13 +233,15 @@ public class MasterManager {
         
 //      init task count of work
         initTaskCount();
+//      mark status to fail if status in (1,2,3,4,5,6)
+        JobManager.markStatus();
 //      restore task state
         restoreTaskState();
+//      job status check
+        JobStatusChecker.init();
 //      start master http service
         jettyServer = new MasterApiServer(prop);
         jettyServer.startJettyServer();
-//      start job status check thread
-        JobStatusChecker.init();
 //      start to schedule all jobs
         JobScheduler.startJobs();
 
@@ -263,48 +270,48 @@ public class MasterManager {
      * 
      * @throws Exception
      */
-    private void restoreTaskState(){
-        try {
-            JobInstanceResponseRpc responseRpc = null;
-            SchedulerService schedulerService = new SchedulerService();
-            List<JobInstanceStateResponse> list = JobManager.getAllJobStatus();
-            if (list != null && list.size() > 0) {
-                for (JobInstanceStateResponse response : list) {
-                    if(response.getTaskState() == TaskState.SUBMIT.getCode() || response.getTaskState() == TaskState.SCHEDULED.getCode()
-                            || response.getTaskState() == TaskState.WAITING_DEPENDENCY.getCode() || response.getTaskState() == TaskState.QUEUED.getCode()
-                            || response.getTaskState() == TaskState.WAITING_RESOURCE.getCode()) {
-                        schedulerService.rerun(response.getId());
-                    }else {
-                        String responseId = response.getJobId() + "-"
-                                + DateUtils.getDateAsString(response.getScheduleTime(), DateUtils.MINUTE_TIME_FORMAT);
-                        responseRpc = JobInstanceResponseRpc.newBuilder().setId(response.getId()).setResponseId(responseId)
-                                .setTaskState(response.getTaskState()).build();
-                        JobStatusChecker.addResponse(responseRpc);
-                    }
-                }
-                
-            }
-        }catch(Exception e) {
-            LOG.error(e);
-        }
-    }
+//    private void restoreTaskState(){
+//        try {
+//            JobInstanceResponseRpc responseRpc = null;
+//            SchedulerService schedulerService = new SchedulerService();
+//            List<JobInstanceStateResponse> list = JobManager.getAllJobStatus();
+//            if (list != null && list.size() > 0) {
+//                for (JobInstanceStateResponse response : list) {
+//                    if(response.getTaskState() == TaskState.SUBMIT.getCode() || response.getTaskState() == TaskState.SCHEDULED.getCode()
+//                            || response.getTaskState() == TaskState.WAITING_DEPENDENCY.getCode() || response.getTaskState() == TaskState.QUEUED.getCode()
+//                            || response.getTaskState() == TaskState.WAITING_RESOURCE.getCode()) {
+//                        schedulerService.rerun(response.getId());
+//                    }else {
+//                        String responseId = response.getJobId() + "-"
+//                                + DateUtils.getDateAsString(response.getScheduleTime(), DateUtils.MINUTE_TIME_FORMAT);
+//                        responseRpc = JobInstanceResponseRpc.newBuilder().setId(response.getId()).setResponseId(responseId)
+//                                .setTaskState(response.getTaskState()).build();
+//                        JobStatusChecker.addResponse(responseRpc);
+//                    }
+//                }
+//                
+//            }
+//        }catch(Exception e) {
+//            LOG.error(e);
+//        }
+//    }
     /**
      * load history task status(latest one month)
      * @throws Exception
      */
-//    private void restoreTaskState() throws Exception {
-//        JobInstanceResponseRpc responseRpc = null;
-//        List<JobInstanceStateResponse> list = JobManager.getAllJobStatus();
-//        if (list != null && list.size() > 0) {
-//            for (JobInstanceStateResponse response : list) {
-//                String responseId = response.getJobId() + "-"
-//                        + DateUtils.getDateAsString(response.getScheduleTime(), DateUtils.MINUTE_TIME_FORMAT);
-//                responseRpc = JobInstanceResponseRpc.newBuilder().setId(response.getId()).setResponseId(responseId)
-//                        .setTaskState(response.getTaskState()).build();
-//                JobStatusChecker.addResponse(responseRpc);
-//            }
-//        }
-//    }
+    private void restoreTaskState() throws Exception {
+        JobInstanceResponseRpc responseRpc = null;
+        List<JobInstanceStateResponse> list = JobManager.getAllJobStatus();
+        if (list != null && list.size() > 0) {
+            for (JobInstanceStateResponse response : list) {
+                String responseId = response.getJobId() + "-"
+                        + DateUtils.getDateAsString(response.getScheduleTime(), DateUtils.MINUTE_TIME_FORMAT);
+                responseRpc = JobInstanceResponseRpc.newBuilder().setId(response.getId()).setResponseId(responseId)
+                        .setTaskState(response.getTaskState()).build();
+                JobStatusChecker.addResponse(responseRpc);
+            }
+        }
+    }
 
     private synchronized void releaseResource(String groupPath, List<String> disconnectedChildren) throws Exception {
         if (disconnectedChildren != null && disconnectedChildren.size() > 0) {

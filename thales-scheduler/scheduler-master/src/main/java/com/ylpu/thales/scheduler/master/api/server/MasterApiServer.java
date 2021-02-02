@@ -32,7 +32,7 @@ public class MasterApiServer {
         this.prop = prop;
     }
 
-    public void startJettyServer() throws Exception {
+    public void startJettyServer() throws Exception{
 
         Runtime.getRuntime().addShutdownHook(new ShutdownHookThread());
 
@@ -69,12 +69,7 @@ public class MasterApiServer {
         handlers.addHandler(taskContext);
 
         server.setHandler(handlers);
-        try {
-            server.start();
-        } catch (Exception e) {
-            LOG.error(e);
-            System.exit(1);
-        }
+        server.start();
     }
 
     private class ShutdownHookThread extends Thread {

@@ -168,14 +168,9 @@ public class JobScheduler {
     /**
      * @Description:start scheduler
      */
-    public static void startJobs() {
-        try {
-            Scheduler sched = schedulerFactory.getScheduler();
-            sched.start();
-        } catch (Exception e) {
-            LOG.error(e);
-            System.exit(1);
-        }
+    public static void startJobs() throws Exception{
+        Scheduler sched = schedulerFactory.getScheduler();
+        sched.start();
     }
 
     /**
