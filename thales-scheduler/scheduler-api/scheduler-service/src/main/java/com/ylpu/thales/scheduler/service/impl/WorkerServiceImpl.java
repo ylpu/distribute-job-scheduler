@@ -132,13 +132,16 @@ public class WorkerServiceImpl extends BaseServiceImpl<BaseEntity, Serializable>
         CuratorFramework client  = CuratorHelper.getCuratorClient(quorum, sessionTimeout, connectionTimeout);
         List<String> masters;
         try {
-        	masters = CuratorHelper.getChildren(client, GlobalConstants.MASTER_GROUP);
-            if(masters != null && masters.size() > 0) {
-                for(String master : masters) {
-                    byte[] bytes = CuratorHelper.getData(client, GlobalConstants.MASTER_GROUP + "/" + master);
-                    NodeRequest request = (NodeRequest) ByteUtils.byteArrayToObject(bytes);
-                    list.add(request);
-                }
+            List<String> masterLock = CuratorHelper.getChildren(client, GlobalConstants.MASTER_LOCK);
+            if(masterLock != null && masterLock.size() > 0) {
+                masters = CuratorHelper.getChildren(client, GlobalConstants.MASTER_GROUP);
+                if(masters != null && masters.size() > 0) {
+                    for(String master : masters) {
+                        byte[] bytes = CuratorHelper.getData(client, GlobalConstants.MASTER_GROUP + "/" + master);
+                        NodeRequest request = (NodeRequest) ByteUtils.byteArrayToObject(bytes);
+                        list.add(request);
+                    }
+                } 
             }
         } catch (Exception e) {
             LOG.error(e);
