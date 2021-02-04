@@ -10,11 +10,9 @@ import com.ylpu.thales.scheduler.core.utils.DateUtils;
 import com.ylpu.thales.scheduler.core.utils.MetricsUtils;
 import com.ylpu.thales.scheduler.core.utils.SSHUtils;
 import com.ylpu.thales.scheduler.enums.NodeType;
-import com.ylpu.thales.scheduler.enums.TaskState;
 //import com.ylpu.thales.scheduler.enums.TaskState;
 import com.ylpu.thales.scheduler.enums.WorkerStatus;
 import com.ylpu.thales.scheduler.master.api.server.MasterApiServer;
-import com.ylpu.thales.scheduler.master.api.service.SchedulerService;
 //import com.ylpu.thales.scheduler.master.api.service.SchedulerService;
 import com.ylpu.thales.scheduler.master.jmx.MasterJmxServer;
 import com.ylpu.thales.scheduler.master.rpc.server.MasterRpcServer;
@@ -27,6 +25,7 @@ import com.ylpu.thales.scheduler.master.strategy.WorkerSelectStrategy;
 import com.ylpu.thales.scheduler.request.NodeRequest;
 import com.ylpu.thales.scheduler.response.JobInstanceStateResponse;
 import com.ylpu.thales.scheduler.response.NodeResponse;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -371,45 +370,6 @@ public class MasterManager {
             } 
         }
     }
-
-    @SuppressWarnings({ "resource", "deprecation" })
-    private void addNodeChangeListener(CuratorFramework client, final String groupPath) {
-        PathChildrenCache pcCache = new PathChildrenCache(client, groupPath, true);
-        try {
-            pcCache.start(PathChildrenCache.StartMode.POST_INITIALIZED_EVENT);
-            pcCache.getListenable().addListener(new PathChildrenCacheListener() {
-                public void childEvent(CuratorFramework curatorFramework, PathChildrenCacheEvent pathChildrenCacheEvent)
-                        throws Exception {
-                    switch (pathChildrenCacheEvent.getType()) {
-                    case CHILD_ADDED:
-                        String addedPath = pathChildrenCacheEvent.getData().getPath();
-                        LOG.info("added node" + addedPath);
-                        String addedHost = addedPath.substring(addedPath.lastIndexOf("/") + 1);
-                        groups.get(groupPath).add(addedHost);
-                        taskMap.put(addedHost, 0);
-                        break;
-                    case CHILD_REMOVED:
-                        String removedPath = pathChildrenCacheEvent.getData().getPath();
-                        LOG.info("removed node" + removedPath);
-                        String removedHost = removedPath.substring(removedPath.lastIndexOf("/") + 1);
-                        groups.get(groupPath).remove(removedHost);
-                        taskMap.remove(removedHost);
-                        releaseResource(groupPath, Arrays.asList(removedHost));
-                        break;
-                    case CHILD_UPDATED:
-                        String udpatedPath = pathChildrenCacheEvent.getData().getPath();
-                        byte[] bytes = CuratorHelper.getData(curatorFramework, udpatedPath);
-                        NodeRequest request = (NodeRequest) ByteUtils.byteArrayToObject(bytes);
-                        updateResource(request);
-                    default:
-                        break;
-                    }
-                }
-            });
-        } catch (Exception e) {
-            LOG.error(e);
-        }
-    }
     
     @SuppressWarnings({ "resource", "deprecation" })
     private void addGroupChangeListener(CuratorFramework client, final String groupPath) {
@@ -448,7 +408,62 @@ public class MasterManager {
             LOG.error(e);
         }
     }
-
+    
+    @SuppressWarnings({ "resource", "deprecation" })
+    private void addNodeChangeListener(CuratorFramework client, final String groupPath) {
+        PathChildrenCache pcCache = new PathChildrenCache(client, groupPath, true);
+        try {
+            pcCache.start(PathChildrenCache.StartMode.POST_INITIALIZED_EVENT);
+            pcCache.getListenable().addListener(new PathChildrenCacheListener() {
+                public void childEvent(CuratorFramework curatorFramework, PathChildrenCacheEvent pathChildrenCacheEvent)
+                        throws Exception {
+                    switch (pathChildrenCacheEvent.getType()) {
+                    case CHILD_ADDED:
+                        String addedPath = pathChildrenCacheEvent.getData().getPath();
+                        LOG.info("added node" + addedPath);
+                        String addedHost = addedPath.substring(addedPath.lastIndexOf("/") + 1);
+                        groups.get(groupPath).add(addedHost);
+                        taskMap.put(addedHost, 0);
+                        break;
+                    case CHILD_REMOVED:
+                        String removedPath = pathChildrenCacheEvent.getData().getPath();
+                        LOG.info("removed node" + removedPath);
+                        String removedHost = removedPath.substring(removedPath.lastIndexOf("/") + 1);
+                        groups.get(groupPath).remove(removedHost);
+                        taskMap.remove(removedHost);
+                        releaseResource(groupPath, Arrays.asList(removedHost));
+                        killWorkerIfExists(removedHost);
+                        break;
+                    case CHILD_UPDATED:
+                        String udpatedPath = pathChildrenCacheEvent.getData().getPath();
+                        byte[] bytes = CuratorHelper.getData(curatorFramework, udpatedPath);
+                        NodeRequest request = (NodeRequest) ByteUtils.byteArrayToObject(bytes);
+                        updateResource(request);
+                    default:
+                        break;
+                    }
+                }
+            });
+        } catch (Exception e) {
+            LOG.error(e);
+        }
+    }
+    
+    private void killWorkerIfExists(String hostAndPort) {
+        
+        if(StringUtils.isNoneBlank(hostAndPort)) {
+            String host = hostAndPort.split(":")[0];
+            Properties prop = Configuration.getConfig();
+            String username = Configuration.getString(prop, "thales.worker.username", "default");
+            String password = Configuration.getString(prop, "thales.worker.password", "default");
+            String command = "ps -ef | grep WorkerServer | grep -v grep | awk '{print $2}' | xargs kill -15";
+            int returnCode = SSHUtils.executeCommand(host, username, password, command);
+            if (returnCode != 0) {
+                LOG.error("failed to kill worker " + hostAndPort);
+            }
+        }
+    }
+    
     /**
      * increase task number of worker
      * 

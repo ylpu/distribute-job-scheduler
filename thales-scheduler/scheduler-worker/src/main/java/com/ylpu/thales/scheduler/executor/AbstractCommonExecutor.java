@@ -102,10 +102,10 @@ public abstract class AbstractCommonExecutor {
         Long pid = TaskProcessUtils.getLinuxPid(process);
         request.setPid(pid.intValue());
         request.setTaskState(TaskState.RUNNING.getCode());
-
         try {
             JobManager.transitTaskStatus(request);
         }catch(Exception e) {
+            process.destroy();
             throw new RuntimeException("fail to transit task " + requestRpc.getId() +  
                     " to running with exception " + e.getMessage());
         }
@@ -118,25 +118,23 @@ public abstract class AbstractCommonExecutor {
     public JobStatusRequestRpc buildJobStatusRequestRpc(String requestId, TaskState taskState, JobInstanceRequest request) {
         JobStatusRequestRpc.Builder builder = JobStatusRequestRpc.newBuilder();
         builder.setRequestId(requestId);
-        builder.setTaskState(taskState.getCode());
+        request.setTaskState(taskState.getCode());
         builder.setData(ByteString.copyFrom(ByteUtils.objectToByteArray(request)));
         return builder.build();
     }
     
-    public int transitJobStatusToRunning(JobStatusRequestRpc request) {
+    public void transitJobStatusToRunning(JobStatusRequestRpc request) throws Exception {
         WorkerGrpcClient client = null;
-        int returnCode = 200;
         String master = "";
         try {
             master = getActiveMaster(); 
             if(StringUtils.isNoneBlank(master)) {
                 String[] hostAndPort = master.split(":");
                 client = new WorkerGrpcClient(hostAndPort[0], NumberUtils.toInt(hostAndPort[1]));
-                returnCode = client.updateJobStatus(request);
+                client.updateJobStatus(request);
             }
         }catch (Exception e) {
-            returnCode = 500;
-            LOG.error(e);
+            throw e;
         }finally {
             if (client != null) {
                 try {
@@ -146,7 +144,6 @@ public abstract class AbstractCommonExecutor {
                 }
             }
         }
-        return returnCode;
     }
     
     private String getActiveMaster() throws Exception {

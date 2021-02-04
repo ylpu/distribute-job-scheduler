@@ -69,8 +69,9 @@ public class JobGrpcNonBlockingClient extends AbstractJobGrpcClient {
                 JobStatusChecker.addResponse(responseRpc);
             } catch (Exception e1) {
                 LOG.error(e); 
+            } finally {
+                shutdown();
             }
-            shutdown();
             rerunIfNeeded(rpcRequest);
         }
     }
@@ -81,15 +82,21 @@ public class JobGrpcNonBlockingClient extends AbstractJobGrpcClient {
             @Override
             public void onSuccess(JobInstanceResponseRpc result) {
                 LOG.info("task " + rpcRequest.getRequestId() + " execute successful");
-                JobStatusChecker.addResponse(result);
-                //remove request after execute successful
-                JobStatusChecker.getJobInstanceRequestMap().remove(rpcRequest.getRequestId()); 
-                shutdown();
-                if(result.getErrorCode() == 500) {
+                try {
+                    transitTaskStatus(rpcRequest, result.getTaskState());
+                    JobStatusChecker.addResponse(result);
+                    //remove request after execute successful
+                    JobStatusChecker.getJobInstanceRequestMap().remove(rpcRequest.getRequestId());
+                } catch (Exception e) {
+                    LOG.error(e);
+                } finally {
+                    shutdown();
+                }
+                if(result.getTaskState() == TaskState.FAIL.getCode()) {
                     rerunIfNeeded(rpcRequest);
                 }
             }
-            //worker网络异常或其它未知异常
+            //network exception or some unknown exception
             @Override
             public void onFailure(Throwable t) {
                 LOG.error("failed to execute task " + rpcRequest.getRequestId(),t);
@@ -97,12 +104,13 @@ public class JobGrpcNonBlockingClient extends AbstractJobGrpcClient {
                     transitTaskStatus(rpcRequest, TaskState.FAIL.getCode());
                     JobInstanceResponseRpc rpcResponse = JobSubmission.buildResponse(rpcRequest.getRequestId(), TaskState.FAIL.getCode());
                     JobStatusChecker.addResponse(rpcResponse);
+                    //remove request after execute fail
+                    JobStatusChecker.getJobInstanceRequestMap().remove(rpcRequest.getRequestId());
                 } catch (Exception e) {
                     LOG.error("failed to update task " + rpcRequest.getRequestId() + " status to fail after callback",e);
+                } finally {
+                    shutdown();
                 }
-                //remove request after execute fail
-                JobStatusChecker.getJobInstanceRequestMap().remove(rpcRequest.getRequestId());
-                shutdown();
                 rerunIfNeeded(rpcRequest);
             }
         }, executorService);

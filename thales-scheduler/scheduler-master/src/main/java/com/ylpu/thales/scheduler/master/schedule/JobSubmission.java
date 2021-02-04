@@ -231,28 +231,29 @@ public class JobSubmission {
     
     //send alert when task timeout
     private static class TimeoutThread implements Runnable {
+        JobInstanceResponse jobInstanceResponse = null;
         @Override
         public void run() {
             while (true) {
-                TaskCall taskCall = timeoutQueue.poll();
-                JobInstanceResponse jobInstanceResponse = null;
+                TaskCall taskCall = timeoutQueue.peek();
                 if(taskCall != null) {
                     try {
                         jobInstanceResponse = JobManager.getJobInstanceById(taskCall.getRpcRequest().getId());
+                        if(StringUtils.isNotBlank(jobInstanceResponse.getJobConf().getAlertUsers())) {
+                            Event event = new Event();
+                            setAlertEvent(event, jobInstanceResponse);
+                            try {
+                                eventBus.post(event);
+//                              avoid duplicate send
+                                JobStatusChecker.getMailMap().put(taskCall.getRpcRequest().getRequestId(), 
+                                        taskCall.getRpcRequest().getRequestId()); 
+                                timeoutQueue.remove(taskCall);
+                            }catch(Exception e) {
+                                LOG.error("fail to send email for task " + taskCall.getRpcRequest().getId() + " with exception " + e.getMessage());
+                            }
+                        }
                     }catch(Exception e) {
                         LOG.error("failed to get task " + taskCall.getRpcRequest().getId() + " with exception " + e.getMessage());
-                    }
-                    if(StringUtils.isNotBlank(jobInstanceResponse.getJobConf().getAlertUsers())) {
-                        Event event = new Event();
-                        setAlertEvent(event, jobInstanceResponse);
-                        try {
-                            eventBus.post(event);
-//                          avoid duplicate send
-                            JobStatusChecker.getMailMap().put(taskCall.getRpcRequest().getRequestId(), 
-                                    taskCall.getRpcRequest().getRequestId()); 
-                        }catch(Exception e) {
-                            LOG.error("fail to send email for task " + taskCall.getRpcRequest().getId() + " with exception " + e.getMessage());
-                        }
                     }
                 }
             }

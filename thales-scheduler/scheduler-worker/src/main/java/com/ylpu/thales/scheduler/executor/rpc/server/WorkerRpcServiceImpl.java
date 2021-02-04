@@ -7,7 +7,6 @@ import com.ylpu.thales.scheduler.core.alert.entity.Event;
 import com.ylpu.thales.scheduler.core.config.Configuration;
 import com.ylpu.thales.scheduler.core.constants.GlobalConstants;
 import com.ylpu.thales.scheduler.core.curator.CuratorHelper;
-import com.ylpu.thales.scheduler.core.rest.JobManager;
 import com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc;
 import com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc;
 import com.ylpu.thales.scheduler.core.rpc.entity.JobRequestRpc;
@@ -24,29 +23,32 @@ import com.ylpu.thales.scheduler.executor.rpc.client.WorkerGrpcClient;
 import com.ylpu.thales.scheduler.request.JobInstanceRequest;
 import com.ylpu.thales.scheduler.worker.WorkerServer;
 import io.grpc.stub.StreamObserver;
-
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.curator.framework.CuratorFramework;
-
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Queue;
 import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
 
 public class WorkerRpcServiceImpl extends GrpcJobServiceGrpc.GrpcJobServiceImplBase {
     
     private static long MASTER_FAILOVER_CHECK_INTERVAL = 60000L;
+    
+    private static Queue<JobStatusRequestRpc> failoverQueue = new LinkedBlockingQueue<JobStatusRequestRpc>();
 
     private static AsyncEventBus eventBus = new AsyncEventBus(Executors.newFixedThreadPool(1));
     private static Map<String,TaskState> statusMap = new HashMap<String,TaskState>();
     
     static {
         eventBus.register(new EventListener());
+        new FailoverThread().start();
     }
 
     private static Log LOG = LogFactory.getLog(WorkerRpcServiceImpl.class);
@@ -80,7 +82,6 @@ public class WorkerRpcServiceImpl extends GrpcJobServiceGrpc.GrpcJobServiceImplB
             executor.execute();
             LOG.info("start to post execute task " + requestRpc.getId());
             executor.postExecute();
-            transitTaskStatus(request,TaskState.SUCCESS);
             // set task response status
             builder.setTaskState(TaskState.SUCCESS.getCode())
             .setErrorCode(200)
@@ -91,27 +92,34 @@ public class WorkerRpcServiceImpl extends GrpcJobServiceGrpc.GrpcJobServiceImplB
             LOG.error(e);
             if(statusMap.get(requestRpc.getRequestId()) != TaskState.KILL) {
                 try {
-                    transitTaskStatus(request,TaskState.FAIL);
+                    builder.setTaskState(TaskState.FAIL.getCode())
+                    .setErrorCode(500)
+                    .setErrorMsg("failed to run task" + requestRpc.getId());
+                    
+                    jobStatusRequestRpc = buildJobStatusRequestRpc(requestRpc, TaskState.FAIL,
+                            request);
+                    
+                    // task fail warning
+                    Event event = new Event();
+                    setAlertEvent(event, requestRpc.getJob(), request);
+                    if(StringUtils.isNotBlank(requestRpc.getJob().getAlertUsers())) {
+                        try {
+                            eventBus.post(event);
+                        }catch(Exception e1) {
+                            LOG.error("failed to send email for task " + requestRpc.getId() + " with exception " + e1.getMessage());
+                        }
+                    }
+                    
                 } catch (Exception e1) {
                     LOG.error("fail to transit task " + request.getId() + " to fail with exception " + e1.getMessage());
+                    builder.setTaskState(TaskState.RUNNING.getCode())
+                    .setErrorCode(500)
+                    .setErrorMsg("failed to run task" + requestRpc.getId());
+                    
+                    jobStatusRequestRpc = buildJobStatusRequestRpc(requestRpc, TaskState.RUNNING,
+                            request);
                 }
-                builder.setTaskState(TaskState.FAIL.getCode())
-                .setErrorCode(500)
-                .setErrorMsg("failed to run task" + requestRpc.getId());
-                
-                jobStatusRequestRpc = buildJobStatusRequestRpc(requestRpc, TaskState.FAIL,
-                        request);
-                
-                // task fail warning
-                Event event = new Event();
-                setAlertEvent(event, requestRpc.getJob(), request);
-                if(StringUtils.isNotBlank(requestRpc.getJob().getAlertUsers())) {
-                    try {
-                        eventBus.post(event);
-                    }catch(Exception e1) {
-                        LOG.error("failed to send email for task " + requestRpc.getId() + " with exception " + e1.getMessage());
-                    }
-                }
+
             }
 
         } finally {
@@ -146,7 +154,6 @@ public class WorkerRpcServiceImpl extends GrpcJobServiceGrpc.GrpcJobServiceImplB
             oldMaster = getActiveMaster();
             AbstractCommonExecutor executor = getExecutor(requestRpc, request);
             executor.kill();
-            transitTaskStatus(request,TaskState.KILL);
             builder.setTaskState(TaskState.KILL.getCode())
             .setErrorCode(200)
             .setErrorMsg("");
@@ -168,13 +175,6 @@ public class WorkerRpcServiceImpl extends GrpcJobServiceGrpc.GrpcJobServiceImplB
             processResponse(responseObserver,builder,jobStatusRequestRpc,oldMaster);
         }
     }
-    
-    public void transitTaskStatus(JobInstanceRequest request, TaskState taskState) throws Exception {
-        request.setEndTime(new Date());
-        request.setElapseTime(DateUtils.getElapseTime(request.getStartTime(), request.getEndTime()));
-        request.setTaskState(taskState.getCode());
-        JobManager.transitTaskStatus(request);
-    }
 
     private void processResponse(StreamObserver<JobInstanceResponseRpc> responseObserver,
             JobInstanceResponseRpc.Builder builder,JobStatusRequestRpc jobStatusRequestRpc,String oldMaster) {
@@ -191,63 +191,77 @@ public class WorkerRpcServiceImpl extends GrpcJobServiceGrpc.GrpcJobServiceImplB
         }
         //master failover
         else {
-            waitForMasterFailover(jobStatusRequestRpc);
+            failoverQueue.add(jobStatusRequestRpc);
         }
     }
     
     public JobStatusRequestRpc buildJobStatusRequestRpc(JobInstanceRequestRpc requestRpc, TaskState taskState, JobInstanceRequest request) {
         JobStatusRequestRpc.Builder builder = JobStatusRequestRpc.newBuilder();
         builder.setRequestId(requestRpc.getRequestId());
-        builder.setTaskState(taskState.getCode());
-        builder.setData(ByteString.copyFrom(ByteUtils.objectToByteArray(request)));
+        request.setTaskState(taskState.getCode());
         request.setEndTime(new Date());
         request.setElapseTime(DateUtils.getElapseTime(DateUtils.getDatetime(requestRpc.getStartTime()), request.getEndTime()));
+        builder.setData(ByteString.copyFrom(ByteUtils.objectToByteArray(request)));
         return builder.build();
     }
     
-    private void waitForMasterFailover(JobStatusRequestRpc request) {
+    
+    private static class FailoverThread extends Thread {
+        
         Properties prop = Configuration.getConfig();
         long masterCheckInterval = Configuration.getLong(prop, "thales.master.failover.check.interval",
                 MASTER_FAILOVER_CHECK_INTERVAL);
         
         WorkerGrpcClient client = null;
-        while(true) {
-            try {
-                String currentMaster = getActiveMaster(); 
-                if(StringUtils.isNoneBlank(currentMaster)) {
-                    LOG.warn("master has finished failover, submit request " + request.getRequestId() + " to new master " + currentMaster);
-                    String[] hostAndPort = currentMaster.split(":");
-                    client = new WorkerGrpcClient(hostAndPort[0], NumberUtils.toInt(hostAndPort[1]));
-                    client.updateJobStatus(request);
-                    break;
-                }else {
-                    LOG.warn("master is still failover, waitting for failover complete");
+        
+        @Override
+        public void run() {
+            while (true) {
+                JobStatusRequestRpc request = failoverQueue.peek();
+                if(request != null) {
                     try {
-                        Thread.sleep(masterCheckInterval);
-                    } catch (InterruptedException e1) {
-                        LOG.error(e1);
-                    }
-                }
-            }catch (Exception e) {
-                LOG.error(e);
-                try {
-                    Thread.sleep(masterCheckInterval);
-                } catch (InterruptedException e1) {
-                    LOG.error(e1);
-                }
-            }finally {
-                if (client != null) {
-                    try {
-                        client.shutdown();
-                    } catch (InterruptedException e) {
+                        String currentMaster = "";
+                        try {
+                            currentMaster = getActiveMaster();  
+                        }catch(Exception e) {
+                            LOG.error(e);
+                        }
+                        if(StringUtils.isNoneBlank(currentMaster)) {
+                            LOG.warn("master has finished failover, submit request " + request.getRequestId() + " to new master " + currentMaster);
+                            String[] hostAndPort = currentMaster.split(":");
+                            client = new WorkerGrpcClient(hostAndPort[0], NumberUtils.toInt(hostAndPort[1]));
+                            client.updateJobStatus(request);
+                            failoverQueue.remove(request);
+                        }else {
+                            LOG.warn("master is still failover, waitting for failover complete");
+                            try {
+                                Thread.sleep(masterCheckInterval);
+                            } catch (InterruptedException e1) {
+                                LOG.error(e1);
+                            }
+                        }
+                    }catch (Exception e) {
                         LOG.error(e);
+                        try {
+                            Thread.sleep(masterCheckInterval);
+                        } catch (InterruptedException e1) {
+                            LOG.error(e1);
+                        }
+                    }finally {
+                        if (client != null) {
+                            try {
+                                client.shutdown();
+                            } catch (Exception e) {
+                                LOG.error(e);
+                            }
+                        }
                     }
                 }
             }
         }
-    }
+    }   
     
-    private String getActiveMaster() throws Exception {
+    private static String getActiveMaster() throws Exception {
         Properties prop = Configuration.getConfig();
         String quorum = prop.getProperty("thales.zookeeper.quorum");
         int sessionTimeout = Configuration.getInt(prop, "thales.zookeeper.sessionTimeout",

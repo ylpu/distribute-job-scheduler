@@ -52,7 +52,6 @@ public class HttpExecutor extends AbstractCommonExecutor {
         request.setLogUrl("http://" + MetricsUtils.getHostName() + ":" + LogServer.logServerPort + "/api/log/viewLog/"
                 + requestRpc.getId());
         request.setTaskState(TaskState.RUNNING.getCode());
-
         try {
             JobManager.transitTaskStatus(request);
         }catch(Exception e) {

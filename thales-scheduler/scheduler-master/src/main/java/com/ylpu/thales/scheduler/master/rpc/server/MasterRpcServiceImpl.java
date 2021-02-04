@@ -2,6 +2,8 @@ package com.ylpu.thales.scheduler.master.rpc.server;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import com.ylpu.thales.scheduler.core.rest.JobManager;
 import com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceResponseRpc;
 import com.ylpu.thales.scheduler.core.rpc.entity.JobStatusRequestRpc;
 import com.ylpu.thales.scheduler.core.rpc.entity.WorkerParameter;
@@ -78,12 +80,12 @@ public class MasterRpcServiceImpl extends GrpcWorkerServiceGrpc.GrpcWorkerServic
             Object obj = ByteUtils.byteArrayToObject(request.getData().toByteArray());
             if (obj instanceof JobInstanceRequest) {
                 
-//                JobInstanceRequest jobInstanceRequest = (JobInstanceRequest) obj;
-//                JobManager.updateJobInstanceSelective(jobInstanceRequest);
+                JobInstanceRequest jobInstanceRequest = (JobInstanceRequest) obj;
+                JobManager.transitTaskStatus(jobInstanceRequest);
                 JobInstanceResponseRpc responseRpc = JobInstanceResponseRpc.newBuilder()
                         .setResponseId(request.getRequestId())
                         .setErrorCode(200)
-                        .setTaskState(request.getTaskState())
+                        .setTaskState(jobInstanceRequest.getTaskState())
                         .setErrorMsg("").build();
                 JobStatusChecker.addResponse(responseRpc);
                 builder.setErrorCode(200);
