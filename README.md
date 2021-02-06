@@ -94,7 +94,7 @@ alert主要提供告警功能：
   * 任务依赖： 选择需要依赖的任务
   * 任务优先级： 任务的优先度，有低，中，高三种
   * 任务责任人：任务的所属人
-  * 任务类型：目前command,shell,hive,spark,flink,clickhouse,http,sql,pyton 9种。
+  * 任务类型：目前command,shell,hive,spark,flink,clickhouse,http,sql,python 9种。
   * 任务告警人： 任务失败，超时的时候需要通知的人（邮箱格式）
   * 告警类型：有sms,webchat,email三种，目前只支持emai（请在thales-scheduler/scheduler-alert/src/main/resources/email.properties配置相应的邮件服务器信息）。
   * 调度时间：cron表达式
