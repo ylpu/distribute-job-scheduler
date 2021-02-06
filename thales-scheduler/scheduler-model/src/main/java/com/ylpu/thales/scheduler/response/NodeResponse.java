@@ -26,6 +26,8 @@ public class NodeResponse implements Serializable {
     private String lastHeartbeatTime;
 
     private WorkerStatus workerStatus;
+    
+    private int processId;
 
     private static final long serialVersionUID = 1L;
 }

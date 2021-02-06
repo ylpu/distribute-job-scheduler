@@ -9,6 +9,7 @@ import com.ylpu.thales.scheduler.core.utils.ByteUtils;
 import com.ylpu.thales.scheduler.core.utils.DateUtils;
 import com.ylpu.thales.scheduler.core.utils.MetricsUtils;
 import com.ylpu.thales.scheduler.core.utils.SSHUtils;
+import com.ylpu.thales.scheduler.core.utils.TaskProcessUtils;
 import com.ylpu.thales.scheduler.enums.NodeType;
 //import com.ylpu.thales.scheduler.enums.TaskState;
 import com.ylpu.thales.scheduler.enums.WorkerStatus;
@@ -25,7 +26,6 @@ import com.ylpu.thales.scheduler.master.strategy.WorkerSelectStrategy;
 import com.ylpu.thales.scheduler.request.NodeRequest;
 import com.ylpu.thales.scheduler.response.JobInstanceStateResponse;
 import com.ylpu.thales.scheduler.response.NodeResponse;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -121,14 +121,18 @@ public class MasterManager {
             List<String> masterList = CuratorHelper.getChildren(client, GlobalConstants.MASTER_GROUP);
             if (masterList != null && masterList.size() > 0) {
                 for (String master : masterList) {
+                    byte[] bytes = CuratorHelper.getData(client, GlobalConstants.MASTER_GROUP + "/" + master);
+                    NodeRequest request = (NodeRequest) ByteUtils.byteArrayToObject(bytes);
                     CuratorHelper.delete(client, GlobalConstants.MASTER_GROUP + "/" + master);
-                    String masterIp = master.split(":")[0];
-                    String username = Configuration.getString(prop, "thales.master.username", "default");
-                    String password = Configuration.getString(prop, "thales.master.password", "default");
-                    String command = "ps -ef | grep MasterServer | grep -v grep | awk '{print $2}' | xargs kill -15";
-                    int returnCode = SSHUtils.executeCommand(masterIp, username, password, command);
-                    if (returnCode != 0) {
-                        LOG.error("failed to kill standy by master " + masterIp);
+                    if(request != null) {
+                        String host = request.getHost();
+                        String username = Configuration.getString(prop, "thales.master.username", "default");
+                        String password = Configuration.getString(prop, "thales.master.password", "default");
+                        String command = "kill -15 " + request.getProcessId();
+                        int returnCode = SSHUtils.executeCommand(host, username, password, command);
+                        if (returnCode != 0) {
+                            LOG.error("failed to kill standy by master " + host);
+                        }
                     }
                 }
             }
@@ -176,6 +180,7 @@ public class MasterManager {
                     GlobalConstants.ZOOKEEPER_SESSION_TIMEOUT);
             int connectionTimeout = Configuration.getInt(prop, "thales.zookeeper.connectionTimeout",
                     GlobalConstants.ZOOKEEPER_CONNECTION_TIMEOUT);
+            int processId = TaskProcessUtils.getProcessId();
             while (true) {
                 try {
                     client = CuratorHelper.getCuratorClient(quorum, sessionTimeout, connectionTimeout);
@@ -189,6 +194,7 @@ public class MasterManager {
                     nodeRequest.setPort(masterPort);
                     nodeRequest.setZkdirectory(masterPath);
                     nodeRequest.setLastHeartbeatTime(new Date());
+                    nodeRequest.setProcessId(processId);
                     CuratorHelper.setData(client, masterPath, ByteUtils.objectToByteArray(nodeRequest));
                 } catch (Exception e) {
                     LOG.error(e);
@@ -348,6 +354,7 @@ public class MasterManager {
                     DateUtils.getDateAsString(request.getLastHeartbeatTime(), DateUtils.DATE_TIME_FORMAT));
             nodeResponse.setPort(request.getPort());
             nodeResponse.setZkdirectory(request.getZkdirectory());
+            nodeResponse.setProcessId(request.getProcessId());
             nodeResponse.setWorkerType(NodeType.getNodeType(request.getWorkerType()).toString());
         }
     }
@@ -431,8 +438,9 @@ public class MasterManager {
                         String removedHost = removedPath.substring(removedPath.lastIndexOf("/") + 1);
                         groups.get(groupPath).remove(removedHost);
                         taskMap.remove(removedHost);
+                        NodeResponse nodeResponse = resourceMap.get(removedHost);
+                        killWorkerIfExists(nodeResponse);
                         releaseResource(groupPath, Arrays.asList(removedHost));
-                        killWorkerIfExists(removedHost);
                         break;
                     case CHILD_UPDATED:
                         String udpatedPath = pathChildrenCacheEvent.getData().getPath();
@@ -449,17 +457,17 @@ public class MasterManager {
         }
     }
     
-    private void killWorkerIfExists(String hostAndPort) {
+    private void killWorkerIfExists(NodeResponse nodeResponse) {
         
-        if(StringUtils.isNoneBlank(hostAndPort)) {
-            String host = hostAndPort.split(":")[0];
+        if(nodeResponse != null) {
+            String host = nodeResponse.getHost();
             Properties prop = Configuration.getConfig();
             String username = Configuration.getString(prop, "thales.worker.username", "default");
             String password = Configuration.getString(prop, "thales.worker.password", "default");
-            String command = "ps -ef | grep WorkerServer | grep -v grep | awk '{print $2}' | xargs kill -15";
+            String command = "kill -15 " + nodeResponse.getProcessId();
             int returnCode = SSHUtils.executeCommand(host, username, password, command);
             if (returnCode != 0) {
-                LOG.error("failed to kill worker " + hostAndPort);
+                LOG.error("failed to kill worker " + nodeResponse.getHost() + ":" + nodeResponse.getPort());
             }
         }
     }

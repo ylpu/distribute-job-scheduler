@@ -6,6 +6,7 @@ import com.ylpu.thales.scheduler.core.curator.CuratorHelper;
 import com.ylpu.thales.scheduler.core.rpc.entity.WorkerRequestRpc;
 import com.ylpu.thales.scheduler.core.utils.ByteUtils;
 import com.ylpu.thales.scheduler.core.utils.MetricsUtils;
+import com.ylpu.thales.scheduler.core.utils.TaskProcessUtils;
 import com.ylpu.thales.scheduler.enums.NodeType;
 import com.ylpu.thales.scheduler.enums.WorkerStatus;
 import com.ylpu.thales.scheduler.executor.log.LogServer;
@@ -171,6 +172,7 @@ public class WorkerServer {
             int connectionTimeout = Configuration.getInt(prop, "thales.zookeeper.connectionTimeout",
                     GlobalConstants.ZOOKEEPER_CONNECTION_TIMEOUT);
             String workerGroup = Configuration.getString(prop, "thales.worker.group", DEFAULT_WORKER_GROUP);
+            int processId = TaskProcessUtils.getProcessId();
             while (!stop) {
                 try {
                     if (isFirstReport) {
@@ -190,6 +192,7 @@ public class WorkerServer {
                     nodeRequest.setPort(workerPort);
                     nodeRequest.setZkdirectory(workerPath);
                     nodeRequest.setLastHeartbeatTime(new Date());
+                    nodeRequest.setProcessId(processId);
                     CuratorHelper.setData(client, workerPath, ByteUtils.objectToByteArray(nodeRequest));
                 } catch (Exception e) {
                     LOG.error(e);

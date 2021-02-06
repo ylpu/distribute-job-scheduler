@@ -4,11 +4,14 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.lang.management.ManagementFactory;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+
+import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.lang3.StringUtils;
 import com.sun.jna.Pointer;
 import com.sun.jna.platform.win32.Kernel32;
@@ -95,6 +98,14 @@ public class TaskProcessUtils {
         if (Pid != null)
             result = "c:/windows/system32/cmd.exe /c taskkill /PID " + Pid + " /F /T ";
         return result;
+    }
+    
+    public static int getProcessId() {
+
+        String name = ManagementFactory.getRuntimeMXBean().getName();
+        // get pid
+        String pid = name.split("@")[0];
+        return NumberUtils.toInt(pid);
     }
     /*
       execute command in local host

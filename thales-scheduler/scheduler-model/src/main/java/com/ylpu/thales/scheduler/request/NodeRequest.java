@@ -28,6 +28,8 @@ public class NodeRequest implements Serializable {
     private Integer workerStatus;
     
     private String currentWorkerStatus;
+    
+    private int processId;
 
     private static final long serialVersionUID = 1L;
 }
