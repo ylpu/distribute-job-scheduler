@@ -19,6 +19,7 @@ import com.ylpu.thales.scheduler.enums.JobType;
 import com.ylpu.thales.scheduler.enums.TaskState;
 import com.ylpu.thales.scheduler.executor.AbstractCommonExecutor;
 import com.ylpu.thales.scheduler.executor.ExecutorManager;
+import com.ylpu.thales.scheduler.executor.rpc.client.IJobMetric;
 import com.ylpu.thales.scheduler.executor.rpc.client.WorkerGrpcClient;
 import com.ylpu.thales.scheduler.request.JobInstanceRequest;
 import com.ylpu.thales.scheduler.worker.WorkerServer;

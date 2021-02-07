@@ -16,14 +16,12 @@ import com.ylpu.thales.scheduler.master.schedule.JobScheduler;
 import com.ylpu.thales.scheduler.master.schedule.JobSubmission;
 import com.ylpu.thales.scheduler.master.schedule.SchedulerJob;
 import com.ylpu.thales.scheduler.master.schedule.TaskCall;
-import com.ylpu.thales.scheduler.master.server.MasterManager;
 import com.ylpu.thales.scheduler.request.JobInstanceRequest;
 import com.ylpu.thales.scheduler.request.JobStatusRequest;
 import com.ylpu.thales.scheduler.request.ScheduleRequest;
 import com.ylpu.thales.scheduler.response.JobInstanceResponse;
 import com.ylpu.thales.scheduler.response.JobResponse;
 import com.ylpu.thales.scheduler.response.JobTree;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.logging.Log;
@@ -117,9 +115,6 @@ public class SchedulerService {
             JobSubmission.getWaitingResourceMap().put(jobInstanceResponse.getJobConf().getWorkerGroupname(), false);
         }else if (jobInstanceResponse.getTaskState() == TaskState.RUNNING) {
             killJob(jobInstanceResponse.getId());
-            if(jobInstanceResponse.getTaskState() == TaskState.RUNNING) {
-                MasterManager.getInstance().decreaseTask(jobInstanceResponse.getWorker());
-            }
         }else if(jobInstanceResponse.getTaskState() == TaskState.FAIL || jobInstanceResponse.getTaskState() == TaskState.SUCCESS
                 || jobInstanceResponse.getTaskState() == TaskState.KILL) {
             JobStatusChecker.getResponses().remove(responseId);

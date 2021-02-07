@@ -1,4 +1,4 @@
-package com.ylpu.thales.scheduler.executor.rpc.server;
+package com.ylpu.thales.scheduler.executor.rpc.client;
 
 public interface IJobMetric {
 
