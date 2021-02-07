@@ -26,4 +26,10 @@ public class RandomStrategy implements WorkerSelectStrategy {
         }
         throw new RuntimeException("can not get avalilable resource");
     }
+
+    @Override
+    public JobStrategy getJobStrategy() {
+        // TODO Auto-generated method stub
+        return JobStrategy.RANDOM;
+    }
 }

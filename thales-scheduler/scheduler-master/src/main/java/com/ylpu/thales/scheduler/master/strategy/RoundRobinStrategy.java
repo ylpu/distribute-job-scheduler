@@ -27,4 +27,10 @@ public class RoundRobinStrategy implements WorkerSelectStrategy {
         pos++;
         return rm.getResourceMap().get(server);
     }
+
+    @Override
+    public JobStrategy getJobStrategy() {
+        // TODO Auto-generated method stub
+        return JobStrategy.ROBIN;
+    }
 }

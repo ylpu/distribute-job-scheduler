@@ -18,8 +18,11 @@ public class ResourceStrategy {
     }
 
     public static WorkerSelectStrategy getStrategy(JobStrategy jobStrategy,String groupName) throws InstantiationException, IllegalAccessException {
-        WorkerSelectStrategy strategyInstance = (WorkerSelectStrategy)strategyMap.get(jobStrategy).newInstance();
-        groupStrategyMap.put(groupName, strategyInstance);
+        WorkerSelectStrategy strategy = groupStrategyMap.get(groupName);
+        if(strategy == null || strategy.getJobStrategy() != jobStrategy) {
+            WorkerSelectStrategy strategyInstance = (WorkerSelectStrategy)strategyMap.get(jobStrategy).newInstance();
+            groupStrategyMap.put(groupName, strategyInstance);
+        }
         return groupStrategyMap.get(groupName);
     }
 }
