@@ -1,5 +1,5 @@
 # Introduction
-thales是一款自主研发的分布式任务调度系统，系统支持command,shell,hive,spark,python,http,sql,flink,clickhouse等各种类型任务类型，实测每天可调度百万级别任务，满足市场上90%以上公司调度需求。
+thales是一款自主研发的分布式任务调度系统，系统支持command,shell,hive,spark,python,http,sql,flink,clickhouse等各种类型任务类型。实测每天可调度百万次任务，满足市场上90%以上公司调度需求。
 
 # Architecture
 ![image](https://github.com/ylpu/distribute-job-scheduler/raw/master/docs/arch.png)
