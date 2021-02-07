@@ -58,7 +58,7 @@ master作为调度的核心，主要有如下功能：
 * master ha
 * 启动jetty server接受api的调用
 * 根据机器cpu,内存，任务负载个数等选择最优的worker调度
-* 提供节点的自动上线与下线
+* 节点的上线与下线管理
 
 # scheduler-worker
 worker作为执行器，主要有如下功能：
