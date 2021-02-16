@@ -133,13 +133,14 @@ CREATE TABLE `t_thales_scheduler_group_strategy` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=66 DEFAULT CHARSET=utf8;
 
-CREATE INDEX idx_schedule ON t_thales_scheduler_job_instance (job_id,schedule_time);
+CREATE INDEX idx_state_ownerids ON t_thales_scheduler_job (job_releasestate,owner_ids);
 CREATE INDEX idx_job_name ON t_thales_scheduler_job (job_name);
 CREATE INDEX idx_job_type ON t_thales_scheduler_job (job_type);
 CREATE INDEX idx_user_name ON t_thales_scheduler_user (user_name);
 CREATE INDEX idx_connection_id ON t_thales_scheduler_connection (connection_id);
 CREATE INDEX idx_role_name ON t_thales_scheduler_role (role_name);
 CREATE INDEX idx_user_role ON t_thales_scheduler_user_role (user_id,role_id);
+CREATE INDEX idx_create_time ON t_thales_scheduler_job_instance (create_time);
 
 DROP TABLE IF EXISTS QRTZ_FIRED_TRIGGERS;  
 DROP TABLE IF EXISTS QRTZ_PAUSED_TRIGGER_GRPS;  
