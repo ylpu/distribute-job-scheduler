@@ -25,7 +25,7 @@ public class CuratorHelper {
     }
 
     public static CuratorFramework getCuratorClient(String zkServers, int sessionTimeout, int connectionTimeout) {
-        RetryPolicy retryPolicy = new ExponentialBackoffRetry(1000, 3);
+        RetryPolicy retryPolicy = new ExponentialBackoffRetry(10000, 3);
         CuratorFramework client = CuratorFrameworkFactory.newClient(zkServers, sessionTimeout, connectionTimeout,
                 retryPolicy);
         client.start();

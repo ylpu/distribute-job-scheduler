@@ -24,30 +24,26 @@ public class JobMetricImpl implements IJobMetric {
     
     private static final int RETRY_COUNT = 3;
     
-    private static final long RETRY_INTERVAL = 30000;
+    private static final long RETRY_INTERVAL = 3000;
 
-    public void increaseTask() {
+    public void increaseTask(String master) {
         WorkerGrpcClient client = null;
         int workerServerPort = WorkerServer.workerServerPort;
         int i = 0;
         while (i < RETRY_COUNT) {
             try {
-                String master = getActiveMaster();
                 if (StringUtils.isNoneBlank(master)) {
                     String[] hostAndPort = master.split(":");
-                    WorkerParameter parameter = WorkerParameter.newBuilder().setHostname(MetricsUtils.getHostName() + ":" + workerServerPort)
-                            .build();
-                    client = new WorkerGrpcClient(hostAndPort[0], NumberUtils.toInt(hostAndPort[1]));
-                    client.incTask(parameter);
-                    break;
+                    if(hostAndPort != null && hostAndPort.length == 2) {
+                        WorkerParameter parameter = WorkerParameter.newBuilder().setHostname(MetricsUtils.getHostName() + ":" + workerServerPort)
+                                .build();
+                        client = new WorkerGrpcClient(hostAndPort[0], NumberUtils.toInt(hostAndPort[1]));
+                        client.incTask(parameter);
+                        break; 
+                    }
                 }
             } catch (Exception e) {
                 LOG.error(e);
-                try {
-                    Thread.sleep(RETRY_INTERVAL);
-                } catch (InterruptedException e1) {
-                    LOG.error(e1);
-                }
             } finally {
                 if (client != null) {
                     try {
@@ -58,31 +54,38 @@ public class JobMetricImpl implements IJobMetric {
                 }
             }
             i++;
+            try {
+                Thread.sleep(RETRY_INTERVAL);
+            } catch (InterruptedException e1) {
+                LOG.error(e1);
+            }
+            try {
+                master = getActiveMaster();
+            } catch (Exception e) {
+                LOG.error("fail to get master with exception " + e.getMessage());
+                master = "";
+            }
         }
     }
 
-    public void decreaseTask() {
+    public void decreaseTask(String master) {
         WorkerGrpcClient client = null;
         int workerServerPort = WorkerServer.workerServerPort;
         int i = 0;
         while (i < RETRY_COUNT) {
             try {
-                String master = getActiveMaster();
                 if (StringUtils.isNoneBlank(master)) {
                     String[] hostAndPort = master.split(":");
-                    WorkerParameter parameter = WorkerParameter.newBuilder().setHostname(MetricsUtils.getHostName() + ":" + workerServerPort)
-                            .build();
-                    client = new WorkerGrpcClient(hostAndPort[0], NumberUtils.toInt(hostAndPort[1]));
-                    client.decTask(parameter);
-                    break;
+                    if(hostAndPort != null && hostAndPort.length == 2) {
+                        WorkerParameter parameter = WorkerParameter.newBuilder().setHostname(MetricsUtils.getHostName() + ":" + workerServerPort)
+                                .build();
+                        client = new WorkerGrpcClient(hostAndPort[0], NumberUtils.toInt(hostAndPort[1]));
+                        client.decTask(parameter);
+                        break;
+                    }
                 }
             } catch (Exception e) {
                 LOG.error(e);
-                try {
-                    Thread.sleep(RETRY_INTERVAL);
-                } catch (InterruptedException e1) {
-                    LOG.error(e1);
-                }
             } finally {
                 if (client != null) {
                     try {
@@ -93,6 +96,17 @@ public class JobMetricImpl implements IJobMetric {
                 }
             }
             i++;
+            try {
+                Thread.sleep(RETRY_INTERVAL);
+            } catch (InterruptedException e1) {
+                LOG.error(e1);
+            }
+            try {
+                master = getActiveMaster();
+            } catch (Exception e) {
+                LOG.error("fail to get master with exception " + e.getMessage());
+                master = "";
+            }
         }
     }
     
@@ -109,11 +123,13 @@ public class JobMetricImpl implements IJobMetric {
             client = CuratorHelper.getCuratorClient(quorum, sessionTimeout, connectionTimeout);
             masters = CuratorHelper.getChildren(client, GlobalConstants.MASTER_GROUP);
             if (masters == null || masters.size() == 0) {
-                throw new RuntimeException("can not get active master");
+                throw new RuntimeException("master is empty");
             }
-        } finally {
+            return masters.get(0);
+        } catch(Exception e) {
+            throw new RuntimeException("fail to get master with exception " + e.getMessage());
+        }finally {
             CuratorHelper.close(client);
         }
-        return masters.get(0);
     }
 }

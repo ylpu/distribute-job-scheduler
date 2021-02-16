@@ -56,6 +56,8 @@ public class DataBaseConfiguration implements EnvironmentAware {
         config.setConnectionTimeout(propertyResolver.getProperty("connectionTimeout") == null ? 30000l : 
             NumberUtils.toLong(propertyResolver.getProperty("connectionTimeout")));
         
+        config.setConnectionTestQuery(propertyResolver.getProperty("connectionTestQuery"));
+        
         if ("com.mysql.jdbc.jdbc2.optional.MysqlDataSource".equals(propertyResolver.getProperty("dataSourceName"))) {
             config.addDataSourceProperty("cachePrepStmts", propertyResolver.getProperty("cachePrepStmts"));
             config.addDataSourceProperty("prepStmtCacheSize", propertyResolver.getProperty("prepStmtsCacheSize"));

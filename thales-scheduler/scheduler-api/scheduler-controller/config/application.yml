@@ -15,6 +15,7 @@ jdbc:
     userServerPrepStmts: true
     maximumPoolSize: 50
     connectionTimeout: 300000
+    connectionTestQuery: select 1
 
 # SPRING PROFILES
 spring:       

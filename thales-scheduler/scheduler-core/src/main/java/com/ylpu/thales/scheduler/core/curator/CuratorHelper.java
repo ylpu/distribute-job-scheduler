@@ -16,12 +16,12 @@ public class CuratorHelper {
 
     private static final int CONNECTION_TIMEOUT = 30000;
 
-    public static CuratorFramework getCuratorClient() {
+    public static CuratorFramework getCuratorClient() throws Exception {
         return getCuratorClient(DEFAULT_ZKSERVERS, SESSION_TIMEOUT, CONNECTION_TIMEOUT);
     }
 
-    public static CuratorFramework getCuratorClient(String zkServers, int sessionTimeout, int connectionTimeout) {
-        RetryPolicy retryPolicy = new ExponentialBackoffRetry(1000, 3);
+    public static CuratorFramework getCuratorClient(String zkServers, int sessionTimeout, int connectionTimeout) throws Exception{
+        RetryPolicy retryPolicy = new ExponentialBackoffRetry(10000, 3);
         CuratorFramework client = CuratorFrameworkFactory.newClient(zkServers, sessionTimeout, connectionTimeout,
                 retryPolicy);
         client.start();

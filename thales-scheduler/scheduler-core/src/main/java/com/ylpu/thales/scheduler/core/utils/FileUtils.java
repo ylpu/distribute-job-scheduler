@@ -59,19 +59,14 @@ public final class FileUtils {
                 bw.flush();
             }
         } catch (IOException e) {
-            LOG.error(e);
-            throw new RuntimeException(e);
+            LOG.error("fail to write file " + fileName + " with exception " + e.getMessage());
         } finally {
             try {
                 if (bw != null) {
                     bw.close();
                 }
-                if (is != null) {
-                    is.close();
-                }
             } catch (IOException e) {
                 LOG.error(e);
-                throw new RuntimeException(e);
             }
         }
     }

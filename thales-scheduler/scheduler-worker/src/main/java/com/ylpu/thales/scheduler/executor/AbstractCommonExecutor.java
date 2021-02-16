@@ -2,8 +2,6 @@ package com.ylpu.thales.scheduler.executor;
 
 import com.google.protobuf.ByteString;
 import com.ylpu.thales.scheduler.core.config.Configuration;
-import com.ylpu.thales.scheduler.core.constants.GlobalConstants;
-import com.ylpu.thales.scheduler.core.curator.CuratorHelper;
 import com.ylpu.thales.scheduler.core.rest.JobManager;
 import com.ylpu.thales.scheduler.core.rpc.entity.JobInstanceRequestRpc;
 import com.ylpu.thales.scheduler.core.rpc.entity.JobStatusRequestRpc;
@@ -14,19 +12,13 @@ import com.ylpu.thales.scheduler.core.utils.MetricsUtils;
 import com.ylpu.thales.scheduler.core.utils.TaskProcessUtils;
 import com.ylpu.thales.scheduler.enums.TaskState;
 import com.ylpu.thales.scheduler.executor.log.LogServer;
-import com.ylpu.thales.scheduler.executor.rpc.client.WorkerGrpcClient;
 import com.ylpu.thales.scheduler.request.JobInstanceRequest;
-
 import java.io.File;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Map.Entry;
-import org.apache.commons.lang.math.NumberUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.curator.framework.CuratorFramework;
 
 public abstract class AbstractCommonExecutor {
 
@@ -84,6 +76,7 @@ public abstract class AbstractCommonExecutor {
         String logPath = logDir + File.separator + requestRpc.getJob().getId() + "-" + request.getId() + "-"
                 + DateUtils.getDateAsString(request.getStartTime(), DateUtils.TIME_FORMAT);
         String logOutPath = logPath + ".out";
+        String logErrorPath = logPath + ".error";
         String logUrl = "http://" + MetricsUtils.getHostName() + ":" + LogServer.logServerPort + "/api/log/viewLog/"
                 + requestRpc.getId();
         request.setLogPath(logOutPath);
@@ -93,7 +86,7 @@ public abstract class AbstractCommonExecutor {
             String[] command = buildCommand(requestRpc.getJob().getJobConfiguration());
             process = Runtime.getRuntime().exec(command);
             FileUtils.writeOuput(process.getInputStream(), logOutPath);
-            FileUtils.writeOuput(process.getErrorStream(), logOutPath);
+            FileUtils.writeOuput(process.getErrorStream(), logErrorPath);
         }catch(Exception e) {
             throw new RuntimeException("failed to execute task " + requestRpc.getId() +
                     " with exception" + e.getMessage());
@@ -121,50 +114,6 @@ public abstract class AbstractCommonExecutor {
         request.setTaskState(taskState.getCode());
         builder.setData(ByteString.copyFrom(ByteUtils.objectToByteArray(request)));
         return builder.build();
-    }
-    
-    public void transitJobStatusToRunning(JobStatusRequestRpc request) throws Exception {
-        WorkerGrpcClient client = null;
-        String master = "";
-        try {
-            master = getActiveMaster(); 
-            if(StringUtils.isNoneBlank(master)) {
-                String[] hostAndPort = master.split(":");
-                client = new WorkerGrpcClient(hostAndPort[0], NumberUtils.toInt(hostAndPort[1]));
-                client.updateJobStatus(request);
-            }
-        }catch (Exception e) {
-            throw e;
-        }finally {
-            if (client != null) {
-                try {
-                    client.shutdown();
-                } catch (InterruptedException e) {
-                    LOG.error(e);
-                }
-            }
-        }
-    }
-    
-    private String getActiveMaster() throws Exception {
-        Properties prop = Configuration.getConfig();
-        String quorum = prop.getProperty("thales.zookeeper.quorum");
-        int sessionTimeout = Configuration.getInt(prop, "thales.zookeeper.sessionTimeout",
-                GlobalConstants.ZOOKEEPER_SESSION_TIMEOUT);
-        int connectionTimeout = Configuration.getInt(prop, "thales.zookeeper.connectionTimeout",
-                GlobalConstants.ZOOKEEPER_CONNECTION_TIMEOUT);
-        CuratorFramework client = null;
-        List<String> masters = null;
-        try {
-            client = CuratorHelper.getCuratorClient(quorum, sessionTimeout, connectionTimeout);
-            masters = CuratorHelper.getChildren(client, GlobalConstants.MASTER_GROUP);
-            if (masters == null || masters.size() == 0) {
-                throw new RuntimeException("can not get active master");
-            }
-        } finally {
-            CuratorHelper.close(client);
-        }
-        return masters.get(0);
     }
     
     public String replaceParameters(Map<String, Object> parameters, String fileContent) {

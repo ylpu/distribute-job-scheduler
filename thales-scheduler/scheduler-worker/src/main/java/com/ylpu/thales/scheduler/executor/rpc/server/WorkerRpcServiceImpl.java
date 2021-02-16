@@ -74,7 +74,7 @@ public class WorkerRpcServiceImpl extends GrpcJobServiceGrpc.GrpcJobServiceImplB
         try {
             oldMaster = getActiveMaster();
             // increase task number
-            jobMetric.increaseTask();
+            jobMetric.increaseTask(oldMaster);
             // run task
             AbstractCommonExecutor executor = getExecutor(requestRpc, request);
             LOG.info("start to pre execute task " + requestRpc.getId());
@@ -92,40 +92,29 @@ public class WorkerRpcServiceImpl extends GrpcJobServiceGrpc.GrpcJobServiceImplB
         } catch (Exception e) {
             LOG.error(e);
             if(statusMap.get(requestRpc.getRequestId()) != TaskState.KILL) {
-                try {
-                    builder.setTaskState(TaskState.FAIL.getCode())
-                    .setErrorCode(500)
-                    .setErrorMsg("failed to run task" + requestRpc.getId());
-                    
-                    jobStatusRequestRpc = buildJobStatusRequestRpc(requestRpc, TaskState.FAIL,
-                            request);
-                    
-                    // task fail warning
-                    Event event = new Event();
-                    setAlertEvent(event, requestRpc.getJob(), request);
-                    if(StringUtils.isNotBlank(requestRpc.getJob().getAlertUsers())) {
-                        try {
-                            eventBus.post(event);
-                        }catch(Exception e1) {
-                            LOG.error("failed to send email for task " + requestRpc.getId() + " with exception " + e1.getMessage());
-                        }
+                
+                builder.setTaskState(TaskState.FAIL.getCode())
+                .setErrorCode(500)
+                .setErrorMsg("failed to run task" + requestRpc.getId());
+                
+                jobStatusRequestRpc = buildJobStatusRequestRpc(requestRpc, TaskState.FAIL,
+                        request);
+                
+                // task fail warning
+                Event event = new Event();
+                setAlertEvent(event, requestRpc.getJob(), request);
+                if(StringUtils.isNotBlank(requestRpc.getJob().getAlertUsers())) {
+                    try {
+                        eventBus.post(event);
+                    }catch(Exception e1) {
+                        LOG.error("failed to send email for task " + requestRpc.getId() + " with exception " + e1.getMessage());
                     }
-                    
-                } catch (Exception e1) {
-                    LOG.error("fail to transit task " + request.getId() + " to fail with exception " + e1.getMessage());
-                    builder.setTaskState(TaskState.RUNNING.getCode())
-                    .setErrorCode(500)
-                    .setErrorMsg("failed to run task" + requestRpc.getId());
-                    
-                    jobStatusRequestRpc = buildJobStatusRequestRpc(requestRpc, TaskState.RUNNING,
-                            request);
                 }
-
             }
 
         } finally {
             // decrease task number
-            jobMetric.decreaseTask();
+            jobMetric.decreaseTask(oldMaster);
             if(statusMap.get(requestRpc.getRequestId()) != TaskState.KILL) {
                 processResponse(responseObserver,builder,jobStatusRequestRpc,oldMaster);
             }
@@ -162,7 +151,7 @@ public class WorkerRpcServiceImpl extends GrpcJobServiceGrpc.GrpcJobServiceImplB
             jobStatusRequestRpc = buildJobStatusRequestRpc(requestRpc, TaskState.KILL,
                     request);
             // decrease task number
-            jobMetric.decreaseTask();
+            jobMetric.decreaseTask(oldMaster);
         } catch (Exception e) {
             LOG.error("fail to transit task " + requestRpc.getId() + " to kill with exception "+ e);
             builder.setTaskState(TaskState.RUNNING.getCode())
@@ -199,6 +188,7 @@ public class WorkerRpcServiceImpl extends GrpcJobServiceGrpc.GrpcJobServiceImplB
     public JobStatusRequestRpc buildJobStatusRequestRpc(JobInstanceRequestRpc requestRpc, TaskState taskState, JobInstanceRequest request) {
         JobStatusRequestRpc.Builder builder = JobStatusRequestRpc.newBuilder();
         builder.setRequestId(requestRpc.getRequestId());
+        builder.setTaskState(taskState.getCode());
         request.setTaskState(taskState.getCode());
         request.setEndTime(new Date());
         request.setElapseTime(DateUtils.getElapseTime(DateUtils.getDatetime(requestRpc.getStartTime()), request.getEndTime()));
@@ -221,12 +211,7 @@ public class WorkerRpcServiceImpl extends GrpcJobServiceGrpc.GrpcJobServiceImplB
                 JobStatusRequestRpc request = failoverQueue.peek();
                 if(request != null) {
                     try {
-                        String currentMaster = "";
-                        try {
-                            currentMaster = getActiveMaster();  
-                        }catch(Exception e) {
-                            LOG.error(e);
-                        }
+                        String currentMaster = getActiveMaster();
                         if(StringUtils.isNoneBlank(currentMaster)) {
                             LOG.warn("master has finished failover, submit request " + request.getRequestId() + " to new master " + currentMaster);
                             String[] hostAndPort = currentMaster.split(":");
@@ -262,7 +247,7 @@ public class WorkerRpcServiceImpl extends GrpcJobServiceGrpc.GrpcJobServiceImplB
         }
     }   
     
-    private static String getActiveMaster() throws Exception {
+    private static String getActiveMaster() throws Exception{
         Properties prop = Configuration.getConfig();
         String quorum = prop.getProperty("thales.zookeeper.quorum");
         int sessionTimeout = Configuration.getInt(prop, "thales.zookeeper.sessionTimeout",
@@ -275,12 +260,14 @@ public class WorkerRpcServiceImpl extends GrpcJobServiceGrpc.GrpcJobServiceImplB
             client = CuratorHelper.getCuratorClient(quorum, sessionTimeout, connectionTimeout);
             masters = CuratorHelper.getChildren(client, GlobalConstants.MASTER_GROUP);
             if (masters == null || masters.size() == 0) {
-                throw new RuntimeException("can not get active master");
+                throw new RuntimeException("master is empty");
             }
-        } finally {
+            return masters.get(0);
+        } catch (Exception e) {
+            throw new RuntimeException("fail to get master with exception " + e.getMessage());
+        }finally {
             CuratorHelper.close(client);
         }
-        return masters.get(0);
     }
 
 
