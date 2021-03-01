@@ -25,12 +25,16 @@ public class JobMetricImpl implements IJobMetric {
     private static final int RETRY_COUNT = 3;
     
     private static final long RETRY_INTERVAL = 3000;
+    
+    public static final String INC_TASK = "INC";
+    
+    public static final String DEC_TASK = "DEC";
 
-    public void increaseTask(String master) {
+    public void incOrDecTaskNumber(String master,String methodName) {
         WorkerGrpcClient client = null;
         int workerServerPort = WorkerServer.workerServerPort;
-        int i = 0;
-        while (i < RETRY_COUNT) {
+        int i = 1;
+        while (i <= RETRY_COUNT) {
             try {
                 if (StringUtils.isNoneBlank(master)) {
                     String[] hostAndPort = master.split(":");
@@ -38,12 +42,24 @@ public class JobMetricImpl implements IJobMetric {
                         WorkerParameter parameter = WorkerParameter.newBuilder().setHostname(MetricsUtils.getHostName() + ":" + workerServerPort)
                                 .build();
                         client = new WorkerGrpcClient(hostAndPort[0], NumberUtils.toInt(hostAndPort[1]));
-                        client.incTask(parameter);
+                        if(methodName.equalsIgnoreCase(INC_TASK)) {
+                            client.incTask(parameter);
+                        } else if (methodName.equalsIgnoreCase(DEC_TASK)) {
+                            client.decTask(parameter);
+                        } else {
+                            LOG.warn("does not support method " + methodName);
+                        }
                         break; 
                     }
                 }
             } catch (Exception e) {
-                LOG.error(e);
+                if(methodName.equalsIgnoreCase(INC_TASK)) {
+                    LOG.error("fail to inc task for worker " + WorkerServer.hostname + ":" + WorkerServer.workerServerPort + " " + i + 
+                            " times with exception " + e.getMessage() + ",cause is " + e.getCause());
+                } else if (methodName.equalsIgnoreCase(DEC_TASK)) {
+                    LOG.error("fail to dec task for worker " + WorkerServer.hostname + ":" + WorkerServer.workerServerPort + " " + i +
+                            " times with exception " + e.getMessage() + ",cause is " + e.getCause());
+                }
             } finally {
                 if (client != null) {
                     try {
@@ -68,48 +84,6 @@ public class JobMetricImpl implements IJobMetric {
         }
     }
 
-    public void decreaseTask(String master) {
-        WorkerGrpcClient client = null;
-        int workerServerPort = WorkerServer.workerServerPort;
-        int i = 0;
-        while (i < RETRY_COUNT) {
-            try {
-                if (StringUtils.isNoneBlank(master)) {
-                    String[] hostAndPort = master.split(":");
-                    if(hostAndPort != null && hostAndPort.length == 2) {
-                        WorkerParameter parameter = WorkerParameter.newBuilder().setHostname(MetricsUtils.getHostName() + ":" + workerServerPort)
-                                .build();
-                        client = new WorkerGrpcClient(hostAndPort[0], NumberUtils.toInt(hostAndPort[1]));
-                        client.decTask(parameter);
-                        break;
-                    }
-                }
-            } catch (Exception e) {
-                LOG.error(e);
-            } finally {
-                if (client != null) {
-                    try {
-                        client.shutdown();
-                    } catch (InterruptedException e) {
-                        LOG.error(e);
-                    }
-                }
-            }
-            i++;
-            try {
-                Thread.sleep(RETRY_INTERVAL);
-            } catch (InterruptedException e1) {
-                LOG.error(e1);
-            }
-            try {
-                master = getActiveMaster();
-            } catch (Exception e) {
-                LOG.error("fail to get master with exception " + e.getMessage());
-                master = "";
-            }
-        }
-    }
-    
     private String getActiveMaster() throws Exception {
         Properties prop = Configuration.getConfig();
         String quorum = prop.getProperty("thales.zookeeper.quorum");

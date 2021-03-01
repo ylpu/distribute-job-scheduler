@@ -56,7 +56,7 @@ public class SchedulerService {
         }
         String worker = response.getWorker();
         if (StringUtils.isNotBlank(worker)) {
-            JobInstanceRequestRpc rpcJobInstanceRequest = setRequest(response);
+            JobInstanceRequestRpc rpcJobInstanceRequest = setKillRpcRequest(response);
             String[] hostAndPort = worker.split(":");
             AbstractJobGrpcClient client = null;
             try {
@@ -71,6 +71,30 @@ public class SchedulerService {
                 }
             }
         }
+    }
+    
+    private JobInstanceRequestRpc setKillRpcRequest(JobInstanceResponse response) {
+        JobInstanceRequestRpc killRpcRequest = JobInstanceRequestRpc.newBuilder()
+                .setApplicationid(response.getApplicationid())
+                .setPid(response.getPid())
+                .setId(response.getId())
+                .setRequestId(
+                        response.getJobConf().getId() + "-"
+                                + DateUtils.getDateAsString(DateUtils.getDateFromString(response.getScheduleTime(),
+                                        DateUtils.DATE_TIME_FORMAT), DateUtils.MINUTE_TIME_FORMAT))
+                .setJob(JobSubmission.setJobRequest(response.getParameters(),response.getJobConf()))
+                .setCreatorEmail(response.getCreatorEmail())
+                .setCreatorName(response.getCreatorName())
+                .setScheduleTime(DateUtils.getProtobufTime(
+                        DateUtils.getDateFromString(response.getScheduleTime(), DateUtils.DATE_TIME_FORMAT)))
+                .setStartTime(DateUtils.getProtobufTime(
+                        DateUtils.getDateFromString(response.getStartTime(), DateUtils.DATE_TIME_FORMAT)))
+                .setLogPath(response.getLogPath())
+                .setLogUrl(response.getLogUrl())
+                .setRetryTimes(response.getRetryTimes())
+                .setTaskState(response.getTaskState().getCode())
+                .setWorker(response.getWorker()).build();
+        return killRpcRequest;
     }
 
     public void markStatus(ScheduleRequest scheduleRequest, TaskState toState) throws Exception {
@@ -165,30 +189,6 @@ public class SchedulerService {
             }
         }
         return sb.toString();
-    }
-
-    private JobInstanceRequestRpc setRequest(JobInstanceResponse response) {
-        JobInstanceRequestRpc newRpcJobInstanceRequest = JobInstanceRequestRpc.newBuilder()
-                .setApplicationid(response.getApplicationid())
-                .setPid(response.getPid())
-                .setId(response.getId())
-                .setRequestId(
-                        response.getJobConf().getId() + "-"
-                                + DateUtils.getDateAsString(DateUtils.getDateFromString(response.getScheduleTime(),
-                                        DateUtils.DATE_TIME_FORMAT), DateUtils.MINUTE_TIME_FORMAT))
-                .setJob(JobSubmission.setJobRequest(response.getParameters(),response.getJobConf()))
-                .setCreatorEmail(response.getCreatorEmail())
-                .setCreatorName(response.getCreatorName())
-                .setScheduleTime(DateUtils.getProtobufTime(
-                        DateUtils.getDateFromString(response.getScheduleTime(), DateUtils.DATE_TIME_FORMAT)))
-                .setStartTime(DateUtils.getProtobufTime(
-                        DateUtils.getDateFromString(response.getStartTime(), DateUtils.DATE_TIME_FORMAT)))
-                .setLogPath(response.getLogPath())
-                .setLogUrl(response.getLogUrl())
-                .setRetryTimes(response.getRetryTimes())
-                .setTaskState(response.getTaskState().getCode())
-                .setWorker(response.getWorker()).build();
-        return newRpcJobInstanceRequest;
     }
 
     /**

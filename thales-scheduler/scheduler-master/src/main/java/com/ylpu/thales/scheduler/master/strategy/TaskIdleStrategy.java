@@ -56,7 +56,7 @@ public class TaskIdleStrategy implements WorkerSelectStrategy {
             if (runningServers != null && runningServers.size() > 0) {
                 Properties prop = Configuration.getConfig();
                 String key = MessageFormat.format(TASK_LIMTI, groupName.toLowerCase());
-                int taskLimit = Configuration.getInt(prop, key, 200);
+                int taskLimit = Configuration.getInt(prop, key, 100);
                 if(runningServers.get(0).getValue() > taskLimit) {
                     throw new RuntimeException("worker " + runningServers.get(0).getKey() + " running task number exceed " + taskLimit + ", "
                             + "can not get avalilable resource");

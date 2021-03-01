@@ -15,9 +15,10 @@ import com.ylpu.thales.scheduler.core.rpc.service.GrpcJobServiceGrpc;
 import com.ylpu.thales.scheduler.enums.TaskState;
 import com.ylpu.thales.scheduler.master.schedule.JobStatusChecker;
 import com.ylpu.thales.scheduler.master.schedule.JobSubmission;
-
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+import io.grpc.netty.NettyChannelBuilder;
+import io.netty.channel.ChannelOption;
 
 /**
  * async rpc
@@ -43,13 +44,22 @@ public class JobGrpcNonBlockingClient extends AbstractJobGrpcClient {
     public JobGrpcNonBlockingClient(String host, int port) {
         this.host = host;
         this.port = port;
-        channel = ManagedChannelBuilder.forAddress(host, port).usePlaintext().build();
+        
+        channel = NettyChannelBuilder
+                .forTarget(host + ":" + port)
+                .usePlaintext()
+                .enableRetry()
+                .maxRetryAttempts(3)
+                .withOption(ChannelOption.CONNECT_TIMEOUT_MILLIS, (int) TimeUnit.MINUTES.toMillis(5))
+                .build();
+        
+//        channel = ManagedChannelBuilder.forAddress(host, port).usePlaintext().build();
         futureStub = GrpcJobServiceGrpc.newFutureStub(channel);
     }
 
     public void shutdown() {
         try {
-            channel.shutdown().awaitTermination(5, TimeUnit.SECONDS);
+            channel.shutdown().awaitTermination(30, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
             LOG.error(e);
         }

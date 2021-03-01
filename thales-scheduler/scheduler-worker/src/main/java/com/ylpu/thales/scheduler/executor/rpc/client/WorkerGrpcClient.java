@@ -11,6 +11,8 @@ import com.ylpu.thales.scheduler.core.rpc.service.GrpcWorkerServiceGrpc;
 
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+import io.grpc.netty.NettyChannelBuilder;
+import io.netty.channel.ChannelOption;
 
 public class WorkerGrpcClient {
 
@@ -19,12 +21,19 @@ public class WorkerGrpcClient {
     private final GrpcWorkerServiceGrpc.GrpcWorkerServiceBlockingStub blockStub;
 
     public WorkerGrpcClient(String host, int port) {
-        channel = ManagedChannelBuilder.forAddress(host, port).usePlaintext().build();
+//        channel = ManagedChannelBuilder.forAddress(host, port).usePlaintext().build();
+        channel = NettyChannelBuilder
+                .forTarget(host + ":" + port)
+                .usePlaintext()
+                .enableRetry()
+                .maxRetryAttempts(3)
+                .withOption(ChannelOption.CONNECT_TIMEOUT_MILLIS, (int) TimeUnit.MINUTES.toMillis(5))
+                .build();
         blockStub = GrpcWorkerServiceGrpc.newBlockingStub(channel);
     }
 
     public void shutdown() throws InterruptedException {
-        channel.shutdown().awaitTermination(5, TimeUnit.SECONDS);
+        channel.shutdown().awaitTermination(30, TimeUnit.SECONDS);
     }
 
     // public void updateResource(WorkerRequestRpc request){

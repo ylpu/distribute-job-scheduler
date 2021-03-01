@@ -41,9 +41,12 @@ public class WorkerServer {
 
     private static volatile boolean stop = false;
     
+    public static String hostname = "";
+    
     public static int workerServerPort;
 
     public void start() {
+        hostname = MetricsUtils.getHostName();
         Properties prop = Configuration.getConfig();
         workerServerPort = MetricsUtils.getAvailablePort(Configuration.getInt(prop, "thales.worker.server.port", DEFAULT_WORKER_SERVER_PORT));
         long heartBeatInterval = Configuration.getLong(prop, "thales.worker.heartbeat.interval",
@@ -90,7 +93,6 @@ public class WorkerServer {
 
         insertOrUpdateGroup(workerGroup);
 
-        String hostname = MetricsUtils.getHostName();
         String workerPath = GlobalConstants.WORKER_GROUP + "/" + workerGroup + "/" + hostname + ":" + workerServerPort;
         CuratorHelper.createNodeIfNotExist(client, workerPath, CreateMode.EPHEMERAL, null);
         return workerPath;

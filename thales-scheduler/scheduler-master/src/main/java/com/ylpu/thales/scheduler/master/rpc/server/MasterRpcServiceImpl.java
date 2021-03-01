@@ -30,9 +30,10 @@ public class MasterRpcServiceImpl extends GrpcWorkerServiceGrpc.GrpcWorkerServic
             LOG.error(e);
             builder.setErrorCode(500);
             builder.setErrorMsg(e.getMessage());
+        }finally {
+            responseObserver.onNext(builder.build());
+            responseObserver.onCompleted(); 
         }
-        responseObserver.onNext(builder.build());
-        responseObserver.onCompleted();
     }
 
     /**
@@ -48,9 +49,10 @@ public class MasterRpcServiceImpl extends GrpcWorkerServiceGrpc.GrpcWorkerServic
             LOG.error(e);
             builder.setErrorCode(500);
             builder.setErrorMsg(e.getMessage());
+        }finally {
+            responseObserver.onNext(builder.build());
+            responseObserver.onCompleted(); 
         }
-        responseObserver.onNext(builder.build());
-        responseObserver.onCompleted();
     }
 
     /**
@@ -66,9 +68,10 @@ public class MasterRpcServiceImpl extends GrpcWorkerServiceGrpc.GrpcWorkerServic
             LOG.error(e);
             builder.setErrorCode(500);
             builder.setErrorMsg(e.getMessage());
+        }finally {
+            responseObserver.onNext(builder.build());
+            responseObserver.onCompleted(); 
         }
-        responseObserver.onNext(builder.build());
-        responseObserver.onCompleted();
     }
 
     /**

@@ -20,6 +20,7 @@ import com.ylpu.thales.scheduler.enums.TaskState;
 import com.ylpu.thales.scheduler.executor.AbstractCommonExecutor;
 import com.ylpu.thales.scheduler.executor.ExecutorManager;
 import com.ylpu.thales.scheduler.executor.rpc.client.IJobMetric;
+import com.ylpu.thales.scheduler.executor.rpc.client.JobMetricImpl;
 import com.ylpu.thales.scheduler.executor.rpc.client.WorkerGrpcClient;
 import com.ylpu.thales.scheduler.request.JobInstanceRequest;
 import com.ylpu.thales.scheduler.worker.WorkerServer;
@@ -74,7 +75,7 @@ public class WorkerRpcServiceImpl extends GrpcJobServiceGrpc.GrpcJobServiceImplB
         try {
             oldMaster = getActiveMaster();
             // increase task number
-            jobMetric.increaseTask(oldMaster);
+            jobMetric.incOrDecTaskNumber(oldMaster,JobMetricImpl.INC_TASK);
             // run task
             AbstractCommonExecutor executor = getExecutor(requestRpc, request);
             LOG.info("start to pre execute task " + requestRpc.getId());
@@ -114,7 +115,7 @@ public class WorkerRpcServiceImpl extends GrpcJobServiceGrpc.GrpcJobServiceImplB
 
         } finally {
             // decrease task number
-            jobMetric.decreaseTask(oldMaster);
+            jobMetric.incOrDecTaskNumber(oldMaster,JobMetricImpl.DEC_TASK);
             if(statusMap.get(requestRpc.getRequestId()) != TaskState.KILL) {
                 processResponse(responseObserver,builder,jobStatusRequestRpc,oldMaster);
             }
@@ -151,7 +152,7 @@ public class WorkerRpcServiceImpl extends GrpcJobServiceGrpc.GrpcJobServiceImplB
             jobStatusRequestRpc = buildJobStatusRequestRpc(requestRpc, TaskState.KILL,
                     request);
             // decrease task number
-            jobMetric.decreaseTask(oldMaster);
+            jobMetric.incOrDecTaskNumber(oldMaster,JobMetricImpl.DEC_TASK);
         } catch (Exception e) {
             LOG.error("fail to transit task " + requestRpc.getId() + " to kill with exception "+ e);
             builder.setTaskState(TaskState.RUNNING.getCode())
@@ -291,7 +292,7 @@ public class WorkerRpcServiceImpl extends GrpcJobServiceGrpc.GrpcJobServiceImplB
         request.setPid(requestRpc.getPid());
         request.setRetryTimes(requestRpc.getRetryTimes());
         request.setTaskState(requestRpc.getTaskState());
-        request.setWorker(MetricsUtils.getHostName() + ":" + WorkerServer.workerServerPort);
+        request.setWorker(WorkerServer.hostname + ":" + WorkerServer.workerServerPort);
         request.setJobId(requestRpc.getJob().getId());
         request.setId(requestRpc.getId());
     }
