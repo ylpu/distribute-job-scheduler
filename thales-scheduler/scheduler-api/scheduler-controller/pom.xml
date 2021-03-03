@@ -158,7 +158,7 @@
                         <configuration>
                             <encoding>UTF-8</encoding>
                             <!-- ${project.build.outputDirectory} 为构建过程输出目录，缺省为target/classes -->
-                            <outputDirectory>${project.build.directory}/../config</outputDirectory>
+                            <outputDirectory>${project.build.directory}/../../config</outputDirectory>
                             <resources>
                                 <resource>
                                     <!-- 需要拷贝的资源文件位置 -->
@@ -180,7 +180,7 @@
                         <configuration>
                             <encoding>UTF-8</encoding>
                             <!-- ${project.build.outputDirectory} 为构建过程输出目录，缺省为target/classes -->
-                            <outputDirectory>${project.build.directory}/../bin</outputDirectory>
+                            <outputDirectory>${project.build.directory}/../../bin</outputDirectory>
                             <resources>
                                 <resource>
                                     <!-- 需要拷贝的资源文件位置 -->
