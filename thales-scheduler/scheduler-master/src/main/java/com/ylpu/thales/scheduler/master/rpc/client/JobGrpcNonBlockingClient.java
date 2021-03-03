@@ -66,24 +66,10 @@ public class JobGrpcNonBlockingClient extends AbstractJobGrpcClient {
     }
 
     public void submitJob(JobInstanceRequestRpc rpcRequest){
-        try {
-            LOG.info("prepare to submit task " + rpcRequest.getRequestId() + " to host  " + host + ":" + port);
-            ListenableFuture<JobInstanceResponseRpc> future = futureStub.submit(rpcRequest);
-            // async callback
-            addCallBack(future, executorService, rpcRequest);
-        }catch(Exception e) {
-            LOG.error("fail to submit task " + rpcRequest.getId() + " with exception " + e.getMessage());
-            try {
-                transitTaskStatus(rpcRequest, TaskState.FAIL.getCode());
-                JobInstanceResponseRpc responseRpc = JobSubmission.buildResponse(rpcRequest.getRequestId(), TaskState.FAIL.getCode());
-                JobStatusChecker.addResponse(responseRpc);
-            } catch (Exception e1) {
-                LOG.error(e); 
-            } finally {
-                shutdown();
-            }
-            rerunIfNeeded(rpcRequest);
-        }
+        LOG.info("prepare to submit task " + rpcRequest.getRequestId() + " to host  " + host + ":" + port);
+        ListenableFuture<JobInstanceResponseRpc> future = futureStub.submit(rpcRequest);
+        // async callback
+        addCallBack(future, executorService, rpcRequest);
     }
 
     private void addCallBack(ListenableFuture<JobInstanceResponseRpc> future, ListeningExecutorService executorService,
@@ -95,11 +81,11 @@ public class JobGrpcNonBlockingClient extends AbstractJobGrpcClient {
                 try {
                     transitTaskStatus(rpcRequest, result.getTaskState());
                     JobStatusChecker.addResponse(result);
-                    //remove request after execute successful
-                    JobStatusChecker.getJobInstanceRequestMap().remove(rpcRequest.getRequestId());
                 } catch (Exception e) {
                     LOG.error(e);
                 } finally {
+                    //remove request after execute successful
+                    JobStatusChecker.getJobInstanceRequestMap().remove(rpcRequest.getRequestId());
                     shutdown();
                 }
                 if(result.getTaskState() == TaskState.FAIL.getCode()) {
@@ -114,11 +100,11 @@ public class JobGrpcNonBlockingClient extends AbstractJobGrpcClient {
                     transitTaskStatus(rpcRequest, TaskState.FAIL.getCode());
                     JobInstanceResponseRpc rpcResponse = JobSubmission.buildResponse(rpcRequest.getRequestId(), TaskState.FAIL.getCode());
                     JobStatusChecker.addResponse(rpcResponse);
-                    //remove request after execute fail
-                    JobStatusChecker.getJobInstanceRequestMap().remove(rpcRequest.getRequestId());
                 } catch (Exception e) {
                     LOG.error("failed to update task " + rpcRequest.getRequestId() + " status to fail after callback",e);
                 } finally {
+                    //remove request after execute fail
+                    JobStatusChecker.getJobInstanceRequestMap().remove(rpcRequest.getRequestId());
                     shutdown();
                 }
                 rerunIfNeeded(rpcRequest);

@@ -162,13 +162,25 @@ public class JobSubmission {
                     try {
                         LOG.info("job " + taskCall.getRpcRequest().getId() + " start to get worker at " + DateUtils.getDateAsString(new Date(),DateUtils.TIME_FORMAT));
                         NodeResponse worker = getAvailableWorker(taskCall.getRpcRequest());
-                        client = getClient(worker,taskCall.getGrpcType()); 
-                        try {
-                            LOG.info("job " + taskCall.getRpcRequest().getId() + " start to submit to worker at " + DateUtils.getDateAsString(new Date(),DateUtils.TIME_FORMAT));
-                            client.submitJob(taskCall.getRpcRequest());
-                            LOG.info("job " + taskCall.getRpcRequest().getId() + " finish submit to worker at " + DateUtils.getDateAsString(new Date(),DateUtils.TIME_FORMAT)); 
-                        }catch(Exception e) {
-                            LOG.error("fail to submit job " + taskCall.getRpcRequest().getId() + " with exception " + e);
+                        if(worker != null) {
+                            client = getClient(worker,taskCall.getGrpcType()); 
+                            try {
+                                LOG.info("job " + taskCall.getRpcRequest().getId() + " start to submit to worker at " + DateUtils.getDateAsString(new Date(),DateUtils.TIME_FORMAT));
+                                client.submitJob(taskCall.getRpcRequest());
+                                LOG.info("job " + taskCall.getRpcRequest().getId() + " finish submit to worker at " + DateUtils.getDateAsString(new Date(),DateUtils.TIME_FORMAT)); 
+                            }catch(Exception e) {
+                                LOG.error("fail to submit job " + taskCall.getRpcRequest().getId() + " with exception " + e);
+                            }
+                        }
+                        // cancel waiting resource, transit task status to fail
+                        else {
+                            try {
+                                transitTaskStatus(taskCall.getRpcRequest(),TaskState.FAIL);
+                            } catch (Exception e) {
+                                LOG.error("fail to transit task " + taskCall.getRpcRequest().getId() + " to fail with exception " + e);
+                            } finally {
+                                JobStatusChecker.getJobInstanceRequestMap().remove(taskCall.getRpcRequest().getRequestId());
+                            }
                         }
                     }finally {
                         if (taskCall.getGrpcType() == GrpcType.SYNC) {
@@ -244,13 +256,13 @@ public class JobSubmission {
                             setAlertEvent(event, jobInstanceResponse);
                             try {
                                 eventBus.post(event);
-//                              avoid duplicate send
-                                JobStatusChecker.getMailMap().put(taskCall.getRpcRequest().getRequestId(), 
-                                        taskCall.getRpcRequest().getRequestId()); 
-                                timeoutQueue.remove(taskCall);
                             }catch(Exception e) {
                                 LOG.error("fail to send email for task " + taskCall.getRpcRequest().getId() + " with exception " + e.getMessage());
                             }
+//                          avoid duplicate send
+                            JobStatusChecker.getMailMap().put(taskCall.getRpcRequest().getRequestId(), 
+                                    taskCall.getRpcRequest().getRequestId());
+                            timeoutQueue.remove(taskCall);
                         }
                     }catch(Exception e) {
                         LOG.error("failed to get task " + taskCall.getRpcRequest().getId() + " with exception " + e.getMessage());

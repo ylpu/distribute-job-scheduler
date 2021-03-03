@@ -28,8 +28,8 @@ public class JobStatusChecker {
     private static volatile boolean stop = false;
     // key is task id,value task information
     private static Map<String, JobInstanceRequestRpc> jobInstanceRequestMap = new ConcurrentHashMap<String, JobInstanceRequestRpc>();
-//    lru avoid out of memory
-    private static LRU<String, JobInstanceResponseRpc> responses = new LRU<String, JobInstanceResponseRpc>(5000000);
+    // lru avoid out of memory
+    private static LRU<String, JobInstanceResponseRpc> responseMap = new LRU<String, JobInstanceResponseRpc>(5000000);
     // key is dependency task list,value is task id
     private static Map<List<JobDependency>, String> dependsMap = new ConcurrentHashMap<List<JobDependency>, String>();
     
@@ -61,11 +61,11 @@ public class JobStatusChecker {
     }
 
     public static void addResponse(JobInstanceResponseRpc response) {
-        responses.put(response.getResponseId(), response);
+        responseMap.put(response.getResponseId(), response);
     }
 
     public static JobInstanceResponseRpc getResponse(String id) {
-        return responses.get(id);
+        return responseMap.get(id);
     }
 
     public static void addDepends(List<JobDependency> key, String value) {
@@ -84,8 +84,8 @@ public class JobStatusChecker {
         return jobInstanceRequestMap;
     }
 
-    public static LRU<String, JobInstanceResponseRpc> getResponses() {
-        return responses;
+    public static LRU<String, JobInstanceResponseRpc> getResponseMap() {
+        return responseMap;
     }
 
     public static Map<List<JobDependency>, String> getDepends() {
@@ -113,8 +113,8 @@ public class JobStatusChecker {
                     int successfulJobs = 0;
                     List<JobDependency> list = entry.getKey();
                     for (JobDependency jobDependency : list) {
-                        if (responses.get().containsKey(jobDependency.toString())) {
-                            JobInstanceResponseRpc response = responses.get(jobDependency.toString());
+                        if (responseMap.get().containsKey(jobDependency.toString())) {
+                            JobInstanceResponseRpc response = responseMap.get(jobDependency.toString());
                             if (response.getTaskState() == TaskState.SUCCESS.getCode()) {
                                 successfulJobs++;
                             }
@@ -125,12 +125,12 @@ public class JobStatusChecker {
                     if (successfulJobs == list.size() || isRootJob(list)) {
                          dependsMap.remove(entry.getKey());
                          LOG.info("parent job " + entry.getKey() + " has finished, will add job " + requestId + " to queue");
-//                       transit task status to queue，add more thread if there are too many jobs running at some time
+//                       transit task status to queue
                          transitToQueue(rpcRequest,requestId);
                     }else {
                         LOG.info("job " + requestId + " is waiting for dependency jobs to finish" + entry.getKey());
-//                        transit task status to waiting dependency,add more thread if there are too many long waiting dependency jobs
-                        transitToWaitingDependency(rpcRequest,requestId);
+//                        transit task status to waiting dependency
+                        transitToWaitingDependency(rpcRequest,requestId, entry.getKey());
                     }
                 }
                 try {
@@ -153,15 +153,17 @@ public class JobStatusChecker {
                     } catch (Exception e) {
                         LOG.error("failed to transit task " + rpcRequest.getId() + 
                                 " to " + TaskState.QUEUED.toString() + " with exception "+ e.getMessage());
+                        jobInstanceRequestMap.remove(requestId);
                     }
                  }
              });
         }
         
-        private void transitToWaitingDependency(JobInstanceRequestRpc rpcRequest,String requestId) {
+        private void transitToWaitingDependency(JobInstanceRequestRpc rpcRequest,String requestId, List<JobDependency> depends) {
             dependencyThreadPool.execute(new Runnable() {
                 @Override
                 public void run() {
+                    //avoid duplicate transit task status to waiting dependency
                     if(!jobDependStatusMap.containsKey(requestId)) {
                         try {
                             transitTaskStatus(rpcRequest.getId(),TaskState.WAITING_DEPENDENCY);
@@ -170,6 +172,8 @@ public class JobStatusChecker {
                         } catch (Exception e) {
                             LOG.error("failed to transit task " + rpcRequest.getId() + 
                                     " to " +  TaskState.WAITING_DEPENDENCY.toString() + " with exception " + e.getMessage());
+                            dependsMap.remove(depends);
+                            jobInstanceRequestMap.remove(requestId);
                         } 
                     }
                 }

@@ -141,7 +141,7 @@ public class SchedulerService {
             killJob(jobInstanceResponse.getId());
         }else if(jobInstanceResponse.getTaskState() == TaskState.FAIL || jobInstanceResponse.getTaskState() == TaskState.SUCCESS
                 || jobInstanceResponse.getTaskState() == TaskState.KILL) {
-            JobStatusChecker.getResponses().remove(responseId);
+            JobStatusChecker.getResponseMap().remove(responseId);
         }
     }
     
